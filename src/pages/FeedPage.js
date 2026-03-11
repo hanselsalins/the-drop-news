@@ -77,7 +77,7 @@ export default function FeedPage() {
   const fetchCountries = useCallback(async () => {
     try {
       const res = await axios.get(`${BACKEND_URL}/api/countries`);
-      setCountries(res.data);
+      setCountries(Array.isArray(res.data) ? res.data : []);
     } catch (e) {}
   }, []);
 
