@@ -4,7 +4,7 @@ import { useTheme } from '../contexts/ThemeContext';
 import { motion } from 'framer-motion';
 import axios from 'axios';
 
-const BACKEND_URL = process.env.REACT_APP_BACKEND_URL;
+const BACKEND_URL = import.meta.env.VITE_BACKEND_URL;
 
 const groupStyles = {
   '8-10': {

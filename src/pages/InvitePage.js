@@ -4,7 +4,7 @@ import { motion } from 'framer-motion';
 import { Flame, ArrowRight, Zap } from 'lucide-react';
 import axios from 'axios';
 
-const BACKEND_URL = process.env.REACT_APP_BACKEND_URL;
+const BACKEND_URL = import.meta.env.VITE_BACKEND_URL;
 
 const RANK_COLORS = {
   'Curious': '#888', 'Informed': '#3A86FF', 'Switched On': '#CCFF00',
