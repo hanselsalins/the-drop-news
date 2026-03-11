@@ -3,7 +3,7 @@ import { useTheme } from '../contexts/ThemeContext';
 import { Bell, BellOff } from 'lucide-react';
 import axios from 'axios';
 
-const BACKEND_URL = process.env.REACT_APP_BACKEND_URL;
+const BACKEND_URL = import.meta.env.VITE_BACKEND_URL;
 
 const TOGGLES = [
   { key: 'streak_reminders', label: 'Streak Reminders', desc: 'Get reminded at 6 PM if you haven\'t read today' },

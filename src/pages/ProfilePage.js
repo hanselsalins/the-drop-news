@@ -8,7 +8,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { LogOut, MapPin, Calendar, Globe, Flame, BookOpen, Trophy, Zap, Heart, Users, ChevronDown, Edit3, Check, Search, UserPlus, Crown, Link, Copy, X } from 'lucide-react';
 import axios from 'axios';
 
-const BACKEND_URL = process.env.REACT_APP_BACKEND_URL;
+const BACKEND_URL = import.meta.env.VITE_BACKEND_URL;
 
 const RANK_COLORS = {
   'Curious': '#888',

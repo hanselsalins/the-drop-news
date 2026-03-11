@@ -11,7 +11,7 @@ import { motion } from 'framer-motion';
 import { Loader2, RefreshCw, Globe } from 'lucide-react';
 import axios from 'axios';
 
-const BACKEND_URL = process.env.REACT_APP_BACKEND_URL;
+const BACKEND_URL = import.meta.env.VITE_BACKEND_URL;
 
 export default function FeedPage() {
   const { ageGroup, themeMode, user, token } = useTheme();

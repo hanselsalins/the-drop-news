@@ -5,7 +5,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { ArrowRight, ArrowLeft, Eye, EyeOff, Mail, Lock, User, MapPin, ChevronDown, Check, Shield, Sparkles } from 'lucide-react';
 import axios from 'axios';
 
-const BACKEND_URL = process.env.REACT_APP_BACKEND_URL;
+const BACKEND_URL = import.meta.env.VITE_BACKEND_URL;
 
 const AVATAR_SEEDS = ['', '-star', '-moon', '-sun', '-fire', '-wave', '-leaf', '-gem'];
 const getAvatarUrl = (seed) => `https://api.dicebear.com/9.x/adventurer/svg?seed=${seed}`;
