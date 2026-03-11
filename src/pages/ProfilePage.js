@@ -64,7 +64,7 @@ export default function ProfilePage() {
   useEffect(() => {
     if (!token) return;
     axios.get(`${BACKEND_URL}/api/profile/stats`, { headers }).then(r => setStats(r.data)).catch(() => {});
-    axios.get(`${BACKEND_URL}/api/countries`).then(r => setCountries(r.data)).catch(() => {});
+    axios.get(`${BACKEND_URL}/api/countries`).then(r => setCountries(Array.isArray(r.data) ? r.data : [])).catch(() => {});
     axios.get(`${BACKEND_URL}/api/friends`, { headers }).then(r => setFriends(r.data)).catch(() => {});
     axios.get(`${BACKEND_URL}/api/friends/requests`, { headers }).then(r => setFriendRequests(r.data)).catch(() => {});
     axios.get(`${BACKEND_URL}/api/friends/leaderboard`, { headers }).then(r => {
