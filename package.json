@@ -64,10 +64,9 @@
   },
   "scripts": {
     "start": "craco start",
-    "dev": "vite",
-    "build": "vite build",
-    "test": "craco test",
-    "preview": "vite preview"
+    "dev": "craco start",
+    "build": "craco build",
+    "test": "craco test"
   },
   "browserslist": {
     "production": [
