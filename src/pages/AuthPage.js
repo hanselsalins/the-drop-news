@@ -144,7 +144,7 @@ function FlowA({ setPhase, setToken, setUserData, navigate, error, setError, con
   const u = (k, v) => { setForm(p => ({ ...p, [k]: v })); setError(''); };
 
   useEffect(() => {
-    axios.get(`${BACKEND_URL}/api/countries`).then(r => setCountries(r.data)).catch(() => {});
+    axios.get(`${BACKEND_URL}/api/countries`).then(r => setCountries(Array.isArray(r.data) ? r.data : [])).catch(() => {});
   }, []);
 
   const selectCountry = (c) => {
@@ -376,7 +376,7 @@ function FlowB({ setPhase, setToken, setUserData, navigate, error, setError, con
   const u = (k, v) => { setForm(p => ({ ...p, [k]: v })); setError(''); };
 
   useEffect(() => {
-    axios.get(`${BACKEND_URL}/api/countries`).then(r => setCountries(r.data)).catch(() => {});
+    axios.get(`${BACKEND_URL}/api/countries`).then(r => setCountries(Array.isArray(r.data) ? r.data : [])).catch(() => {});
   }, []);
 
   const selectCountry = (c) => {
