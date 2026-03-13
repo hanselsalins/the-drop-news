@@ -20,6 +20,9 @@ import json as json_module
 import re
 import string
 import random
+from apscheduler.schedulers.asyncio import AsyncIOScheduler
+from apscheduler.triggers.cron import CronTrigger
+from apscheduler.triggers.interval import IntervalTrigger
 
 ROOT_DIR = Path(__file__).parent
 load_dotenv(ROOT_DIR / '.env')
@@ -2146,7 +2149,70 @@ async def update_system_prompt(prompt_id: str, body: PromptUpdate):
     return await db.system_prompts.find_one({"id": prompt_id}, {"_id": 0})
 
 
+# ========== HEALTH CHECK ==========
+@app.get("/health")
+async def health_check():
+    count = await db.articles.estimated_document_count()
+    return {
+        "status": "ok",
+        "timestamp": datetime.now(timezone.utc).isoformat(),
+        "articles_count": count,
+        "version": "1.0.0",
+    }
+
+
+# ========== SCHEDULED JOB FUNCTIONS ==========
+async def job_crawl_all_countries():
+    logger.info("[Scheduler] job_crawl_all_countries: starting")
+    try:
+        for cc in ["IN", "US", "GB", "AU", "AE"]:
+            added = await crawl_rss_feeds(country_code=cc)
+            logger.info(f"[Scheduler] Crawled {cc}: {added} new articles")
+    except Exception as e:
+        logger.error(f"[Scheduler] job_crawl_all_countries failed: {e}")
+
+
+async def job_rewrite_pending():
+    logger.info("[Scheduler] job_rewrite_pending: processing all age groups")
+    try:
+        for ag in ["8-10", "11-13", "14-16", "17-20"]:
+            await rewrite_pending_articles(ag)
+    except Exception as e:
+        logger.error(f"[Scheduler] job_rewrite_pending failed: {e}")
+
+
+async def job_generate_todays_drop_all_users():
+    logger.info("[Scheduler] job_generate_todays_drop_all_users: starting")
+    try:
+        users = await db.users.find({}, {"_id": 0, "id": 1, "country": 1, "age_group": 1}).to_list(10000)
+        generated = 0
+        for user in users:
+            ag = user.get("age_group", "14-16")
+            try:
+                country_doc = None
+                if user.get("country"):
+                    country_doc = await db.global_sources.find_one(
+                        {"country_name": {"$regex": f"^{user['country']}$", "$options": "i"}},
+                        {"_id": 0, "country_code": 1}
+                    )
+                cc = country_doc["country_code"] if country_doc else ""
+                await _get_or_generate_todays_drop(ag, user, cc)
+                generated += 1
+            except Exception as e:
+                logger.error(f"[Scheduler] Drop gen failed for user {user.get('id', '?')}: {e}")
+        logger.info(f"[Scheduler] Today's Drop generated for {generated}/{len(users)} users")
+    except Exception as e:
+        logger.error(f"[Scheduler] job_generate_todays_drop_all_users failed: {e}")
+
+
+async def job_health_ping():
+    count = await db.articles.estimated_document_count()
+    logger.info(f"[Scheduler] server alive — articles in DB: {count}")
+
+
 # ========== STARTUP ==========
+scheduler = AsyncIOScheduler(timezone="UTC")
+
 @app.on_event("startup")
 async def startup_event():
     # Ensure indexes
@@ -2169,11 +2235,22 @@ async def startup_event():
         logger.info("No articles. Triggering initial crawl in background...")
         asyncio.create_task(_initial_crawl())
     else:
-        # Generate micro-facts if none exist today
         today = today_str()
         facts_count = await db.micro_facts.count_documents({"date": today})
         if facts_count == 0:
             asyncio.create_task(generate_micro_facts("14-16"))
+
+    # Register and start APScheduler — after DB is ready
+    scheduler.add_job(job_crawl_all_countries,   IntervalTrigger(hours=3),          id="crawl_all_countries",         replace_existing=True)
+    scheduler.add_job(job_rewrite_pending,        IntervalTrigger(minutes=60),       id="rewrite_pending",             replace_existing=True)
+    scheduler.add_job(job_generate_todays_drop_all_users, CronTrigger(hour=0, minute=0, timezone="UTC"), id="todays_drop_all_users", replace_existing=True)
+    scheduler.add_job(job_health_ping,            IntervalTrigger(minutes=5),        id="health_ping",                 replace_existing=True)
+    scheduler.start()
+
+    jobs = scheduler.get_jobs()
+    logger.info(f"APScheduler started with {len(jobs)} jobs:")
+    for j in jobs:
+        logger.info(f"  [{j.id}]  next run: {j.next_run_time}")
 
 
 async def _initial_crawl():
@@ -2198,4 +2275,7 @@ app.add_middleware(
 
 @app.on_event("shutdown")
 async def shutdown_db_client():
+    if scheduler.running:
+        scheduler.shutdown(wait=False)
+        logger.info("APScheduler shut down.")
     client.close()
