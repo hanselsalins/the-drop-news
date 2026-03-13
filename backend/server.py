@@ -557,7 +557,8 @@ Return ONLY valid JSON, no markdown, no code blocks.{confidence_instruction}"""
 
             model = os.environ.get("OPENAI_MODEL_DEFAULT", "gpt-4o-mini")
 
-            response = openai_client.chat.completions.create(
+            response = await asyncio.to_thread(
+                openai_client.chat.completions.create,
                 model=model,
                 messages=[
                     {
@@ -628,7 +629,8 @@ No markdown, no code blocks. Just the JSON array."""
 
         model = os.environ.get("OPENAI_MODEL_DEFAULT", "gpt-4o-mini")
 
-        response = openai_client.chat.completions.create(
+        response = await asyncio.to_thread(
+            openai_client.chat.completions.create,
             model=model,
             messages=[
                 {
@@ -746,7 +748,8 @@ async def crawl_rss_feeds(country_code: str = None):
                                 "Reply with only the single category word, nothing else."
                             ).format(title=title.replace("'", "\\'"))
 
-                            response = openai_client.chat.completions.create(
+                            response = await asyncio.to_thread(
+                                openai_client.chat.completions.create,
                                 model=model,
                                 messages=[
                                     {
