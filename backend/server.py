@@ -3,6 +3,7 @@ from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
 from dotenv import load_dotenv
 from starlette.middleware.cors import CORSMiddleware
 from motor.motor_asyncio import AsyncIOMotorClient
+from pymongo.errors import DuplicateKeyError
 from openai import OpenAI
 import os
 import logging
@@ -576,6 +577,8 @@ Return ONLY valid JSON, no markdown, no code blocks.{confidence_instruction}"""
                 if clean.endswith("```"):
                     clean = clean[:-3]
                 clean = clean.strip()
+            # Fix invalid escape sequences OpenAI occasionally emits (e.g. \' or \-)
+            clean = re.sub(r'\\(?!["\\/bfnrtu])', r'\\\\', clean)
             result = json_module.loads(clean)
 
             # Handle low_confidence_flag for Urdu/Bangla
@@ -786,9 +789,10 @@ async def crawl_rss_feeds(country_code: str = None):
                         "reaction_counts": {},
                     })
                     articles_added += 1
+            except DuplicateKeyError:
+                pass  # Article already exists — unique index working as intended
             except Exception as e:
                 logger.error(f"Error crawling {src['name']} ({rss_url}): {e}")
-                # Mark as pending_review if first-time failure
                 if src.get("status") == "active":
                     await db.global_sources.update_one(
                         {"country_code": country["country_code"], "sources.name": src["name"]},
@@ -1780,6 +1784,8 @@ async def get_articles(category: Optional[str] = None, age_group: str = "14-16",
     if effective_country:
         query["source_country"] = effective_country.upper()
 
+    # Only return articles that have been rewritten for the requested age group
+    query[f"rewrites.{age_group}"] = {"$exists": True}
     # Sort by engagement (reaction total) + recency
     cursor = db.articles.find(query, {"_id": 0, "original_content": 0}).sort("crawled_at", -1).limit(limit)
     articles = await cursor.to_list(limit)
