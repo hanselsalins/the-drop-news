@@ -4,28 +4,46 @@ import { useTheme } from '../contexts/ThemeContext';
 import { BottomNav } from '../components/BottomNav';
 import { ReactionBar } from '../components/ReactionBar';
 import { motion } from 'framer-motion';
-import { ArrowLeft, ExternalLink, Share2, Clock, Tag } from 'lucide-react';
+import { ChevronLeft, ExternalLink, Share2, Clock } from 'lucide-react';
 import axios from 'axios';
 
 const BACKEND_URL = import.meta.env.VITE_BACKEND_URL;
 
+const CATEGORY_COLORS = {
+  world: '#3B82F6',
+  science: '#10B981',
+  sports: '#F97316',
+  tech: '#8B5CF6',
+  environment: '#14B8A6',
+  'weird & wonderful': '#F59E0B',
+  weird: '#F59E0B',
+  entertainment: '#EC4899',
+  money: '#F59E0B',
+  history: '#F97316',
+  local: '#14B8A6',
+};
+
 const CATEGORY_LABELS = {
-  world: "What's Happening",
-  science: "Science & Discovery",
-  money: "Money & Economy",
-  history: "History in the Making",
+  world: "World",
+  science: "Science",
+  sports: "Sports",
+  tech: "Tech",
+  environment: "Environment",
+  'weird & wonderful': "Weird & Wonderful",
+  weird: "Weird & Wonderful",
   entertainment: "Entertainment",
-  local: "In Your City",
+  money: "Money",
+  history: "History",
+  local: "Local",
 };
 
 export default function ArticlePage() {
   const { id } = useParams();
   const navigate = useNavigate();
-  const { ageGroup, themeMode, token } = useTheme();
+  const { ageGroup, token } = useTheme();
   const [article, setArticle] = useState(null);
   const [loading, setLoading] = useState(true);
 
-  const isKids = themeMode === 'kids';
   const headers = token ? { Authorization: `Bearer ${token}` } : {};
 
   useEffect(() => {
@@ -43,7 +61,6 @@ export default function ArticlePage() {
     fetchArticle();
   }, [id, ageGroup]);
 
-  // Record read for streak
   useEffect(() => {
     if (!token || !article) return;
     axios.post(`${BACKEND_URL}/api/streak/read`, {}, { headers }).catch(() => {});
@@ -60,23 +77,19 @@ export default function ArticlePage() {
     }
   };
 
-  const bgColor = isKids ? '#F0F4F8' : '#000000';
-  const textColor = isKids ? '#1A1A1A' : '#EDEDED';
-  const subColor = isKids ? '#666' : '#888';
-
   if (loading) {
     return (
-      <div className="min-h-screen flex items-center justify-center" style={{ background: bgColor }}>
+      <div className="min-h-screen flex items-center justify-center" style={{ background: '#0A0E1A' }}>
         <div className="w-8 h-8 rounded-full border-2 border-t-transparent animate-spin"
-          style={{ borderColor: isKids ? '#3A86FF' : '#CCFF00', borderTopColor: 'transparent' }} />
+          style={{ borderColor: '#3B82F6', borderTopColor: 'transparent' }} />
       </div>
     );
   }
 
   if (!article) {
     return (
-      <div className="min-h-screen flex items-center justify-center" style={{ background: bgColor }}>
-        <p style={{ color: textColor }}>Article not found.</p>
+      <div className="min-h-screen flex items-center justify-center" style={{ background: '#0A0E1A' }}>
+        <p style={{ color: '#CBD5E1', fontFamily: 'Outfit, sans-serif' }}>Article not found.</p>
       </div>
     );
   }
@@ -87,81 +100,85 @@ export default function ArticlePage() {
   const summary = rw?.summary || '';
   const readingTime = rw?.reading_time || '2 min';
   const wonderQuestion = rw?.wonder_question || '';
+  const catColor = CATEGORY_COLORS[article.category] || '#3B82F6';
 
   return (
-    <div data-testid="article-page" className="min-h-screen pb-24" style={{ background: bgColor }}>
+    <div data-testid="article-page" className="min-h-screen pb-28" style={{ background: '#0A0E1A' }}>
       {/* Hero Image */}
       <div className="relative">
         <div className="aspect-video w-full overflow-hidden">
           <img src={article.image_url} alt={title} className="w-full h-full object-cover"
-            onError={(e) => { e.target.style.background = isKids ? '#FFD60A' : '#121212'; e.target.src = ''; }} />
+            onError={(e) => { e.target.style.background = '#111827'; e.target.src = ''; }} />
         </div>
         <div className="absolute inset-0" style={{
-          background: isKids
-            ? 'linear-gradient(to top, rgba(240,244,248,1) 0%, transparent 60%)'
-            : 'linear-gradient(to top, #000 0%, transparent 60%)',
+          background: 'linear-gradient(to top, #0A0E1A 0%, rgba(10,14,26,0.5) 50%, transparent 80%)',
         }} />
         <button data-testid="back-btn" onClick={() => navigate(-1)}
-          className="absolute top-4 left-4 p-2 rounded-full z-10"
-          style={{ background: isKids ? 'rgba(255,255,255,0.9)' : 'rgba(0,0,0,0.6)', backdropFilter: 'blur(10px)' }}>
-          <ArrowLeft size={20} style={{ color: isKids ? '#1A1A1A' : '#FAFAFA' }} />
+          className="absolute top-4 left-4 p-2.5 rounded-2xl z-10"
+          style={{ background: 'rgba(10,14,26,0.7)', backdropFilter: 'blur(10px)', border: '1px solid rgba(255,255,255,0.08)' }}>
+          <ChevronLeft size={22} style={{ color: '#F1F5F9' }} />
         </button>
         <button data-testid="share-btn" onClick={handleShare}
-          className="absolute top-4 right-4 p-2 rounded-full z-10"
-          style={{ background: isKids ? 'rgba(255,255,255,0.9)' : 'rgba(0,0,0,0.6)', backdropFilter: 'blur(10px)' }}>
-          <Share2 size={20} style={{ color: isKids ? '#1A1A1A' : '#FAFAFA' }} />
+          className="absolute top-4 right-4 p-2.5 rounded-2xl z-10"
+          style={{ background: 'rgba(10,14,26,0.7)', backdropFilter: 'blur(10px)', border: '1px solid rgba(255,255,255,0.08)' }}>
+          <Share2 size={20} style={{ color: '#F1F5F9' }} />
         </button>
       </div>
 
       {/* Content */}
       <motion.div initial={{ y: 20, opacity: 0 }} animate={{ y: 0, opacity: 1 }} transition={{ duration: 0.4 }}
-        className="px-5 -mt-8 relative z-10">
+        className="px-5 -mt-10 relative z-10">
 
-        {/* Category Badge */}
-        <span className="inline-block px-3 py-1 rounded-full text-xs font-bold tracking-wider uppercase mb-3"
-          style={{ fontFamily: 'JetBrains Mono, monospace', background: isKids ? '#3A86FF' : '#CCFF00', color: isKids ? '#fff' : '#050505' }}>
+        {/* Category pill */}
+        <span className="inline-block px-3.5 py-1.5 rounded-full text-[11px] font-bold tracking-wider uppercase mb-4"
+          style={{
+            fontFamily: 'Outfit, sans-serif',
+            background: catColor,
+            color: ['#F59E0B', '#10B981', '#14B8A6'].includes(catColor) ? '#0A0E1A' : '#fff',
+            boxShadow: `0 2px 16px ${catColor}44`,
+          }}>
           {CATEGORY_LABELS[article.category] || article.category}
         </span>
 
         {/* Title */}
-        <h1 className="text-3xl md:text-4xl font-bold tracking-tight leading-tight mb-3"
-          style={{ fontFamily: isKids ? 'Fredoka, sans-serif' : 'Syne, sans-serif', color: textColor }}>
+        <h1 className="text-[28px] md:text-[32px] font-bold tracking-tight leading-tight mb-4"
+          style={{ fontFamily: 'Fredoka, sans-serif', color: '#F1F5F9' }}>
           {title}
         </h1>
 
-        {/* Meta with Source Logo */}
-        <div className="flex items-center gap-3 mb-5" style={{ color: subColor }}>
+        {/* Meta */}
+        <div className="flex items-center gap-3 mb-6">
           {article.source_logo && (
             <img src={article.source_logo} alt={article.source}
-              className="w-5 h-5 rounded object-contain"
+              className="w-5 h-5 rounded object-contain opacity-60"
               onError={(e) => { e.target.style.display = 'none'; }} />
           )}
-          <div className="flex items-center gap-1.5 text-sm" style={{ fontFamily: 'Outfit, sans-serif' }}>
-            <Tag size={14} />
-            <span>{article.source}</span>
-          </div>
-          <div className="flex items-center gap-1.5 text-sm" style={{ fontFamily: 'Outfit, sans-serif' }}>
+          <span className="text-sm" style={{ fontFamily: 'Outfit, sans-serif', color: '#64748B' }}>
+            {article.source}
+          </span>
+          <div className="flex items-center gap-1.5 text-sm" style={{ color: '#475569' }}>
             <Clock size={14} />
-            <span>{readingTime} read</span>
+            <span style={{ fontFamily: 'Outfit, sans-serif' }}>{readingTime} read</span>
           </div>
         </div>
 
         {/* Summary */}
         {summary && (
-          <div className="p-4 rounded-xl mb-6" style={{
-            background: isKids ? 'rgba(58,134,255,0.08)' : 'rgba(204,255,0,0.06)',
-            border: isKids ? '1px solid rgba(58,134,255,0.2)' : '1px solid rgba(204,255,0,0.15)',
+          <div className="p-5 rounded-2xl mb-6" style={{
+            background: '#111827',
+            border: '1px solid rgba(255,255,255,0.06)',
+            boxShadow: '0 4px 24px rgba(0,0,0,0.2)',
           }}>
             <p className="text-base font-medium leading-relaxed"
-              style={{ fontFamily: 'Outfit, sans-serif', color: textColor }}>
+              style={{ fontFamily: 'Outfit, sans-serif', color: '#E2E8F0' }}>
               {summary}
             </p>
           </div>
         )}
 
         {/* Body */}
-        <div className="text-base leading-relaxed space-y-4"
-          style={{ fontFamily: 'Outfit, sans-serif', color: textColor }}>
+        <div className="text-base leading-[1.8] space-y-4"
+          style={{ fontFamily: 'Outfit, sans-serif', color: '#CBD5E1' }}>
           {body.split('\n').filter(Boolean).map((p, i) => (
             <p key={i}>{p}</p>
           ))}
@@ -169,39 +186,42 @@ export default function ArticlePage() {
 
         {/* Wonder Question */}
         {wonderQuestion && (
-          <div data-testid="wonder-question" className="mt-6 p-4 rounded-xl" style={{
-            background: isKids ? 'rgba(255,214,10,0.12)' : 'rgba(204,255,0,0.06)',
-            border: isKids ? '1px solid rgba(255,214,10,0.3)' : '1px solid rgba(204,255,0,0.15)',
+          <div data-testid="wonder-question" className="mt-8 p-5 rounded-2xl" style={{
+            background: catColor,
+            boxShadow: `0 4px 24px ${catColor}33`,
           }}>
-            <p className="text-xs font-bold tracking-wider uppercase mb-2 opacity-60"
-              style={{ fontFamily: 'JetBrains Mono, monospace', color: isKids ? '#FF6B35' : '#CCFF00' }}>
-              Wonder Question
-            </p>
-            <p className="text-base font-medium leading-relaxed italic"
-              style={{ fontFamily: 'Outfit, sans-serif', color: textColor }}>
+            <div className="flex items-center gap-2 mb-2">
+              <span className="text-xl">❓</span>
+              <p className="text-xs font-bold tracking-wider uppercase"
+                style={{ fontFamily: 'Outfit, sans-serif', color: ['#F59E0B', '#10B981', '#14B8A6'].includes(catColor) ? '#0A0E1A' : 'rgba(255,255,255,0.8)' }}>
+                Wonder Question
+              </p>
+            </div>
+            <p className="text-base font-semibold leading-relaxed"
+              style={{ fontFamily: 'Outfit, sans-serif', color: ['#F59E0B', '#10B981', '#14B8A6'].includes(catColor) ? '#0A0E1A' : '#fff' }}>
               {wonderQuestion}
             </p>
           </div>
         )}
 
         {/* Reaction Bar */}
-        <ReactionBar articleId={article.id} />
+        <ReactionBar articleId={article.id} categoryColor={catColor} />
 
         {/* Source Link */}
         <a data-testid="source-link" href={article.original_url} target="_blank" rel="noopener noreferrer"
-          className="inline-flex items-center gap-2 mt-6 mb-4 px-4 py-2.5 rounded-xl text-sm font-medium"
+          className="inline-flex items-center gap-2 mt-6 mb-4 px-5 py-3 rounded-2xl text-sm font-medium transition-all duration-200"
           style={{
             fontFamily: 'Outfit, sans-serif',
-            background: isKids ? '#fff' : 'rgba(255,255,255,0.06)',
-            border: isKids ? '2px solid #1A1A1A' : '1px solid rgba(255,255,255,0.15)',
-            color: textColor,
+            background: '#111827',
+            border: '1px solid rgba(255,255,255,0.08)',
+            color: '#94A3B8',
           }}>
           <ExternalLink size={16} />
-          Read the original article at {article.source} &rarr;
+          Read the original at {article.source} →
         </a>
       </motion.div>
 
-      <BottomNav isKids={isKids} active="home" />
+      <BottomNav active="home" />
     </div>
   );
 }

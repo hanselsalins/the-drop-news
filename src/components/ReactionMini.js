@@ -6,11 +6,10 @@ const REACTIONS = [
   { id: 'inspiring', emoji: '💪' },
 ];
 
-export const ReactionMini = ({ counts, isKids }) => {
+export const ReactionMini = ({ counts }) => {
   const total = Object.values(counts || {}).reduce((a, b) => a + Math.max(0, b), 0);
   if (total === 0) return null;
 
-  // Get top 2 reactions
   const sorted = Object.entries(counts || {})
     .filter(([, v]) => v > 0)
     .sort(([, a], [, b]) => b - a)
@@ -23,10 +22,10 @@ export const ReactionMini = ({ counts, isKids }) => {
         return r ? <span key={key} className="text-xs">{r.emoji}</span> : null;
       })}
       <span
-        className="text-[10px] font-bold opacity-50"
+        className="text-[10px] font-bold"
         style={{
-          fontFamily: 'JetBrains Mono, monospace',
-          color: isKids ? '#1A1A1A' : '#EDEDED',
+          fontFamily: 'Outfit, sans-serif',
+          color: '#64748B',
         }}
       >
         {total}
