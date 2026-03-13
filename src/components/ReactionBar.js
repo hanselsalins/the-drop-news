@@ -67,15 +67,15 @@ export const ReactionBar = ({ articleId, categoryColor = '#3B82F6' }) => {
   return (
     <div
       data-testid="reaction-bar"
-      className="mt-8 p-5 rounded-2xl"
+      className="mt-8 p-5"
       style={{
-        background: '#111827',
-        border: '1px solid rgba(255,255,255,0.06)',
-        boxShadow: '0 4px 24px rgba(0,0,0,0.2)',
+        background: '#FFFFFF',
+        border: '1.5px solid #E2E8F0',
+        borderRadius: 18,
       }}
     >
       <p className="text-[11px] font-semibold tracking-wider uppercase mb-4"
-        style={{ fontFamily: 'Outfit, sans-serif', color: '#64748B' }}>
+        style={{ fontFamily: 'Outfit, sans-serif', color: '#94A3B8' }}>
         HOW DID THIS MAKE YOU FEEL?
       </p>
       <div className="flex items-center justify-between">
@@ -88,10 +88,11 @@ export const ReactionBar = ({ articleId, categoryColor = '#3B82F6' }) => {
               data-testid={`reaction-${r.id}`}
               onClick={() => handleReact(r.id)}
               whileTap={{ scale: 1.15 }}
-              className="flex flex-col items-center gap-1.5 px-1 py-2 rounded-2xl transition-all duration-200"
+              className="flex flex-col items-center gap-1.5 px-2 py-2 transition-all duration-200"
               style={{
-                background: isActive ? `${categoryColor}18` : 'transparent',
-                border: isActive ? `1.5px solid ${categoryColor}44` : '1.5px solid transparent',
+                background: isActive ? `${categoryColor}15` : 'transparent',
+                border: isActive ? `1.5px solid ${categoryColor}33` : '1.5px solid transparent',
+                borderRadius: 14,
               }}
             >
               <motion.span
@@ -99,8 +100,8 @@ export const ReactionBar = ({ articleId, categoryColor = '#3B82F6' }) => {
                 animate={animating === r.id ? { scale: [1, 1.5, 1] } : {}}
                 transition={{ duration: 0.3 }}
                 style={{
-                  filter: isActive ? 'none' : 'grayscale(0.4)',
-                  opacity: isActive ? 1 : 0.6,
+                  filter: isActive ? 'none' : 'grayscale(0.3)',
+                  opacity: isActive ? 1 : 0.5,
                 }}
               >
                 {r.emoji}
@@ -109,14 +110,14 @@ export const ReactionBar = ({ articleId, categoryColor = '#3B82F6' }) => {
                 className="text-[10px] font-bold"
                 style={{
                   fontFamily: 'Outfit, sans-serif',
-                  color: isActive ? categoryColor : '#475569',
+                  color: isActive ? categoryColor : '#94A3B8',
                 }}
               >
                 {count > 0 ? count : ''}
               </span>
               <span
                 className="text-[9px]"
-                style={{ fontFamily: 'Outfit, sans-serif', color: '#475569' }}
+                style={{ fontFamily: 'Outfit, sans-serif', color: '#94A3B8' }}
               >
                 {r.label}
               </span>

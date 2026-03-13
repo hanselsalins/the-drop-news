@@ -111,8 +111,14 @@ export default function FeedPage() {
 
   const feedItems = buildFeedItems();
 
+  const today = new Date().toLocaleDateString('en-US', {
+    weekday: 'long',
+    month: 'long',
+    day: 'numeric',
+  });
+
   return (
-    <div data-testid="feed-page" className="min-h-screen pb-28" style={{ background: '#0A0E1A' }}>
+    <div data-testid="feed-page" className="min-h-screen pb-28" style={{ background: '#F8FAFC' }}>
       <MilestoneBanner
         milestone={milestone}
         onDismiss={() => acknowledgeMilestone(milestone?.notification_id)}
@@ -121,30 +127,35 @@ export default function FeedPage() {
 
       {/* Header */}
       <div
-        className="sticky top-0 z-30 px-5 pt-6 pb-4"
         style={{
-          background: 'rgba(10,14,26,0.92)',
-          backdropFilter: 'blur(24px)',
+          background: 'linear-gradient(135deg, #3B82F6 0%, #8B5CF6 60%, #EC4899 100%)',
+          padding: '14px 20px 18px',
         }}
       >
-        <div className="flex items-center justify-between mb-4">
+        <div className="flex items-center justify-between">
           <div>
             <h1
-              className="text-3xl font-bold tracking-tight"
               style={{
                 fontFamily: 'Fredoka, sans-serif',
-                background: 'linear-gradient(135deg, #3B82F6, #8B5CF6)',
-                WebkitBackgroundClip: 'text',
-                WebkitTextFillColor: 'transparent',
+                fontSize: 28,
+                fontWeight: 900,
+                color: '#FFFFFF',
+                lineHeight: 1.2,
+                margin: 0,
               }}
             >
               The Drop
             </h1>
-            {user?.city && (
-              <span className="text-xs mt-1 block" style={{ fontFamily: 'Outfit, sans-serif', color: '#475569' }}>
-                {userCountryObj?.flag_emoji && `${userCountryObj.flag_emoji} `}{user.city}, {user.country}
-              </span>
-            )}
+            <p
+              style={{
+                fontFamily: 'Outfit, sans-serif',
+                fontSize: 12,
+                color: 'rgba(255,255,255,0.75)',
+                marginTop: 2,
+              }}
+            >
+              {today}
+            </p>
           </div>
           <div className="flex items-center gap-3">
             <StreakBadge
@@ -157,31 +168,33 @@ export default function FeedPage() {
               data-testid="refresh-btn"
               onClick={handleRefresh}
               disabled={refreshing}
-              className="p-2.5 rounded-xl transition-all duration-200"
+              className="p-2 transition-all duration-200"
               style={{
-                background: 'rgba(255,255,255,0.05)',
-                border: '1px solid rgba(255,255,255,0.08)',
+                background: 'rgba(255,255,255,0.15)',
+                borderRadius: 12,
+                border: 'none',
               }}
             >
               <RefreshCw size={18} className={refreshing ? 'animate-spin' : ''}
-                style={{ color: '#64748B' }} />
+                style={{ color: '#FFFFFF' }} />
             </button>
           </div>
         </div>
-
-        <CategoryTabs categories={categories} activeCategory={activeCategory}
-          setActiveCategory={setActiveCategory} />
       </div>
 
+      {/* Category tabs */}
+      <CategoryTabs categories={categories} activeCategory={activeCategory}
+        setActiveCategory={setActiveCategory} />
+
       {/* Feed */}
-      <div className="px-4 pt-4 space-y-5">
+      <div className="px-4 pt-4 space-y-3">
         {loading ? (
           <div className="flex items-center justify-center py-20">
             <Loader2 className="animate-spin" size={32} style={{ color: '#3B82F6' }} />
           </div>
         ) : feedItems.length === 0 ? (
           <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="text-center py-20">
-            <p className="text-lg" style={{ fontFamily: 'Outfit, sans-serif', color: '#475569' }}>
+            <p className="text-lg" style={{ fontFamily: 'Outfit, sans-serif', color: '#94A3B8' }}>
               No articles yet. Hit refresh to load fresh news!
             </p>
           </motion.div>
@@ -189,11 +202,11 @@ export default function FeedPage() {
           feedItems.map((item, index) => (
             <motion.div
               key={item.type === 'article' ? item.data.id : `fact-${index}`}
-              initial={{ y: 40, opacity: 0 }}
+              initial={{ y: 30, opacity: 0 }}
               animate={{ y: 0, opacity: 1 }}
               transition={{
-                delay: Math.min(index * 0.06, 0.6),
-                duration: 0.45,
+                delay: Math.min(index * 0.05, 0.5),
+                duration: 0.4,
                 ease: [0.16, 1, 0.3, 1],
               }}
             >

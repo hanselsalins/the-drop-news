@@ -13,15 +13,38 @@ const CATEGORY_COLORS = {
   local: '#14B8A6',
 };
 
+const CATEGORY_LIGHT_BG = {
+  all: '#EFF6FF',
+  world: '#EFF6FF',
+  science: '#ECFDF5',
+  sports: '#FFF7ED',
+  tech: '#F5F3FF',
+  environment: '#F0FDFA',
+  'weird & wonderful': '#FFFBEB',
+  weird: '#FFFBEB',
+  entertainment: '#FDF2F8',
+  money: '#FFFBEB',
+  history: '#FFF7ED',
+  local: '#F0FDFA',
+};
+
 export const CategoryTabs = ({ categories, activeCategory, setActiveCategory }) => {
   const allCategories = [{ id: 'all', name: 'For You' }, ...categories];
 
   return (
-    <div className="w-full overflow-x-auto scrollbar-hide" style={{ WebkitOverflowScrolling: 'touch' }}>
-      <div className="flex gap-2.5 pb-1 min-w-max pr-4">
+    <div
+      className="w-full overflow-x-auto scrollbar-hide"
+      style={{
+        background: '#FFFFFF',
+        borderBottom: '1.5px solid #F1F5F9',
+        WebkitOverflowScrolling: 'touch',
+      }}
+    >
+      <div className="flex gap-2 px-4 py-3 min-w-max">
         {allCategories.map((cat) => {
           const isActive = activeCategory === cat.id;
           const color = CATEGORY_COLORS[cat.id] || '#3B82F6';
+          const lightBg = CATEGORY_LIGHT_BG[cat.id] || '#EFF6FF';
           return (
             <button
               key={cat.id}
@@ -30,13 +53,11 @@ export const CategoryTabs = ({ categories, activeCategory, setActiveCategory }) 
               className="shrink-0 px-4 py-2 text-xs font-semibold tracking-wide uppercase whitespace-nowrap transition-all duration-200"
               style={{
                 fontFamily: 'Outfit, sans-serif',
-                borderRadius: '999px',
-                background: isActive ? color : 'rgba(255,255,255,0.04)',
-                color: isActive
-                  ? (['#F59E0B', '#10B981', '#14B8A6'].includes(color) ? '#0A0E1A' : '#fff')
-                  : '#64748B',
-                border: isActive ? 'none' : '1px solid rgba(255,255,255,0.08)',
-                boxShadow: isActive ? `0 2px 16px ${color}33` : 'none',
+                borderRadius: '20px',
+                background: isActive ? color : lightBg,
+                color: isActive ? '#FFFFFF' : color,
+                fontWeight: isActive ? 700 : 600,
+                border: 'none',
               }}
             >
               {cat.name}

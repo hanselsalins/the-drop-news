@@ -23,6 +23,20 @@ const CATEGORY_COLORS = {
   local: '#14B8A6',
 };
 
+const CATEGORY_LIGHT_BG = {
+  world: '#EFF6FF',
+  science: '#ECFDF5',
+  sports: '#FFF7ED',
+  tech: '#F5F3FF',
+  environment: '#F0FDFA',
+  'weird & wonderful': '#FFFBEB',
+  weird: '#FFFBEB',
+  entertainment: '#FDF2F8',
+  money: '#FFFBEB',
+  history: '#FFF7ED',
+  local: '#F0FDFA',
+};
+
 const CATEGORY_LABELS = {
   world: "World",
   science: "Science",
@@ -35,6 +49,20 @@ const CATEGORY_LABELS = {
   money: "Money",
   history: "History",
   local: "Local",
+};
+
+const CATEGORY_EMOJI = {
+  world: '🌍',
+  science: '🔬',
+  sports: '⚽',
+  tech: '💻',
+  environment: '🌱',
+  'weird & wonderful': '🦄',
+  weird: '🦄',
+  entertainment: '🎬',
+  money: '💰',
+  history: '📜',
+  local: '📍',
 };
 
 export default function ArticlePage() {
@@ -79,7 +107,7 @@ export default function ArticlePage() {
 
   if (loading) {
     return (
-      <div className="min-h-screen flex items-center justify-center" style={{ background: '#0A0E1A' }}>
+      <div className="min-h-screen flex items-center justify-center" style={{ background: '#F8FAFC' }}>
         <div className="w-8 h-8 rounded-full border-2 border-t-transparent animate-spin"
           style={{ borderColor: '#3B82F6', borderTopColor: 'transparent' }} />
       </div>
@@ -88,8 +116,8 @@ export default function ArticlePage() {
 
   if (!article) {
     return (
-      <div className="min-h-screen flex items-center justify-center" style={{ background: '#0A0E1A' }}>
-        <p style={{ color: '#CBD5E1', fontFamily: 'Outfit, sans-serif' }}>Article not found.</p>
+      <div className="min-h-screen flex items-center justify-center" style={{ background: '#F8FAFC' }}>
+        <p style={{ color: '#64748B', fontFamily: 'Outfit, sans-serif' }}>Article not found.</p>
       </div>
     );
   }
@@ -101,62 +129,76 @@ export default function ArticlePage() {
   const readingTime = rw?.reading_time || '2 min';
   const wonderQuestion = rw?.wonder_question || '';
   const catColor = CATEGORY_COLORS[article.category] || '#3B82F6';
+  const lightBg = CATEGORY_LIGHT_BG[article.category] || '#EFF6FF';
+  const emoji = CATEGORY_EMOJI[article.category] || '📰';
 
   return (
-    <div data-testid="article-page" className="min-h-screen pb-28" style={{ background: '#0A0E1A' }}>
-      {/* Hero Image */}
-      <div className="relative">
-        <div className="aspect-video w-full overflow-hidden">
-          <img src={article.image_url} alt={title} className="w-full h-full object-cover"
-            onError={(e) => { e.target.style.background = '#111827'; e.target.src = ''; }} />
-        </div>
-        <div className="absolute inset-0" style={{
-          background: 'linear-gradient(to top, #0A0E1A 0%, rgba(10,14,26,0.5) 50%, transparent 80%)',
-        }} />
+    <div data-testid="article-page" className="min-h-screen pb-28" style={{ background: '#F8FAFC' }}>
+      {/* Hero area with gradient */}
+      <div
+        className="relative w-full flex items-center justify-center"
+        style={{
+          background: `linear-gradient(135deg, ${catColor}22, ${catColor}44)`,
+          minHeight: 200,
+        }}
+      >
+        <span style={{ fontSize: 80 }}>{emoji}</span>
+
         <button data-testid="back-btn" onClick={() => navigate(-1)}
-          className="absolute top-4 left-4 p-2.5 rounded-2xl z-10"
-          style={{ background: 'rgba(10,14,26,0.7)', backdropFilter: 'blur(10px)', border: '1px solid rgba(255,255,255,0.08)' }}>
-          <ChevronLeft size={22} style={{ color: '#F1F5F9' }} />
+          className="absolute top-4 left-4 p-2.5 z-10"
+          style={{
+            background: '#FFFFFF',
+            borderRadius: 14,
+            border: '1.5px solid #E2E8F0',
+            boxShadow: '0 2px 8px rgba(0,0,0,0.06)',
+          }}>
+          <ChevronLeft size={22} style={{ color: '#0F172A' }} />
         </button>
         <button data-testid="share-btn" onClick={handleShare}
-          className="absolute top-4 right-4 p-2.5 rounded-2xl z-10"
-          style={{ background: 'rgba(10,14,26,0.7)', backdropFilter: 'blur(10px)', border: '1px solid rgba(255,255,255,0.08)' }}>
-          <Share2 size={20} style={{ color: '#F1F5F9' }} />
+          className="absolute top-4 right-4 p-2.5 z-10"
+          style={{
+            background: '#FFFFFF',
+            borderRadius: 14,
+            border: '1.5px solid #E2E8F0',
+            boxShadow: '0 2px 8px rgba(0,0,0,0.06)',
+          }}>
+          <Share2 size={20} style={{ color: '#0F172A' }} />
         </button>
       </div>
 
       {/* Content */}
       <motion.div initial={{ y: 20, opacity: 0 }} animate={{ y: 0, opacity: 1 }} transition={{ duration: 0.4 }}
-        className="px-5 -mt-10 relative z-10">
+        className="px-5 pt-5">
 
         {/* Category pill */}
-        <span className="inline-block px-3.5 py-1.5 rounded-full text-[11px] font-bold tracking-wider uppercase mb-4"
-          style={{
-            fontFamily: 'Outfit, sans-serif',
-            background: catColor,
-            color: ['#F59E0B', '#10B981', '#14B8A6'].includes(catColor) ? '#0A0E1A' : '#fff',
-            boxShadow: `0 2px 16px ${catColor}44`,
-          }}>
-          {CATEGORY_LABELS[article.category] || article.category}
-        </span>
+        <div className="flex items-center gap-1.5 mb-3">
+          <span
+            style={{
+              width: 6,
+              height: 6,
+              borderRadius: '50%',
+              background: catColor,
+              display: 'inline-block',
+            }}
+          />
+          <span className="text-[11px] font-bold tracking-wider uppercase"
+            style={{ fontFamily: 'Outfit, sans-serif', color: catColor }}>
+            {CATEGORY_LABELS[article.category] || article.category}
+          </span>
+        </div>
 
         {/* Title */}
-        <h1 className="text-[28px] md:text-[32px] font-bold tracking-tight leading-tight mb-4"
-          style={{ fontFamily: 'Fredoka, sans-serif', color: '#F1F5F9' }}>
+        <h1 className="text-[26px] font-bold tracking-tight leading-tight mb-3"
+          style={{ fontFamily: 'Fredoka, sans-serif', color: '#0F172A' }}>
           {title}
         </h1>
 
         {/* Meta */}
-        <div className="flex items-center gap-3 mb-6">
-          {article.source_logo && (
-            <img src={article.source_logo} alt={article.source}
-              className="w-5 h-5 rounded object-contain opacity-60"
-              onError={(e) => { e.target.style.display = 'none'; }} />
-          )}
-          <span className="text-sm" style={{ fontFamily: 'Outfit, sans-serif', color: '#64748B' }}>
+        <div className="flex items-center gap-3 mb-5">
+          <span className="text-sm" style={{ fontFamily: 'Outfit, sans-serif', color: '#94A3B8' }}>
             {article.source}
           </span>
-          <div className="flex items-center gap-1.5 text-sm" style={{ color: '#475569' }}>
+          <div className="flex items-center gap-1.5 text-sm" style={{ color: '#94A3B8' }}>
             <Clock size={14} />
             <span style={{ fontFamily: 'Outfit, sans-serif' }}>{readingTime} read</span>
           </div>
@@ -164,13 +206,13 @@ export default function ArticlePage() {
 
         {/* Summary */}
         {summary && (
-          <div className="p-5 rounded-2xl mb-6" style={{
-            background: '#111827',
-            border: '1px solid rgba(255,255,255,0.06)',
-            boxShadow: '0 4px 24px rgba(0,0,0,0.2)',
+          <div className="p-4 mb-5" style={{
+            background: lightBg,
+            border: `1.5px solid ${catColor}22`,
+            borderRadius: 18,
           }}>
-            <p className="text-base font-medium leading-relaxed"
-              style={{ fontFamily: 'Outfit, sans-serif', color: '#E2E8F0' }}>
+            <p className="text-sm font-medium leading-relaxed"
+              style={{ fontFamily: 'Outfit, sans-serif', color: '#334155' }}>
               {summary}
             </p>
           </div>
@@ -178,7 +220,7 @@ export default function ArticlePage() {
 
         {/* Body */}
         <div className="text-base leading-[1.8] space-y-4"
-          style={{ fontFamily: 'Outfit, sans-serif', color: '#CBD5E1' }}>
+          style={{ fontFamily: 'Outfit, sans-serif', color: '#475569' }}>
           {body.split('\n').filter(Boolean).map((p, i) => (
             <p key={i}>{p}</p>
           ))}
@@ -186,19 +228,20 @@ export default function ArticlePage() {
 
         {/* Wonder Question */}
         {wonderQuestion && (
-          <div data-testid="wonder-question" className="mt-8 p-5 rounded-2xl" style={{
-            background: catColor,
-            boxShadow: `0 4px 24px ${catColor}33`,
+          <div data-testid="wonder-question" className="mt-8 p-5" style={{
+            background: lightBg,
+            border: `1.5px solid ${catColor}33`,
+            borderRadius: 18,
           }}>
             <div className="flex items-center gap-2 mb-2">
               <span className="text-xl">❓</span>
               <p className="text-xs font-bold tracking-wider uppercase"
-                style={{ fontFamily: 'Outfit, sans-serif', color: ['#F59E0B', '#10B981', '#14B8A6'].includes(catColor) ? '#0A0E1A' : 'rgba(255,255,255,0.8)' }}>
+                style={{ fontFamily: 'Outfit, sans-serif', color: catColor }}>
                 Wonder Question
               </p>
             </div>
             <p className="text-base font-semibold leading-relaxed"
-              style={{ fontFamily: 'Outfit, sans-serif', color: ['#F59E0B', '#10B981', '#14B8A6'].includes(catColor) ? '#0A0E1A' : '#fff' }}>
+              style={{ fontFamily: 'Outfit, sans-serif', color: '#0F172A' }}>
               {wonderQuestion}
             </p>
           </div>
@@ -209,12 +252,13 @@ export default function ArticlePage() {
 
         {/* Source Link */}
         <a data-testid="source-link" href={article.original_url} target="_blank" rel="noopener noreferrer"
-          className="inline-flex items-center gap-2 mt-6 mb-4 px-5 py-3 rounded-2xl text-sm font-medium transition-all duration-200"
+          className="inline-flex items-center gap-2 mt-6 mb-4 px-5 py-3 text-sm font-medium transition-all duration-200"
           style={{
             fontFamily: 'Outfit, sans-serif',
-            background: '#111827',
-            border: '1px solid rgba(255,255,255,0.08)',
-            color: '#94A3B8',
+            background: '#FFFFFF',
+            border: '1.5px solid #E2E8F0',
+            borderRadius: 18,
+            color: '#64748B',
           }}>
           <ExternalLink size={16} />
           Read the original at {article.source} →
