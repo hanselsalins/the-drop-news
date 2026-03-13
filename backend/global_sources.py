@@ -24,7 +24,7 @@ GLOBAL_SOURCES = [
             {"name": "USA Today", "url": "https://usatoday.com", "rss_url": "http://rssfeeds.usatoday.com/usatoday-NewsTopStories", "feed_type": "rss", "category_tags": ["world", "entertainment", "science"], "language": "English", "logo_url": "", "status": "active"},
             {"name": "CBS News", "url": "https://cbsnews.com", "rss_url": "https://www.cbsnews.com/latest/rss/main", "feed_type": "rss", "category_tags": ["world", "money", "entertainment"], "language": "English", "logo_url": "", "status": "active"},
             {"name": "ABC News", "url": "https://abcnews.go.com", "rss_url": "https://abcnews.go.com/abcnews/topstories", "feed_type": "rss", "category_tags": ["world", "entertainment"], "language": "English", "logo_url": "", "status": "active"},
-            {"name": "PBS NewsHour", "url": "https://pbs.org/newshour", "rss_url": "https://www.pbs.org/newshour/feeds/rss/headlines", "feed_type": "rss", "category_tags": ["world", "science", "history"], "language": "English", "logo_url": "", "status": "active"},
+            {"name": "PBS NewsHour", "url": "https://pbs.org/newshour", "rss_url": "https://www.pbs.org/newshour/feeds/rss/headlines", "feed_type": "rss", "category_tags": ["world", "science"], "language": "English", "logo_url": "", "status": "active"},
             {"name": "Reuters US", "url": "https://reuters.com", "rss_url": "https://www.reutersagency.com/feed/", "feed_type": "rss", "category_tags": ["world", "money", "science"], "language": "English", "logo_url": "", "status": "active"},
         ],
     },

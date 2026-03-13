@@ -221,7 +221,6 @@ CATEGORIES = [
     {"id": "world", "name": "What's Happening", "icon": "globe", "color": "#3A86FF"},
     {"id": "science", "name": "Science & Discovery", "icon": "flask", "color": "#39FF14"},
     {"id": "money", "name": "Money & Economy", "icon": "coins", "color": "#FFD60A"},
-    {"id": "history", "name": "History in the Making", "icon": "hourglass", "color": "#FF6B35"},
     {"id": "entertainment", "name": "Entertainment", "icon": "music", "color": "#FF006E"},
     {"id": "local", "name": "In Your Country", "icon": "map-pin", "color": "#4CC9F0"},
 ]
@@ -416,9 +415,6 @@ RSS_FEEDS = {
         {"url": "https://feeds.bbci.co.uk/news/business/rss.xml", "source": "BBC Business"},
         {"url": "https://rss.nytimes.com/services/xml/rss/nyt/Business.xml", "source": "NY Times"},
     ],
-    "history": [
-        {"url": "https://feeds.bbci.co.uk/news/world/rss.xml", "source": "BBC News"},
-    ],
     "entertainment": [
         {"url": "https://feeds.bbci.co.uk/news/entertainment_and_arts/rss.xml", "source": "BBC Entertainment"},
         {"url": "https://rss.nytimes.com/services/xml/rss/nyt/Arts.xml", "source": "NY Times"},
@@ -433,7 +429,6 @@ CATEGORY_IMAGES = {
     "world": "https://images.unsplash.com/photo-1633421878925-ac220d8f6e4f?w=800&q=80",
     "science": "https://images.unsplash.com/photo-1730266718522-ff6d21f3a91f?w=800&q=80",
     "money": "https://images.unsplash.com/photo-1726825779715-b47ced2411a7?w=800&q=80",
-    "history": "https://images.unsplash.com/photo-1619525673991-abb47426c650?w=800&q=80",
     "entertainment": "https://images.unsplash.com/photo-1620245446020-879dc5cf2414?w=800&q=80",
     "local": "https://images.unsplash.com/photo-1559038452-c182e478b3e4?w=800&q=80",
 }
@@ -619,7 +614,7 @@ async def generate_micro_facts(age_group: str):
 Today's news topics:
 {titles_context}
 
-Return ONLY a valid JSON array of objects with keys: "fact" (the micro-fact text), "category" (which news category it relates to: world/science/money/history/entertainment/local).
+Return ONLY a valid JSON array of objects with keys: "fact" (the micro-fact text), "category" (which news category it relates to: world/science/money/entertainment/local).
 No markdown, no code blocks. Just the JSON array."""
 
     try:
@@ -675,7 +670,6 @@ def generate_why_reason(article: dict, user: dict = None) -> str:
         "world": "This story is a major global event everyone's talking about.",
         "science": "This story is trending in Science globally.",
         "money": "This is a key story about the economy that affects everyday life.",
-        "history": "This story connects today's events to important historical context.",
         "entertainment": "This story is trending in Entertainment and Culture.",
     }
 
@@ -759,7 +753,7 @@ async def crawl_rss_feeds(country_code: str = None):
                                 ],
                             )
                             ai_category = response.choices[0].message.content.strip().lower()
-                            allowed_categories = {"world", "science", "money", "history", "entertainment", "local"}
+                            allowed_categories = {"world", "science", "money", "entertainment", "local"}
                             if ai_category in allowed_categories:
                                 category = ai_category
                     except Exception as e:

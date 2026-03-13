@@ -7,7 +7,6 @@ const CATEGORY_COLORS = {
   world: '#3A86FF',
   science: '#39FF14',
   money: '#FFD60A',
-  history: '#FF6B35',
   entertainment: '#FF006E',
   local: '#4CC9F0',
 };
@@ -16,7 +15,6 @@ const CATEGORY_LABELS = {
   world: "World",
   science: "Science",
   money: "Money",
-  history: "History",
   entertainment: "Entertainment",
   local: "Local",
 };
