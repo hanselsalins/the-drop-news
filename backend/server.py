@@ -1890,6 +1890,8 @@ async def _format_article(a: dict, age_group: str, user: dict, category_override
         "published_at": a.get("published_at", ""), "rewrite": rewrite,
         "reaction_counts": counts, "why_reason": why,
         "low_confidence_flag": a.get("low_confidence_flag", False),
+        "country_relevance": a.get("country_relevance", []),
+        "impact_flags": a.get("impact_flags", []),
     }
     if extra:
         out.update(extra)
