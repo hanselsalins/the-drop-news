@@ -589,11 +589,6 @@ Return ONLY valid JSON, no markdown, no code blocks.{confidence_instruction}"""
             return result
         except Exception as e:
             logger.error(f"AI rewrite attempt {attempt + 1} failed for age_group={age_group}, lang={source_language}: {e}")
-            if attempt == 0:
-                # Create fresh chat for retry
-                chat = LlmChat(api_key=api_key, session_id=f"rewrite-retry-{uuid.uuid4()}",
-                                system_message=system_prompt + "\n" + safety).with_model("openai", "gpt-4o")
-                continue
 
     # Both attempts failed — flag for manual review
     logger.error(f"Rewrite failed after 2 attempts: title='{title[:50]}', lang={source_language}")
@@ -1953,6 +1948,16 @@ async def update_system_prompt(prompt_id: str, body: PromptUpdate):
 # ========== STARTUP ==========
 @app.on_event("startup")
 async def startup_event():
+    # Ensure indexes
+    await db.users.create_index("username", unique=True, sparse=True)
+    await db.users.create_index("email", unique=True, sparse=True)
+    await db.articles.create_index("original_url", unique=True, sparse=True)
+    await db.articles.create_index("source_country")
+    await db.articles.create_index("category")
+    await db.reactions.create_index("user_id")
+    await db.reactions.create_index([("article_id", 1), ("user_id", 1)], unique=True)
+    logger.info("MongoDB indexes ensured.")
+
     await seed_system_prompts()
     await seed_source_logos()
     await seed_global_sources()
