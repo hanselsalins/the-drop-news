@@ -2,7 +2,7 @@
 
 .App {
   min-height: 100vh;
-  background: #0A0E1A;
+  background: #F8FAFC;
 }
 
 @media (min-width: 768px) {
@@ -11,7 +11,7 @@
     margin: 0 auto;
     min-height: 100vh;
     position: relative;
-    box-shadow: 0 0 80px rgba(59, 130, 246, 0.08);
+    box-shadow: 0 0 80px rgba(59, 130, 246, 0.06);
   }
 }
 
@@ -49,20 +49,4 @@ img {
 ::selection {
   background: #3B82F6;
   color: #fff;
-}
-
-@keyframes pulse-glow {
-  0%, 100% { opacity: 0.3; }
-  50% { opacity: 1; }
-}
-
-@keyframes shimmer {
-  0% { background-position: -200% 0; }
-  100% { background-position: 200% 0; }
-}
-
-.card-shimmer {
-  background: linear-gradient(90deg, transparent 0%, rgba(255,255,255,0.03) 50%, transparent 100%);
-  background-size: 200% 100%;
-  animation: shimmer 2s infinite;
 }

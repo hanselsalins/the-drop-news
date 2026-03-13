@@ -1,45 +1,31 @@
 import { motion } from 'framer-motion';
 
-const CATEGORY_COLORS = {
-  world: '#3B82F6',
-  science: '#10B981',
-  sports: '#F97316',
-  tech: '#8B5CF6',
-  environment: '#14B8A6',
-  weird: '#F59E0B',
-  entertainment: '#EC4899',
-};
-
 export const MicroFactCard = ({ fact }) => {
-  const borderColor = CATEGORY_COLORS[fact.category] || '#3B82F6';
-
   return (
     <motion.div
       data-testid="micro-fact-card"
       initial={{ opacity: 0, scale: 0.96 }}
       animate={{ opacity: 1, scale: 1 }}
-      className="p-5 rounded-2xl relative overflow-hidden"
+      className="p-4 relative overflow-hidden"
       style={{
-        background: '#111827',
-        borderLeft: `4px solid ${borderColor}`,
-        boxShadow: '0 4px 24px rgba(0,0,0,0.3)',
+        background: '#F0FDF4',
+        border: '1.5px solid #BBF7D0',
+        borderLeft: '5px solid #10B981',
+        borderRadius: '18px',
       }}
     >
-      <div className="flex items-center gap-2.5 mb-3">
-        <span className="text-lg">💡</span>
+      <div className="flex items-center gap-2 mb-2">
+        <span style={{ fontSize: 18 }}>💡</span>
         <span
-          className="text-[11px] font-semibold tracking-wider uppercase"
-          style={{
-            fontFamily: 'Outfit, sans-serif',
-            color: borderColor,
-          }}
+          className="text-[10px] font-bold tracking-wider uppercase"
+          style={{ fontFamily: 'Outfit, sans-serif', color: '#10B981' }}
         >
-          Did You Know?
+          Quick Fact
         </span>
       </div>
       <p
-        className="text-sm leading-relaxed italic"
-        style={{ fontFamily: 'Outfit, sans-serif', color: '#CBD5E1' }}
+        className="text-xs leading-relaxed italic"
+        style={{ fontFamily: 'Outfit, sans-serif', color: '#065F46' }}
       >
         {fact.fact}
       </p>

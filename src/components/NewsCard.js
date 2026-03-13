@@ -15,6 +15,48 @@ const CATEGORY_COLORS = {
   local: '#14B8A6',
 };
 
+const CATEGORY_LIGHT_BG = {
+  world: '#EFF6FF',
+  science: '#ECFDF5',
+  sports: '#FFF7ED',
+  tech: '#F5F3FF',
+  environment: '#F0FDFA',
+  'weird & wonderful': '#FFFBEB',
+  weird: '#FFFBEB',
+  entertainment: '#FDF2F8',
+  money: '#FFFBEB',
+  history: '#FFF7ED',
+  local: '#F0FDFA',
+};
+
+const CATEGORY_GRADIENTS = {
+  world: 'linear-gradient(135deg, #60A5FA, #2563EB)',
+  science: 'linear-gradient(135deg, #34D399, #059669)',
+  sports: 'linear-gradient(135deg, #FB923C, #EA580C)',
+  tech: 'linear-gradient(135deg, #A78BFA, #7C3AED)',
+  environment: 'linear-gradient(135deg, #2DD4BF, #0D9488)',
+  'weird & wonderful': 'linear-gradient(135deg, #FBBF24, #D97706)',
+  weird: 'linear-gradient(135deg, #FBBF24, #D97706)',
+  entertainment: 'linear-gradient(135deg, #F472B6, #DB2777)',
+  money: 'linear-gradient(135deg, #FBBF24, #D97706)',
+  history: 'linear-gradient(135deg, #FB923C, #EA580C)',
+  local: 'linear-gradient(135deg, #2DD4BF, #0D9488)',
+};
+
+const CATEGORY_EMOJI = {
+  world: '🌍',
+  science: '🔬',
+  sports: '⚽',
+  tech: '💻',
+  environment: '🌱',
+  'weird & wonderful': '🦄',
+  weird: '🦄',
+  entertainment: '🎬',
+  money: '💰',
+  history: '📜',
+  local: '📍',
+};
+
 const CATEGORY_LABELS = {
   world: 'World',
   science: 'Science',
@@ -34,6 +76,9 @@ export const NewsCard = ({ article }) => {
   const rw = article.rewrite;
   const title = rw?.title || article.original_title;
   const catColor = CATEGORY_COLORS[article.category] || '#3B82F6';
+  const lightBg = CATEGORY_LIGHT_BG[article.category] || '#EFF6FF';
+  const gradient = CATEGORY_GRADIENTS[article.category] || CATEGORY_GRADIENTS.world;
+  const emoji = CATEGORY_EMOJI[article.category] || '📰';
 
   return (
     <motion.div
@@ -42,76 +87,72 @@ export const NewsCard = ({ article }) => {
       role="button"
       tabIndex={0}
       whileTap={{ scale: 0.98 }}
-      className="w-full text-left overflow-hidden cursor-pointer"
+      className="w-full overflow-hidden cursor-pointer flex"
       style={{
-        borderRadius: '20px',
-        background: '#111827',
-        border: '1px solid rgba(255,255,255,0.06)',
-        boxShadow: '0 4px 24px rgba(0,0,0,0.3), 0 0 0 1px rgba(255,255,255,0.03)',
+        borderRadius: '18px',
+        background: '#FFFFFF',
+        border: '1.5px solid #E2E8F0',
+        boxShadow: `0 2px 8px ${catColor}14`,
       }}
     >
-      {/* Image - large top half */}
-      <div className="relative aspect-[16/10] overflow-hidden">
-        <img
-          src={article.image_url}
-          alt={title}
-          className="w-full h-full object-cover"
-          loading="lazy"
-          onError={(e) => { e.target.style.background = catColor + '22'; e.target.src = ''; }}
-        />
-        <div
-          className="absolute inset-0"
-          style={{
-            background: 'linear-gradient(to top, #111827 0%, rgba(17,24,39,0.4) 40%, transparent 70%)',
-          }}
-        />
+      {/* Left content */}
+      <div className="flex-1 flex flex-col justify-center" style={{ padding: '13px 12px 13px 14px' }}>
         {/* Category pill */}
-        <span
-          className="absolute top-4 left-4 px-3 py-1.5 rounded-full text-[11px] font-bold tracking-wider uppercase"
-          style={{
-            fontFamily: 'Outfit, sans-serif',
-            background: catColor,
-            color: ['#F59E0B', '#10B981', '#14B8A6'].includes(catColor) ? '#0A0E1A' : '#fff',
-            boxShadow: `0 2px 12px ${catColor}44`,
-          }}
-        >
-          {CATEGORY_LABELS[article.category] || article.category}
-        </span>
-      </div>
+        <div className="flex items-center gap-1.5 mb-2">
+          <span
+            className="inline-block shrink-0"
+            style={{
+              width: 6,
+              height: 6,
+              borderRadius: '50%',
+              background: catColor,
+            }}
+          />
+          <span
+            className="text-[10px] font-bold tracking-wider uppercase"
+            style={{ fontFamily: 'Outfit, sans-serif', color: catColor }}
+          >
+            {CATEGORY_LABELS[article.category] || article.category}
+          </span>
+        </div>
 
-      {/* Content */}
-      <div className="px-5 pb-5 -mt-4 relative z-10">
+        {/* Headline */}
         <h3
-          className="font-bold leading-snug mb-3"
+          className="font-bold leading-snug mb-2 line-clamp-3"
           style={{
             fontFamily: 'Fredoka, sans-serif',
-            color: '#F1F5F9',
-            fontSize: '1.35rem',
-            lineHeight: 1.3,
+            color: '#0F172A',
+            fontSize: '14px',
+            lineHeight: 1.35,
+            fontWeight: 700,
           }}
         >
           {title}
         </h3>
 
         {/* Source row */}
-        <div className="flex items-center gap-2.5">
-          {article.source_logo && (
-            <img
-              src={article.source_logo}
-              alt={article.source}
-              className="w-4 h-4 rounded object-contain opacity-60"
-              onError={(e) => { e.target.style.display = 'none'; }}
-            />
-          )}
-          <span className="text-xs" style={{ fontFamily: 'Outfit, sans-serif', color: '#64748B' }}>
+        <div className="flex items-center gap-1.5">
+          <span className="text-[11px]" style={{ fontFamily: 'Outfit, sans-serif', color: '#94A3B8' }}>
             {article.source}
           </span>
           {rw?.reading_time && (
-            <span className="text-xs" style={{ fontFamily: 'Outfit, sans-serif', color: '#475569' }}>
+            <span className="text-[11px]" style={{ fontFamily: 'Outfit, sans-serif', color: '#94A3B8' }}>
               · {rw.reading_time}
             </span>
           )}
         </div>
+      </div>
+
+      {/* Right emoji thumbnail */}
+      <div
+        className="flex items-center justify-center shrink-0"
+        style={{
+          width: 90,
+          background: gradient,
+          borderRadius: '0 16px 16px 0',
+        }}
+      >
+        <span style={{ fontSize: 40 }}>{emoji}</span>
       </div>
     </motion.div>
   );
