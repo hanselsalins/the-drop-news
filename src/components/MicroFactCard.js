@@ -1,46 +1,45 @@
 import { motion } from 'framer-motion';
-import { Sparkles } from 'lucide-react';
 
-export const MicroFactCard = ({ fact, isKids }) => {
-  const textColor = isKids ? '#1A1A1A' : '#EDEDED';
+const CATEGORY_COLORS = {
+  world: '#3B82F6',
+  science: '#10B981',
+  sports: '#F97316',
+  tech: '#8B5CF6',
+  environment: '#14B8A6',
+  weird: '#F59E0B',
+  entertainment: '#EC4899',
+};
+
+export const MicroFactCard = ({ fact }) => {
+  const borderColor = CATEGORY_COLORS[fact.category] || '#3B82F6';
 
   return (
     <motion.div
       data-testid="micro-fact-card"
       initial={{ opacity: 0, scale: 0.96 }}
       animate={{ opacity: 1, scale: 1 }}
-      className="p-5 rounded-2xl"
+      className="p-5 rounded-2xl relative overflow-hidden"
       style={{
-        background: isKids
-          ? 'linear-gradient(135deg, rgba(255,214,10,0.15), rgba(255,106,0,0.08))'
-          : 'linear-gradient(135deg, rgba(204,255,0,0.08), rgba(114,9,183,0.06))',
-        border: isKids
-          ? '1.5px solid rgba(255,214,10,0.3)'
-          : '1.5px solid rgba(204,255,0,0.12)',
+        background: '#111827',
+        borderLeft: `4px solid ${borderColor}`,
+        boxShadow: '0 4px 24px rgba(0,0,0,0.3)',
       }}
     >
-      <div className="flex items-center gap-2 mb-2.5">
-        <div
-          className="p-1.5 rounded-lg"
-          style={{
-            background: isKids ? 'rgba(255,214,10,0.25)' : 'rgba(204,255,0,0.12)',
-          }}
-        >
-          <Sparkles size={14} style={{ color: isKids ? '#FF6B35' : '#CCFF00' }} />
-        </div>
+      <div className="flex items-center gap-2.5 mb-3">
+        <span className="text-lg">💡</span>
         <span
-          className="text-[10px] font-bold tracking-widest uppercase"
+          className="text-[11px] font-semibold tracking-wider uppercase"
           style={{
-            fontFamily: 'JetBrains Mono, monospace',
-            color: isKids ? '#FF6B35' : '#CCFF00',
+            fontFamily: 'Outfit, sans-serif',
+            color: borderColor,
           }}
         >
           Did You Know?
         </span>
       </div>
       <p
-        className="text-sm leading-relaxed font-medium"
-        style={{ fontFamily: 'Outfit, sans-serif', color: textColor }}
+        className="text-sm leading-relaxed italic"
+        style={{ fontFamily: 'Outfit, sans-serif', color: '#CBD5E1' }}
       >
         {fact.fact}
       </p>

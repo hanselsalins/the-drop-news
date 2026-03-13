@@ -8,7 +8,7 @@ import { StreakBadge } from '../components/StreakBadge';
 import { MicroFactCard } from '../components/MicroFactCard';
 import { MilestoneBanner } from '../components/MilestoneBanner';
 import { motion } from 'framer-motion';
-import { Loader2, RefreshCw, Globe } from 'lucide-react';
+import { Loader2, RefreshCw } from 'lucide-react';
 import axios from 'axios';
 
 const BACKEND_URL = import.meta.env.VITE_BACKEND_URL;
@@ -28,10 +28,8 @@ export default function FeedPage() {
   const headers = token ? { Authorization: `Bearer ${token}` } : {};
   const { milestone, checkMilestone, acknowledgeMilestone, requestPermission, permission } = useNotifications();
 
-  // Get the user's current country flag
   const userCountryObj = countries.find(c => c.country_name === user?.country);
 
-  // Request notification permission on first load
   useEffect(() => {
     if (permission === 'default') {
       const t = setTimeout(() => requestPermission(), 3000);
@@ -98,7 +96,6 @@ export default function FeedPage() {
     setRefreshing(false);
   };
 
-  // Interleave micro-facts every 3-4 articles
   const buildFeedItems = () => {
     const items = [];
     let factIdx = 0;
@@ -113,84 +110,78 @@ export default function FeedPage() {
   };
 
   const feedItems = buildFeedItems();
-  const bgColor = isKids ? '#F0F4F8' : '#000000';
-  const textColor = isKids ? '#1A1A1A' : '#EDEDED';
 
   return (
-    <div data-testid="feed-page" className="min-h-screen pb-24" style={{ background: bgColor }}>
-      {/* Milestone Banner */}
+    <div data-testid="feed-page" className="min-h-screen pb-28" style={{ background: '#0A0E1A' }}>
       <MilestoneBanner
         milestone={milestone}
         onDismiss={() => acknowledgeMilestone(milestone?.notification_id)}
         isKids={isKids}
       />
+
       {/* Header */}
       <div
-        className="sticky top-0 z-30 px-5 pt-6 pb-3"
+        className="sticky top-0 z-30 px-5 pt-6 pb-4"
         style={{
-          background: isKids ? 'rgba(240,244,248,0.95)' : 'rgba(0,0,0,0.95)',
-          backdropFilter: 'blur(20px)',
+          background: 'rgba(10,14,26,0.92)',
+          backdropFilter: 'blur(24px)',
         }}
       >
-        <div className="flex items-center justify-between mb-3">
+        <div className="flex items-center justify-between mb-4">
           <div>
-            <div className="flex items-center gap-3">
-              <h1
-                className="text-2xl font-bold tracking-tight"
-                style={{ fontFamily: isKids ? 'Fredoka, sans-serif' : 'Syne, sans-serif', color: textColor }}
-              >
-                The Drop
-              </h1>
-              <StreakBadge
-                currentStreak={streak.current_streak}
-                longestStreak={streak.longest_streak}
-                readToday={streak.read_today}
-                isKids={isKids}
-                variant="compact"
-              />
-            </div>
-            <div className="flex items-center gap-2 mt-1">
-              <span
-                className="inline-block px-2 py-0.5 rounded-full text-[10px] font-bold tracking-widest uppercase"
-                style={{ fontFamily: 'JetBrains Mono, monospace', background: isKids ? '#FFD60A' : '#CCFF00', color: '#050505' }}
-              >
-                No Cap News
+            <h1
+              className="text-3xl font-bold tracking-tight"
+              style={{
+                fontFamily: 'Fredoka, sans-serif',
+                background: 'linear-gradient(135deg, #3B82F6, #8B5CF6)',
+                WebkitBackgroundClip: 'text',
+                WebkitTextFillColor: 'transparent',
+              }}
+            >
+              The Drop
+            </h1>
+            {user?.city && (
+              <span className="text-xs mt-1 block" style={{ fontFamily: 'Outfit, sans-serif', color: '#475569' }}>
+                {userCountryObj?.flag_emoji && `${userCountryObj.flag_emoji} `}{user.city}, {user.country}
               </span>
-              {user?.city && (
-                <span className="text-xs opacity-40" style={{ fontFamily: 'Outfit, sans-serif', color: textColor }}>
-                  {userCountryObj?.flag_emoji && `${userCountryObj.flag_emoji} `}{user.city}, {user.country}
-                </span>
-              )}
-            </div>
+            )}
           </div>
-          <button
-            data-testid="refresh-btn"
-            onClick={handleRefresh}
-            disabled={refreshing}
-            className="p-2.5 rounded-xl"
-            style={{
-              background: isKids ? '#fff' : 'rgba(255,255,255,0.08)',
-              border: isKids ? '2px solid #1A1A1A' : '1px solid rgba(255,255,255,0.15)',
-            }}
-          >
-            <RefreshCw size={18} className={refreshing ? 'animate-spin' : ''}
-              style={{ color: isKids ? '#1A1A1A' : '#CCFF00' }} />
-          </button>
+          <div className="flex items-center gap-3">
+            <StreakBadge
+              currentStreak={streak.current_streak}
+              longestStreak={streak.longest_streak}
+              readToday={streak.read_today}
+              variant="compact"
+            />
+            <button
+              data-testid="refresh-btn"
+              onClick={handleRefresh}
+              disabled={refreshing}
+              className="p-2.5 rounded-xl transition-all duration-200"
+              style={{
+                background: 'rgba(255,255,255,0.05)',
+                border: '1px solid rgba(255,255,255,0.08)',
+              }}
+            >
+              <RefreshCw size={18} className={refreshing ? 'animate-spin' : ''}
+                style={{ color: '#64748B' }} />
+            </button>
+          </div>
         </div>
 
         <CategoryTabs categories={categories} activeCategory={activeCategory}
-          setActiveCategory={setActiveCategory} isKids={isKids} />
+          setActiveCategory={setActiveCategory} />
       </div>
 
       {/* Feed */}
-      <div className="px-4 pt-4 space-y-4">
+      <div className="px-4 pt-4 space-y-5">
         {loading ? (
           <div className="flex items-center justify-center py-20">
-            <Loader2 className="animate-spin" size={32} style={{ color: isKids ? '#3A86FF' : '#CCFF00' }} />
+            <Loader2 className="animate-spin" size={32} style={{ color: '#3B82F6' }} />
           </div>
         ) : feedItems.length === 0 ? (
           <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="text-center py-20">
-            <p className="text-lg opacity-60" style={{ fontFamily: 'Outfit, sans-serif', color: textColor }}>
+            <p className="text-lg" style={{ fontFamily: 'Outfit, sans-serif', color: '#475569' }}>
               No articles yet. Hit refresh to load fresh news!
             </p>
           </motion.div>
@@ -198,21 +189,25 @@ export default function FeedPage() {
           feedItems.map((item, index) => (
             <motion.div
               key={item.type === 'article' ? item.data.id : `fact-${index}`}
-              initial={{ y: 30, opacity: 0 }}
+              initial={{ y: 40, opacity: 0 }}
               animate={{ y: 0, opacity: 1 }}
-              transition={{ delay: Math.min(index * 0.04, 0.5), duration: 0.35 }}
+              transition={{
+                delay: Math.min(index * 0.06, 0.6),
+                duration: 0.45,
+                ease: [0.16, 1, 0.3, 1],
+              }}
             >
               {item.type === 'article' ? (
-                <NewsCard article={item.data} isKids={isKids} ageGroup={ageGroup} />
+                <NewsCard article={item.data} />
               ) : (
-                <MicroFactCard fact={item.data} isKids={isKids} />
+                <MicroFactCard fact={item.data} />
               )}
             </motion.div>
           ))
         )}
       </div>
 
-      <BottomNav isKids={isKids} active="home" />
+      <BottomNav active="home" />
     </div>
   );
 }

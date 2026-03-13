@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Info, X } from 'lucide-react';
 
-export const WhyThisStory = ({ reason, isKids }) => {
+export const WhyThisStory = ({ reason }) => {
   const [open, setOpen] = useState(false);
 
   return (
@@ -10,12 +10,10 @@ export const WhyThisStory = ({ reason, isKids }) => {
       <button
         data-testid="why-this-story-btn"
         onClick={(e) => { e.stopPropagation(); setOpen(!open); }}
-        className="p-1 rounded-full"
-        style={{
-          background: isKids ? 'rgba(58,134,255,0.1)' : 'rgba(255,255,255,0.06)',
-        }}
+        className="p-1.5 rounded-full"
+        style={{ background: 'rgba(255,255,255,0.06)' }}
       >
-        <Info size={13} style={{ color: isKids ? '#3A86FF' : '#888' }} />
+        <Info size={13} style={{ color: '#64748B' }} />
       </button>
 
       <AnimatePresence>
@@ -26,26 +24,26 @@ export const WhyThisStory = ({ reason, isKids }) => {
             exit={{ opacity: 0, scale: 0.9, y: 5 }}
             transition={{ duration: 0.15 }}
             onClick={(e) => e.stopPropagation()}
-            className="absolute bottom-full left-0 mb-2 p-3 rounded-xl z-50 w-60"
+            className="absolute bottom-full left-0 mb-2 p-4 rounded-2xl z-50 w-60"
             style={{
-              background: isKids ? '#fff' : '#1a1a1a',
-              border: isKids ? '1px solid #eee' : '1px solid rgba(255,255,255,0.12)',
-              boxShadow: '0 8px 30px rgba(0,0,0,0.15)',
+              background: '#111827',
+              border: '1px solid rgba(255,255,255,0.08)',
+              boxShadow: '0 8px 30px rgba(0,0,0,0.4)',
             }}
           >
             <div className="flex items-start justify-between gap-2">
               <div>
-                <p className="text-[10px] font-bold tracking-wider uppercase mb-1 opacity-50"
-                  style={{ fontFamily: 'JetBrains Mono, monospace', color: isKids ? '#1A1A1A' : '#EDEDED' }}>
+                <p className="text-[10px] font-semibold tracking-wider uppercase mb-1.5"
+                  style={{ fontFamily: 'Outfit, sans-serif', color: '#64748B' }}>
                   WHY THIS STORY?
                 </p>
                 <p className="text-xs leading-relaxed"
-                  style={{ fontFamily: 'Outfit, sans-serif', color: isKids ? '#444' : '#bbb' }}>
+                  style={{ fontFamily: 'Outfit, sans-serif', color: '#94A3B8' }}>
                   {reason}
                 </p>
               </div>
               <button onClick={(e) => { e.stopPropagation(); setOpen(false); }} className="shrink-0 mt-0.5">
-                <X size={12} style={{ color: isKids ? '#999' : '#666' }} />
+                <X size={12} style={{ color: '#475569' }} />
               </button>
             </div>
           </motion.div>

@@ -24,8 +24,8 @@ function ProtectedRoute({ children }) {
   const { isAuthenticated, loading } = useTheme();
   if (loading) {
     return (
-      <div className="min-h-screen flex items-center justify-center" style={{ background: '#050505' }}>
-        <Loader2 className="animate-spin" size={32} style={{ color: '#CCFF00' }} />
+      <div className="min-h-screen flex items-center justify-center" style={{ background: '#0A0E1A' }}>
+        <Loader2 className="animate-spin" size={32} style={{ color: '#3B82F6' }} />
       </div>
     );
   }
