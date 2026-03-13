@@ -223,7 +223,7 @@ CATEGORIES = [
     {"id": "money", "name": "Money & Economy", "icon": "coins", "color": "#FFD60A"},
     {"id": "history", "name": "History in the Making", "icon": "hourglass", "color": "#FF6B35"},
     {"id": "entertainment", "name": "Entertainment", "icon": "music", "color": "#FF006E"},
-    {"id": "local", "name": "In Your City", "icon": "map-pin", "color": "#4CC9F0"},
+    {"id": "local", "name": "In Your Country", "icon": "map-pin", "color": "#4CC9F0"},
 ]
 
 # --- Source Logos ---
