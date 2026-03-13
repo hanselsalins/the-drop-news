@@ -218,12 +218,30 @@ REACTION_EMOJIS = {
 }
 
 CATEGORIES = [
-    {"id": "world", "name": "What's Happening", "icon": "globe", "color": "#3A86FF"},
-    {"id": "science", "name": "Science & Discovery", "icon": "flask", "color": "#39FF14"},
-    {"id": "money", "name": "Money & Economy", "icon": "coins", "color": "#FFD60A"},
-    {"id": "entertainment", "name": "Entertainment", "icon": "music", "color": "#FF006E"},
-    {"id": "local", "name": "In Your Country", "icon": "map-pin", "color": "#4CC9F0"},
+    {"id": "world", "name": "World", "icon": "globe", "color": "#3A86FF"},
+    {"id": "power", "name": "Power", "icon": "zap", "color": "#FF6B35"},
+    {"id": "money", "name": "Money", "icon": "coins", "color": "#FFD60A"},
+    {"id": "tech", "name": "Tech", "icon": "cpu", "color": "#39FF14"},
+    {"id": "sports", "name": "Sports", "icon": "trophy", "color": "#FF006E"},
+    {"id": "entertainment", "name": "Entertainment", "icon": "music", "color": "#FF69B4"},
+    {"id": "environment", "name": "Environment", "icon": "leaf", "color": "#00E5CC"},
 ]
+
+# All tabs shown in the feed UI, including Today's Drop as the first tab
+ALL_TABS = [
+    {"id": "todays_drop", "name": "Today's Drop", "icon": "star", "color": "#CCFF00"},
+    {"id": "world", "name": "World", "icon": "globe", "color": "#3A86FF"},
+    {"id": "power", "name": "Power", "icon": "zap", "color": "#FF6B35"},
+    {"id": "money", "name": "Money", "icon": "coins", "color": "#FFD60A"},
+    {"id": "tech", "name": "Tech", "icon": "cpu", "color": "#39FF14"},
+    {"id": "sports", "name": "Sports", "icon": "trophy", "color": "#FF006E"},
+    {"id": "entertainment", "name": "Entertainment", "icon": "music", "color": "#FF69B4"},
+    {"id": "environment", "name": "Environment", "icon": "leaf", "color": "#00E5CC"},
+]
+
+# Hard content caps — never overridable by query params
+TODAYS_DROP_CAP = 5
+CATEGORY_TAB_CAP = 3
 
 # --- Source Logos ---
 SOURCE_LOGOS = {
@@ -407,30 +425,40 @@ RSS_FEEDS = {
         {"url": "https://feeds.bbci.co.uk/news/world/rss.xml", "source": "BBC News"},
         {"url": "https://rss.nytimes.com/services/xml/rss/nyt/World.xml", "source": "NY Times"},
     ],
-    "science": [
-        {"url": "https://feeds.bbci.co.uk/news/science_and_environment/rss.xml", "source": "BBC Science"},
-        {"url": "https://rss.nytimes.com/services/xml/rss/nyt/Science.xml", "source": "NY Times"},
+    "power": [
+        {"url": "https://feeds.bbci.co.uk/news/politics/rss.xml", "source": "BBC News"},
+        {"url": "https://rss.nytimes.com/services/xml/rss/nyt/Politics.xml", "source": "NY Times"},
     ],
     "money": [
         {"url": "https://feeds.bbci.co.uk/news/business/rss.xml", "source": "BBC Business"},
         {"url": "https://rss.nytimes.com/services/xml/rss/nyt/Business.xml", "source": "NY Times"},
     ],
+    "tech": [
+        {"url": "https://feeds.bbci.co.uk/news/technology/rss.xml", "source": "BBC News"},
+        {"url": "https://rss.nytimes.com/services/xml/rss/nyt/Technology.xml", "source": "NY Times"},
+    ],
+    "sports": [
+        {"url": "https://feeds.bbci.co.uk/sport/rss.xml", "source": "BBC Sport"},
+        {"url": "https://rss.nytimes.com/services/xml/rss/nyt/Sports.xml", "source": "NY Times"},
+    ],
     "entertainment": [
         {"url": "https://feeds.bbci.co.uk/news/entertainment_and_arts/rss.xml", "source": "BBC Entertainment"},
         {"url": "https://rss.nytimes.com/services/xml/rss/nyt/Arts.xml", "source": "NY Times"},
     ],
-    "local": [
-        {"url": "https://feeds.bbci.co.uk/news/rss.xml", "source": "BBC News"},
-        {"url": "https://rss.nytimes.com/services/xml/rss/nyt/US.xml", "source": "NY Times"},
+    "environment": [
+        {"url": "https://feeds.bbci.co.uk/news/science_and_environment/rss.xml", "source": "BBC News"},
+        {"url": "https://rss.nytimes.com/services/xml/rss/nyt/Climate.xml", "source": "NY Times"},
     ],
 }
 
 CATEGORY_IMAGES = {
     "world": "https://images.unsplash.com/photo-1633421878925-ac220d8f6e4f?w=800&q=80",
-    "science": "https://images.unsplash.com/photo-1730266718522-ff6d21f3a91f?w=800&q=80",
+    "power": "https://images.unsplash.com/photo-1529107386315-e1a2ed48a620?w=800&q=80",
     "money": "https://images.unsplash.com/photo-1726825779715-b47ced2411a7?w=800&q=80",
+    "tech": "https://images.unsplash.com/photo-1730266718522-ff6d21f3a91f?w=800&q=80",
+    "sports": "https://images.unsplash.com/photo-1541534741688-6078c6bfb5c5?w=800&q=80",
     "entertainment": "https://images.unsplash.com/photo-1620245446020-879dc5cf2414?w=800&q=80",
-    "local": "https://images.unsplash.com/photo-1559038452-c182e478b3e4?w=800&q=80",
+    "environment": "https://images.unsplash.com/photo-1559038452-c182e478b3e4?w=800&q=80",
 }
 
 
@@ -530,7 +558,7 @@ Rate "LOW" if: the source text was ambiguous, contained idioms you're unsure abo
 Rate "HIGH" if you are confident the rewrite accurately captures the original meaning.""".format(lang=source_language)
 
     prompt = f"""Rewrite this news article. The source language is {source_language}. Rewrite the output entirely in English regardless of the source language.
-Respond in valid JSON only with keys: title, summary, body, wonder_question, reading_time{', confidence' if source_language in ('Urdu', 'Bangla') else ''}.
+Respond in valid JSON only with keys: title, summary, body, wonder_question, reading_time, country_relevance, impact_flags{', confidence' if source_language in ('Urdu', 'Bangla') else ''}.
 
 Source Language: {source_language}
 Source Country: {source_country}
@@ -540,6 +568,8 @@ Category: {category}
 Target Age Group: {age_group}
 
 Map: "title"=Headline, "summary"=Summary, "body"=Story, "wonder_question"=Wonder Question, "reading_time"=estimated reading time.
+country_relevance: array of ISO2 country codes this story directly affects (e.g. ["IN", "US"]), or ["GLOBAL"] if it affects the whole world.
+impact_flags: array of applicable flags from: global_economic_impact, global_environmental_impact, global_entertainment_crossover, country_participant_sports. Use [] if none apply.
 Return ONLY valid JSON, no markdown, no code blocks.{confidence_instruction}"""
 
     # Retry logic: attempt once, if fails retry, then mark for manual review
@@ -548,6 +578,7 @@ Return ONLY valid JSON, no markdown, no code blocks.{confidence_instruction}"""
             if openai_client is None:
                 logger.error("OpenAI client is not configured; skipping rewrite.")
                 return {"title": title, "summary": content[:150], "body": content, "reading_time": "2 min",
+                        "country_relevance": ["GLOBAL"], "impact_flags": [],
                         "low_confidence_flag": False, "rewrite_status": "failed"}
 
             model = os.environ.get("OPENAI_MODEL_DEFAULT", "gpt-4o-mini")
@@ -593,6 +624,7 @@ Return ONLY valid JSON, no markdown, no code blocks.{confidence_instruction}"""
     logger.error(f"Rewrite failed after 2 attempts: title='{title[:50]}', lang={source_language}")
     return {"title": title, "summary": content[:150], "body": content[:500],
             "reading_time": "2 min", "rewrite_status": "failed",
+            "country_relevance": ["GLOBAL"], "impact_flags": [],
             "low_confidence_flag": source_language in ("Urdu", "Bangla")}
 
 
@@ -614,7 +646,7 @@ async def generate_micro_facts(age_group: str):
 Today's news topics:
 {titles_context}
 
-Return ONLY a valid JSON array of objects with keys: "fact" (the micro-fact text), "category" (which news category it relates to: world/science/money/entertainment/local).
+Return ONLY a valid JSON array of objects with keys: "fact" (the micro-fact text), "category" (which news category it relates to: world/power/money/tech/sports/entertainment/environment).
 No markdown, no code blocks. Just the JSON array."""
 
     try:
@@ -666,11 +698,13 @@ def generate_why_reason(article: dict, user: dict = None) -> str:
     user_city = user.get("city", "") if user else ""
 
     reasons = {
-        "local": f"This is a top story from {user_city or user_country or 'your region'} today." if user_country else "This is a local news story relevant to your area.",
         "world": "This story is a major global event everyone's talking about.",
-        "science": "This story is trending in Science globally.",
+        "power": f"This story affects how {user_country or 'your country'} is governed and who holds power." if user_country else "This story is about politics and the people who hold power.",
         "money": "This is a key story about the economy that affects everyday life.",
+        "tech": "This story is trending in Tech globally.",
+        "sports": f"This story covers sports action relevant to {user_country or 'your region'}." if user_country else "This is a top sports story today.",
         "entertainment": "This story is trending in Entertainment and Culture.",
+        "environment": "This story covers how our planet and climate are changing.",
     }
 
     return reasons.get(category, "This is part of today's balanced mix across all topics.")
@@ -737,8 +771,8 @@ async def crawl_rss_feeds(country_code: str = None):
                             title = entry.get('title', '')
                             classify_prompt = (
                                 "Given this news headline: '{title}'\n"
-                                "Classify it into exactly one of these categories: world, science, money, "
-                                "history, entertainment, local\n"
+                                "Classify it into exactly one of these categories: world, power, money, "
+                                "tech, sports, entertainment, environment\n"
                                 "Reply with only the single category word, nothing else."
                             ).format(title=title.replace("'", "\\'"))
 
@@ -753,7 +787,7 @@ async def crawl_rss_feeds(country_code: str = None):
                                 ],
                             )
                             ai_category = response.choices[0].message.content.strip().lower()
-                            allowed_categories = {"world", "science", "money", "entertainment", "local"}
+                            allowed_categories = {"world", "power", "money", "tech", "sports", "entertainment", "environment"}
                             if ai_category in allowed_categories:
                                 category = ai_category
                     except Exception as e:
@@ -875,6 +909,9 @@ async def rewrite_pending_articles(age_group: str):
             update_fields["rewrite_status"] = rewrite["rewrite_status"]
         if rewrite.get("low_confidence_flag") is not None:
             update_fields["low_confidence_flag"] = rewrite["low_confidence_flag"]
+        # Store AI-tagged geolocation fields at article level
+        update_fields["country_relevance"] = rewrite.get("country_relevance", ["GLOBAL"])
+        update_fields["impact_flags"] = rewrite.get("impact_flags", [])
 
         await db.articles.update_one({"id": article["id"]}, {"$set": update_fields})
     logger.info(f"Rewrites complete for {len(articles)} articles, age_group={age_group}")
@@ -1757,58 +1794,217 @@ async def root():
 
 @api_router.get("/categories")
 async def get_categories():
-    return CATEGORIES
+    return ALL_TABS
 
-@api_router.get("/articles")
-async def get_articles(category: Optional[str] = None, age_group: str = "14-16", limit: int = 20,
-                       country_code: Optional[str] = None,
-                       user=Depends(get_optional_user)):
-    query = {}
-    if category and category != "all":
-        query["category"] = category
-    # Filter by country if provided, otherwise use user's country
-    effective_country = country_code
-    if not effective_country and user:
-        # Map user's country name to country_code
-        user_country = user.get("country", "")
-        if user_country:
-            country_doc = await db.global_sources.find_one(
-                {"country_name": {"$regex": f"^{user_country}$", "$options": "i"}},
-                {"_id": 0, "country_code": 1}
-            )
-            if country_doc:
-                effective_country = country_doc["country_code"]
-    if effective_country:
-        query["source_country"] = effective_country.upper()
+def _build_localised_query(category: str, user_country_code: str) -> dict:
+    """Build a MongoDB query filter for category localisation rules."""
+    c = user_country_code.upper() if user_country_code else ""
+    if category == "world":
+        return {"$or": [
+            {"country_relevance": "GLOBAL"},
+            {"$expr": {"$gt": [{"$size": {"$ifNull": ["$country_relevance", []]}}, 2]}},
+        ]}
+    elif category == "power":
+        if not c:
+            return {"country_relevance": "GLOBAL"}
+        return {"country_relevance": c}
+    elif category == "money":
+        return {"$or": [
+            {"country_relevance": c} if c else {"country_relevance": "GLOBAL"},
+            {"impact_flags": "global_economic_impact"},
+        ]}
+    elif category == "tech":
+        return {}  # always include all
+    elif category == "sports":
+        return {"$or": [
+            {"country_relevance": c} if c else {"country_relevance": "GLOBAL"},
+            {"impact_flags": "country_participant_sports"},
+        ]}
+    elif category == "entertainment":
+        return {"$or": [
+            {"country_relevance": c} if c else {"country_relevance": "GLOBAL"},
+            {"impact_flags": "global_entertainment_crossover"},
+        ]}
+    elif category == "environment":
+        return {"$or": [
+            {"country_relevance": c} if c else {"country_relevance": "GLOBAL"},
+            {"impact_flags": "global_environmental_impact"},
+        ]}
+    return {}
 
-    # Only return articles that have been rewritten for the requested age group
-    query[f"rewrites.{age_group}"] = {"$exists": True}
-    # Sort by engagement (reaction total) + recency
-    cursor = db.articles.find(query, {"_id": 0, "original_content": 0}).sort("crawled_at", -1).limit(limit)
-    articles = await cursor.to_list(limit)
+
+def _compute_engagement_score(article: dict) -> float:
+    counts = article.get("reaction_counts", {})
+    reaction_count = sum(counts.values())
+    read_count = article.get("read_count", 0)
+    source_coverage = article.get("source_coverage", 1)
+    return (reaction_count * 3) + (read_count * 1) + (source_coverage * 2)
+
+
+def _compute_tab_score(article: dict) -> float:
+    """Score for category tab ranking: (source_coverage×2) + recency_score."""
+    sc = article.get("source_coverage", 1)
+    try:
+        pub_str = article.get("crawled_at", "") or article.get("published_at", "")
+        pub = datetime.fromisoformat(pub_str.replace("Z", "+00:00"))
+        if pub.tzinfo is None:
+            pub = pub.replace(tzinfo=timezone.utc)
+        hours_ago = (datetime.now(timezone.utc) - pub).total_seconds() / 3600
+    except Exception:
+        hours_ago = 24
+    recency = max(0.0, 24.0 - hours_ago)
+    return (sc * 2) + recency
+
+
+async def _resolve_user_country_code(user: dict, override: str = None) -> str:
+    """Return ISO2 country code for the user, or override if provided."""
+    if override:
+        return override.upper()
+    if not user:
+        return ""
+    user_country = user.get("country", "")
+    if not user_country:
+        return ""
+    country_doc = await db.global_sources.find_one(
+        {"country_name": {"$regex": f"^{user_country}$", "$options": "i"}},
+        {"_id": 0, "country_code": 1}
+    )
+    return country_doc["country_code"] if country_doc else ""
+
+
+async def _format_article(a: dict, age_group: str, user: dict, category_override: str = None,
+                           extra: dict = None) -> dict:
+    rewrite = a.get("rewrites", {}).get(age_group)
+    counts = a.get("reaction_counts", {})
+    counts = {k: max(0, v) for k, v in counts.items()}
+    why = generate_why_reason(a, user)
+    logo = a.get("source_logo", "") or await get_source_logo(a.get("source", ""))
+    out = {
+        "id": a["id"], "original_title": a["original_title"],
+        "original_url": a.get("original_url", ""), "source": a.get("source", ""),
+        "source_logo": logo,
+        "source_country": a.get("source_country", ""),
+        "source_language": a.get("source_language", "English"),
+        "category": category_override or a.get("category", ""),
+        "image_url": a.get("image_url", ""),
+        "published_at": a.get("published_at", ""), "rewrite": rewrite,
+        "reaction_counts": counts, "why_reason": why,
+        "low_confidence_flag": a.get("low_confidence_flag", False),
+    }
+    if extra:
+        out.update(extra)
+    return out
+
+
+async def _get_or_generate_todays_drop(age_group: str, user: dict, user_country_code: str) -> dict:
+    """Return Today's Drop for the user, generating and caching if needed."""
+    today = today_str()
+    user_id = user["id"] if user else "anonymous"
+    cache_key = f"{user_id}_{today}_{age_group}"
+
+    cached = await db.daily_drop_progress.find_one({"cache_key": cache_key}, {"_id": 0})
+    if cached and cached.get("articles"):
+        return {"articles": cached["articles"][:TODAYS_DROP_CAP], "cached": True, "date": today}
+
+    since = (datetime.now(timezone.utc) - timedelta(hours=24)).isoformat()
+    category_ids = [c["id"] for c in CATEGORIES]
+
+    scored = []
+    for cat in category_ids:
+        base_query = {
+            "category": cat,
+            f"rewrites.{age_group}": {"$exists": True},
+            "crawled_at": {"$gte": since},
+        }
+        loc_filter = _build_localised_query(cat, user_country_code)
+        if loc_filter:
+            base_query.update(loc_filter)
+
+        candidates = await db.articles.find(base_query, {"_id": 0}).sort("crawled_at", -1).to_list(20)
+
+        if not candidates and cat == "power" and user_country_code:
+            fallback_query = {
+                "category": cat,
+                f"rewrites.{age_group}": {"$exists": True},
+                "crawled_at": {"$gte": since},
+                "country_relevance": "GLOBAL",
+            }
+            candidates = await db.articles.find(fallback_query, {"_id": 0}).sort("crawled_at", -1).to_list(20)
+
+        if candidates:
+            best = max(candidates, key=_compute_engagement_score)
+            scored.append((cat, _compute_engagement_score(best), best))
+
+    scored.sort(key=lambda x: x[1], reverse=True)
+    top = scored[:TODAYS_DROP_CAP]
 
     result = []
-    for a in articles:
-        rewrite = a.get("rewrites", {}).get(age_group)
-        counts = a.get("reaction_counts", {})
-        counts = {k: max(0, v) for k, v in counts.items()}
-        why = generate_why_reason(a, user)
-        logo = a.get("source_logo", "") or await get_source_logo(a.get("source", ""))
-        result.append({
-            "id": a["id"], "original_title": a["original_title"],
-            "original_url": a.get("original_url", ""), "source": a.get("source", ""),
-            "source_logo": logo,
-            "source_country": a.get("source_country", ""),
-            "source_language": a.get("source_language", "English"),
-            "category": a.get("category", ""), "image_url": a.get("image_url", ""),
-            "published_at": a.get("published_at", ""), "rewrite": rewrite,
-            "reaction_counts": counts, "why_reason": why,
-            "low_confidence_flag": a.get("low_confidence_flag", False),
-        })
+    for cat, score, a in top:
+        result.append(await _format_article(a, age_group, user,
+                                            category_override=cat,
+                                            extra={"engagement_score": score}))
 
-    # Sort by total reactions (engagement signal) then recency
-    result.sort(key=lambda x: sum(x.get("reaction_counts", {}).values()), reverse=True)
+    await db.daily_drop_progress.update_one(
+        {"cache_key": cache_key},
+        {"$set": {"cache_key": cache_key, "articles": result, "date": today,
+                  "user_id": user_id, "age_group": age_group,
+                  "cached_at": datetime.now(timezone.utc).isoformat()}},
+        upsert=True,
+    )
+    return {"articles": result, "cached": False, "date": today}
+
+
+@api_router.get("/articles")
+async def get_articles(category: Optional[str] = None, age_group: str = "14-16",
+                       country_code: Optional[str] = None,
+                       user=Depends(get_optional_user)):
+    effective_country = await _resolve_user_country_code(user, country_code)
+
+    # "for_you" and "todays_drop" both serve Today's Drop repackaged as a feed list
+    if category in ("for_you", "todays_drop"):
+        drop = await _get_or_generate_todays_drop(age_group, user, effective_country)
+        return drop["articles"]  # already capped at TODAYS_DROP_CAP
+
+    # Category tab — apply localisation rules
+    cat = category if category and category != "all" else "world"
+    query = {
+        "category": cat,
+        f"rewrites.{age_group}": {"$exists": True},
+    }
+    loc_filter = _build_localised_query(cat, effective_country)
+    if loc_filter:
+        query.update(loc_filter)
+
+    # Fetch enough candidates to score and trim
+    candidates = await db.articles.find(
+        query, {"_id": 0, "original_content": 0}
+    ).sort("crawled_at", -1).to_list(50)
+
+    # Exclude articles already in today's drop for this user
+    today = today_str()
+    user_id = user["id"] if user else "anonymous"
+    cache_key = f"{user_id}_{today}_{age_group}"
+    cached_drop = await db.daily_drop_progress.find_one({"cache_key": cache_key},
+                                                         {"_id": 0, "articles": 1})
+    drop_ids = {a["id"] for a in (cached_drop.get("articles") or [])} if cached_drop else set()
+    candidates = [a for a in candidates if a["id"] not in drop_ids]
+
+    # Score and hard-cap at CATEGORY_TAB_CAP
+    candidates.sort(key=_compute_tab_score, reverse=True)
+    top = candidates[:CATEGORY_TAB_CAP]
+
+    result = []
+    for a in top:
+        result.append(await _format_article(a, age_group, user))
     return result
+
+
+@api_router.get("/todays-drop")
+async def get_todays_drop(age_group: str = "14-16", user=Depends(get_optional_user)):
+    effective_country = await _resolve_user_country_code(user)
+    drop = await _get_or_generate_todays_drop(age_group, user, effective_country)
+    return drop
+
 
 @api_router.get("/articles/{article_id}")
 async def get_article(article_id: str, age_group: str = "14-16", user=Depends(get_optional_user)):

@@ -5,18 +5,22 @@ import { ReactionMini } from './ReactionMini';
 
 const CATEGORY_COLORS = {
   world: '#3A86FF',
-  science: '#39FF14',
+  power: '#FF6B35',
   money: '#FFD60A',
-  entertainment: '#FF006E',
-  local: '#4CC9F0',
+  tech: '#39FF14',
+  sports: '#FF006E',
+  entertainment: '#FF69B4',
+  environment: '#00E5CC',
 };
 
 const CATEGORY_LABELS = {
   world: "World",
-  science: "Science",
+  power: "Power",
   money: "Money",
+  tech: "Tech",
+  sports: "Sports",
   entertainment: "Entertainment",
-  local: "Local",
+  environment: "Environment",
 };
 
 export const NewsCard = ({ article, isKids }) => {
