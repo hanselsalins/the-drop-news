@@ -1984,8 +1984,8 @@ async def startup_event():
 async def _initial_crawl():
     """Initial crawl on startup — runs in background to not block startup."""
     try:
-        await crawl_rss_feeds(country_code="US")
-        await crawl_rss_feeds(country_code="GB")
+        for cc in ["US", "GB", "IN", "AU", "AE"]:
+            await crawl_rss_feeds(country_code=cc)
         await rewrite_pending_articles("14-16")
         await rewrite_pending_articles("8-10")
         await generate_micro_facts("8-10")
