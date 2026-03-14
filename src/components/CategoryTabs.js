@@ -29,8 +29,6 @@ const CATEGORY_LIGHT_BG = {
 };
 
 export const CategoryTabs = ({ categories, activeCategory, setActiveCategory }) => {
-  const allCategories = [{ id: 'all', name: 'For You' }, ...categories];
-
   return (
     <div
       className="w-full overflow-x-auto scrollbar-hide"
