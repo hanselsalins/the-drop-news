@@ -1,12 +1,12 @@
 """
-admin.py — The Drop Admin Dashboard
+admin.py — The Drop Admin Dashboard v2
 Serves a standalone password-protected admin panel at /admin.
 All HTML/CSS/JS is inline. Mount via init_admin() + app.include_router().
 """
 from fastapi import APIRouter, Request, Form, HTTPException
-from fastapi.responses import HTMLResponse, RedirectResponse
+from fastapi.responses import HTMLResponse, RedirectResponse, JSONResponse
 import hashlib, hmac, os, asyncio
-from datetime import datetime, timezone
+from datetime import datetime, timezone, timedelta
 
 admin_router = APIRouter(prefix="/admin", tags=["admin"])
 
@@ -24,7 +24,7 @@ def init_admin(db, password: str, **fns):
 
 def _make_token() -> str:
     return hmac.new(
-        _admin_password.encode(), b"the-drop-admin-v1", hashlib.sha256
+        _admin_password.encode(), b"the-drop-admin-v2", hashlib.sha256
     ).hexdigest()
 
 
@@ -49,63 +49,38 @@ _LOGIN_HTML = """<!DOCTYPE html>
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title>The Drop — Admin</title>
 <style>
-*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
-body{background:#0a0a0a;color:#ededed;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;
-  display:flex;align-items:center;justify-content:center;min-height:100vh}
-.card{background:#161616;border:1px solid rgba(255,255,255,0.07);border-radius:16px;padding:44px 48px;width:380px}
-.logo{font-size:1.4rem;font-weight:700;color:#CCFF00;letter-spacing:-0.02em}
-.sub{color:#555;font-size:0.8rem;margin-top:4px;margin-bottom:36px}
-label{display:block;font-size:0.72rem;color:#666;text-transform:uppercase;letter-spacing:.06em;margin-bottom:7px}
-input[type=password]{width:100%;background:#0d0d0d;border:1px solid rgba(255,255,255,0.1);
-  border-radius:8px;padding:11px 14px;color:#ededed;font-size:0.9rem;outline:none;margin-bottom:20px}
-input[type=password]:focus{border-color:#CCFF00}
-button{width:100%;background:#CCFF00;color:#0a0a0a;font-weight:700;border:none;
-  border-radius:8px;padding:12px;font-size:0.9rem;cursor:pointer;letter-spacing:.01em}
-button:hover{background:#b8e600}
-.err{color:#FF006E;font-size:0.78rem;margin-top:14px}
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{background:#111827;color:#f9fafb;font-family:'Segoe UI',system-ui,sans-serif;
+       min-height:100vh;display:flex;align-items:center;justify-content:center}
+  .card{background:#1f2937;border:1px solid #374151;border-radius:12px;padding:40px;
+        width:360px;box-shadow:0 20px 60px rgba(0,0,0,.5)}
+  h1{font-size:22px;font-weight:700;margin-bottom:6px;color:#f9fafb}
+  .sub{font-size:13px;color:#9ca3af;margin-bottom:28px}
+  label{display:block;font-size:12px;color:#9ca3af;margin-bottom:6px;font-weight:500;
+        letter-spacing:.5px;text-transform:uppercase}
+  input{width:100%;background:#111827;border:1px solid #374151;border-radius:8px;
+        padding:10px 14px;color:#f9fafb;font-size:15px;outline:none;transition:.2s}
+  input:focus{border-color:#3b82f6;box-shadow:0 0 0 3px rgba(59,130,246,.15)}
+  button{width:100%;background:#3b82f6;color:#fff;border:none;border-radius:8px;
+         padding:11px;font-size:15px;font-weight:600;cursor:pointer;margin-top:18px;
+         transition:background .2s}
+  button:hover{background:#2563eb}
+  .err{color:#f87171;font-size:13px;margin-top:14px;text-align:center}
 </style>
 </head>
 <body>
 <div class="card">
-  <div class="logo">The Drop</div>
-  <div class="sub">Admin Dashboard</div>
-  <form method="POST" action="/admin/login">
+  <h1>The Drop</h1>
+  <p class="sub">Admin Dashboard</p>
+  <form method="post" action="/admin/login">
     <label>Password</label>
-    <input type="password" name="password" autofocus autocomplete="current-password">
-    <button type="submit">Sign in</button>
+    <input type="password" name="password" autofocus placeholder="Enter admin password">
+    <button type="submit">Sign In</button>
     {error}
   </form>
 </div>
 </body>
 </html>"""
-
-
-@admin_router.get("/login", response_class=HTMLResponse)
-async def login_page(request: Request):
-    if _is_auth(request):
-        return RedirectResponse("/admin", status_code=302)
-    return HTMLResponse(_LOGIN_HTML.replace("{error}", ""))
-
-
-@admin_router.post("/login")
-async def login_submit(request: Request, password: str = Form(...)):
-    if password == _admin_password:
-        resp = RedirectResponse("/admin", status_code=302)
-        resp.set_cookie("admin_session", _make_token(),
-                        httponly=True, samesite="lax", max_age=86400 * 7)
-        return resp
-    html = _LOGIN_HTML.replace("{error}", '<div class="err">Incorrect password.</div>')
-    return HTMLResponse(html, status_code=401)
-
-
-@admin_router.get("/logout")
-async def logout():
-    resp = RedirectResponse("/admin/login", status_code=302)
-    resp.delete_cookie("admin_session")
-    return resp
-
-
-# ── DASHBOARD HTML ─────────────────────────────────────────────
 
 _DASHBOARD_HTML = r"""<!DOCTYPE html>
 <html lang="en">
@@ -113,548 +88,922 @@ _DASHBOARD_HTML = r"""<!DOCTYPE html>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title>The Drop — Admin</title>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.2/dist/chart.umd.min.js"></script>
 <style>
-*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
-body{background:#0a0a0a;color:#ededed;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;font-size:13px;line-height:1.5}
-
-/* Sidebar */
-.sidebar{position:fixed;left:0;top:0;bottom:0;width:196px;background:#111;
-  border-right:1px solid rgba(255,255,255,0.05);display:flex;flex-direction:column;padding:0}
-.sidebar-logo{padding:22px 20px 18px;border-bottom:1px solid rgba(255,255,255,0.05)}
-.sidebar-logo .name{font-size:1rem;font-weight:700;color:#CCFF00;letter-spacing:-.01em}
-.sidebar-logo .tag{font-size:0.7rem;color:#444;margin-top:2px}
-.nav-item{padding:10px 20px;cursor:pointer;color:#666;font-size:0.82rem;display:flex;
-  align-items:center;gap:10px;border-left:2px solid transparent;transition:all .12s}
-.nav-item:hover{color:#ccc;background:rgba(255,255,255,0.03)}
-.nav-item.active{color:#CCFF00;border-left-color:#CCFF00;background:rgba(204,255,0,0.04)}
-.nav-icon{width:16px;text-align:center;font-size:0.85rem}
-.sidebar-footer{margin-top:auto;padding:16px 20px;border-top:1px solid rgba(255,255,255,0.05)}
-.logout-btn{color:#444;font-size:0.78rem;cursor:pointer;background:none;border:none;
-  display:flex;align-items:center;gap:8px;padding:0}
-.logout-btn:hover{color:#888}
-
-/* Main */
-.main{margin-left:196px;padding:32px 36px;min-height:100vh}
-.tab-content{display:none}
-.tab-content.active{display:block}
-.page-hd{margin-bottom:26px}
-.page-hd h1{font-size:1.25rem;font-weight:600;letter-spacing:-.02em}
-.page-hd p{color:#555;font-size:0.78rem;margin-top:4px}
-
-/* Metric grid */
-.metric-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(160px,1fr));gap:12px;margin-bottom:20px}
-.metric-card{background:#161616;border:1px solid rgba(255,255,255,0.06);border-radius:10px;padding:16px 18px}
-.metric-label{font-size:0.68rem;color:#555;text-transform:uppercase;letter-spacing:.07em;margin-bottom:8px}
-.metric-value{font-size:1.6rem;font-weight:700;color:#ededed;line-height:1}
-.c-ok{color:#39FF14}.c-err{color:#FF006E}.c-warn{color:#FFD60A}.c-dim{color:#666}
-
-/* Card */
-.card{background:#161616;border:1px solid rgba(255,255,255,0.06);border-radius:10px;padding:20px 22px;margin-bottom:16px}
-.card-title{font-size:0.7rem;color:#555;text-transform:uppercase;letter-spacing:.07em;margin-bottom:14px;
-  display:flex;align-items:center;justify-content:space-between}
-
-/* Table */
-.table-wrap{overflow-x:auto}
-table{width:100%;border-collapse:collapse;font-size:0.78rem}
-thead th{text-align:left;padding:8px 12px;color:#444;text-transform:uppercase;
-  font-size:0.65rem;letter-spacing:.07em;border-bottom:1px solid rgba(255,255,255,0.05);font-weight:600}
-tbody tr{border-bottom:1px solid rgba(255,255,255,0.03)}
-tbody tr:hover{background:rgba(255,255,255,0.015)}
-tbody td{padding:8px 12px;color:#bbb;vertical-align:middle}
-.td-title{max-width:320px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-.td-mono{font-family:'SF Mono',Menlo,monospace;font-size:0.7rem;color:#555}
-
-/* Badges */
-.badge{display:inline-block;padding:2px 7px;border-radius:4px;font-size:0.65rem;font-weight:700;text-transform:uppercase;letter-spacing:.03em}
-.b-ok{background:rgba(57,255,20,.12);color:#39FF14}
-.b-fail{background:rgba(255,0,110,.12);color:#FF006E}
-.b-pend{background:rgba(255,214,10,.12);color:#FFD60A}
-.b-world{background:rgba(58,134,255,.14);color:#3A86FF}
-.b-power{background:rgba(255,107,53,.14);color:#FF6B35}
-.b-money{background:rgba(255,214,10,.14);color:#FFD60A}
-.b-tech{background:rgba(57,255,20,.11);color:#39FF14}
-.b-sports{background:rgba(255,0,110,.11);color:#FF006E}
-.b-entertainment{background:rgba(255,105,180,.11);color:#FF69B4}
-.b-environment{background:rgba(0,229,204,.11);color:#00E5CC}
-
-/* Buttons */
-.btn{display:inline-flex;align-items:center;gap:6px;padding:7px 14px;border-radius:7px;
-  border:none;cursor:pointer;font-size:0.78rem;font-weight:600;transition:all .12s;line-height:1}
-.btn-primary{background:#CCFF00;color:#0a0a0a}
-.btn-primary:hover{background:#b8e600}
-.btn-ghost{background:rgba(255,255,255,0.07);color:#aaa}
-.btn-ghost:hover{background:rgba(255,255,255,0.11);color:#ededed}
-.btn-cc{background:rgba(255,255,255,0.05);color:#777;min-width:48px;justify-content:center}
-.btn-cc:hover{background:rgba(204,255,0,.1);color:#CCFF00}
-.btn:disabled{opacity:.35;cursor:not-allowed}
-.btn-row{display:flex;flex-wrap:wrap;gap:8px;align-items:center}
-
-/* Control sections */
-.ctrl-section{margin-bottom:24px}
-.ctrl-section:last-child{margin-bottom:0}
-.ctrl-label{font-size:0.68rem;color:#555;text-transform:uppercase;letter-spacing:.07em;margin-bottom:10px}
-.res-box{margin-top:10px;padding:11px 14px;border-radius:7px;font-family:'SF Mono',Menlo,monospace;
-  font-size:0.72rem;color:#888;background:#0d0d0d;border:1px solid rgba(255,255,255,0.06);
-  display:none;white-space:pre-wrap;word-break:break-all;line-height:1.6}
-.res-ok{border-color:rgba(57,255,20,.25);color:#39FF14}
-.res-err{border-color:rgba(255,0,110,.25);color:#FF006E}
-
-/* Filters */
-.filter-row{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:14px;align-items:center}
-select,input[type=search]{background:#1a1a1a;border:1px solid rgba(255,255,255,0.08);
-  border-radius:7px;padding:6px 10px;color:#ccc;font-size:0.78rem;outline:none}
-select:focus,input[type=search]:focus{border-color:#CCFF00}
-.count-info{margin-left:auto;color:#555;font-size:0.72rem}
-.count-info strong{color:#CCFF00}
-
-.note{color:#444;font-size:0.72rem;margin-top:10px}
-.loading{color:#444;padding:28px 12px;text-align:center}
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{background:#111827;color:#f9fafb;font-family:'Segoe UI',system-ui,sans-serif;min-height:100vh}
+  /* Layout */
+  .header{background:#1f2937;border-bottom:1px solid #374151;padding:0 24px;display:flex;
+           align-items:center;justify-content:space-between;height:56px;position:sticky;top:0;z-index:100}
+  .header-title{font-size:18px;font-weight:700;color:#f9fafb}
+  .header-sub{font-size:12px;color:#6b7280;margin-top:1px}
+  .logout-btn{background:#374151;color:#9ca3af;border:none;border-radius:6px;
+              padding:6px 14px;font-size:13px;cursor:pointer;transition:.2s}
+  .logout-btn:hover{background:#4b5563;color:#f9fafb}
+  /* Tabs */
+  .tabs{display:flex;gap:2px;padding:16px 24px 0;border-bottom:1px solid #374151;background:#1f2937}
+  .tab{padding:10px 18px;font-size:13px;font-weight:500;color:#9ca3af;cursor:pointer;
+       border-bottom:2px solid transparent;border-radius:6px 6px 0 0;transition:.2s;white-space:nowrap}
+  .tab:hover{color:#f9fafb;background:#374151}
+  .tab.active{color:#3b82f6;border-bottom-color:#3b82f6;background:#111827}
+  /* Content */
+  .content{padding:24px;max-width:1400px;margin:0 auto}
+  .pane{display:none}
+  .pane.active{display:block}
+  /* Cards */
+  .card-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:16px;margin-bottom:24px}
+  .card{background:#1f2937;border:1px solid #374151;border-radius:10px;padding:18px}
+  .card-label{font-size:11px;color:#9ca3af;text-transform:uppercase;letter-spacing:.5px;margin-bottom:6px}
+  .card-value{font-size:28px;font-weight:700;color:#f9fafb}
+  .card-sub{font-size:12px;color:#6b7280;margin-top:4px}
+  .card.blue .card-value{color:#60a5fa}
+  .card.green .card-value{color:#34d399}
+  .card.yellow .card-value{color:#fbbf24}
+  .card.purple .card-value{color:#a78bfa}
+  .card.pink .card-value{color:#f472b6}
+  /* Section headers */
+  .section-title{font-size:14px;font-weight:600;color:#f9fafb;margin-bottom:14px;
+                  display:flex;align-items:center;gap:8px}
+  .section-title .badge{background:#374151;color:#9ca3af;font-size:10px;padding:2px 8px;border-radius:10px}
+  /* Chart containers */
+  .chart-grid{display:grid;grid-template-columns:1fr 1fr;gap:20px;margin-bottom:24px}
+  .chart-box{background:#1f2937;border:1px solid #374151;border-radius:10px;padding:20px}
+  .chart-box canvas{max-height:260px}
+  .chart-box-full{background:#1f2937;border:1px solid #374151;border-radius:10px;padding:20px;margin-bottom:20px}
+  .chart-box-full canvas{max-height:220px}
+  /* Tables */
+  .table-wrap{background:#1f2937;border:1px solid #374151;border-radius:10px;overflow:auto;margin-bottom:20px}
+  table{width:100%;border-collapse:collapse;font-size:13px}
+  th{text-align:left;padding:12px 16px;color:#9ca3af;font-size:11px;font-weight:600;
+      text-transform:uppercase;letter-spacing:.5px;border-bottom:1px solid #374151;
+      background:#1f2937;position:sticky;top:0}
+  td{padding:10px 16px;border-bottom:1px solid #1e2533;color:#d1d5db}
+  tr:last-child td{border-bottom:none}
+  tr:hover td{background:#232d3f}
+  /* Filters */
+  .filters{display:flex;gap:10px;margin-bottom:16px;flex-wrap:wrap;align-items:center}
+  .filter-select,.filter-input{background:#1f2937;border:1px solid #374151;color:#d1d5db;
+                                 border-radius:6px;padding:7px 12px;font-size:13px;outline:none;transition:.2s}
+  .filter-select:focus,.filter-input:focus{border-color:#3b82f6}
+  .filter-input{min-width:220px}
+  .filter-btn{background:#3b82f6;color:#fff;border:none;border-radius:6px;padding:7px 16px;
+               font-size:13px;font-weight:500;cursor:pointer;transition:.2s}
+  .filter-btn:hover{background:#2563eb}
+  /* Pipeline buttons */
+  .btn-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(160px,1fr));gap:12px;margin-bottom:20px}
+  .btn{padding:11px 16px;border:none;border-radius:8px;font-size:13px;font-weight:600;
+       cursor:pointer;transition:.2s;display:flex;align-items:center;gap:6px;justify-content:center}
+  .btn-primary{background:#3b82f6;color:#fff}
+  .btn-primary:hover{background:#2563eb}
+  .btn-secondary{background:#374151;color:#d1d5db}
+  .btn-secondary:hover{background:#4b5563}
+  .btn-green{background:#059669;color:#fff}
+  .btn-green:hover{background:#047857}
+  .btn:disabled{opacity:.5;cursor:not-allowed}
+  /* Response box */
+  .response-box{background:#0d1117;border:1px solid #374151;border-radius:8px;
+                padding:14px 16px;font-size:12px;font-family:'Courier New',monospace;
+                color:#a3e635;min-height:48px;max-height:200px;overflow-y:auto;
+                white-space:pre-wrap;margin-top:14px;display:none}
+  .response-box.visible{display:block}
+  /* Status badges */
+  .badge-status{display:inline-block;padding:2px 8px;border-radius:10px;font-size:11px;font-weight:500}
+  .badge-pending{background:#451a03;color:#fbbf24}
+  .badge-done{background:#052e16;color:#34d399}
+  .badge-failed{background:#450a0a;color:#f87171}
+  .badge-safe{background:#052e16;color:#34d399}
+  .badge-flagged{background:#450a0a;color:#f87171}
+  /* Loading */
+  .spinner{display:inline-block;width:16px;height:16px;border:2px solid #374151;
+           border-top-color:#3b82f6;border-radius:50%;animation:spin .7s linear infinite}
+  @keyframes spin{to{transform:rotate(360deg)}}
+  .loading-row{text-align:center;padding:30px;color:#6b7280}
+  /* Health items */
+  .health-item{display:flex;justify-content:space-between;align-items:center;
+               padding:10px 0;border-bottom:1px solid #1e2533}
+  .health-item:last-child{border-bottom:none}
+  .health-key{font-size:13px;color:#9ca3af}
+  .health-val{font-size:13px;color:#d1d5db;font-weight:500}
+  .dot-green{display:inline-block;width:8px;height:8px;border-radius:50%;background:#34d399;margin-right:6px}
+  /* Responsive */
+  @media(max-width:768px){
+    .chart-grid{grid-template-columns:1fr}
+    .tabs{overflow-x:auto}
+    .tab{font-size:12px;padding:8px 12px}
+  }
+  /* Pagination */
+  .pagination{display:flex;gap:6px;align-items:center;margin-top:12px;justify-content:flex-end}
+  .page-btn{background:#374151;color:#d1d5db;border:none;border-radius:6px;padding:5px 12px;
+            font-size:12px;cursor:pointer;transition:.2s}
+  .page-btn:hover{background:#4b5563}
+  .page-btn.active{background:#3b82f6;color:#fff}
+  .page-info{font-size:12px;color:#6b7280}
 </style>
 </head>
 <body>
 
-<nav class="sidebar">
-  <div class="sidebar-logo">
-    <div class="name">The Drop</div>
-    <div class="tag">Admin Dashboard v1.0</div>
+<div class="header">
+  <div>
+    <div class="header-title">The Drop</div>
+    <div class="header-sub">Admin Dashboard</div>
   </div>
-  <div class="nav-item active" data-tab="health"   onclick="switchTab('health')">
-    <span class="nav-icon">⚡</span>System Health</div>
-  <div class="nav-item"        data-tab="pipeline" onclick="switchTab('pipeline')">
-    <span class="nav-icon">🔄</span>Pipeline</div>
-  <div class="nav-item"        data-tab="articles" onclick="switchTab('articles')">
-    <span class="nav-icon">📰</span>Articles</div>
-  <div class="nav-item"        data-tab="users"    onclick="switchTab('users')">
-    <span class="nav-icon">👤</span>Users</div>
-  <div class="sidebar-footer">
-    <button class="logout-btn" onclick="location='/admin/logout'">
-      <span>⎋</span> Sign out
-    </button>
+  <form method="post" action="/admin/logout" style="display:inline">
+    <button class="logout-btn" type="submit">Sign Out</button>
+  </form>
+</div>
+
+<div class="tabs" id="tabBar">
+  <div class="tab active" onclick="switchTab('health')">System Health</div>
+  <div class="tab" onclick="switchTab('pipeline')">Pipeline Control</div>
+  <div class="tab" onclick="switchTab('analytics')">Analytics</div>
+  <div class="tab" onclick="switchTab('articles')">Article Viewer</div>
+  <div class="tab" onclick="switchTab('users')">User Management</div>
+</div>
+
+<!-- ═══════════════════════ HEALTH TAB ═══════════════════════ -->
+<div class="content">
+<div class="pane active" id="pane-health">
+  <div class="card-grid" id="healthCards">
+    <div class="loading-row" style="grid-column:1/-1"><div class="spinner"></div></div>
   </div>
-</nav>
-
-<main class="main">
-
-  <!-- ═══ SYSTEM HEALTH ═══════════════════════════════════════ -->
-  <div id="tab-health" class="tab-content active">
-    <div class="page-hd">
-      <h1>System Health</h1>
-      <p>Live server status, article counts, and scheduler jobs. Auto-refreshes every 60s.</p>
-    </div>
-
-    <div id="health-metrics" class="metric-grid">
-      <div class="loading">Loading…</div>
-    </div>
-
-    <div class="card">
-      <div class="card-title">
-        <span>Scheduled Jobs</span>
-        <span id="health-ts" class="note" style="margin-top:0"></span>
-      </div>
-      <div class="table-wrap">
-        <table>
-          <thead><tr>
-            <th>Job ID</th><th>Trigger</th><th>Next Run (UTC)</th><th>State</th>
-          </tr></thead>
-          <tbody id="jobs-body">
-            <tr><td colspan="4" class="loading">Loading…</td></tr>
-          </tbody>
-        </table>
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:20px">
+    <div>
+      <div class="section-title">API Status</div>
+      <div class="card" id="healthMeta" style="margin-bottom:20px">
+        <div class="loading-row"><div class="spinner"></div></div>
       </div>
     </div>
-    <p class="note">↻ Auto-refreshes every 60 seconds</p>
-  </div>
-
-  <!-- ═══ PIPELINE CONTROL ════════════════════════════════════ -->
-  <div id="tab-pipeline" class="tab-content">
-    <div class="page-hd">
-      <h1>Pipeline Control</h1>
-      <p>Manually trigger crawl and rewrite jobs. Actions run in the background.</p>
-    </div>
-
-    <div class="card">
-      <div class="ctrl-section">
-        <div class="ctrl-label">Crawl — All Countries</div>
-        <div class="btn-row">
-          <button class="btn btn-primary" id="btn-crawl-all" onclick="triggerCrawlAll(this)">
-            ▶ Crawl All Countries
-          </button>
-        </div>
-        <div class="res-box" id="res-crawl-all"></div>
-      </div>
-
-      <div class="ctrl-section">
-        <div class="ctrl-label">Crawl — Per Country</div>
-        <div class="btn-row">
-          <button class="btn btn-cc" onclick="triggerCrawlCountry(this,'IN')">IN</button>
-          <button class="btn btn-cc" onclick="triggerCrawlCountry(this,'US')">US</button>
-          <button class="btn btn-cc" onclick="triggerCrawlCountry(this,'GB')">GB</button>
-          <button class="btn btn-cc" onclick="triggerCrawlCountry(this,'AU')">AU</button>
-          <button class="btn btn-cc" onclick="triggerCrawlCountry(this,'AE')">AE</button>
-        </div>
-        <div class="res-box" id="res-crawl-cc"></div>
-      </div>
-
-      <div class="ctrl-section">
-        <div class="ctrl-label">Rewrite Pending Articles</div>
-        <div class="btn-row">
-          <button class="btn btn-ghost" id="btn-rewrite" onclick="triggerRewrite(this)">
-            ⟳ Rewrite All Pending
-          </button>
-        </div>
-        <div class="res-box" id="res-rewrite"></div>
+    <div>
+      <div class="section-title">Scheduler Jobs</div>
+      <div class="card" id="schedulerJobs">
+        <div class="loading-row"><div class="spinner"></div></div>
       </div>
     </div>
   </div>
+  <p style="font-size:11px;color:#4b5563;margin-top:16px">Auto-refreshes every 60 seconds</p>
+</div>
 
-  <!-- ═══ ARTICLE VIEWER ══════════════════════════════════════ -->
-  <div id="tab-articles" class="tab-content">
-    <div class="page-hd">
-      <h1>Articles</h1>
-      <p>All crawled articles. Showing up to 500 most recent.</p>
+<!-- ═══════════════════════ PIPELINE TAB ═══════════════════════ -->
+<div class="pane" id="pane-pipeline">
+  <div class="section-title">Crawl</div>
+  <div class="btn-grid">
+    <button class="btn btn-primary" onclick="triggerCrawl()">🕷 Crawl All Countries</button>
+    <button class="btn btn-secondary" onclick="triggerCrawlCC('IN')">🇮🇳 Crawl IN</button>
+    <button class="btn btn-secondary" onclick="triggerCrawlCC('US')">🇺🇸 Crawl US</button>
+    <button class="btn btn-secondary" onclick="triggerCrawlCC('GB')">🇬🇧 Crawl GB</button>
+    <button class="btn btn-secondary" onclick="triggerCrawlCC('AU')">🇦🇺 Crawl AU</button>
+    <button class="btn btn-secondary" onclick="triggerCrawlCC('AE')">🇦🇪 Crawl AE</button>
+  </div>
+  <div class="section-title" style="margin-top:8px">Rewrite</div>
+  <div class="btn-grid">
+    <button class="btn btn-green" onclick="triggerRewrite()">✏️ Rewrite Pending</button>
+  </div>
+  <div class="response-box" id="pipelineResponse"></div>
+</div>
+
+<!-- ═══════════════════════ ANALYTICS TAB ═══════════════════════ -->
+<div class="pane" id="pane-analytics">
+  <div id="analyticsLoading" class="loading-row"><div class="spinner"></div> Loading analytics…</div>
+  <div id="analyticsContent" style="display:none">
+    <!-- Engagement stat cards -->
+    <div class="card-grid" id="engagementCards"></div>
+
+    <!-- Country + Age charts -->
+    <div class="chart-grid">
+      <div class="chart-box">
+        <div class="section-title">Users by Country</div>
+        <canvas id="countryChart"></canvas>
+      </div>
+      <div class="chart-box">
+        <div class="section-title">Users by Age Band</div>
+        <canvas id="ageChart"></canvas>
+      </div>
     </div>
-    <div class="card">
-      <div class="filter-row">
-        <select id="f-country" onchange="loadArticles()">
-          <option value="">All Countries</option>
-          <option value="IN">India (IN)</option>
-          <option value="US">United States (US)</option>
-          <option value="GB">United Kingdom (GB)</option>
-          <option value="AU">Australia (AU)</option>
-          <option value="AE">UAE (AE)</option>
-        </select>
-        <select id="f-category" onchange="loadArticles()">
-          <option value="">All Categories</option>
-          <option value="world">World</option>
-          <option value="power">Power</option>
-          <option value="money">Money</option>
-          <option value="tech">Tech</option>
-          <option value="sports">Sports</option>
-          <option value="entertainment">Entertainment</option>
-          <option value="environment">Environment</option>
-        </select>
-        <select id="f-status" onchange="loadArticles()">
-          <option value="">All Statuses</option>
-          <option value="complete">Complete</option>
-          <option value="pending">Pending</option>
-          <option value="failed">Failed</option>
-        </select>
-        <span class="count-info">Showing <strong id="art-count">—</strong> articles</span>
-      </div>
-      <div class="table-wrap">
-        <table>
-          <thead><tr>
-            <th>Title</th><th>Category</th><th>Country</th>
-            <th>Rewrite Status</th><th>Crawled</th>
-          </tr></thead>
-          <tbody id="art-body">
-            <tr><td colspan="5" class="loading">Loading…</td></tr>
-          </tbody>
-        </table>
-      </div>
+
+    <!-- Daily trend -->
+    <div class="chart-box-full">
+      <div class="section-title">Registrations — Last 30 Days</div>
+      <canvas id="dailyChart"></canvas>
+    </div>
+
+    <!-- Monthly trend -->
+    <div class="chart-box-full">
+      <div class="section-title">Registrations — Last 12 Months</div>
+      <canvas id="monthlyChart"></canvas>
     </div>
   </div>
+</div>
 
-  <!-- ═══ USER MANAGEMENT ═════════════════════════════════════ -->
-  <div id="tab-users" class="tab-content">
-    <div class="page-hd">
-      <h1>Users</h1>
-      <p>All registered accounts.</p>
-    </div>
-    <div class="card">
-      <div class="filter-row">
-        <span class="count-info">Total <strong id="user-count">—</strong> users</span>
-      </div>
-      <div class="table-wrap">
-        <table>
-          <thead><tr>
-            <th>Username</th><th>Email</th><th>Country</th>
-            <th>Age Group</th><th>Streak</th><th>Joined</th>
-          </tr></thead>
-          <tbody id="user-body">
-            <tr><td colspan="6" class="loading">Loading…</td></tr>
-          </tbody>
-        </table>
-      </div>
-    </div>
+<!-- ═══════════════════════ ARTICLES TAB ═══════════════════════ -->
+<div class="pane" id="pane-articles">
+  <div class="filters">
+    <select class="filter-select" id="artCountry" onchange="loadArticles(1)">
+      <option value="">All Countries</option>
+      <option value="IN">IN</option>
+      <option value="US">US</option>
+      <option value="GB">GB</option>
+      <option value="AU">AU</option>
+      <option value="AE">AE</option>
+    </select>
+    <select class="filter-select" id="artCategory" onchange="loadArticles(1)">
+      <option value="">All Categories</option>
+      <option value="world">World</option>
+      <option value="power">Power</option>
+      <option value="money">Money</option>
+      <option value="tech">Tech</option>
+      <option value="sports">Sports</option>
+      <option value="entertainment">Entertainment</option>
+      <option value="environment">Environment</option>
+    </select>
+    <select class="filter-select" id="artStatus" onchange="loadArticles(1)">
+      <option value="">All Statuses</option>
+      <option value="pending">Pending</option>
+      <option value="done">Done</option>
+      <option value="failed">Failed</option>
+    </select>
   </div>
+  <div class="section-title"><span id="artCount">—</span> articles</div>
+  <div class="table-wrap">
+    <table>
+      <thead>
+        <tr>
+          <th>Title</th>
+          <th>Category</th>
+          <th>Country</th>
+          <th>Rewrite Status</th>
+          <th>Safety</th>
+          <th>Age Bands</th>
+          <th>Published</th>
+        </tr>
+      </thead>
+      <tbody id="artBody"><tr><td colspan="7" class="loading-row"><div class="spinner"></div></td></tr></tbody>
+    </table>
+  </div>
+  <div class="pagination" id="artPagination"></div>
+</div>
 
-</main>
+<!-- ═══════════════════════ USERS TAB ═══════════════════════ -->
+<div class="pane" id="pane-users">
+  <div class="filters">
+    <input class="filter-input" id="userSearch" type="text" placeholder="Search username or email…" oninput="debounceUsers()">
+    <button class="filter-btn" onclick="loadUsers(1)">Search</button>
+  </div>
+  <div class="section-title"><span id="userCount">—</span> users total</div>
+  <div class="table-wrap">
+    <table>
+      <thead>
+        <tr>
+          <th>Username</th>
+          <th>Email</th>
+          <th>Full Name</th>
+          <th>Country</th>
+          <th>Age Band</th>
+          <th>Streak</th>
+          <th>Stories Read</th>
+          <th>Joined</th>
+          <th>Last Active</th>
+        </tr>
+      </thead>
+      <tbody id="userBody"><tr><td colspan="9" class="loading-row"><div class="spinner"></div></td></tr></tbody>
+    </table>
+  </div>
+  <div class="pagination" id="userPagination"></div>
+</div>
+
+</div><!-- /content -->
 
 <script>
-// ── Tab switching ───────────────────────────────────────────────
+const PAGE_SIZE = 50;
+let artPage = 1, userPage = 1, userDebounceTimer = null;
+let countryChartInst=null, ageChartInst=null, dailyChartInst=null, monthlyChartInst=null;
+
+// ── TAB SWITCHING ──────────────────────────────────────────────
 function switchTab(name) {
-  document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active'));
-  document.querySelectorAll('.nav-item').forEach(el => el.classList.remove('active'));
-  document.getElementById('tab-' + name).classList.add('active');
-  document.querySelector(`[data-tab="${name}"]`).classList.add('active');
-  if (name === 'health')   loadHealth();
-  if (name === 'articles') loadArticles();
-  if (name === 'users')    loadUsers();
+  document.querySelectorAll('.tab').forEach((t,i)=>{
+    const names=['health','pipeline','analytics','articles','users'];
+    t.classList.toggle('active', names[i]===name);
+  });
+  document.querySelectorAll('.pane').forEach(p=>p.classList.remove('active'));
+  document.getElementById('pane-'+name).classList.add('active');
+  if(name==='health') loadHealth();
+  if(name==='analytics') loadAnalytics();
+  if(name==='articles') loadArticles(1);
+  if(name==='users') loadUsers(1);
 }
 
-// ── Helpers ─────────────────────────────────────────────────────
-function fmtDate(s) {
-  if (!s) return '—';
-  try { return new Date(s).toISOString().replace('T',' ').slice(0,16) + ' UTC'; }
-  catch { return String(s).slice(0,16); }
-}
-
-function catBadge(c) {
-  const cls = ['world','power','money','tech','sports','entertainment','environment'].includes(c) ? c : 'pend';
-  return `<span class="badge b-${cls}">${c || '—'}</span>`;
-}
-
-function statusBadge(s) {
-  if (s === 'complete') return '<span class="badge b-ok">complete</span>';
-  if (s === 'failed')   return '<span class="badge b-fail">failed</span>';
-  return '<span class="badge b-pend">pending</span>';
-}
-
-function showRes(boxId, data, ok) {
-  const box = document.getElementById(boxId);
-  box.textContent = typeof data === 'string' ? data : JSON.stringify(data, null, 2);
-  box.className = 'res-box ' + (ok ? 'res-ok' : 'res-err');
-  box.style.display = 'block';
-}
-
-// ── System Health ────────────────────────────────────────────────
+// ── HEALTH ─────────────────────────────────────────────────────
 async function loadHealth() {
   try {
-    const [health, stats] = await Promise.all([
-      fetch('/admin/api/health').then(r => r.json()),
-      fetch('/admin/api/stats').then(r => r.json()),
-    ]);
+    const r = await fetch('/admin/api/health');
+    if(!r.ok) throw new Error(r.statusText);
+    const d = await r.json();
+    const h = d.health || {};
+    const jobs = d.jobs || [];
 
-    const isOk = health.status === 'ok';
-    const cards = [
-      { label: 'Status',        value: isOk ? 'OK' : health.status, cls: isOk ? 'c-ok' : 'c-err' },
-      { label: 'Total Articles', value: health.articles_count ?? stats.total_articles ?? '—', cls: '' },
-      { label: 'Total Users',    value: stats.total_users ?? '—',    cls: '' },
-      { label: 'Version',        value: health.version ?? '—',       cls: 'c-dim' },
-    ];
-    const catCards = Object.entries(stats.by_category || {}).map(([k, v]) => ({
-      label: k, value: v, cls: ''
-    }));
-    document.getElementById('health-metrics').innerHTML =
-      [...cards, ...catCards].map(m =>
-        `<div class="metric-card">
-          <div class="metric-label">${m.label}</div>
-          <div class="metric-value ${m.cls}">${m.value}</div>
-         </div>`
-      ).join('');
+    document.getElementById('healthCards').innerHTML = `
+      <div class="card blue"><div class="card-label">Status</div><div class="card-value">${h.status||'—'}</div></div>
+      <div class="card green"><div class="card-label">Articles</div><div class="card-value">${(h.article_count||0).toLocaleString()}</div></div>
+      <div class="card yellow"><div class="card-label">Users</div><div class="card-value">${(d.user_count||0).toLocaleString()}</div></div>
+      <div class="card purple"><div class="card-label">Version</div><div class="card-value" style="font-size:18px">${h.version||'—'}</div></div>
+    `;
 
-    const jobs = stats.scheduler_jobs || [];
-    const tbody = document.getElementById('jobs-body');
-    if (!jobs.length) {
-      tbody.innerHTML = `<tr><td colspan="4" style="color:#555;padding:16px 12px">
-        Scheduler running in-process — job list available via server logs.
-        </td></tr>`;
+    const ts = h.timestamp ? new Date(h.timestamp).toLocaleString() : '—';
+    document.getElementById('healthMeta').innerHTML = `
+      <div class="health-item"><span class="health-key">Timestamp</span><span class="health-val">${ts}</span></div>
+      <div class="health-item"><span class="health-key">DB Status</span><span class="health-val"><span class="dot-green"></span>${h.status||'—'}</span></div>
+    `;
+
+    if(jobs.length===0) {
+      document.getElementById('schedulerJobs').innerHTML = '<div style="color:#6b7280;font-size:13px">No job data available</div>';
     } else {
-      tbody.innerHTML = jobs.map(j =>
-        `<tr>
-          <td><code style="color:#CCFF00;font-size:.72rem">${j.id}</code></td>
-          <td class="td-mono">${j.schedule || '—'}</td>
-          <td class="td-mono">${j.next_run ? fmtDate(j.next_run) : '—'}</td>
-          <td><span class="badge b-ok">active</span></td>
-         </tr>`
-      ).join('');
+      document.getElementById('schedulerJobs').innerHTML = jobs.map(j=>`
+        <div class="health-item">
+          <span class="health-key">${j.id}</span>
+          <span class="health-val" style="font-size:12px">${j.next_run||'—'}</span>
+        </div>`).join('');
     }
-    document.getElementById('health-ts').textContent =
-      'Updated ' + fmtDate(new Date().toISOString());
-  } catch (e) {
-    document.getElementById('health-metrics').innerHTML =
-      `<div class="metric-card"><div class="metric-value c-err">Error</div>
-       <div class="metric-label">${e.message}</div></div>`;
+  } catch(e) {
+    document.getElementById('healthCards').innerHTML = `<div style="color:#f87171">Error: ${e.message}</div>`;
   }
 }
-// Auto-refresh health tab every 60s
-setInterval(() => {
-  if (document.getElementById('tab-health').classList.contains('active')) loadHealth();
-}, 60000);
+
+// Auto-refresh health every 60s
+let healthTimer = null;
+function startHealthAutoRefresh() {
+  if(healthTimer) clearInterval(healthTimer);
+  healthTimer = setInterval(()=>{
+    const pane = document.getElementById('pane-health');
+    if(pane.classList.contains('active')) loadHealth();
+  }, 60000);
+}
+startHealthAutoRefresh();
 loadHealth();
 
-// ── Pipeline ─────────────────────────────────────────────────────
-async function triggerCrawlAll(btn) {
-  btn.disabled = true; btn.textContent = '…';
-  try {
-    const r = await fetch('/admin/api/crawl', { method: 'POST' });
-    showRes('res-crawl-all', await r.json(), r.ok);
-  } catch(e) { showRes('res-crawl-all', e.message, false); }
-  btn.disabled = false; btn.innerHTML = '▶ Crawl All Countries';
+// ── PIPELINE ───────────────────────────────────────────────────
+function showResponse(msg, ok=true) {
+  const box = document.getElementById('pipelineResponse');
+  box.textContent = msg;
+  box.style.color = ok ? '#a3e635' : '#f87171';
+  box.classList.add('visible');
 }
 
-async function triggerCrawlCountry(btn, cc) {
-  btn.disabled = true;
+async function triggerCrawl() {
+  showResponse('Triggering crawl for all countries…');
   try {
-    const r = await fetch(`/admin/api/crawl/${cc}`, { method: 'POST' });
-    showRes('res-crawl-cc', await r.json(), r.ok);
-  } catch(e) { showRes('res-crawl-cc', e.message, false); }
-  btn.disabled = false;
+    const r = await fetch('/admin/api/crawl', {method:'POST'});
+    const d = await r.json();
+    showResponse(JSON.stringify(d, null, 2), r.ok);
+  } catch(e) { showResponse('Error: '+e.message, false); }
 }
 
-async function triggerRewrite(btn) {
-  btn.disabled = true; btn.textContent = '…';
+async function triggerCrawlCC(cc) {
+  showResponse(`Triggering crawl for ${cc}…`);
   try {
-    const r = await fetch('/admin/api/rewrite', { method: 'POST' });
-    showRes('res-rewrite', await r.json(), r.ok);
-  } catch(e) { showRes('res-rewrite', e.message, false); }
-  btn.disabled = false; btn.innerHTML = '⟳ Rewrite All Pending';
+    const r = await fetch(`/admin/api/crawl/${cc}`, {method:'POST'});
+    const d = await r.json();
+    showResponse(JSON.stringify(d, null, 2), r.ok);
+  } catch(e) { showResponse('Error: '+e.message, false); }
 }
 
-// ── Articles ─────────────────────────────────────────────────────
-async function loadArticles() {
-  const p = new URLSearchParams();
-  const c = document.getElementById('f-country').value;
-  const cat = document.getElementById('f-category').value;
-  const st = document.getElementById('f-status').value;
-  if (c) p.set('country', c);
-  if (cat) p.set('category', cat);
-  if (st) p.set('status', st);
-  const tbody = document.getElementById('art-body');
-  tbody.innerHTML = '<tr><td colspan="5" class="loading">Loading…</td></tr>';
+async function triggerRewrite() {
+  showResponse('Triggering rewrite of pending articles…');
   try {
-    const data = await fetch('/admin/api/articles?' + p).then(r => r.json());
-    document.getElementById('art-count').textContent = data.length;
-    if (!data.length) {
-      tbody.innerHTML = '<tr><td colspan="5" style="color:#444;padding:20px 12px">No articles match the filter.</td></tr>';
-      return;
-    }
-    tbody.innerHTML = data.map(a => `
-      <tr>
-        <td class="td-title" title="${(a.original_title||'').replace(/"/g,'&quot;')}">
-          ${a.original_title || '—'}</td>
-        <td>${catBadge(a.category)}</td>
-        <td><span style="color:#777;font-size:.72rem">${a.source_country || '—'}</span></td>
-        <td>${statusBadge(a.rewrite_status)}</td>
-        <td class="td-mono">${fmtDate(a.crawled_at)}</td>
-      </tr>`).join('');
+    const r = await fetch('/admin/api/rewrite', {method:'POST'});
+    const d = await r.json();
+    showResponse(JSON.stringify(d, null, 2), r.ok);
+  } catch(e) { showResponse('Error: '+e.message, false); }
+}
+
+// ── ANALYTICS ──────────────────────────────────────────────────
+let analyticsLoaded = false;
+
+async function loadAnalytics() {
+  if(analyticsLoaded) return;
+  analyticsLoaded = true;
+  try {
+    const r = await fetch('/admin/api/analytics');
+    if(!r.ok) throw new Error(r.statusText);
+    const d = await r.json();
+
+    document.getElementById('analyticsLoading').style.display='none';
+    document.getElementById('analyticsContent').style.display='block';
+
+    // Engagement cards
+    const dropPct = d.drop_completion_rate != null
+      ? d.drop_completion_rate.toFixed(1)+'%' : '—';
+    document.getElementById('engagementCards').innerHTML = `
+      <div class="card blue"><div class="card-label">Avg Streak</div><div class="card-value">${(d.avg_streak||0).toFixed(1)}</div><div class="card-sub">days</div></div>
+      <div class="card green"><div class="card-label">Total Stories Read</div><div class="card-value">${(d.total_stories_read||0).toLocaleString()}</div></div>
+      <div class="card yellow"><div class="card-label">Most Read Category</div><div class="card-value" style="font-size:16px;text-transform:capitalize">${d.most_read_category||'—'}</div></div>
+      <div class="card purple"><div class="card-label">Today's Drop Complete</div><div class="card-value">${dropPct}</div><div class="card-sub">${d.drop_completed_today||0} of ${d.total_users||0} users</div></div>
+    `;
+
+    // Country chart
+    const countryLabels = (d.country_breakdown||[]).map(x=>x._id||'Unknown');
+    const countryData   = (d.country_breakdown||[]).map(x=>x.count);
+    if(countryChartInst) countryChartInst.destroy();
+    countryChartInst = new Chart(document.getElementById('countryChart'), {
+      type:'bar',
+      data:{labels:countryLabels,datasets:[{label:'Users',data:countryData,
+        backgroundColor:'rgba(59,130,246,.7)',borderColor:'#3b82f6',borderWidth:1,borderRadius:4}]},
+      options:{responsive:true,plugins:{legend:{display:false}},
+        scales:{x:{ticks:{color:'#9ca3af'},grid:{color:'#1e2533'}},
+                y:{ticks:{color:'#9ca3af'},grid:{color:'#1e2533'}}}}
+    });
+
+    // Age chart
+    const ageLabels = (d.age_breakdown||[]).map(x=>x._id||'Unknown');
+    const ageData   = (d.age_breakdown||[]).map(x=>x.count);
+    if(ageChartInst) ageChartInst.destroy();
+    ageChartInst = new Chart(document.getElementById('ageChart'), {
+      type:'bar',
+      data:{labels:ageLabels,datasets:[{label:'Users',data:ageData,
+        backgroundColor:'rgba(167,139,250,.7)',borderColor:'#a78bfa',borderWidth:1,borderRadius:4}]},
+      options:{responsive:true,plugins:{legend:{display:false}},
+        scales:{x:{ticks:{color:'#9ca3af'},grid:{color:'#1e2533'}},
+                y:{ticks:{color:'#9ca3af'},grid:{color:'#1e2533'}}}}
+    });
+
+    // Daily chart
+    const dailyLabels = (d.daily_registrations||[]).map(x=>x._id);
+    const dailyData   = (d.daily_registrations||[]).map(x=>x.count);
+    if(dailyChartInst) dailyChartInst.destroy();
+    dailyChartInst = new Chart(document.getElementById('dailyChart'), {
+      type:'line',
+      data:{labels:dailyLabels,datasets:[{label:'New Users',data:dailyData,
+        fill:true,borderColor:'#34d399',backgroundColor:'rgba(52,211,153,.1)',
+        tension:.3,pointRadius:3,pointBackgroundColor:'#34d399'}]},
+      options:{responsive:true,plugins:{legend:{display:false}},
+        scales:{x:{ticks:{color:'#9ca3af',maxTicksLimit:10},grid:{color:'#1e2533'}},
+                y:{ticks:{color:'#9ca3af'},grid:{color:'#1e2533'}}}}
+    });
+
+    // Monthly chart
+    const monthlyLabels = (d.monthly_registrations||[]).map(x=>x._id);
+    const monthlyData   = (d.monthly_registrations||[]).map(x=>x.count);
+    if(monthlyChartInst) monthlyChartInst.destroy();
+    monthlyChartInst = new Chart(document.getElementById('monthlyChart'), {
+      type:'bar',
+      data:{labels:monthlyLabels,datasets:[{label:'New Users',data:monthlyData,
+        backgroundColor:'rgba(251,191,36,.7)',borderColor:'#fbbf24',borderWidth:1,borderRadius:4}]},
+      options:{responsive:true,plugins:{legend:{display:false}},
+        scales:{x:{ticks:{color:'#9ca3af'},grid:{color:'#1e2533'}},
+                y:{ticks:{color:'#9ca3af'},grid:{color:'#1e2533'}}}}
+    });
+
   } catch(e) {
-    tbody.innerHTML = `<tr><td colspan="5" style="color:#FF006E;padding:12px">${e.message}</td></tr>`;
+    document.getElementById('analyticsLoading').innerHTML = `<span style="color:#f87171">Error: ${e.message}</span>`;
   }
 }
 
-// ── Users ─────────────────────────────────────────────────────────
-async function loadUsers() {
-  const tbody = document.getElementById('user-body');
-  tbody.innerHTML = '<tr><td colspan="6" class="loading">Loading…</td></tr>';
+// ── ARTICLES ───────────────────────────────────────────────────
+async function loadArticles(page) {
+  artPage = page;
+  const country  = document.getElementById('artCountry').value;
+  const category = document.getElementById('artCategory').value;
+  const status   = document.getElementById('artStatus').value;
+  const skip = (page-1)*PAGE_SIZE;
+
+  document.getElementById('artBody').innerHTML =
+    '<tr><td colspan="7" class="loading-row"><div class="spinner"></div></td></tr>';
+
   try {
-    const data = await fetch('/admin/api/users').then(r => r.json());
-    document.getElementById('user-count').textContent = data.length;
-    if (!data.length) {
-      tbody.innerHTML = '<tr><td colspan="6" style="color:#444;padding:20px 12px">No users found.</td></tr>';
+    const params = new URLSearchParams({skip, limit:PAGE_SIZE});
+    if(country) params.set('country', country);
+    if(category) params.set('category', category);
+    if(status) params.set('status', status);
+
+    const r = await fetch('/admin/api/articles?'+params);
+    if(!r.ok) throw new Error(r.statusText);
+    const d = await r.json();
+
+    document.getElementById('artCount').textContent = (d.total||0).toLocaleString();
+
+    if(!d.articles || !d.articles.length) {
+      document.getElementById('artBody').innerHTML =
+        '<tr><td colspan="7" style="text-align:center;padding:30px;color:#6b7280">No articles found</td></tr>';
+      document.getElementById('artPagination').innerHTML = '';
       return;
     }
-    tbody.innerHTML = data.map(u => `
-      <tr>
-        <td><span style="color:#CCFF00">@${u.username || '—'}</span></td>
-        <td style="color:#555">${u.email || '—'}</td>
-        <td>${u.country || '—'}</td>
-        <td><span style="color:#777">${u.age_group || '—'}</span></td>
-        <td><span style="color:${(u.current_streak||0)>0?'#39FF14':'#444'}">
-          ${u.current_streak || 0}${(u.current_streak||0)>0?' 🔥':''}</span></td>
-        <td class="td-mono">${fmtDate(u.created_at || u.member_since)}</td>
-      </tr>`).join('');
+
+    document.getElementById('artBody').innerHTML = d.articles.map(a => {
+      const rs = a.rewrite_status||'pending';
+      const ss = a.safety_status||'safe';
+      const rsBadge = `<span class="badge-status badge-${rs}">${rs}</span>`;
+      const ssBadge = `<span class="badge-status badge-${ss==='safe'?'safe':'flagged'}">${ss}</span>`;
+      const bands = (a.age_bands||[]).join(', ')||'—';
+      const pub = a.published_at ? new Date(a.published_at).toLocaleDateString() : '—';
+      const title = (a.title||'').substring(0,80) + ((a.title||'').length>80?'…':'');
+      return `<tr>
+        <td title="${(a.title||'').replace(/"/g,'&quot;')}">${title}</td>
+        <td style="text-transform:capitalize">${a.category||'—'}</td>
+        <td>${a.source_country||'—'}</td>
+        <td>${rsBadge}</td>
+        <td>${ssBadge}</td>
+        <td style="font-size:11px;color:#9ca3af">${bands}</td>
+        <td style="font-size:11px;color:#6b7280">${pub}</td>
+      </tr>`;
+    }).join('');
+
+    renderPagination('artPagination', d.total, page, n=>loadArticles(n));
   } catch(e) {
-    tbody.innerHTML = `<tr><td colspan="6" style="color:#FF006E;padding:12px">${e.message}</td></tr>`;
+    document.getElementById('artBody').innerHTML =
+      `<tr><td colspan="7" style="color:#f87171;padding:20px">Error: ${e.message}</td></tr>`;
   }
+}
+
+// ── USERS ──────────────────────────────────────────────────────
+function debounceUsers() {
+  clearTimeout(userDebounceTimer);
+  userDebounceTimer = setTimeout(()=>loadUsers(1), 350);
+}
+
+async function loadUsers(page) {
+  userPage = page;
+  const q = document.getElementById('userSearch').value.trim();
+  const skip = (page-1)*PAGE_SIZE;
+
+  document.getElementById('userBody').innerHTML =
+    '<tr><td colspan="9" class="loading-row"><div class="spinner"></div></td></tr>';
+
+  try {
+    const params = new URLSearchParams({skip, limit:PAGE_SIZE});
+    if(q) params.set('q', q);
+
+    const r = await fetch('/admin/api/users?'+params);
+    if(!r.ok) throw new Error(r.statusText);
+    const d = await r.json();
+
+    document.getElementById('userCount').textContent = (d.total||0).toLocaleString();
+
+    if(!d.users || !d.users.length) {
+      document.getElementById('userBody').innerHTML =
+        '<tr><td colspan="9" style="text-align:center;padding:30px;color:#6b7280">No users found</td></tr>';
+      document.getElementById('userPagination').innerHTML = '';
+      return;
+    }
+
+    document.getElementById('userBody').innerHTML = d.users.map(u => {
+      const joined = u.member_since || u.created_at
+        ? new Date(u.member_since||u.created_at).toLocaleDateString() : '—';
+      const last = u.last_read_date
+        ? new Date(u.last_read_date).toLocaleDateString() : '—';
+      return `<tr>
+        <td style="font-weight:500">${u.username||'—'}</td>
+        <td style="color:#9ca3af;font-size:12px">${u.email||'—'}</td>
+        <td>${u.full_name||'—'}</td>
+        <td>${u.country||'—'}</td>
+        <td>${u.age_group||'—'}</td>
+        <td style="color:#fbbf24">🔥 ${u.current_streak||0}</td>
+        <td>${(u.stories_read_count||0).toLocaleString()}</td>
+        <td style="font-size:11px;color:#6b7280">${joined}</td>
+        <td style="font-size:11px;color:#6b7280">${last}</td>
+      </tr>`;
+    }).join('');
+
+    renderPagination('userPagination', d.total, page, n=>loadUsers(n));
+  } catch(e) {
+    document.getElementById('userBody').innerHTML =
+      `<tr><td colspan="9" style="color:#f87171;padding:20px">Error: ${e.message}</td></tr>`;
+  }
+}
+
+// ── PAGINATION ─────────────────────────────────────────────────
+function renderPagination(containerId, total, current, onPage) {
+  const totalPages = Math.ceil(total / PAGE_SIZE);
+  if(totalPages <= 1) { document.getElementById(containerId).innerHTML=''; return; }
+  let html = `<span class="page-info">Page ${current} of ${totalPages}</span>`;
+  if(current>1) html += `<button class="page-btn" onclick="(${onPage.toString()})(${current-1})">‹ Prev</button>`;
+  // Show page window
+  const start = Math.max(1, current-2);
+  const end   = Math.min(totalPages, current+2);
+  for(let i=start;i<=end;i++) {
+    html += `<button class="page-btn${i===current?' active':''}" onclick="(${onPage.toString()})(${i})">${i}</button>`;
+  }
+  if(current<totalPages) html += `<button class="page-btn" onclick="(${onPage.toString()})(${current+1})">Next ›</button>`;
+  document.getElementById(containerId).innerHTML = html;
 }
 </script>
 </body>
 </html>"""
 
 
+# ── ROUTES ─────────────────────────────────────────────────────
+
+@admin_router.get("/login", response_class=HTMLResponse)
+async def admin_login_get(request: Request):
+    if _is_auth(request):
+        return RedirectResponse("/admin", status_code=302)
+    return HTMLResponse(_LOGIN_HTML.format(error=""))
+
+
+@admin_router.post("/login")
+async def admin_login_post(request: Request, password: str = Form(...)):
+    if hmac.compare_digest(password, _admin_password):
+        resp = RedirectResponse("/admin", status_code=302)
+        resp.set_cookie(
+            "admin_session", _make_token(),
+            max_age=86400, httponly=True, samesite="lax"
+        )
+        return resp
+    return HTMLResponse(_LOGIN_HTML.format(error='<p class="err">Incorrect password</p>'))
+
+
+@admin_router.post("/logout")
+async def admin_logout():
+    resp = RedirectResponse("/admin/login", status_code=302)
+    resp.delete_cookie("admin_session")
+    return resp
+
+
 @admin_router.get("", response_class=HTMLResponse)
 @admin_router.get("/", response_class=HTMLResponse)
-async def dashboard(request: Request):
+async def admin_dashboard(request: Request):
     if not _is_auth(request):
         return RedirectResponse("/admin/login", status_code=302)
     return HTMLResponse(_DASHBOARD_HTML)
 
 
-# ── ADMIN JSON API ──────────────────────────────────────────────
+# ── API: HEALTH ─────────────────────────────────────────────────
 
 @admin_router.get("/api/health")
-async def api_health(request: Request):
+async def admin_api_health(request: Request):
     _require_api_auth(request)
-    count = await _db.articles.estimated_document_count()
-    return {
-        "status": "ok",
-        "articles_count": count,
-        "version": "1.0.0",
-        "timestamp": datetime.now(timezone.utc).isoformat(),
-    }
+    health = {}
+    user_count = 0
+    jobs = []
+    try:
+        article_count = await _db["articles"].count_documents({})
+        user_count = await _db["users"].count_documents({})
+        health = {
+            "status": "ok",
+            "article_count": article_count,
+            "version": "2.0.0",
+            "timestamp": datetime.now(timezone.utc).isoformat(),
+        }
+    except Exception as e:
+        health = {"status": "error", "detail": str(e)}
+
+    # Attempt to get scheduler jobs if available
+    try:
+        from apscheduler.schedulers.asyncio import AsyncIOScheduler
+        import server as _server
+        sched = getattr(_server, "scheduler", None)
+        if sched:
+            for job in sched.get_jobs():
+                nr = job.next_run_time
+                jobs.append({
+                    "id": job.id,
+                    "next_run": nr.strftime("%Y-%m-%d %H:%M:%S UTC") if nr else "paused",
+                })
+    except Exception:
+        pass
+
+    return JSONResponse({"health": health, "user_count": user_count, "jobs": jobs})
 
 
-@admin_router.get("/api/stats")
-async def api_stats(request: Request):
+# ── API: ANALYTICS ──────────────────────────────────────────────
+
+@admin_router.get("/api/analytics")
+async def admin_api_analytics(request: Request):
     _require_api_auth(request)
-    total_articles = await _db.articles.count_documents({})
-    total_users = await _db.users.count_documents({})
-    by_cat = {}
-    for cat in ["world", "power", "money", "tech", "sports", "entertainment", "environment"]:
-        by_cat[cat] = await _db.articles.count_documents({"category": cat})
-    return {
-        "total_articles": total_articles,
-        "total_users": total_users,
-        "by_category": by_cat,
-        "scheduler_jobs": [],   # in-process scheduler; job list shown in server logs
-    }
 
+    # Country breakdown (full country names stored in users.country)
+    country_pipeline = [
+        {"$group": {"_id": "$country", "count": {"$sum": 1}}},
+        {"$sort": {"count": -1}},
+        {"$limit": 20},
+    ]
+
+    # Age band breakdown
+    age_pipeline = [
+        {"$group": {"_id": "$age_group", "count": {"$sum": 1}}},
+        {"$sort": {"_id": 1}},
+    ]
+
+    # Daily registrations — last 30 days
+    thirty_days_ago = datetime.now(timezone.utc) - timedelta(days=30)
+    daily_pipeline = [
+        {"$match": {"created_at": {"$gte": thirty_days_ago}}},
+        {"$group": {
+            "_id": {"$dateToString": {"format": "%Y-%m-%d", "date": "$created_at"}},
+            "count": {"$sum": 1}
+        }},
+        {"$sort": {"_id": 1}},
+    ]
+
+    # Monthly registrations — last 12 months
+    twelve_months_ago = datetime.now(timezone.utc) - timedelta(days=365)
+    monthly_pipeline = [
+        {"$match": {"created_at": {"$gte": twelve_months_ago}}},
+        {"$group": {
+            "_id": {"$dateToString": {"format": "%Y-%m", "date": "$created_at"}},
+            "count": {"$sum": 1}
+        }},
+        {"$sort": {"_id": 1}},
+    ]
+
+    # Engagement: avg streak, total stories read
+    engagement_pipeline = [
+        {"$group": {
+            "_id": None,
+            "avg_streak": {"$avg": "$current_streak"},
+            "total_stories": {"$sum": "$stories_read_count"},
+        }}
+    ]
+
+    # Most read category — by counting articles with rewrites (proxy for reads)
+    # Count articles per category where rewrite_status=done as proxy
+    category_pipeline = [
+        {"$match": {"rewrite_status": "done"}},
+        {"$group": {"_id": "$category", "count": {"$sum": 1}}},
+        {"$sort": {"count": -1}},
+        {"$limit": 1},
+    ]
+
+    # Today's Drop completion rate
+    today_str = datetime.now(timezone.utc).strftime("%Y-%m-%d")
+    total_users = 0
+    drop_completed_today = 0
+
+    try:
+        results = await asyncio.gather(
+            _db["users"].aggregate(country_pipeline).to_list(length=20),
+            _db["users"].aggregate(age_pipeline).to_list(length=20),
+            _db["users"].aggregate(daily_pipeline).to_list(length=31),
+            _db["users"].aggregate(monthly_pipeline).to_list(length=12),
+            _db["users"].aggregate(engagement_pipeline).to_list(length=1),
+            _db["articles"].aggregate(category_pipeline).to_list(length=1),
+            _db["users"].count_documents({}),
+            _db["daily_drop_progress"].count_documents({"date": today_str}),
+        )
+        country_bd, age_bd, daily_reg, monthly_reg, eng, top_cat, total_users, drop_today_total = results
+
+        # Users who completed all 5 today's drop articles
+        drop_completed_today = await _db["daily_drop_progress"].count_documents({
+            "date": today_str,
+            "articles": {"$size": 5},
+        })
+
+        avg_streak = eng[0]["avg_streak"] if eng else 0
+        total_stories = eng[0]["total_stories"] if eng else 0
+        most_read_category = top_cat[0]["_id"] if top_cat else "—"
+
+        drop_rate = (drop_completed_today / total_users * 100) if total_users > 0 else 0
+
+        return JSONResponse({
+            "country_breakdown": country_bd,
+            "age_breakdown": age_bd,
+            "daily_registrations": daily_reg,
+            "monthly_registrations": monthly_reg,
+            "avg_streak": round(avg_streak or 0, 2),
+            "total_stories_read": total_stories or 0,
+            "most_read_category": most_read_category,
+            "total_users": total_users,
+            "drop_completed_today": drop_completed_today,
+            "drop_completion_rate": round(drop_rate, 1),
+        })
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+
+# ── API: ARTICLES ───────────────────────────────────────────────
 
 @admin_router.get("/api/articles")
-async def api_articles(
+async def admin_api_articles(
     request: Request,
-    country: str = None,
-    category: str = None,
-    status: str = None,
+    skip: int = 0,
+    limit: int = 50,
+    country: str = "",
+    category: str = "",
+    status: str = "",
 ):
     _require_api_auth(request)
     query = {}
-    if country:  query["source_country"] = country.upper()
-    if category: query["category"] = category
-    if status:   query["rewrite_status"] = status
-    cursor = _db.articles.find(
-        query,
-        {"_id": 0, "id": 1, "original_title": 1, "category": 1,
-         "source_country": 1, "rewrite_status": 1, "crawled_at": 1},
-    ).sort("crawled_at", -1).limit(500)
-    return await cursor.to_list(500)
+    if country:
+        query["source_country"] = country
+    if category:
+        query["category"] = category
+    if status:
+        query["rewrite_status"] = status
 
+    try:
+        total = await _db["articles"].count_documents(query)
+        cursor = _db["articles"].find(
+            query,
+            {"original_title": 1, "category": 1, "source_country": 1,
+             "rewrite_status": 1, "safety_status": 1, "rewrites": 1, "published_at": 1}
+        ).sort("published_at", -1).skip(skip).limit(limit)
+        raw = await cursor.to_list(length=limit)
+
+        articles = []
+        for a in raw:
+            articles.append({
+                "id": str(a.get("_id", "")),
+                "title": a.get("original_title", ""),
+                "category": a.get("category", ""),
+                "source_country": a.get("source_country", ""),
+                "rewrite_status": a.get("rewrite_status", "pending"),
+                "safety_status": a.get("safety_status", "safe"),
+                "age_bands": list((a.get("rewrites") or {}).keys()),
+                "published_at": a.get("published_at", "").isoformat() if hasattr(a.get("published_at", ""), "isoformat") else str(a.get("published_at", "")),
+            })
+
+        return JSONResponse({"total": total, "articles": articles})
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+
+# ── API: USERS ──────────────────────────────────────────────────
 
 @admin_router.get("/api/users")
-async def api_users(request: Request):
+async def admin_api_users(
+    request: Request,
+    skip: int = 0,
+    limit: int = 50,
+    q: str = "",
+):
     _require_api_auth(request)
-    cursor = _db.users.find(
-        {},
-        {"_id": 0, "password_hash": 0, "device_tokens": 0},
-    ).sort("created_at", -1).limit(1000)
-    return await cursor.to_list(1000)
+    query = {}
+    if q:
+        query["$or"] = [
+            {"username": {"$regex": q, "$options": "i"}},
+            {"email": {"$regex": q, "$options": "i"}},
+        ]
 
+    try:
+        total = await _db["users"].count_documents(query)
+        cursor = _db["users"].find(
+            query,
+            {"username": 1, "email": 1, "full_name": 1, "country": 1, "age_group": 1,
+             "current_streak": 1, "stories_read_count": 1, "member_since": 1,
+             "created_at": 1, "last_read_date": 1}
+        ).sort("created_at", -1).skip(skip).limit(limit)
+        raw = await cursor.to_list(length=limit)
+
+        def _fmt_date(val):
+            if val is None:
+                return None
+            if hasattr(val, "isoformat"):
+                return val.isoformat()
+            return str(val)
+
+        users = []
+        for u in raw:
+            users.append({
+                "username": u.get("username", ""),
+                "email": u.get("email", ""),
+                "full_name": u.get("full_name", ""),
+                "country": u.get("country", ""),
+                "age_group": u.get("age_group", ""),
+                "current_streak": u.get("current_streak", 0),
+                "stories_read_count": u.get("stories_read_count", 0),
+                "member_since": _fmt_date(u.get("member_since")),
+                "created_at": _fmt_date(u.get("created_at")),
+                "last_read_date": _fmt_date(u.get("last_read_date")),
+            })
+
+        return JSONResponse({"total": total, "users": users})
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+
+# ── API: PIPELINE TRIGGERS ──────────────────────────────────────
 
 @admin_router.post("/api/crawl")
-async def api_crawl_all(request: Request):
+async def admin_api_crawl(request: Request):
     _require_api_auth(request)
-    if "crawl" not in _fns:
+    fn = _fns.get("crawl")
+    if not fn:
         raise HTTPException(status_code=503, detail="Crawl function not registered")
-    asyncio.create_task(_fns["crawl"]())
-    return {"message": "Crawl started for all countries in background."}
+    try:
+        result = await fn()
+        return JSONResponse({"ok": True, "result": result})
+    except Exception as e:
+        return JSONResponse({"ok": False, "error": str(e)}, status_code=500)
 
 
 @admin_router.post("/api/crawl/{country_code}")
-async def api_crawl_country(request: Request, country_code: str):
+async def admin_api_crawl_cc(request: Request, country_code: str):
     _require_api_auth(request)
-    if "crawl" not in _fns:
+    fn = _fns.get("crawl")
+    if not fn:
         raise HTTPException(status_code=503, detail="Crawl function not registered")
-    asyncio.create_task(_fns["crawl"](country_code=country_code.upper()))
-    return {"message": f"Crawl started for {country_code.upper()} in background."}
+    try:
+        result = await fn(country_code=country_code.upper())
+        return JSONResponse({"ok": True, "country": country_code.upper(), "result": result})
+    except Exception as e:
+        return JSONResponse({"ok": False, "error": str(e)}, status_code=500)
 
 
 @admin_router.post("/api/rewrite")
-async def api_rewrite(request: Request):
+async def admin_api_rewrite(request: Request):
     _require_api_auth(request)
-    if "rewrite" not in _fns:
+    fn = _fns.get("rewrite")
+    if not fn:
         raise HTTPException(status_code=503, detail="Rewrite function not registered")
-    for ag in ["8-10", "11-13", "14-16", "17-20"]:
-        asyncio.create_task(_fns["rewrite"](ag))
-    return {"message": "Rewrite tasks queued for all 4 age groups in background."}
+    try:
+        result = await fn()
+        return JSONResponse({"ok": True, "result": result})
+    except Exception as e:
+        return JSONResponse({"ok": False, "error": str(e)}, status_code=500)
