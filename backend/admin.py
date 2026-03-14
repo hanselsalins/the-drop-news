@@ -1003,7 +1003,12 @@ async def admin_api_rewrite(request: Request):
     if not fn:
         raise HTTPException(status_code=503, detail="Rewrite function not registered")
     try:
-        result = await fn()
-        return JSONResponse({"ok": True, "result": result})
+        await asyncio.gather(
+            fn("8-10"),
+            fn("11-13"),
+            fn("14-16"),
+            fn("17-20"),
+        )
+        return JSONResponse({"ok": True, "result": "Rewrites complete for all age groups"})
     except Exception as e:
         return JSONResponse({"ok": False, "error": str(e)}, status_code=500)
