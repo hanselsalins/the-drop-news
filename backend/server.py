@@ -2137,23 +2137,31 @@ async def trigger_micro_facts(background_tasks: BackgroundTasks, age_group: str 
 
 # ========== OTHER ROUTES ==========
 @api_router.post("/crawl")
-async def trigger_crawl(background_tasks: BackgroundTasks, age_group: str = "14-16",
-                        country_code: str = None):
+async def trigger_crawl(background_tasks: BackgroundTasks, country_code: str = None):
     async def crawl_and_rewrite():
         count = await crawl_rss_feeds(country_code=country_code)
         logger.info(f"Background crawl done: {count} articles for country={country_code or 'ALL'}")
-        await rewrite_pending_articles(age_group)
-        await generate_micro_facts(age_group)
+        await asyncio.gather(
+            rewrite_pending_articles("8-10"),
+            rewrite_pending_articles("11-13"),
+            rewrite_pending_articles("14-16"),
+            rewrite_pending_articles("17-20"),
+        )
+        await generate_micro_facts("14-16")
     background_tasks.add_task(crawl_and_rewrite)
     return {"message": f"Crawl started for country={country_code or 'ALL'}. Processing in background."}
 
 @api_router.post("/crawl/{country_code}")
-async def trigger_country_crawl(country_code: str, background_tasks: BackgroundTasks,
-                                 age_group: str = "14-16"):
+async def trigger_country_crawl(country_code: str, background_tasks: BackgroundTasks):
     async def crawl_and_rewrite():
         count = await crawl_rss_feeds(country_code=country_code)
         logger.info(f"Background crawl done: {count} articles for {country_code}")
-        await rewrite_pending_articles(age_group)
+        await asyncio.gather(
+            rewrite_pending_articles("8-10"),
+            rewrite_pending_articles("11-13"),
+            rewrite_pending_articles("14-16"),
+            rewrite_pending_articles("17-20"),
+        )
     background_tasks.add_task(crawl_and_rewrite)
     return {"message": f"Crawl started for {country_code}. Processing in background."}
 
@@ -2352,8 +2360,12 @@ async def _initial_crawl():
     try:
         for cc in ["US", "GB", "IN", "AU", "AE"]:
             await crawl_rss_feeds(country_code=cc)
-        await rewrite_pending_articles("14-16")
-        await rewrite_pending_articles("8-10")
+        await asyncio.gather(
+            rewrite_pending_articles("8-10"),
+            rewrite_pending_articles("11-13"),
+            rewrite_pending_articles("14-16"),
+            rewrite_pending_articles("17-20"),
+        )
         await generate_micro_facts("8-10")
         await generate_micro_facts("14-16")
     except Exception as e:
