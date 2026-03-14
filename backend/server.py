@@ -605,27 +605,37 @@ _AGE_SYSTEM_PROMPTS = {
     "17-20": "You are a news writer who makes complex news clear and informative for 17-20 year olds.",
 }
 
+_PARAGRAPH_FORMATTING = (
+    "Format the body field with proper paragraphs. Use this rule: if the story is around 150 words use "
+    "2 paragraphs, if around 200 words use 3 paragraphs, if 250+ words use 4-5 paragraphs. "
+    r"Separate paragraphs with a blank line (\n\n). Never write one big block of text."
+)
+
 _AGE_USER_INSTRUCTIONS = {
     "8-10": (
         "Rewrite this news article for a 8-10 year old child. Use very simple words (maximum 2 syllables "
         "where possible). Keep sentences short — maximum 12 words each. Explain any difficult concepts like "
         "you would to a young child. Make it engaging and fun to read. "
-        "The body field must contain at least 150 words of actual story content written in simple paragraphs."
+        "The body field must contain at least 150 words of actual story content written in simple paragraphs. "
+        + _PARAGRAPH_FORMATTING
     ),
     "11-13": (
         "Rewrite this news article for an 11-13 year old. Use clear simple language. Explain what happened, "
         "why it matters, and any background context they need. "
-        "The body field must contain at least 150 words written in 3-4 engaging paragraphs."
+        "The body field must contain at least 150 words written in 3-4 engaging paragraphs. "
+        + _PARAGRAPH_FORMATTING
     ),
     "14-16": (
         "Rewrite this news article for a 14-16 year old. Use plain English, explain any technical terms, "
         "and give background context. Cover the full story. "
-        "The body field must contain at least 200 words written in 4-5 clear paragraphs."
+        "The body field must contain at least 200 words written in 4-5 clear paragraphs. "
+        + _PARAGRAPH_FORMATTING
     ),
     "17-20": (
         "Rewrite this news article for a 17-20 year old. Write clearly and informatively like a good "
         "newspaper but accessible to a young adult. Cover the full story with context. "
-        "The body field must contain at least 200 words written in 4-5 paragraphs."
+        "The body field must contain at least 200 words written in 4-5 paragraphs. "
+        + _PARAGRAPH_FORMATTING
     ),
 }
 
