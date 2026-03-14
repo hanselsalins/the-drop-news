@@ -7,6 +7,8 @@ import { BottomNav } from '../components/BottomNav';
 import { StreakBadge } from '../components/StreakBadge';
 import { MicroFactCard } from '../components/MicroFactCard';
 import { MilestoneBanner } from '../components/MilestoneBanner';
+import { ProgressDots } from '../components/ProgressDots';
+import { useReadArticles } from '../hooks/useReadArticles';
 import { motion } from 'framer-motion';
 import { Loader2, RefreshCw } from 'lucide-react';
 import axios from 'axios';
