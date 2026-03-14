@@ -245,7 +245,11 @@ _DASHBOARD_HTML = r"""<!DOCTYPE html>
 
 <!-- ═══════════════════════ PIPELINE TAB ═══════════════════════ -->
 <div class="pane" id="pane-pipeline">
-  <div class="section-title">Crawl</div>
+  <div class="section-title">Maintenance</div>
+  <div class="btn-grid">
+    <button class="btn btn-secondary" onclick="triggerCleanup()">🗑️ Clean Up Old Articles</button>
+  </div>
+  <div class="section-title" style="margin-top:8px">Crawl</div>
   <div class="btn-grid">
     <button class="btn btn-primary" onclick="triggerCrawl()">🕷 Crawl All Countries</button>
     <button class="btn btn-secondary" onclick="triggerCrawlCC('IN')">🇮🇳 Crawl IN</button>
@@ -496,6 +500,15 @@ async function triggerResetRewrite(cc) {
 }
 
 function triggerResetRewriteCC(cc) { triggerResetRewrite(cc); }
+
+async function triggerCleanup() {
+  showResponse('Deleting articles older than 7 days…');
+  try {
+    const r = await fetch('/admin/api/cleanup-old-articles', {method:'POST'});
+    const d = await r.json();
+    showResponse(JSON.stringify(d, null, 2), r.ok);
+  } catch(e) { showResponse('Error: '+e.message, false); }
+}
 
 // ── ANALYTICS ──────────────────────────────────────────────────
 let analyticsLoaded = false;
@@ -992,6 +1005,17 @@ async def admin_api_users(
 
 
 # ── API: PIPELINE TRIGGERS ──────────────────────────────────────
+
+@admin_router.post("/api/cleanup-old-articles")
+async def admin_api_cleanup_old_articles(request: Request):
+    _require_api_auth(request)
+    try:
+        cutoff = (datetime.now(timezone.utc) - timedelta(days=7)).isoformat()
+        result = await _db["articles"].delete_many({"published_at": {"$lt": cutoff}})
+        return JSONResponse({"ok": True, "deleted_count": result.deleted_count})
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
 
 @admin_router.post("/api/reset-rewrites")
 async def admin_api_reset_rewrites(request: Request, country_code: str = ""):

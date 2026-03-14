@@ -797,6 +797,27 @@ def generate_why_reason(article: dict, user: dict = None) -> str:
 
 
 # ===== RSS CRAWLING =====
+def _entry_is_recent(entry, max_age_days: int = 7) -> bool:
+    """Return True if the entry's publish date is within max_age_days. Skip if unparseable."""
+    import time as _time
+    parsed = entry.get("published_parsed") or entry.get("updated_parsed")
+    if not parsed:
+        return False  # no date at all — skip
+    try:
+        pub_dt = datetime.fromtimestamp(_time.mktime(parsed), tz=timezone.utc)
+        return (datetime.now(timezone.utc) - pub_dt).days <= max_age_days
+    except Exception:
+        return False
+
+
+async def cleanup_old_articles(max_age_days: int = 7) -> int:
+    """Delete articles with published_at older than max_age_days. Returns deleted count."""
+    cutoff = datetime.now(timezone.utc) - timedelta(days=max_age_days)
+    result = await db.articles.delete_many({"published_at": {"$lt": cutoff.isoformat()}})
+    logger.info(f"cleanup_old_articles: deleted {result.deleted_count} articles older than {max_age_days} days")
+    return result.deleted_count
+
+
 async def crawl_rss_feeds(country_code: str = None):
     """Crawl RSS feeds. If country_code is provided, crawl only that country.
     Otherwise, crawl all countries from global_sources."""
@@ -830,6 +851,9 @@ async def crawl_rss_feeds(country_code: str = None):
                 for entry in feed.entries[:5]:
                     link = entry.get("link", "")
                     if not link:
+                        continue
+                    if not _entry_is_recent(entry):
+                        logger.debug(f"Skipping old/undated article: {entry.get('title','')[:60]}")
                         continue
                     existing = await db.articles.find_one({"original_url": link})
                     if existing:
@@ -931,6 +955,9 @@ async def _crawl_legacy_feeds():
                     asyncio.to_thread(feedparser.parse, feed_info["url"]), timeout=15
                 )
                 for entry in feed.entries[:3]:
+                    if not _entry_is_recent(entry):
+                        logger.debug(f"Skipping old/undated article: {entry.get('title','')[:60]}")
+                        continue
                     existing = await db.articles.find_one({"original_url": entry.get("link", "")})
                     if existing:
                         continue
@@ -2279,6 +2306,15 @@ async def job_crawl_all_countries():
         logger.error(f"[Scheduler] job_crawl_all_countries failed: {e}")
 
 
+async def job_cleanup_old_articles():
+    logger.info("[Scheduler] job_cleanup_old_articles: removing articles older than 7 days")
+    try:
+        deleted = await cleanup_old_articles(max_age_days=7)
+        logger.info(f"[Scheduler] job_cleanup_old_articles: done, deleted={deleted}")
+    except Exception as e:
+        logger.error(f"[Scheduler] job_cleanup_old_articles failed: {e}")
+
+
 async def job_rewrite_pending():
     logger.info("[Scheduler] job_rewrite_pending: processing all age groups")
     try:
@@ -2348,10 +2384,11 @@ async def startup_event():
             asyncio.create_task(generate_micro_facts("14-16"))
 
     # Register and start APScheduler — after DB is ready
-    scheduler.add_job(job_crawl_all_countries,   IntervalTrigger(hours=3),          id="crawl_all_countries",         replace_existing=True)
-    scheduler.add_job(job_rewrite_pending,        IntervalTrigger(minutes=60),       id="rewrite_pending",             replace_existing=True)
-    scheduler.add_job(job_generate_todays_drop_all_users, CronTrigger(hour=0, minute=0, timezone="UTC"), id="todays_drop_all_users", replace_existing=True)
-    scheduler.add_job(job_health_ping,            IntervalTrigger(minutes=5),        id="health_ping",                 replace_existing=True)
+    scheduler.add_job(job_crawl_all_countries,         IntervalTrigger(hours=3),                              id="crawl_all_countries",    replace_existing=True)
+    scheduler.add_job(job_rewrite_pending,             IntervalTrigger(minutes=60),                           id="rewrite_pending",        replace_existing=True)
+    scheduler.add_job(job_generate_todays_drop_all_users, CronTrigger(hour=0, minute=0, timezone="UTC"),      id="todays_drop_all_users",  replace_existing=True)
+    scheduler.add_job(job_cleanup_old_articles,        CronTrigger(hour=1, minute=0, timezone="UTC"),         id="cleanup_old_articles",   replace_existing=True)
+    scheduler.add_job(job_health_ping,                 IntervalTrigger(minutes=5),                            id="health_ping",            replace_existing=True)
     scheduler.start()
 
     jobs = scheduler.get_jobs()
