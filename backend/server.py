@@ -582,19 +582,22 @@ async def scrape_article_body(url: str) -> str:
 
 
 # ===== CLAUDE REWRITE =====
+_claude_semaphore = asyncio.Semaphore(3)
+
 async def rewrite_with_claude(system_prompt: str, user_prompt: str) -> str:
     """Call Claude Sonnet for article rewriting. Returns response text or '' on error."""
-    try:
-        message = await anthropic_client.messages.create(
-            model="claude-sonnet-4-5",
-            max_tokens=1500,
-            system=system_prompt,
-            messages=[{"role": "user", "content": user_prompt}],
-        )
-        return message.content[0].text
-    except Exception as e:
-        logger.error(f"rewrite_with_claude failed: {e}")
-        return ""
+    async with _claude_semaphore:
+        try:
+            message = await anthropic_client.messages.create(
+                model="claude-sonnet-4-5",
+                max_tokens=1500,
+                system=system_prompt,
+                messages=[{"role": "user", "content": user_prompt}],
+            )
+            return message.content[0].text
+        except Exception as e:
+            logger.error(f"rewrite_with_claude failed: {e}")
+            return ""
 
 
 # ===== AI REWRITING =====
@@ -2178,12 +2181,8 @@ async def trigger_crawl(background_tasks: BackgroundTasks, country_code: str = N
     async def crawl_and_rewrite():
         count = await crawl_rss_feeds(country_code=country_code)
         logger.info(f"Background crawl done: {count} articles for country={country_code or 'ALL'}")
-        await asyncio.gather(
-            rewrite_pending_articles("8-10"),
-            rewrite_pending_articles("11-13"),
-            rewrite_pending_articles("14-16"),
-            rewrite_pending_articles("17-20"),
-        )
+        for ag in ["8-10", "11-13", "14-16", "17-20"]:
+            await rewrite_pending_articles(ag)
         await generate_micro_facts("14-16")
     background_tasks.add_task(crawl_and_rewrite)
     return {"message": f"Crawl started for country={country_code or 'ALL'}. Processing in background."}
@@ -2193,24 +2192,16 @@ async def trigger_country_crawl(country_code: str, background_tasks: BackgroundT
     async def crawl_and_rewrite():
         count = await crawl_rss_feeds(country_code=country_code)
         logger.info(f"Background crawl done: {count} articles for {country_code}")
-        await asyncio.gather(
-            rewrite_pending_articles("8-10"),
-            rewrite_pending_articles("11-13"),
-            rewrite_pending_articles("14-16"),
-            rewrite_pending_articles("17-20"),
-        )
+        for ag in ["8-10", "11-13", "14-16", "17-20"]:
+            await rewrite_pending_articles(ag)
     background_tasks.add_task(crawl_and_rewrite)
     return {"message": f"Crawl started for {country_code}. Processing in background."}
 
 @api_router.post("/rewrite")
 async def trigger_rewrite(background_tasks: BackgroundTasks):
     async def _rewrite_all():
-        await asyncio.gather(
-            rewrite_pending_articles("8-10"),
-            rewrite_pending_articles("11-13"),
-            rewrite_pending_articles("14-16"),
-            rewrite_pending_articles("17-20"),
-        )
+        for ag in ["8-10", "11-13", "14-16", "17-20"]:
+            await rewrite_pending_articles(ag)
     background_tasks.add_task(_rewrite_all)
     return {"message": "Rewrites started for all age groups (8-10, 11-13, 14-16, 17-20) in background"}
 
@@ -2407,12 +2398,8 @@ async def _initial_crawl():
     try:
         for cc in ["US", "GB", "IN", "AU", "AE"]:
             await crawl_rss_feeds(country_code=cc)
-        await asyncio.gather(
-            rewrite_pending_articles("8-10"),
-            rewrite_pending_articles("11-13"),
-            rewrite_pending_articles("14-16"),
-            rewrite_pending_articles("17-20"),
-        )
+        for ag in ["8-10", "11-13", "14-16", "17-20"]:
+            await rewrite_pending_articles(ag)
         await generate_micro_facts("8-10")
         await generate_micro_facts("14-16")
     except Exception as e:
