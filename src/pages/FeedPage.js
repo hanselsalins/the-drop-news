@@ -29,6 +29,7 @@ export default function FeedPage() {
   const isKids = themeMode === 'kids';
   const headers = token ? { Authorization: `Bearer ${token}` } : {};
   const { milestone, checkMilestone, acknowledgeMilestone, requestPermission, permission } = useNotifications();
+  const { readIds, refresh: refreshReadIds } = useReadArticles();
 
   const userCountryObj = countries.find(c => c.country_name === user?.country);
 
