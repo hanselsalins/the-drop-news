@@ -14,7 +14,7 @@ const CATEGORY_COLORS = {
 };
 
 const CATEGORY_LIGHT_BG = {
-  all: '#EFF6FF',
+  today: '#EFF6FF',
   world: '#EFF6FF',
   science: '#ECFDF5',
   sports: '#FFF7ED',
