@@ -1,5 +1,5 @@
 const CATEGORY_COLORS = {
-  all: '#3B82F6',
+  today: '#3B82F6',
   world: '#3B82F6',
   science: '#10B981',
   sports: '#F97316',
