@@ -6,6 +6,7 @@ import { ReactionBar } from '../components/ReactionBar';
 import { motion } from 'framer-motion';
 import { ChevronLeft, ExternalLink, Share2, Clock } from 'lucide-react';
 import axios from 'axios';
+import { markArticleRead } from '../hooks/useReadArticles';
 
 const BACKEND_URL = import.meta.env.VITE_BACKEND_URL;
 
