@@ -5,6 +5,8 @@ from starlette.middleware.cors import CORSMiddleware
 from motor.motor_asyncio import AsyncIOMotorClient
 from pymongo.errors import DuplicateKeyError
 from openai import OpenAI
+import anthropic
+import httpx
 import os
 import logging
 from pathlib import Path
@@ -35,6 +37,7 @@ client = AsyncIOMotorClient(mongo_url)
 db = client[os.environ['DB_NAME']]
 
 openai_client = OpenAI(api_key=os.environ.get("OPENAI_API_KEY"))
+anthropic_client = anthropic.AsyncAnthropic(api_key=os.environ.get("ANTHROPIC_API_KEY"))
 
 JWT_SECRET = os.environ.get('JWT_SECRET', 'thedrop-nocap-secret-2026')
 JWT_ALGORITHM = "HS256"
@@ -544,6 +547,56 @@ async def get_streak_reminder_message(user: dict) -> str:
     return f"{msg['emoji']} {text}"
 
 
+# ===== ARTICLE SCRAPING =====
+async def scrape_article_body(url: str) -> str:
+    """Fetch full article body from URL. Returns up to 4000 chars of <p> text, or '' on any error."""
+    try:
+        headers = {
+            "User-Agent": (
+                "Mozilla/5.0 (Windows NT 10.0; Win64; x64) "
+                "AppleWebKit/537.36 (KHTML, like Gecko) "
+                "Chrome/124.0.0.0 Safari/537.36"
+            )
+        }
+        async with httpx.AsyncClient(timeout=10, follow_redirects=True) as client:
+            resp = await client.get(url, headers=headers)
+            resp.raise_for_status()
+            html = resp.text
+
+        # Extract <p> tag contents without a heavy HTML parser
+        paragraphs = re.findall(r'<p[^>]*>(.*?)</p>', html, re.DOTALL | re.IGNORECASE)
+        # Strip inner tags and decode basic entities
+        clean_paras = []
+        for p in paragraphs:
+            text = re.sub(r'<[^>]+>', '', p).strip()
+            text = text.replace('&amp;', '&').replace('&lt;', '<').replace('&gt;', '>') \
+                       .replace('&nbsp;', ' ').replace('&#39;', "'").replace('&quot;', '"')
+            text = re.sub(r'\s+', ' ', text).strip()
+            if len(text) >= 40:
+                clean_paras.append(text)
+
+        return ' '.join(clean_paras)[:4000]
+    except Exception as e:
+        logger.debug(f"scrape_article_body failed for {url}: {e}")
+        return ""
+
+
+# ===== CLAUDE REWRITE =====
+async def rewrite_with_claude(system_prompt: str, user_prompt: str) -> str:
+    """Call Claude Sonnet for article rewriting. Returns response text or '' on error."""
+    try:
+        message = await anthropic_client.messages.create(
+            model="claude-sonnet-4-5",
+            max_tokens=1500,
+            system=system_prompt,
+            messages=[{"role": "user", "content": user_prompt}],
+        )
+        return message.content[0].text
+    except Exception as e:
+        logger.error(f"rewrite_with_claude failed: {e}")
+        return ""
+
+
 # ===== AI REWRITING =====
 async def rewrite_article_for_age_group(title: str, content: str, age_group: str, category: str,
                                          source_language: str = "English",
@@ -579,30 +632,11 @@ Return ONLY valid JSON, no markdown, no code blocks.{confidence_instruction}"""
     # Retry logic: attempt once, if fails retry, then mark for manual review
     for attempt in range(2):
         try:
-            if openai_client is None:
-                logger.error("OpenAI client is not configured; skipping rewrite.")
-                return {"title": title, "summary": content[:150], "body": content, "reading_time": "2 min",
-                        "country_relevance": ["GLOBAL"], "impact_flags": [],
-                        "low_confidence_flag": False, "rewrite_status": "failed"}
+            raw = await rewrite_with_claude(system_prompt + "\n" + safety, prompt)
+            if not raw:
+                raise ValueError("Empty response from Claude")
 
-            model = os.environ.get("OPENAI_MODEL_DEFAULT", "gpt-4o-mini")
-
-            response = await asyncio.to_thread(
-                openai_client.chat.completions.create,
-                model=model,
-                messages=[
-                    {
-                        "role": "system",
-                        "content": system_prompt + "\n" + safety,
-                    },
-                    {
-                        "role": "user",
-                        "content": prompt,
-                    },
-                ],
-            )
-
-            clean = response.choices[0].message.content.strip()
+            clean = raw.strip()
             if clean.startswith("```"):
                 clean = clean.split("\n", 1)[1] if "\n" in clean else clean[3:]
                 if clean.endswith("```"):
@@ -893,7 +927,7 @@ async def rewrite_pending_articles(age_group: str):
     cursor = db.articles.find(
         {f"rewrites.{age_group}": {"$exists": False}},
         {"_id": 0, "id": 1, "original_title": 1, "original_headline": 1,
-         "original_content": 1, "original_body": 1, "category": 1,
+         "original_content": 1, "original_body": 1, "original_url": 1, "category": 1,
          "source_language": 1, "source_country": 1}
     )
     articles = await cursor.to_list(50)
@@ -902,6 +936,15 @@ async def rewrite_pending_articles(age_group: str):
         content = article.get("original_body") or article.get("original_content", "")
         source_lang = article.get("source_language", "English")
         source_country = article.get("source_country", "US")
+
+        # If RSS body is thin, try to scrape the full article
+        if len(content) < 200:
+            original_url = article.get("original_url", "")
+            if original_url:
+                scraped = await scrape_article_body(original_url)
+                if len(scraped) > len(content):
+                    content = scraped
+                    logger.info(f"Scraped full body for article {article['id']} ({len(content)} chars)")
 
         rewrite = await rewrite_article_for_age_group(
             title, content, age_group, article["category"],
