@@ -257,6 +257,12 @@ _DASHBOARD_HTML = r"""<!DOCTYPE html>
   <div class="section-title" style="margin-top:8px">Rewrite</div>
   <div class="btn-grid">
     <button class="btn btn-green" onclick="triggerRewrite()">✏️ Rewrite Pending</button>
+    <button class="btn btn-secondary" onclick="triggerResetRewrite()">🔄 Reset &amp; Rewrite All</button>
+    <button class="btn btn-secondary" onclick="triggerResetRewriteCC('IN')">🔄 Reset IN</button>
+    <button class="btn btn-secondary" onclick="triggerResetRewriteCC('US')">🔄 Reset US</button>
+    <button class="btn btn-secondary" onclick="triggerResetRewriteCC('GB')">🔄 Reset GB</button>
+    <button class="btn btn-secondary" onclick="triggerResetRewriteCC('AU')">🔄 Reset AU</button>
+    <button class="btn btn-secondary" onclick="triggerResetRewriteCC('AE')">🔄 Reset AE</button>
   </div>
   <div class="response-box" id="pipelineResponse"></div>
 </div>
@@ -473,6 +479,23 @@ async function triggerRewrite() {
     showResponse(JSON.stringify(d, null, 2), r.ok);
   } catch(e) { showResponse('Error: '+e.message, false); }
 }
+
+async function triggerResetRewrite(cc) {
+  const label = cc ? `country=${cc}` : 'all articles';
+  showResponse(`Resetting rewrites for ${label}, then triggering rewrite…`);
+  try {
+    const url = '/admin/api/reset-rewrites' + (cc ? `?country_code=${cc}` : '');
+    const r1 = await fetch(url, {method:'POST'});
+    const d1 = await r1.json();
+    if(!r1.ok) { showResponse(JSON.stringify(d1, null, 2), false); return; }
+    showResponse(`Reset done: ${JSON.stringify(d1)}\n\nTriggering rewrite…`);
+    const r2 = await fetch('/admin/api/rewrite', {method:'POST'});
+    const d2 = await r2.json();
+    showResponse(`Reset: ${JSON.stringify(d1)}\nRewrite: ${JSON.stringify(d2)}`, r2.ok);
+  } catch(e) { showResponse('Error: '+e.message, false); }
+}
+
+function triggerResetRewriteCC(cc) { triggerResetRewrite(cc); }
 
 // ── ANALYTICS ──────────────────────────────────────────────────
 let analyticsLoaded = false;
@@ -969,6 +992,26 @@ async def admin_api_users(
 
 
 # ── API: PIPELINE TRIGGERS ──────────────────────────────────────
+
+@admin_router.post("/api/reset-rewrites")
+async def admin_api_reset_rewrites(request: Request, country_code: str = ""):
+    _require_api_auth(request)
+    query = {}
+    if country_code:
+        query["source_country"] = country_code.upper()
+    try:
+        result = await _db["articles"].update_many(
+            query,
+            {"$set": {"rewrites": {}, "rewrite_status": "pending"}}
+        )
+        return JSONResponse({
+            "ok": True,
+            "reset_count": result.modified_count,
+            "country": country_code.upper() if country_code else "ALL",
+        })
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
 
 @admin_router.post("/api/crawl")
 async def admin_api_crawl(request: Request):
