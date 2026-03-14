@@ -28,6 +28,7 @@ ROOT_DIR = Path(__file__).parent
 load_dotenv(ROOT_DIR / '.env')
 
 from global_sources import GLOBAL_SOURCES, get_country_by_code, get_active_sources, get_countries_list
+from admin import admin_router, init_admin
 
 mongo_url = os.environ['MONGO_URL']
 client = AsyncIOMotorClient(mongo_url)
@@ -2252,6 +2253,11 @@ async def startup_event():
     for j in jobs:
         logger.info(f"  [{j.id}]  next run: {j.next_run_time}")
 
+    # Mount admin dashboard — after DB is ready
+    admin_pwd = os.environ.get("ADMIN_PASSWORD", "admin")
+    init_admin(db, admin_pwd, crawl=crawl_rss_feeds, rewrite=rewrite_pending_articles)
+    logger.info("Admin dashboard ready at /admin")
+
 
 async def _initial_crawl():
     """Initial crawl on startup — runs in background to not block startup."""
@@ -2266,6 +2272,7 @@ async def _initial_crawl():
         logger.error(f"Initial crawl failed: {e}")
 
 app.include_router(api_router)
+app.include_router(admin_router)
 
 app.add_middleware(
     CORSMiddleware, allow_credentials=True,
