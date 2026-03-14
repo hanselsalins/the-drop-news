@@ -1,0 +1,47 @@
+name: Sync from Lovable (the-drop-news)
+
+on:
+  schedule:
+    - cron: '*/30 * * * *'   # every 30 minutes
+  workflow_dispatch:           # allow manual trigger from GitHub UI
+
+jobs:
+  sync:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout the-drop (target)
+        uses: actions/checkout@v4
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          fetch-depth: 0
+
+      - name: Clone the-drop-news (source)
+        run: |
+          git clone --depth 1 https://github.com/hanselsalins/the-drop-news.git /tmp/the-drop-news
+
+      - name: Sync frontend files
+        run: |
+          rsync -av --delete \
+            --exclude='.git' \
+            --exclude='node_modules' \
+            --exclude='dist' \
+            --exclude='.env' \
+            /tmp/the-drop-news/ \
+            frontend/
+
+      - name: Check for changes
+        id: diff
+        run: |
+          git diff --quiet && git diff --staged --quiet \
+            && echo "changed=false" >> $GITHUB_OUTPUT \
+            || echo "changed=true" >> $GITHUB_OUTPUT
+
+      - name: Commit and push if changed
+        if: steps.diff.outputs.changed == 'true'
+        run: |
+          git config user.name  "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add frontend/
+          LOVABLE_SHA=$(git -C /tmp/the-drop-news rev-parse --short HEAD)
+          git commit -m "sync: pull Lovable frontend changes (the-drop-news@${LOVABLE_SHA})"
+          git push origin main
