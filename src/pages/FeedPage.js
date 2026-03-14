@@ -39,8 +39,10 @@ export default function FeedPage() {
 
   const fetchArticles = useCallback(async () => {
     try {
-      const params = { age_group: ageGroup || '14-16', limit: 20 };
-      if (activeCategory !== 'all') params.category = activeCategory;
+      const isToday = activeCategory === 'today';
+      const limit = isToday ? 5 : 3;
+      const params = { age_group: ageGroup || '14-16', limit };
+      if (!isToday) params.category = activeCategory;
       const res = await axios.get(`${BACKEND_URL}/api/articles`, { params, headers });
       setArticles(res.data);
     } catch (e) {
