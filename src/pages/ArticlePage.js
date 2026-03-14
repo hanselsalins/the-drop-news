@@ -6,6 +6,7 @@ import { ReactionBar } from '../components/ReactionBar';
 import { motion } from 'framer-motion';
 import { ChevronLeft, ExternalLink, Share2, Clock } from 'lucide-react';
 import axios from 'axios';
+import { markArticleRead } from '../hooks/useReadArticles';
 
 const BACKEND_URL = import.meta.env.VITE_BACKEND_URL;
 
@@ -90,8 +91,11 @@ export default function ArticlePage() {
   }, [id, ageGroup]);
 
   useEffect(() => {
-    if (!token || !article) return;
-    axios.post(`${BACKEND_URL}/api/streak/read`, {}, { headers }).catch(() => {});
+    if (!article) return;
+    markArticleRead(article.id);
+    if (token) {
+      axios.post(`${BACKEND_URL}/api/streak/read`, {}, { headers }).catch(() => {});
+    }
   }, [article, token]);
 
   const handleShare = async () => {

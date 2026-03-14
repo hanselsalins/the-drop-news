@@ -7,6 +7,8 @@ import { BottomNav } from '../components/BottomNav';
 import { StreakBadge } from '../components/StreakBadge';
 import { MicroFactCard } from '../components/MicroFactCard';
 import { MilestoneBanner } from '../components/MilestoneBanner';
+import { ProgressDots } from '../components/ProgressDots';
+import { useReadArticles } from '../hooks/useReadArticles';
 import { motion } from 'framer-motion';
 import { Loader2, RefreshCw } from 'lucide-react';
 import axios from 'axios';
@@ -27,6 +29,7 @@ export default function FeedPage() {
   const isKids = themeMode === 'kids';
   const headers = token ? { Authorization: `Bearer ${token}` } : {};
   const { milestone, checkMilestone, acknowledgeMilestone, requestPermission, permission } = useNotifications();
+  const { readIds, refresh: refreshReadIds } = useReadArticles();
 
   const userCountryObj = countries.find(c => c.country_name === user?.country);
 
@@ -86,6 +89,20 @@ export default function FeedPage() {
   useEffect(() => { fetchMicroFacts(); }, [fetchMicroFacts]);
   useEffect(() => { setLoading(true); fetchArticles(); }, [fetchArticles]);
   useEffect(() => { checkMilestone(); }, [checkMilestone]);
+
+  // Refresh read status when articles change or component regains focus
+  useEffect(() => { refreshReadIds(); }, [articles, refreshReadIds]);
+
+  // Check if all today's articles are read → increment streak
+  const todayArticleIds = activeCategory === 'today' ? articles.map(a => String(a.id)) : [];
+  const allTodayRead = todayArticleIds.length === 5 && todayArticleIds.every(id => readIds.has(id));
+
+  useEffect(() => {
+    if (allTodayRead && token) {
+      axios.post(`${BACKEND_URL}/api/streak/read`, {}, { headers }).catch(() => {});
+      fetchStreak();
+    }
+  }, [allTodayRead, token]);
 
   const handleRefresh = async () => {
     setRefreshing(true);
@@ -187,6 +204,11 @@ export default function FeedPage() {
       {/* Category tabs */}
       <CategoryTabs categories={categories} activeCategory={activeCategory}
         setActiveCategory={setActiveCategory} />
+
+      {/* Progress dots for Today's Drop */}
+      {activeCategory === 'today' && !loading && articles.length > 0 && (
+        <ProgressDots articleIds={todayArticleIds} readArticleIds={readIds} />
+      )}
 
       {/* Feed */}
       <div className="px-4 pt-4 space-y-3">
