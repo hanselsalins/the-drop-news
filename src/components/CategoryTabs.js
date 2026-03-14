@@ -1,5 +1,5 @@
 const CATEGORY_COLORS = {
-  all: '#3B82F6',
+  today: '#3B82F6',
   world: '#3B82F6',
   science: '#10B981',
   sports: '#F97316',
@@ -14,7 +14,7 @@ const CATEGORY_COLORS = {
 };
 
 const CATEGORY_LIGHT_BG = {
-  all: '#EFF6FF',
+  today: '#EFF6FF',
   world: '#EFF6FF',
   science: '#ECFDF5',
   sports: '#FFF7ED',

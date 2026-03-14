@@ -19,7 +19,7 @@ export default function FeedPage() {
   const [categories, setCategories] = useState([]);
   const [microFacts, setMicroFacts] = useState([]);
   const [streak, setStreak] = useState({ current_streak: 0, longest_streak: 0, read_today: false });
-  const [activeCategory, setActiveCategory] = useState('world');
+  const [activeCategory, setActiveCategory] = useState('today');
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
   const [countries, setCountries] = useState([]);
