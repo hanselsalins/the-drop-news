@@ -2158,9 +2158,16 @@ async def trigger_country_crawl(country_code: str, background_tasks: BackgroundT
     return {"message": f"Crawl started for {country_code}. Processing in background."}
 
 @api_router.post("/rewrite")
-async def trigger_rewrite(background_tasks: BackgroundTasks, age_group: str = "14-16"):
-    background_tasks.add_task(rewrite_pending_articles, age_group)
-    return {"message": f"Rewrites started for age_group={age_group} in background"}
+async def trigger_rewrite(background_tasks: BackgroundTasks):
+    async def _rewrite_all():
+        await asyncio.gather(
+            rewrite_pending_articles("8-10"),
+            rewrite_pending_articles("11-13"),
+            rewrite_pending_articles("14-16"),
+            rewrite_pending_articles("17-20"),
+        )
+    background_tasks.add_task(_rewrite_all)
+    return {"message": "Rewrites started for all age groups (8-10, 11-13, 14-16, 17-20) in background"}
 
 @api_router.get("/stats")
 async def get_stats():
