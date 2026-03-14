@@ -93,10 +93,7 @@ export default function ArticlePage() {
   useEffect(() => {
     if (!article) return;
     markArticleRead(article.id);
-    if (token) {
-      axios.post(`${BACKEND_URL}/api/streak/read`, {}, { headers }).catch(() => {});
-    }
-  }, [article, token]);
+  }, [article]);
 
   const handleShare = async () => {
     if (navigator.share) {
