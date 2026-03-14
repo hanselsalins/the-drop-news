@@ -49,23 +49,23 @@ _LOGIN_HTML = """<!DOCTYPE html>
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title>The Drop — Admin</title>
 <style>
-  *{box-sizing:border-box;margin:0;padding:0}
-  body{background:#111827;color:#f9fafb;font-family:'Segoe UI',system-ui,sans-serif;
-       min-height:100vh;display:flex;align-items:center;justify-content:center}
-  .card{background:#1f2937;border:1px solid #374151;border-radius:12px;padding:40px;
-        width:360px;box-shadow:0 20px 60px rgba(0,0,0,.5)}
-  h1{font-size:22px;font-weight:700;margin-bottom:6px;color:#f9fafb}
-  .sub{font-size:13px;color:#9ca3af;margin-bottom:28px}
-  label{display:block;font-size:12px;color:#9ca3af;margin-bottom:6px;font-weight:500;
-        letter-spacing:.5px;text-transform:uppercase}
-  input{width:100%;background:#111827;border:1px solid #374151;border-radius:8px;
-        padding:10px 14px;color:#f9fafb;font-size:15px;outline:none;transition:.2s}
-  input:focus{border-color:#3b82f6;box-shadow:0 0 0 3px rgba(59,130,246,.15)}
-  button{width:100%;background:#3b82f6;color:#fff;border:none;border-radius:8px;
+  *{{box-sizing:border-box;margin:0;padding:0}}
+  body{{background:#111827;color:#f9fafb;font-family:'Segoe UI',system-ui,sans-serif;
+       min-height:100vh;display:flex;align-items:center;justify-content:center}}
+  .card{{background:#1f2937;border:1px solid #374151;border-radius:12px;padding:40px;
+        width:360px;box-shadow:0 20px 60px rgba(0,0,0,.5)}}
+  h1{{font-size:22px;font-weight:700;margin-bottom:6px;color:#f9fafb}}
+  .sub{{font-size:13px;color:#9ca3af;margin-bottom:28px}}
+  label{{display:block;font-size:12px;color:#9ca3af;margin-bottom:6px;font-weight:500;
+        letter-spacing:.5px;text-transform:uppercase}}
+  input{{width:100%;background:#111827;border:1px solid #374151;border-radius:8px;
+        padding:10px 14px;color:#f9fafb;font-size:15px;outline:none;transition:.2s}}
+  input:focus{{border-color:#3b82f6;box-shadow:0 0 0 3px rgba(59,130,246,.15)}}
+  button{{width:100%;background:#3b82f6;color:#fff;border:none;border-radius:8px;
          padding:11px;font-size:15px;font-weight:600;cursor:pointer;margin-top:18px;
-         transition:background .2s}
-  button:hover{background:#2563eb}
-  .err{color:#f87171;font-size:13px;margin-top:14px;text-align:center}
+         transition:background .2s}}
+  button:hover{{background:#2563eb}}
+  .err{{color:#f87171;font-size:13px;margin-top:14px;text-align:center}}
 </style>
 </head>
 <body>
