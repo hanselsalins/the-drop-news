@@ -90,6 +90,20 @@ export default function FeedPage() {
   useEffect(() => { setLoading(true); fetchArticles(); }, [fetchArticles]);
   useEffect(() => { checkMilestone(); }, [checkMilestone]);
 
+  // Refresh read status when articles change or component regains focus
+  useEffect(() => { refreshReadIds(); }, [articles, refreshReadIds]);
+
+  // Check if all today's articles are read → increment streak
+  const todayArticleIds = activeCategory === 'today' ? articles.map(a => String(a.id)) : [];
+  const allTodayRead = todayArticleIds.length === 5 && todayArticleIds.every(id => readIds.has(id));
+
+  useEffect(() => {
+    if (allTodayRead && token) {
+      axios.post(`${BACKEND_URL}/api/streak/read`, {}, { headers }).catch(() => {});
+      fetchStreak();
+    }
+  }, [allTodayRead, token]);
+
   const handleRefresh = async () => {
     setRefreshing(true);
     try {
