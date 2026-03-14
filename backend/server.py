@@ -598,41 +598,79 @@ async def rewrite_with_claude(system_prompt: str, user_prompt: str) -> str:
 
 
 # ===== AI REWRITING =====
+_AGE_SYSTEM_PROMPTS = {
+    "8-10":  "You are a children's news writer who makes complex news simple and fun for 8-10 year olds.",
+    "11-13": "You are a youth news writer who makes complex news clear and engaging for 11-13 year olds.",
+    "14-16": "You are a news writer who makes complex news accessible and informative for 14-16 year olds.",
+    "17-20": "You are a news writer who makes complex news clear and informative for 17-20 year olds.",
+}
+
+_AGE_USER_INSTRUCTIONS = {
+    "8-10": (
+        "Rewrite this news article for a 8-10 year old child. Use very simple words (maximum 2 syllables "
+        "where possible). Keep sentences short — maximum 12 words each. Explain any difficult concepts like "
+        "you would to a young child. Make it engaging and fun to read. "
+        "The body field must contain at least 150 words of actual story content written in simple paragraphs."
+    ),
+    "11-13": (
+        "Rewrite this news article for an 11-13 year old. Use clear simple language. Explain what happened, "
+        "why it matters, and any background context they need. "
+        "The body field must contain at least 150 words written in 3-4 engaging paragraphs."
+    ),
+    "14-16": (
+        "Rewrite this news article for a 14-16 year old. Use plain English, explain any technical terms, "
+        "and give background context. Cover the full story. "
+        "The body field must contain at least 200 words written in 4-5 clear paragraphs."
+    ),
+    "17-20": (
+        "Rewrite this news article for a 17-20 year old. Write clearly and informatively like a good "
+        "newspaper but accessible to a young adult. Cover the full story with context. "
+        "The body field must contain at least 200 words written in 4-5 paragraphs."
+    ),
+}
+
 async def rewrite_article_for_age_group(title: str, content: str, age_group: str, category: str,
                                          source_language: str = "English",
                                          source_country: str = "US") -> dict:
-    system_prompt = await get_prompt_for_age_group(age_group)
     safety = await get_safety_wrapper()
 
-    # Build the rewrite prompt — pass source_language directly to GPT-4o
+    system_prompt = _AGE_SYSTEM_PROMPTS.get(age_group, _AGE_SYSTEM_PROMPTS["17-20"]) + "\n" + safety
+    age_instruction = _AGE_USER_INSTRUCTIONS.get(age_group, _AGE_USER_INSTRUCTIONS["17-20"])
+
     confidence_instruction = ""
     if source_language in ("Urdu", "Bangla"):
-        confidence_instruction = """
+        confidence_instruction = (
+            f"\n\nIMPORTANT: This article is in {source_language}. After rewriting, assess your confidence "
+            "in the accuracy of the translation/rewrite. Add a \"confidence\" key to your JSON response "
+            "with value \"HIGH\" or \"LOW\". Rate \"LOW\" if the source text was ambiguous, contained "
+            "idioms you're unsure about, or if the meaning might be lost in translation."
+        )
 
-IMPORTANT: This article is in {lang}. After rewriting, assess your confidence in the accuracy of the translation/rewrite.
-Add a "confidence" key to your JSON response with value "HIGH" or "LOW".
-Rate "LOW" if: the source text was ambiguous, contained idioms you're unsure about, or if the meaning might be lost in translation.
-Rate "HIGH" if you are confident the rewrite accurately captures the original meaning.""".format(lang=source_language)
+    conf_key = ', confidence' if source_language in ('Urdu', 'Bangla') else ''
+    prompt = f"""{age_instruction}
 
-    prompt = f"""Rewrite this news article. The source language is {source_language}. Rewrite the output entirely in English regardless of the source language.
-Respond in valid JSON only with keys: title, summary, body, wonder_question, reading_time, country_relevance, impact_flags{', confidence' if source_language in ('Urdu', 'Bangla') else ''}.
+The source language is {source_language}. Rewrite the output entirely in English regardless of the source language.
 
 Source Language: {source_language}
 Source Country: {source_country}
-Original Title: {title}
-Original Content: {content[:2000]}
 Category: {category}
-Target Age Group: {age_group}
+Original Title: {title}
+Original Content: {content[:4000]}
 
-Map: "title"=Headline, "summary"=Summary, "body"=Story, "wonder_question"=Wonder Question, "reading_time"=estimated reading time.
-country_relevance: array of ISO2 country codes this story directly affects (e.g. ["IN", "US"]), or ["GLOBAL"] if it affects the whole world.
-impact_flags: array of applicable flags from: global_economic_impact, global_environmental_impact, global_entertainment_crossover, country_participant_sports. Use [] if none apply.
+Respond in valid JSON only with keys: title, summary, body, wonder_question, reading_time, country_relevance, impact_flags{conf_key}.
+- title: rewritten headline
+- summary: 1-2 sentence summary
+- body: full rewritten article (meet the minimum word count stated above)
+- wonder_question: a thought-provoking question for the reader
+- reading_time: estimated reading time (e.g. "2 min read")
+- country_relevance: array of ISO2 country codes this story directly affects (e.g. ["IN", "US"]), or ["GLOBAL"]
+- impact_flags: array from: global_economic_impact, global_environmental_impact, global_entertainment_crossover, country_participant_sports. Use [] if none apply.
 Return ONLY valid JSON, no markdown, no code blocks.{confidence_instruction}"""
 
     # Retry logic: attempt once, if fails retry, then mark for manual review
     for attempt in range(2):
         try:
-            raw = await rewrite_with_claude(system_prompt + "\n" + safety, prompt)
+            raw = await rewrite_with_claude(system_prompt, prompt)
             if not raw:
                 raise ValueError("Empty response from Claude")
 
