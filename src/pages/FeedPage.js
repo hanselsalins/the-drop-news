@@ -205,6 +205,11 @@ export default function FeedPage() {
       <CategoryTabs categories={categories} activeCategory={activeCategory}
         setActiveCategory={setActiveCategory} />
 
+      {/* Progress dots for Today's Drop */}
+      {activeCategory === 'today' && !loading && articles.length > 0 && (
+        <ProgressDots articleIds={todayArticleIds} readArticleIds={readIds} />
+      )}
+
       {/* Feed */}
       <div className="px-4 pt-4 space-y-3">
         {loading ? (

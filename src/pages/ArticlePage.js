@@ -91,8 +91,11 @@ export default function ArticlePage() {
   }, [id, ageGroup]);
 
   useEffect(() => {
-    if (!token || !article) return;
-    axios.post(`${BACKEND_URL}/api/streak/read`, {}, { headers }).catch(() => {});
+    if (!article) return;
+    markArticleRead(article.id);
+    if (token) {
+      axios.post(`${BACKEND_URL}/api/streak/read`, {}, { headers }).catch(() => {});
+    }
   }, [article, token]);
 
   const handleShare = async () => {
