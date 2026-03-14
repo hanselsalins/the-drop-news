@@ -13,9 +13,8 @@ const REACTIONS = [
   { id: 'inspiring', emoji: '💪', label: 'Inspiring' },
 ];
 
-export const ReactionBar = ({ articleId }) => {
-  const { token, themeMode } = useTheme();
-  const isKids = themeMode === 'kids';
+export const ReactionBar = ({ articleId, categoryColor = '#3B82F6' }) => {
+  const { token } = useTheme();
   const [counts, setCounts] = useState({});
   const [userReaction, setUserReaction] = useState(null);
   const [animating, setAnimating] = useState(null);
@@ -48,7 +47,6 @@ export const ReactionBar = ({ articleId }) => {
         setCounts(prev => ({ ...prev, [reactionId]: Math.max(0, (prev[reactionId] || 0) - 1) }));
         setUserReaction(null);
       } else {
-        // If switching from another reaction
         if (userReaction && userReaction !== reactionId) {
           setCounts(prev => ({
             ...prev,
@@ -66,19 +64,18 @@ export const ReactionBar = ({ articleId }) => {
     setTimeout(() => setAnimating(null), 300);
   };
 
-  const textColor = isKids ? '#1A1A1A' : '#EDEDED';
-
   return (
     <div
       data-testid="reaction-bar"
-      className="mt-6 p-4 rounded-xl"
+      className="mt-8 p-5"
       style={{
-        background: isKids ? '#fff' : '#121212',
-        border: isKids ? '1px solid #eee' : '1px solid rgba(255,255,255,0.08)',
+        background: '#FFFFFF',
+        border: '1.5px solid #E2E8F0',
+        borderRadius: 18,
       }}
     >
-      <p className="text-[10px] font-bold tracking-wider uppercase mb-3 opacity-50"
-        style={{ fontFamily: 'JetBrains Mono, monospace', color: textColor }}>
+      <p className="text-[11px] font-semibold tracking-wider uppercase mb-4"
+        style={{ fontFamily: 'Outfit, sans-serif', color: '#94A3B8' }}>
         HOW DID THIS MAKE YOU FEEL?
       </p>
       <div className="flex items-center justify-between">
@@ -86,19 +83,25 @@ export const ReactionBar = ({ articleId }) => {
           const isActive = userReaction === r.id;
           const count = counts[r.id] || 0;
           return (
-            <button
+            <motion.button
               key={r.id}
               data-testid={`reaction-${r.id}`}
               onClick={() => handleReact(r.id)}
-              className="flex flex-col items-center gap-1 px-1"
+              whileTap={{ scale: 1.15 }}
+              className="flex flex-col items-center gap-1.5 px-2 py-2 transition-all duration-200"
+              style={{
+                background: isActive ? `${categoryColor}15` : 'transparent',
+                border: isActive ? `1.5px solid ${categoryColor}33` : '1.5px solid transparent',
+                borderRadius: 14,
+              }}
             >
               <motion.span
-                className="text-2xl"
-                animate={animating === r.id ? { scale: [1, 1.4, 1] } : {}}
+                className="text-3xl"
+                animate={animating === r.id ? { scale: [1, 1.5, 1] } : {}}
                 transition={{ duration: 0.3 }}
                 style={{
-                  filter: isActive ? 'none' : 'grayscale(0.5)',
-                  opacity: isActive ? 1 : 0.6,
+                  filter: isActive ? 'none' : 'grayscale(0.3)',
+                  opacity: isActive ? 1 : 0.5,
                 }}
               >
                 {r.emoji}
@@ -106,19 +109,19 @@ export const ReactionBar = ({ articleId }) => {
               <span
                 className="text-[10px] font-bold"
                 style={{
-                  fontFamily: 'JetBrains Mono, monospace',
-                  color: isActive ? (isKids ? '#FF006E' : '#CCFF00') : (isKids ? '#999' : '#555'),
+                  fontFamily: 'Outfit, sans-serif',
+                  color: isActive ? categoryColor : '#94A3B8',
                 }}
               >
                 {count > 0 ? count : ''}
               </span>
               <span
-                className="text-[8px] opacity-50"
-                style={{ fontFamily: 'Outfit, sans-serif', color: textColor }}
+                className="text-[9px]"
+                style={{ fontFamily: 'Outfit, sans-serif', color: '#94A3B8' }}
               >
                 {r.label}
               </span>
-            </button>
+            </motion.button>
           );
         })}
       </div>

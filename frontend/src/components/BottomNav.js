@@ -1,53 +1,66 @@
 import { useNavigate } from 'react-router-dom';
-import { Home, Search, User } from 'lucide-react';
+import { Home, Compass, User } from 'lucide-react';
 
-export const BottomNav = ({ isKids, active = 'home' }) => {
+export const BottomNav = ({ active = 'home' }) => {
   const navigate = useNavigate();
 
   const items = [
-    { id: 'home', icon: Home, label: 'Home', path: '/feed' },
-    { id: 'search', icon: Search, label: 'Search', path: '/feed' },
+    { id: 'home', icon: Home, label: 'Feed', path: '/feed' },
+    { id: 'explore', icon: Compass, label: 'Explore', path: '/feed' },
+    { id: 'streak', icon: null, label: 'Streak', path: '/feed', emoji: '🔥' },
     { id: 'profile', icon: User, label: 'Profile', path: '/profile' },
   ];
-
-  const bgColor = isKids ? 'rgba(255,255,255,0.95)' : 'rgba(18,18,18,0.95)';
-  const activeColor = isKids ? '#FF006E' : '#CCFF00';
-  const inactiveColor = isKids ? '#aaa' : '#555';
 
   return (
     <nav
       data-testid="bottom-nav"
-      className="fixed bottom-0 left-0 right-0 z-50 px-6 pb-6 pt-2"
+      className="fixed bottom-0 left-0 right-0 z-50"
       style={{
-        background: bgColor,
-        backdropFilter: 'blur(20px)',
-        borderTop: isKids ? '1px solid #eee' : '1px solid rgba(255,255,255,0.06)',
+        background: '#FFFFFF',
+        borderTop: '1.5px solid #F1F5F9',
       }}
     >
-      <div className="max-w-md mx-auto flex items-center justify-around">
-        {items.map(({ id, icon: Icon, label, path }) => (
-          <button
-            key={id}
-            data-testid={`nav-${id}`}
-            onClick={() => navigate(path)}
-            className="flex flex-col items-center gap-1 py-1 px-4"
-          >
-            <Icon
-              size={22}
-              strokeWidth={active === id ? 2.5 : 1.5}
-              style={{ color: active === id ? activeColor : inactiveColor }}
-            />
-            <span
-              className="text-[10px] font-bold tracking-wide"
-              style={{
-                fontFamily: 'JetBrains Mono, monospace',
-                color: active === id ? activeColor : inactiveColor,
-              }}
+      <div className="max-w-md mx-auto flex items-center justify-around px-2 pt-2.5 pb-5">
+        {items.map(({ id, icon: Icon, label, path, emoji }) => {
+          const isActive = active === id;
+          return (
+            <button
+              key={id}
+              data-testid={`nav-${id}`}
+              onClick={() => navigate(path)}
+              className="flex flex-col items-center gap-1 py-1 px-3 transition-all duration-200"
             >
-              {label}
-            </span>
-          </button>
-        ))}
+              <div
+                className="flex items-center justify-center"
+                style={{
+                  background: isActive ? '#EFF6FF' : 'transparent',
+                  borderRadius: 12,
+                  padding: 6,
+                }}
+              >
+                {emoji ? (
+                  <span style={{ fontSize: 22 }}>{emoji}</span>
+                ) : (
+                  <Icon
+                    size={22}
+                    strokeWidth={isActive ? 2.5 : 1.5}
+                    style={{ color: isActive ? '#3B82F6' : '#CBD5E1' }}
+                  />
+                )}
+              </div>
+              <span
+                className="text-[10px]"
+                style={{
+                  fontFamily: 'Outfit, sans-serif',
+                  color: isActive ? '#3B82F6' : '#CBD5E1',
+                  fontWeight: isActive ? 700 : 400,
+                }}
+              >
+                {label}
+              </span>
+            </button>
+          );
+        })}
       </div>
     </nav>
   );

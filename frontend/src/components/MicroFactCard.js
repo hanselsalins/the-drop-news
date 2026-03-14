@@ -1,46 +1,31 @@
 import { motion } from 'framer-motion';
-import { Sparkles } from 'lucide-react';
 
-export const MicroFactCard = ({ fact, isKids }) => {
-  const textColor = isKids ? '#1A1A1A' : '#EDEDED';
-
+export const MicroFactCard = ({ fact }) => {
   return (
     <motion.div
       data-testid="micro-fact-card"
       initial={{ opacity: 0, scale: 0.96 }}
       animate={{ opacity: 1, scale: 1 }}
-      className="p-5 rounded-2xl"
+      className="p-4 relative overflow-hidden"
       style={{
-        background: isKids
-          ? 'linear-gradient(135deg, rgba(255,214,10,0.15), rgba(255,106,0,0.08))'
-          : 'linear-gradient(135deg, rgba(204,255,0,0.08), rgba(114,9,183,0.06))',
-        border: isKids
-          ? '1.5px solid rgba(255,214,10,0.3)'
-          : '1.5px solid rgba(204,255,0,0.12)',
+        background: '#F0FDF4',
+        border: '1.5px solid #BBF7D0',
+        borderLeft: '5px solid #10B981',
+        borderRadius: '18px',
       }}
     >
-      <div className="flex items-center gap-2 mb-2.5">
-        <div
-          className="p-1.5 rounded-lg"
-          style={{
-            background: isKids ? 'rgba(255,214,10,0.25)' : 'rgba(204,255,0,0.12)',
-          }}
-        >
-          <Sparkles size={14} style={{ color: isKids ? '#FF6B35' : '#CCFF00' }} />
-        </div>
+      <div className="flex items-center gap-2 mb-2">
+        <span style={{ fontSize: 18 }}>💡</span>
         <span
-          className="text-[10px] font-bold tracking-widest uppercase"
-          style={{
-            fontFamily: 'JetBrains Mono, monospace',
-            color: isKids ? '#FF6B35' : '#CCFF00',
-          }}
+          className="text-[10px] font-bold tracking-wider uppercase"
+          style={{ fontFamily: 'Outfit, sans-serif', color: '#10B981' }}
         >
-          Did You Know?
+          Quick Fact
         </span>
       </div>
       <p
-        className="text-sm leading-relaxed font-medium"
-        style={{ fontFamily: 'Outfit, sans-serif', color: textColor }}
+        className="text-xs leading-relaxed italic"
+        style={{ fontFamily: 'Outfit, sans-serif', color: '#065F46' }}
       >
         {fact.fact}
       </p>

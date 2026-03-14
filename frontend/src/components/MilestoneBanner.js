@@ -1,7 +1,7 @@
 import { motion, AnimatePresence } from 'framer-motion';
 import { Trophy, X } from 'lucide-react';
 
-export const MilestoneBanner = ({ milestone, onDismiss, isKids }) => {
+export const MilestoneBanner = ({ milestone, onDismiss }) => {
   if (!milestone) return null;
 
   return (
@@ -18,23 +18,21 @@ export const MilestoneBanner = ({ milestone, onDismiss, isKids }) => {
         <div
           className="p-4 rounded-2xl flex items-start gap-3"
           style={{
-            background: isKids
-              ? 'linear-gradient(135deg, #FFD60A, #FF6B35)'
-              : 'linear-gradient(135deg, #CCFF00, #7209B7)',
-            boxShadow: '0 8px 40px rgba(0,0,0,0.3)',
+            background: 'linear-gradient(135deg, #3B82F6, #8B5CF6)',
+            boxShadow: '0 8px 40px rgba(59,130,246,0.3)',
           }}
         >
-          <div className="w-12 h-12 rounded-xl flex items-center justify-center shrink-0"
-            style={{ background: 'rgba(255,255,255,0.2)' }}>
+          <div className="w-12 h-12 rounded-2xl flex items-center justify-center shrink-0"
+            style={{ background: 'rgba(255,255,255,0.15)' }}>
             <Trophy size={24} color="#fff" />
           </div>
           <div className="flex-1 min-w-0">
-            <p className="text-xs font-bold tracking-wider uppercase opacity-80"
-              style={{ fontFamily: 'JetBrains Mono, monospace', color: '#fff' }}>
+            <p className="text-[10px] font-semibold tracking-wider uppercase opacity-80"
+              style={{ fontFamily: 'Outfit, sans-serif', color: '#fff' }}>
               MILESTONE REACHED
             </p>
             <p className="text-base font-bold mt-0.5 leading-snug"
-              style={{ fontFamily: 'Syne, sans-serif', color: '#fff' }}>
+              style={{ fontFamily: 'Fredoka, sans-serif', color: '#fff' }}>
               {milestone.emoji} {milestone.message}
             </p>
           </div>

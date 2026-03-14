@@ -1,153 +1,159 @@
 import { useNavigate } from 'react-router-dom';
-import { Clock, ArrowUpRight, Share2 } from 'lucide-react';
-import { WhyThisStory } from './WhyThisStory';
-import { ReactionMini } from './ReactionMini';
+import { motion } from 'framer-motion';
 
 const CATEGORY_COLORS = {
-  world: '#3A86FF',
-  power: '#FF6B35',
-  money: '#FFD60A',
-  tech: '#39FF14',
-  sports: '#FF006E',
-  entertainment: '#FF69B4',
-  environment: '#00E5CC',
+  world: '#3B82F6',
+  science: '#10B981',
+  sports: '#F97316',
+  tech: '#8B5CF6',
+  environment: '#14B8A6',
+  'weird & wonderful': '#F59E0B',
+  weird: '#F59E0B',
+  entertainment: '#EC4899',
+  money: '#F59E0B',
+  history: '#F97316',
+  local: '#14B8A6',
+};
+
+const CATEGORY_LIGHT_BG = {
+  world: '#EFF6FF',
+  science: '#ECFDF5',
+  sports: '#FFF7ED',
+  tech: '#F5F3FF',
+  environment: '#F0FDFA',
+  'weird & wonderful': '#FFFBEB',
+  weird: '#FFFBEB',
+  entertainment: '#FDF2F8',
+  money: '#FFFBEB',
+  history: '#FFF7ED',
+  local: '#F0FDFA',
+};
+
+const CATEGORY_GRADIENTS = {
+  world: 'linear-gradient(135deg, #60A5FA, #2563EB)',
+  science: 'linear-gradient(135deg, #34D399, #059669)',
+  sports: 'linear-gradient(135deg, #FB923C, #EA580C)',
+  tech: 'linear-gradient(135deg, #A78BFA, #7C3AED)',
+  environment: 'linear-gradient(135deg, #2DD4BF, #0D9488)',
+  'weird & wonderful': 'linear-gradient(135deg, #FBBF24, #D97706)',
+  weird: 'linear-gradient(135deg, #FBBF24, #D97706)',
+  entertainment: 'linear-gradient(135deg, #F472B6, #DB2777)',
+  money: 'linear-gradient(135deg, #FBBF24, #D97706)',
+  history: 'linear-gradient(135deg, #FB923C, #EA580C)',
+  local: 'linear-gradient(135deg, #2DD4BF, #0D9488)',
+};
+
+const CATEGORY_EMOJI = {
+  world: '🌍',
+  science: '🔬',
+  sports: '⚽',
+  tech: '💻',
+  environment: '🌱',
+  'weird & wonderful': '🦄',
+  weird: '🦄',
+  entertainment: '🎬',
+  money: '💰',
+  history: '📜',
+  local: '📍',
 };
 
 const CATEGORY_LABELS = {
-  world: "World",
-  power: "Power",
-  money: "Money",
-  tech: "Tech",
-  sports: "Sports",
-  entertainment: "Entertainment",
-  environment: "Environment",
+  world: 'World',
+  science: 'Science',
+  sports: 'Sports',
+  tech: 'Tech',
+  environment: 'Environment',
+  'weird & wonderful': 'Weird & Wonderful',
+  weird: 'Weird & Wonderful',
+  entertainment: 'Entertainment',
+  money: 'Money',
+  history: 'History',
+  local: 'Local',
 };
 
-export const NewsCard = ({ article, isKids }) => {
+export const NewsCard = ({ article }) => {
   const navigate = useNavigate();
   const rw = article.rewrite;
   const title = rw?.title || article.original_title;
-  const summary = rw?.summary || '';
-  const readingTime = rw?.reading_time || '2 min';
-  const catColor = CATEGORY_COLORS[article.category] || '#888';
-
-  const cardBg = isKids ? '#FFFFFF' : '#121212';
-  const textColor = isKids ? '#1A1A1A' : '#EDEDED';
-  const subColor = isKids ? '#666' : '#888';
+  const catColor = CATEGORY_COLORS[article.category] || '#3B82F6';
+  const lightBg = CATEGORY_LIGHT_BG[article.category] || '#EFF6FF';
+  const gradient = CATEGORY_GRADIENTS[article.category] || CATEGORY_GRADIENTS.world;
+  const emoji = CATEGORY_EMOJI[article.category] || '📰';
 
   return (
-    <div
+    <motion.div
       data-testid={`news-card-${article.id}`}
       onClick={() => navigate(`/article/${article.id}`)}
       role="button"
       tabIndex={0}
-      className="w-full text-left overflow-hidden cursor-pointer"
+      whileTap={{ scale: 0.98 }}
+      className="w-full overflow-hidden cursor-pointer flex"
       style={{
-        borderRadius: isKids ? '24px' : '16px',
-        background: cardBg,
-        border: isKids ? 'none' : '1px solid rgba(255,255,255,0.06)',
-        boxShadow: isKids ? '0 4px 24px rgba(0,0,0,0.06)' : 'none',
+        borderRadius: '18px',
+        background: '#FFFFFF',
+        border: '1.5px solid #E2E8F0',
+        boxShadow: `0 2px 8px ${catColor}14`,
       }}
     >
-      {/* Image */}
-      <div className="relative aspect-video overflow-hidden">
-        <img
-          src={article.image_url}
-          alt={title}
-          className="w-full h-full object-cover"
-          loading="lazy"
-          onError={(e) => { e.target.style.background = catColor + '22'; e.target.src = ''; }}
-        />
-        <div
-          className="absolute inset-0"
-          style={{
-            background: isKids
-              ? 'linear-gradient(to top, rgba(255,255,255,0.9) 0%, transparent 50%)'
-              : 'linear-gradient(to top, #121212 0%, transparent 50%)',
-          }}
-        />
-        <span
-          className="absolute top-3 left-3 px-2.5 py-1 rounded-full text-[10px] font-bold tracking-wider uppercase"
-          style={{
-            fontFamily: 'JetBrains Mono, monospace',
-            background: catColor,
-            color: ['#FFD60A', '#39FF14', '#CCFF00'].includes(catColor) ? '#050505' : '#fff',
-          }}
-        >
-          {CATEGORY_LABELS[article.category] || article.category}
-        </span>
-      </div>
+      {/* Left content */}
+      <div className="flex-1 flex flex-col justify-center" style={{ padding: '13px 12px 13px 14px' }}>
+        {/* Category pill */}
+        <div className="flex items-center gap-1.5 mb-2">
+          <span
+            className="inline-block shrink-0"
+            style={{
+              width: 6,
+              height: 6,
+              borderRadius: '50%',
+              background: catColor,
+            }}
+          />
+          <span
+            className="text-[10px] font-bold tracking-wider uppercase"
+            style={{ fontFamily: 'Outfit, sans-serif', color: catColor }}
+          >
+            {CATEGORY_LABELS[article.category] || article.category}
+          </span>
+        </div>
 
-      {/* Content */}
-      <div className="p-4 -mt-6 relative z-10">
+        {/* Headline */}
         <h3
-          className="font-bold leading-snug mb-1.5"
+          className="font-bold leading-snug mb-2 line-clamp-3"
           style={{
-            fontFamily: isKids ? 'Fredoka, sans-serif' : 'Syne, sans-serif',
-            color: textColor,
-            fontSize: isKids ? '1.15rem' : '1.05rem',
+            fontFamily: 'Fredoka, sans-serif',
+            color: '#0F172A',
+            fontSize: '14px',
+            lineHeight: 1.35,
+            fontWeight: 700,
           }}
         >
           {title}
         </h3>
-        {summary && (
-          <p className="text-sm leading-relaxed mb-3 line-clamp-2"
-            style={{ fontFamily: 'Outfit, sans-serif', color: subColor }}>
-            {summary}
-          </p>
-        )}
 
-        {/* Source Row with Logo */}
-        <div className="flex items-center justify-between">
-          <div className="flex items-center gap-2.5">
-            {article.source_logo && (
-              <img
-                src={article.source_logo}
-                alt={article.source}
-                className="w-4 h-4 rounded object-contain"
-                onError={(e) => { e.target.style.display = 'none'; }}
-              />
-            )}
-            <span className="text-xs opacity-60" style={{ fontFamily: 'Outfit, sans-serif', color: textColor }}>
-              {article.source}
+        {/* Source row */}
+        <div className="flex items-center gap-1.5">
+          <span className="text-[11px]" style={{ fontFamily: 'Outfit, sans-serif', color: '#94A3B8' }}>
+            {article.source}
+          </span>
+          {rw?.reading_time && (
+            <span className="text-[11px]" style={{ fontFamily: 'Outfit, sans-serif', color: '#94A3B8' }}>
+              · {rw.reading_time}
             </span>
-            {article.source_language && article.source_language !== 'English' && (
-              <span className="text-[9px] px-1.5 py-0.5 rounded-full opacity-50 font-medium"
-                style={{ fontFamily: 'JetBrains Mono, monospace', background: isKids ? '#eee' : 'rgba(255,255,255,0.08)', color: textColor }}>
-                {article.source_language}
-              </span>
-            )}
-            <div className="flex items-center gap-1 text-xs opacity-50" style={{ color: textColor }}>
-              <Clock size={12} />
-              <span style={{ fontFamily: 'Outfit, sans-serif' }}>{readingTime}</span>
-            </div>
-          </div>
-          <div className="flex items-center gap-2">
-            <ReactionMini counts={article.reaction_counts} isKids={isKids} />
-            <WhyThisStory reason={article.why_reason} isKids={isKids} />
-            <button
-              data-testid={`share-btn-${article.id}`}
-              onClick={(e) => {
-                e.stopPropagation();
-                const shareUrl = `${window.location.origin}/article/${article.id}`;
-                const shareText = `${rw?.title || article.original_title}\n\nRead on The Drop — No Cap News.\n${shareUrl}`;
-                if (navigator.share) {
-                  navigator.share({ title: rw?.title || article.original_title, text: shareText, url: shareUrl }).catch(() => {});
-                } else {
-                  navigator.clipboard.writeText(shareText).catch(() => {});
-                }
-              }}
-              className="p-1.5 rounded-full"
-              style={{ background: isKids ? 'rgba(58,134,255,0.08)' : 'rgba(255,255,255,0.06)' }}>
-              <Share2 size={13} style={{ color: isKids ? '#3A86FF' : '#888' }} />
-            </button>
-            <div className="p-1.5 rounded-full"
-              style={{ background: isKids ? catColor + '15' : 'rgba(204,255,0,0.08)' }}>
-              <ArrowUpRight size={14} style={{ color: isKids ? catColor : '#CCFF00' }} />
-            </div>
-          </div>
+          )}
         </div>
       </div>
-    </div>
+
+      {/* Right emoji thumbnail */}
+      <div
+        className="flex items-center justify-center shrink-0"
+        style={{
+          width: 90,
+          background: gradient,
+          borderRadius: '0 16px 16px 0',
+        }}
+      >
+        <span style={{ fontSize: 40 }}>{emoji}</span>
+      </div>
+    </motion.div>
   );
 };
