@@ -39,7 +39,7 @@ export const CategoryTabs = ({ categories, activeCategory, setActiveCategory }) 
       }}
     >
       <div className="flex gap-2 px-4 py-3 min-w-max">
-        {allCategories.map((cat) => {
+        {categories.map((cat) => {
           const isActive = activeCategory === cat.id;
           const color = CATEGORY_COLORS[cat.id] || '#3B82F6';
           const lightBg = CATEGORY_LIGHT_BG[cat.id] || '#EFF6FF';
