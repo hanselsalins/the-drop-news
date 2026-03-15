@@ -1,3 +1,4 @@
+# admin dashboard v2
 """
 admin.py — The Drop Admin Dashboard v2
 Serves a standalone password-protected admin panel at /admin.
