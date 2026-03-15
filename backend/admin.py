@@ -288,7 +288,7 @@ _DASHBOARD_HTML = r"""<!DOCTYPE html>
     <button class="btn btn-secondary" onclick="triggerCleanup()">🗑️ Clean Up Old Articles</button>
     <button class="btn btn-secondary" onclick="triggerMigrateDates()">🔧 Migrate Date Formats</button>
   </div>
-  <div class="section-title" style="margin-top:8px">Crawl</div>
+  <div class="section-title" style="margin-top:20px">Crawl</div>
   <div class="btn-grid">
     <button class="btn btn-primary" onclick="triggerCrawl()">🕷 Crawl All Countries</button>
     <button class="btn btn-secondary" onclick="triggerCrawlCC('IN')">🇮🇳 Crawl IN</button>
@@ -297,13 +297,16 @@ _DASHBOARD_HTML = r"""<!DOCTYPE html>
     <button class="btn btn-secondary" onclick="triggerCrawlCC('AU')">🇦🇺 Crawl AU</button>
     <button class="btn btn-secondary" onclick="triggerCrawlCC('AE')">🇦🇪 Crawl AE</button>
   </div>
-  <div class="section-title" style="margin-top:8px">Rewrite</div>
+  <div class="section-title" style="margin-top:20px">Rewrite</div>
   <div class="btn-grid">
     <button class="btn btn-green" onclick="triggerSelect()">🎯 Select Articles</button>
     <button class="btn btn-green" onclick="triggerRewrite()">✏️ Rewrite Pending</button>
     <button class="btn btn-green" onclick="triggerRetryFailed()">🔄 Retry Failed Rewrites</button>
     <button class="btn btn-secondary" onclick="triggerResetSelectedToRaw()">↩️ Reset Selected→Raw</button>
     <button class="btn btn-secondary" onclick="triggerResetRewrittenToSelected()">↩️ Reset Rewritten→Selected</button>
+  </div>
+  <div class="section-title" style="margin-top:20px">Reset</div>
+  <div class="btn-grid">
     <button class="btn btn-secondary" onclick="triggerResetRewrite()">🔄 Reset &amp; Rewrite All</button>
     <button class="btn btn-secondary" onclick="triggerResetRewriteCC('IN')">🔄 Reset IN</button>
     <button class="btn btn-secondary" onclick="triggerResetRewriteCC('US')">🔄 Reset US</button>
