@@ -907,10 +907,6 @@ async def crawl_rss_feeds(country_code: str = None):
                     if not _entry_is_recent(entry):
                         logger.debug(f"Skipping old/undated article: {entry.get('title','')[:60]}")
                         continue
-                    existing = await db.articles.find_one({"original_url": link})
-                    if existing:
-                        continue
-
                     image_url = ""
                     if hasattr(entry, 'media_thumbnail') and entry.media_thumbnail:
                         image_url = entry.media_thumbnail[0].get('url', '')
@@ -956,34 +952,38 @@ async def crawl_rss_feeds(country_code: str = None):
                         logger.error(f"AI category classification failed for '{entry.get('title','')}', "
                                      f"falling back to source category: {e}")
 
-                    await db.articles.insert_one({
-                        "id": article_id,
-                        "article_id": article_id,
-                        "source_name": src["name"],
-                        "source": src["name"],
-                        "source_country": country["country_code"],
-                        "source_language": src.get("language", country.get("primary_language", "English")),
-                        "source_url": link,
-                        "original_headline": entry.get('title', 'Untitled'),
-                        "original_title": entry.get('title', 'Untitled'),
-                        "original_body": content,
-                        "original_content": content,
-                        "original_url": link,
-                        "source_logo": logo_url,
-                        "category": category,
-                        "category_tags": src.get("category_tags", ["world"]),
-                        "image_url": image_url,
-                        "published_at": published,
-                        "crawled_at": datetime.now(timezone.utc).isoformat(),
-                        "safety_status": "safe",
-                        "rewrite_status": "pending",
-                        "low_confidence_flag": False,
-                        "rewrites": {},
-                        "reaction_counts": {},
-                    })
-                    articles_added += 1
-            except DuplicateKeyError:
-                pass  # Article already exists — unique index working as intended
+                    result = await db.articles.update_one(
+                        {"original_url": link},
+                        {"$setOnInsert": {
+                            "id": article_id,
+                            "article_id": article_id,
+                            "source_name": src["name"],
+                            "source": src["name"],
+                            "source_country": country["country_code"],
+                            "source_language": src.get("language", country.get("primary_language", "English")),
+                            "source_url": link,
+                            "original_headline": entry.get('title', 'Untitled'),
+                            "original_title": entry.get('title', 'Untitled'),
+                            "original_body": content,
+                            "original_content": content,
+                            "original_url": link,
+                            "source_logo": logo_url,
+                            "category": category,
+                            "category_tags": src.get("category_tags", ["world"]),
+                            "image_url": image_url,
+                            "published_at": published,
+                            "crawled_at": datetime.now(timezone.utc).isoformat(),
+                            "safety_status": "safe",
+                            "rewrite_status": "pending",
+                            "low_confidence_flag": False,
+                            "rewrites": {},
+                            "reaction_counts": {},
+                        }},
+                        upsert=True,
+                    )
+                    if result.upserted_id:
+                        articles_added += 1
+            except Exception as e:
             except Exception as e:
                 logger.error(f"Error crawling {src['name']} ({rss_url}): {e}")
                 if src.get("status") == "active":
@@ -1010,9 +1010,6 @@ async def _crawl_legacy_feeds():
                     if not _entry_is_recent(entry):
                         logger.debug(f"Skipping old/undated article: {entry.get('title','')[:60]}")
                         continue
-                    existing = await db.articles.find_one({"original_url": entry.get("link", "")})
-                    if existing:
-                        continue
                     image_url = ""
                     if hasattr(entry, 'media_thumbnail') and entry.media_thumbnail:
                         image_url = entry.media_thumbnail[0].get('url', '')
@@ -1025,25 +1022,31 @@ async def _crawl_legacy_feeds():
                     published = _entry_published_iso(entry)
                     article_id = str(uuid.uuid4())
                     logo_url = await get_source_logo(feed_info["source"])
+                    link = entry.get('link', '')
 
-                    await db.articles.insert_one({
-                        "id": article_id, "article_id": article_id,
-                        "source_name": feed_info["source"], "source": feed_info["source"],
-                        "source_country": "US", "source_language": "English",
-                        "source_url": entry.get('link', ''),
-                        "original_headline": entry.get('title', 'Untitled'),
-                        "original_title": entry.get('title', 'Untitled'),
-                        "original_body": content, "original_content": content,
-                        "original_url": entry.get('link', ''),
-                        "source_logo": logo_url, "category": category,
-                        "category_tags": [category],
-                        "image_url": image_url, "published_at": published,
-                        "crawled_at": datetime.now(timezone.utc).isoformat(),
-                        "safety_status": "safe", "rewrite_status": "pending",
-                        "low_confidence_flag": False,
-                        "rewrites": {}, "reaction_counts": {}
-                    })
-                    articles_added += 1
+                    result = await db.articles.update_one(
+                        {"original_url": link},
+                        {"$setOnInsert": {
+                            "id": article_id, "article_id": article_id,
+                            "source_name": feed_info["source"], "source": feed_info["source"],
+                            "source_country": "US", "source_language": "English",
+                            "source_url": link,
+                            "original_headline": entry.get('title', 'Untitled'),
+                            "original_title": entry.get('title', 'Untitled'),
+                            "original_body": content, "original_content": content,
+                            "original_url": link,
+                            "source_logo": logo_url, "category": category,
+                            "category_tags": [category],
+                            "image_url": image_url, "published_at": published,
+                            "crawled_at": datetime.now(timezone.utc).isoformat(),
+                            "safety_status": "safe", "rewrite_status": "pending",
+                            "low_confidence_flag": False,
+                            "rewrites": {}, "reaction_counts": {}
+                        }},
+                        upsert=True,
+                    )
+                    if result.upserted_id:
+                        articles_added += 1
             except Exception as e:
                 logger.error(f"Error crawling {feed_info['url']}: {e}")
     return articles_added

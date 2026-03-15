@@ -296,6 +296,7 @@ _DASHBOARD_HTML = r"""<!DOCTYPE html>
   <div class="section-title" style="margin-top:8px">Rewrite</div>
   <div class="btn-grid">
     <button class="btn btn-green" onclick="triggerRewrite()">✏️ Rewrite Pending</button>
+    <button class="btn btn-green" onclick="triggerRetryFailed()">🔄 Retry Failed Rewrites</button>
     <button class="btn btn-secondary" onclick="triggerResetRewrite()">🔄 Reset &amp; Rewrite All</button>
     <button class="btn btn-secondary" onclick="triggerResetRewriteCC('IN')">🔄 Reset IN</button>
     <button class="btn btn-secondary" onclick="triggerResetRewriteCC('US')">🔄 Reset US</button>
@@ -564,6 +565,19 @@ async function triggerResetRewrite(cc) {
 }
 
 function triggerResetRewriteCC(cc) { triggerResetRewrite(cc); }
+
+async function triggerRetryFailed() {
+  showResponse('Resetting failed articles to pending, then triggering rewrite…');
+  try {
+    const r1 = await fetch('/admin/api/reset-failed', {method:'POST'});
+    const d1 = await r1.json();
+    if(!r1.ok) { showResponse(JSON.stringify(d1, null, 2), false); return; }
+    showResponse(`Reset ${d1.reset_count} failed articles.\n\nTriggering rewrite…`);
+    const r2 = await fetch('/admin/api/rewrite', {method:'POST'});
+    const d2 = await r2.json();
+    showResponse(`Reset: ${JSON.stringify(d1)}\nRewrite: ${JSON.stringify(d2)}`, r2.ok);
+  } catch(e) { showResponse('Error: '+e.message, false); }
+}
 
 async function triggerCleanup() {
   showResponse('Deleting articles older than 7 days…');
@@ -1224,6 +1238,19 @@ async def admin_api_migrate_dates(request: Request):
             except Exception:
                 errors += 1
         return JSONResponse({"ok": True, "migrated": migrated, "errors": errors})
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+
+@admin_router.post("/api/reset-failed")
+async def admin_api_reset_failed(request: Request):
+    _require_api_auth(request)
+    try:
+        result = await _db["articles"].update_many(
+            {"rewrite_status": "failed"},
+            {"$set": {"rewrites": {}, "rewrite_status": "pending"}},
+        )
+        return JSONResponse({"ok": True, "reset_count": result.modified_count})
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
 
