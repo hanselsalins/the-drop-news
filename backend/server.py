@@ -984,7 +984,6 @@ async def crawl_rss_feeds(country_code: str = None):
                     if result.upserted_id:
                         articles_added += 1
             except Exception as e:
-            except Exception as e:
                 logger.error(f"Error crawling {src['name']} ({rss_url}): {e}")
                 if src.get("status") == "active":
                     await db.global_sources.update_one(
