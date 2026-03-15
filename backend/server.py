@@ -548,9 +548,37 @@ async def get_streak_reminder_message(user: dict) -> str:
 
 
 # ===== ARTICLE SCRAPING =====
+
+_ARTICLE_CONTAINER_SELECTORS = [
+    "article",
+    '[class*="article-body"]',
+    '[class*="article-content"]',
+    '[class*="story-body"]',
+    '[class*="post-body"]',
+    '[class*="entry-content"]',
+    '[class*="content-body"]',
+    '[class*="article__body"]',
+    '[class*="ArticleBody"]',
+]
+
+
+def _is_clean_paragraph(text: str) -> bool:
+    """Return False for nav items, CSS blobs, and symbol-heavy strings."""
+    if len(text) < 40:
+        return False
+    if '{' in text or '.css-' in text:
+        return False
+    alpha = sum(c.isalpha() for c in text)
+    if len(text) > 0 and alpha / len(text) < 0.70:
+        return False
+    return True
+
+
 async def scrape_article_body(url: str) -> str:
-    """Fetch full article body from URL. Returns up to 4000 chars of <p> text, or '' on any error."""
+    """Fetch full article body from URL. Returns up to 4000 chars of clean <p> text, or '' on error."""
     try:
+        from bs4 import BeautifulSoup
+
         headers = {
             "User-Agent": (
                 "Mozilla/5.0 (Windows NT 10.0; Win64; x64) "
@@ -563,19 +591,28 @@ async def scrape_article_body(url: str) -> str:
             resp.raise_for_status()
             html = resp.text
 
-        # Extract <p> tag contents without a heavy HTML parser
-        paragraphs = re.findall(r'<p[^>]*>(.*?)</p>', html, re.DOTALL | re.IGNORECASE)
-        # Strip inner tags and decode basic entities
-        clean_paras = []
-        for p in paragraphs:
-            text = re.sub(r'<[^>]+>', '', p).strip()
-            text = text.replace('&amp;', '&').replace('&lt;', '<').replace('&gt;', '>') \
-                       .replace('&nbsp;', ' ').replace('&#39;', "'").replace('&quot;', '"')
-            text = re.sub(r'\s+', ' ', text).strip()
-            if len(text) >= 40:
-                clean_paras.append(text)
+        soup = BeautifulSoup(html, "lxml")
 
-        return ' '.join(clean_paras)[:4000]
+        # Remove script/style noise before searching
+        for tag in soup(["script", "style", "noscript"]):
+            tag.decompose()
+
+        # Try article content containers in priority order
+        container = None
+        for selector in _ARTICLE_CONTAINER_SELECTORS:
+            container = soup.select_one(selector)
+            if container:
+                break
+
+        paragraphs = (container if container else soup).find_all("p")
+
+        clean_paras = [
+            p.get_text(" ", strip=True)
+            for p in paragraphs
+            if _is_clean_paragraph(p.get_text(" ", strip=True))
+        ]
+
+        return " ".join(clean_paras)[:4000]
     except Exception as e:
         logger.debug(f"scrape_article_body failed for {url}: {e}")
         return ""
