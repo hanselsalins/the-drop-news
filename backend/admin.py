@@ -299,6 +299,7 @@ _DASHBOARD_HTML = r"""<!DOCTYPE html>
   </div>
   <div class="section-title" style="margin-top:8px">Rewrite</div>
   <div class="btn-grid">
+    <button class="btn btn-green" onclick="triggerSelect()">🎯 Select Articles</button>
     <button class="btn btn-green" onclick="triggerRewrite()">✏️ Rewrite Pending</button>
     <button class="btn btn-green" onclick="triggerRetryFailed()">🔄 Retry Failed Rewrites</button>
     <button class="btn btn-secondary" onclick="triggerResetSelectedToRaw()">↩️ Reset Selected→Raw</button>
@@ -542,6 +543,15 @@ async function triggerCrawlCC(cc) {
   showResponse(`Triggering crawl for ${cc}…`);
   try {
     const r = await fetch(`/admin/api/crawl/${cc}`, {method:'POST'});
+    const d = await r.json();
+    showResponse(JSON.stringify(d, null, 2), r.ok);
+  } catch(e) { showResponse('Error: '+e.message, false); }
+}
+
+async function triggerSelect() {
+  showResponse('Running article selection…');
+  try {
+    const r = await fetch('/admin/api/select', {method:'POST'});
     const d = await r.json();
     showResponse(JSON.stringify(d, null, 2), r.ok);
   } catch(e) { showResponse('Error: '+e.message, false); }
@@ -1356,6 +1366,18 @@ async def admin_api_crawl_cc(request: Request, country_code: str):
         return JSONResponse({"ok": True, "country": country_code.upper(), "result": result})
     except Exception as e:
         return JSONResponse({"ok": False, "error": str(e)}, status_code=500)
+
+
+@admin_router.post("/api/select")
+async def admin_api_select(request: Request):
+    _require_api_auth(request)
+    fn = _fns.get("select")
+    if not fn:
+        raise HTTPException(status_code=503, detail="Select function not registered")
+    async def _run():
+        await fn()
+    asyncio.create_task(_run())
+    return JSONResponse({"ok": True, "result": "Selection started"})
 
 
 @admin_router.post("/api/rewrite")
