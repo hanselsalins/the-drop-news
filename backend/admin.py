@@ -1273,7 +1273,7 @@ async def admin_api_reset_failed(request: Request):
     try:
         result = await _db["articles"].update_many(
             {"rewrite_status": "failed"},
-            {"$set": {"rewrites": {}, "rewrite_status": "pending"}},
+            {"$set": {"rewrites": {}, "rewrite_status": "selected"}},
         )
         return JSONResponse({"ok": True, "reset_count": result.modified_count})
     except Exception as e:
@@ -1315,7 +1315,7 @@ async def admin_api_reset_rewrites(request: Request, country_code: str = ""):
     try:
         result = await _db["articles"].update_many(
             query,
-            {"$set": {"rewrites": {}, "rewrite_status": "pending"}}
+            {"$set": {"rewrites": {}, "rewrite_status": "raw"}}
         )
         return JSONResponse({
             "ok": True,
@@ -1330,10 +1330,13 @@ async def admin_api_reset_rewrites(request: Request, country_code: str = ""):
 async def admin_api_crawl(request: Request):
     _require_api_auth(request)
     fn = _fns.get("crawl")
+    select_fn = _fns.get("select")
     if not fn:
         raise HTTPException(status_code=503, detail="Crawl function not registered")
     try:
         result = await fn()
+        if select_fn:
+            await select_fn()
         return JSONResponse({"ok": True, "result": result})
     except Exception as e:
         return JSONResponse({"ok": False, "error": str(e)}, status_code=500)
@@ -1343,10 +1346,13 @@ async def admin_api_crawl(request: Request):
 async def admin_api_crawl_cc(request: Request, country_code: str):
     _require_api_auth(request)
     fn = _fns.get("crawl")
+    select_fn = _fns.get("select")
     if not fn:
         raise HTTPException(status_code=503, detail="Crawl function not registered")
     try:
         result = await fn(country_code=country_code.upper())
+        if select_fn:
+            await select_fn()
         return JSONResponse({"ok": True, "country": country_code.upper(), "result": result})
     except Exception as e:
         return JSONResponse({"ok": False, "error": str(e)}, status_code=500)

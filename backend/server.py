@@ -2320,6 +2320,7 @@ async def trigger_crawl(background_tasks: BackgroundTasks, country_code: str = N
     async def crawl_and_rewrite():
         count = await crawl_rss_feeds(country_code=country_code)
         logger.info(f"Background crawl done: {count} articles for country={country_code or 'ALL'}")
+        await select_articles_for_display()
         for ag in ["8-10", "11-13", "14-16", "17-20"]:
             await rewrite_pending_articles(ag)
         await generate_micro_facts("14-16")
@@ -2331,6 +2332,7 @@ async def trigger_country_crawl(country_code: str, background_tasks: BackgroundT
     async def crawl_and_rewrite():
         count = await crawl_rss_feeds(country_code=country_code)
         logger.info(f"Background crawl done: {count} articles for {country_code}")
+        await select_articles_for_display()
         for ag in ["8-10", "11-13", "14-16", "17-20"]:
             await rewrite_pending_articles(ag)
     background_tasks.add_task(crawl_and_rewrite)
@@ -2539,7 +2541,7 @@ async def startup_event():
 
     # Mount admin dashboard — after DB is ready
     admin_pwd = os.environ.get("ADMIN_PASSWORD", "admin")
-    init_admin(db, admin_pwd, crawl=crawl_rss_feeds, rewrite=rewrite_pending_articles)
+    init_admin(db, admin_pwd, crawl=crawl_rss_feeds, select=select_articles_for_display, rewrite=rewrite_pending_articles)
     logger.info("Admin dashboard ready at /admin")
 
 
