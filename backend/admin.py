@@ -282,6 +282,7 @@ _DASHBOARD_HTML = r"""<!DOCTYPE html>
   <div class="section-title">Maintenance</div>
   <div class="btn-grid">
     <button class="btn btn-secondary" onclick="triggerCleanup()">🗑️ Clean Up Old Articles</button>
+    <button class="btn btn-secondary" onclick="triggerMigrateDates()">🔧 Migrate Date Formats</button>
   </div>
   <div class="section-title" style="margin-top:8px">Crawl</div>
   <div class="btn-grid">
@@ -568,6 +569,15 @@ async function triggerCleanup() {
   showResponse('Deleting articles older than 7 days…');
   try {
     const r = await fetch('/admin/api/cleanup-old-articles', {method:'POST'});
+    const d = await r.json();
+    showResponse(JSON.stringify(d, null, 2), r.ok);
+  } catch(e) { showResponse('Error: '+e.message, false); }
+}
+
+async function triggerMigrateDates() {
+  showResponse('Migrating RFC 2822 dates to ISO 8601…');
+  try {
+    const r = await fetch('/admin/api/migrate-dates', {method:'POST'});
     const d = await r.json();
     showResponse(JSON.stringify(d, null, 2), r.ok);
   } catch(e) { showResponse('Error: '+e.message, false); }
@@ -1186,6 +1196,34 @@ async def admin_api_cleanup_old_articles(request: Request):
         cutoff = (datetime.now(timezone.utc) - timedelta(days=7)).isoformat()
         result = await _db["articles"].delete_many({"published_at": {"$lt": cutoff}})
         return JSONResponse({"ok": True, "deleted_count": result.deleted_count})
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+
+@admin_router.post("/api/migrate-dates")
+async def admin_api_migrate_dates(request: Request):
+    _require_api_auth(request)
+    from email.utils import parsedate_to_datetime
+    try:
+        cursor = _db["articles"].find(
+            {"published_at": {"$regex": r",.*(\+\d{4}|GMT)"}},
+            {"_id": 1, "published_at": 1},
+        )
+        docs = await cursor.to_list(length=None)
+        migrated = 0
+        errors = 0
+        for doc in docs:
+            try:
+                iso = parsedate_to_datetime(doc["published_at"]).astimezone(
+                    timezone.utc
+                ).isoformat()
+                await _db["articles"].update_one(
+                    {"_id": doc["_id"]}, {"$set": {"published_at": iso}}
+                )
+                migrated += 1
+            except Exception:
+                errors += 1
+        return JSONResponse({"ok": True, "migrated": migrated, "errors": errors})
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
 
