@@ -198,6 +198,40 @@ _DASHBOARD_HTML = r"""<!DOCTYPE html>
   .page-btn:hover{background:#4b5563}
   .page-btn.active{background:#3b82f6;color:#fff}
   .page-info{font-size:12px;color:#6b7280}
+  /* Rewrites modal */
+  .rw-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.75);z-index:1000;
+              align-items:center;justify-content:center;padding:20px}
+  .rw-overlay.open{display:flex}
+  .rw-card{background:#1f2937;border:1px solid #374151;border-radius:12px;width:100%;
+           max-width:820px;max-height:90vh;display:flex;flex-direction:column;
+           box-shadow:0 25px 80px rgba(0,0,0,.7)}
+  .rw-header{display:flex;align-items:flex-start;justify-content:space-between;
+             padding:20px 24px 16px;border-bottom:1px solid #374151;gap:16px}
+  .rw-title{font-size:15px;font-weight:600;color:#f9fafb;line-height:1.4;flex:1}
+  .rw-close{background:#374151;border:none;color:#9ca3af;border-radius:6px;
+            width:32px;height:32px;cursor:pointer;font-size:18px;line-height:1;
+            flex-shrink:0;transition:.2s}
+  .rw-close:hover{background:#4b5563;color:#f9fafb}
+  .rw-tabs{display:flex;gap:2px;padding:12px 24px 0;border-bottom:1px solid #374151}
+  .rw-tab{padding:8px 16px;font-size:13px;font-weight:500;color:#9ca3af;cursor:pointer;
+          border-bottom:2px solid transparent;border-radius:6px 6px 0 0;transition:.2s}
+  .rw-tab:hover{color:#f9fafb;background:#374151}
+  .rw-tab.active{color:#3b82f6;border-bottom-color:#3b82f6}
+  .rw-body{overflow-y:auto;padding:20px 24px;flex:1}
+  .rw-pane{display:none}
+  .rw-pane.active{display:block}
+  .rw-field{margin-bottom:18px}
+  .rw-field-label{font-size:11px;color:#6b7280;text-transform:uppercase;letter-spacing:.5px;
+                   font-weight:600;margin-bottom:6px}
+  .rw-field-value{font-size:14px;color:#d1d5db;line-height:1.6}
+  .rw-field-value.body-text{font-size:13px;white-space:pre-wrap;line-height:1.7;
+                             background:#111827;border:1px solid #374151;border-radius:8px;
+                             padding:12px 14px;max-height:320px;overflow-y:auto}
+  .rw-empty{color:#6b7280;font-size:13px;font-style:italic;padding:20px 0}
+  .btn-view-rewrites{background:#1e3a5f;color:#60a5fa;border:1px solid #2563eb;
+                     border-radius:5px;padding:4px 10px;font-size:11px;font-weight:500;
+                     cursor:pointer;transition:.2s;white-space:nowrap}
+  .btn-view-rewrites:hover{background:#2563eb;color:#fff}
 </style>
 </head>
 <body>
@@ -344,9 +378,10 @@ _DASHBOARD_HTML = r"""<!DOCTYPE html>
           <th>Safety</th>
           <th>Age Bands</th>
           <th>Published</th>
+          <th>Actions</th>
         </tr>
       </thead>
-      <tbody id="artBody"><tr><td colspan="7" class="loading-row"><div class="spinner"></div></td></tr></tbody>
+      <tbody id="artBody"><tr><td colspan="8" class="loading-row"><div class="spinner"></div></td></tr></tbody>
     </table>
   </div>
   <div class="pagination" id="artPagination"></div>
@@ -381,6 +416,28 @@ _DASHBOARD_HTML = r"""<!DOCTYPE html>
 </div>
 
 </div><!-- /content -->
+
+<!-- ═══════════════════════ REWRITES MODAL ═══════════════════════ -->
+<div class="rw-overlay" id="rwOverlay" onclick="closeRewriteModal(event)">
+  <div class="rw-card" onclick="event.stopPropagation()">
+    <div class="rw-header">
+      <div class="rw-title" id="rwArticleTitle">Rewrites</div>
+      <button class="rw-close" onclick="closeRewriteModal()">✕</button>
+    </div>
+    <div class="rw-tabs" id="rwTabBar">
+      <div class="rw-tab active" onclick="switchRwTab('8-10')">8–10</div>
+      <div class="rw-tab" onclick="switchRwTab('11-13')">11–13</div>
+      <div class="rw-tab" onclick="switchRwTab('14-16')">14–16</div>
+      <div class="rw-tab" onclick="switchRwTab('17-20')">17–20</div>
+    </div>
+    <div class="rw-body">
+      <div class="rw-pane active" id="rwPane-8-10"></div>
+      <div class="rw-pane" id="rwPane-11-13"></div>
+      <div class="rw-pane" id="rwPane-14-16"></div>
+      <div class="rw-pane" id="rwPane-17-20"></div>
+    </div>
+  </div>
+</div>
 
 <script>
 const PAGE_SIZE = 50;
@@ -601,7 +658,7 @@ async function loadArticles(page) {
   const skip = (page-1)*PAGE_SIZE;
 
   document.getElementById('artBody').innerHTML =
-    '<tr><td colspan="7" class="loading-row"><div class="spinner"></div></td></tr>';
+    '<tr><td colspan="8" class="loading-row"><div class="spinner"></div></td></tr>';
 
   try {
     const params = new URLSearchParams({skip, limit:PAGE_SIZE});
@@ -617,7 +674,7 @@ async function loadArticles(page) {
 
     if(!d.articles || !d.articles.length) {
       document.getElementById('artBody').innerHTML =
-        '<tr><td colspan="7" style="text-align:center;padding:30px;color:#6b7280">No articles found</td></tr>';
+        '<tr><td colspan="8" style="text-align:center;padding:30px;color:#6b7280">No articles found</td></tr>';
       document.getElementById('artPagination').innerHTML = '';
       return;
     }
@@ -630,6 +687,8 @@ async function loadArticles(page) {
       const bands = (a.age_bands||[]).join(', ')||'—';
       const pub = a.published_at ? new Date(a.published_at).toLocaleDateString() : '—';
       const title = (a.title||'').substring(0,80) + ((a.title||'').length>80?'…':'');
+      const safeId = a.id.replace(/"/g,'');
+      const safeTitle = (a.title||'').replace(/\\/g,'\\\\').replace(/'/g,"\\'");
       return `<tr>
         <td title="${(a.title||'').replace(/"/g,'&quot;')}">${title}</td>
         <td style="text-transform:capitalize">${a.category||'—'}</td>
@@ -638,13 +697,14 @@ async function loadArticles(page) {
         <td>${ssBadge}</td>
         <td style="font-size:11px;color:#9ca3af">${bands}</td>
         <td style="font-size:11px;color:#6b7280">${pub}</td>
+        <td><button class="btn-view-rewrites" onclick="viewRewrites('${safeId}','${safeTitle}')">View Rewrites</button></td>
       </tr>`;
     }).join('');
 
     renderPagination('artPagination', d.total, page, n=>loadArticles(n));
   } catch(e) {
     document.getElementById('artBody').innerHTML =
-      `<tr><td colspan="7" style="color:#f87171;padding:20px">Error: ${e.message}</td></tr>`;
+      `<tr><td colspan="8" style="color:#f87171;padding:20px">Error: ${e.message}</td></tr>`;
   }
 }
 
@@ -702,6 +762,86 @@ async function loadUsers(page) {
     document.getElementById('userBody').innerHTML =
       `<tr><td colspan="9" style="color:#f87171;padding:20px">Error: ${e.message}</td></tr>`;
   }
+}
+
+// ── REWRITES MODAL ─────────────────────────────────────────────
+const AGE_GROUPS = ['8-10','11-13','14-16','17-20'];
+
+function switchRwTab(group) {
+  document.querySelectorAll('.rw-tab').forEach((t,i)=>{
+    t.classList.toggle('active', AGE_GROUPS[i]===group);
+  });
+  document.querySelectorAll('.rw-pane').forEach(p=>p.classList.remove('active'));
+  document.getElementById('rwPane-'+group).classList.add('active');
+}
+
+function renderRewritePane(group, rw) {
+  const pane = document.getElementById('rwPane-'+group);
+  if(!rw || rw.status==='failed') {
+    pane.innerHTML = `<div class="rw-empty">${rw && rw.status==='failed' ? 'Rewrite failed for this age group.' : 'Not yet rewritten.'}</div>`;
+    return;
+  }
+  const bodyText = (rw.body||'').replace(/\n\n/g,'\n\n');
+  pane.innerHTML = `
+    <div class="rw-field">
+      <div class="rw-field-label">Rewrite Status</div>
+      <div class="rw-field-value"><span class="badge-status badge-${rw.status||'pending'}">${rw.status||'pending'}</span></div>
+    </div>
+    <div class="rw-field">
+      <div class="rw-field-label">Title</div>
+      <div class="rw-field-value">${escHtml(rw.title||'—')}</div>
+    </div>
+    <div class="rw-field">
+      <div class="rw-field-label">Summary</div>
+      <div class="rw-field-value">${escHtml(rw.summary||'—')}</div>
+    </div>
+    <div class="rw-field">
+      <div class="rw-field-label">Body</div>
+      <div class="rw-field-value body-text">${escHtml(rw.body||'—')}</div>
+    </div>
+    <div class="rw-field">
+      <div class="rw-field-label">Wonder Question</div>
+      <div class="rw-field-value">${escHtml(rw.wonder_question||'—')}</div>
+    </div>
+    <div class="rw-field">
+      <div class="rw-field-label">Reading Time</div>
+      <div class="rw-field-value">${rw.reading_time!=null ? rw.reading_time+' min' : '—'}</div>
+    </div>
+  `;
+}
+
+function escHtml(s) {
+  return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+}
+
+async function viewRewrites(articleId, articleTitle) {
+  document.getElementById('rwArticleTitle').textContent = articleTitle || 'Rewrites';
+  AGE_GROUPS.forEach(g => {
+    document.getElementById('rwPane-'+g).innerHTML =
+      '<div class="loading-row"><div class="spinner"></div></div>';
+  });
+  switchRwTab('8-10');
+  document.getElementById('rwOverlay').classList.add('open');
+  document.body.style.overflow = 'hidden';
+
+  try {
+    const r = await fetch(`/admin/api/articles/${articleId}/rewrites`);
+    if(!r.ok) throw new Error(r.statusText);
+    const d = await r.json();
+    const rewrites = d.rewrites || {};
+    AGE_GROUPS.forEach(g => renderRewritePane(g, rewrites[g]||null));
+  } catch(e) {
+    AGE_GROUPS.forEach(g => {
+      document.getElementById('rwPane-'+g).innerHTML =
+        `<div class="rw-empty" style="color:#f87171">Error: ${e.message}</div>`;
+    });
+  }
+}
+
+function closeRewriteModal(event) {
+  if(event && event.target !== document.getElementById('rwOverlay')) return;
+  document.getElementById('rwOverlay').classList.remove('open');
+  document.body.style.overflow = '';
 }
 
 // ── PAGINATION ─────────────────────────────────────────────────
@@ -946,6 +1086,27 @@ async def admin_api_articles(
             })
 
         return JSONResponse({"total": total, "articles": articles})
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+
+# ── API: ARTICLE REWRITES ───────────────────────────────────────
+
+@admin_router.get("/api/articles/{article_id}/rewrites")
+async def admin_api_article_rewrites(request: Request, article_id: str):
+    _require_api_auth(request)
+    from bson import ObjectId
+    try:
+        oid = ObjectId(article_id)
+    except Exception:
+        raise HTTPException(status_code=400, detail="Invalid article ID")
+    try:
+        doc = await _db["articles"].find_one({"_id": oid}, {"rewrites": 1, "original_title": 1})
+        if not doc:
+            raise HTTPException(status_code=404, detail="Article not found")
+        return JSONResponse({"rewrites": doc.get("rewrites") or {}})
+    except HTTPException:
+        raise
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
 
