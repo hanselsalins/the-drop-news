@@ -421,7 +421,13 @@ _DASHBOARD_HTML = r"""<!DOCTYPE html>
 <div class="rw-overlay" id="rwOverlay" onclick="closeRewriteModal(event)">
   <div class="rw-card" onclick="event.stopPropagation()">
     <div class="rw-header">
-      <div class="rw-title" id="rwArticleTitle">Rewrites</div>
+      <div style="flex:1;min-width:0">
+        <div class="rw-title" id="rwArticleTitle">Rewrites</div>
+        <a id="rwOriginalLink" href="#" target="_blank" rel="noopener noreferrer"
+           style="display:none;font-size:11px;color:#6b7280;text-decoration:none;margin-top:5px">
+          Read Original →
+        </a>
+      </div>
       <button class="rw-close" onclick="closeRewriteModal()">✕</button>
     </div>
     <div class="rw-tabs" id="rwTabBar">
@@ -816,6 +822,8 @@ function escHtml(s) {
 
 async function viewRewrites(articleId, articleTitle) {
   document.getElementById('rwArticleTitle').textContent = articleTitle || 'Rewrites';
+  const linkEl = document.getElementById('rwOriginalLink');
+  linkEl.style.display = 'none';
   AGE_GROUPS.forEach(g => {
     document.getElementById('rwPane-'+g).innerHTML =
       '<div class="loading-row"><div class="spinner"></div></div>';
@@ -830,6 +838,10 @@ async function viewRewrites(articleId, articleTitle) {
     const d = await r.json();
     const rewrites = d.rewrites || {};
     AGE_GROUPS.forEach(g => renderRewritePane(g, rewrites[g]||null));
+    if(d.original_url) {
+      linkEl.href = d.original_url;
+      linkEl.style.display = 'inline-block';
+    }
   } catch(e) {
     AGE_GROUPS.forEach(g => {
       document.getElementById('rwPane-'+g).innerHTML =
@@ -1101,10 +1113,10 @@ async def admin_api_article_rewrites(request: Request, article_id: str):
     except Exception:
         raise HTTPException(status_code=400, detail="Invalid article ID")
     try:
-        doc = await _db["articles"].find_one({"_id": oid}, {"rewrites": 1, "original_title": 1})
+        doc = await _db["articles"].find_one({"_id": oid}, {"rewrites": 1, "original_title": 1, "original_url": 1})
         if not doc:
             raise HTTPException(status_code=404, detail="Article not found")
-        return JSONResponse({"rewrites": doc.get("rewrites") or {}})
+        return JSONResponse({"rewrites": doc.get("rewrites") or {}, "original_url": doc.get("original_url") or ""})
     except HTTPException:
         raise
     except Exception as e:
