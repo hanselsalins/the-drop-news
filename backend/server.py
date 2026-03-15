@@ -198,6 +198,14 @@ class RegisterSelfRequest(BaseModel):
     city: str = ""
     username: str
     avatar_url: str = ""
+    # Optional parent account creation
+    parent_name: Optional[str] = None
+    parent_email: Optional[str] = None
+    parent_password: Optional[str] = None
+
+
+class SwitchProfileRequest(BaseModel):
+    target_user_id: str
 
 class ReactionRequest(BaseModel):
     reaction: str  # "mind_blown", "surprising", "angry", "sad", "inspiring"
@@ -1195,53 +1203,95 @@ async def register(req: RegisterRequest):
 
 
 @api_router.post("/auth/register-child")
-async def register_child(req: RegisterChildRequest):
-    """Parent-led signup for under-14 users."""
-    existing = await db.users.find_one({"email": req.parent_email.lower().strip()})
-    if existing:
-        raise HTTPException(status_code=400, detail="Email already registered")
+async def register_child(req: RegisterChildRequest, calling_user=Depends(get_optional_user)):
+    """Parent-led signup for under-14 users. Creates linked parent + child accounts."""
     if req.child_age >= 14:
         raise HTTPException(status_code=400, detail="Use self-signup for age 14+")
     if len(req.parent_password) < 8:
         raise HTTPException(status_code=400, detail="Password must be at least 8 characters")
 
-    age_group = age_group_from_age(req.child_age)
-    password_hash = bcrypt.hashpw(req.parent_password.encode(), bcrypt.gensalt()).decode()
-    user_id = str(uuid.uuid4())
-    invite_code = generate_invite_code()
     now = datetime.now(timezone.utc).isoformat()
-    base_username = re.sub(r'[^a-z0-9_]', '', req.child_name.lower().replace(" ", ""))
-    username = await ensure_unique_username(base_username)
+    child_id = str(uuid.uuid4())
     approx_dob = f"{date.today().year - req.child_age}-06-15"
+    age_group = age_group_from_age(req.child_age)
+    child_username = await ensure_unique_username(
+        re.sub(r'[^a-z0-9_]', '', req.child_name.lower().replace(" ", "")))
+    # Children under 14 have no personal email — use a synthetic internal address
+    child_email = f"child_{child_id[:8]}@family.thedrop.internal"
 
-    doc = {
-        "id": user_id, "full_name": req.child_name.strip(),
-        "email": req.parent_email.lower().strip(),
-        "password_hash": password_hash,
+    # If an authenticated parent is calling, link to their existing account
+    if calling_user and calling_user.get("account_type") == "parent":
+        parent_id = calling_user["id"]
+        parent_doc = None  # Already exists
+        # Link child to existing parent
+        await db.users.update_one(
+            {"id": parent_id},
+            {"$addToSet": {"child_ids": child_id, "linked_profiles": child_id}},
+        )
+    else:
+        # Create a new parent account
+        existing = await db.users.find_one({"email": req.parent_email.lower().strip()})
+        if existing:
+            raise HTTPException(status_code=400, detail="Parent email already registered")
+        parent_id = str(uuid.uuid4())
+        parent_username = await ensure_unique_username(
+            re.sub(r'[^a-z0-9_]', '', req.parent_name.lower().replace(" ", "")))
+        parent_doc = {
+            "id": parent_id,
+            "full_name": req.parent_name.strip(),
+            "email": req.parent_email.lower().strip(),
+            "password_hash": bcrypt.hashpw(req.parent_password.encode(), bcrypt.gensalt()).decode(),
+            "dob": "", "age": None, "gender": "",
+            "city": req.child_city.strip(), "country": req.child_country.strip(),
+            "age_group": "adult", "account_type": "parent",
+            "child_ids": [child_id], "linked_profiles": [child_id],
+            "username": parent_username,
+            "avatar_url": f"https://api.dicebear.com/9.x/adventurer/svg?seed={parent_username}",
+            "invite_code": generate_invite_code(), "knowledge_score": 0,
+            "member_since": now, "created_at": now,
+            "current_streak": 0, "longest_streak": 0, "last_read_date": "",
+            "notification_prefs": DEFAULT_NOTIFICATION_PREFS.copy(),
+            "device_tokens": [], "timezone": "UTC",
+            "stories_read_count": 0, "reactions_given_count": 0, "days_active": [],
+        }
+        await db.users.insert_one(parent_doc)
+
+    child_doc = {
+        "id": child_id, "full_name": req.child_name.strip(),
+        "email": child_email,
+        "password_hash": "",  # Children log in via parent account → switch-profile
         "dob": approx_dob, "age": req.child_age, "gender": "",
         "city": req.child_city.strip(), "country": req.child_country.strip(),
         "age_group": age_group, "account_type": "child",
+        "parent_id": parent_id, "linked_profiles": [parent_id],
         "parent_name": req.parent_name.strip(),
         "parent_email": req.parent_email.lower().strip(),
-        "username": username,
-        "avatar_url": req.avatar_url or f"https://api.dicebear.com/9.x/adventurer/svg?seed={username}",
-        "invite_code": invite_code, "knowledge_score": 0,
+        "username": child_username,
+        "avatar_url": req.avatar_url or f"https://api.dicebear.com/9.x/adventurer/svg?seed={child_username}",
+        "invite_code": generate_invite_code(), "knowledge_score": 0,
         "member_since": now, "created_at": now,
         "current_streak": 0, "longest_streak": 0, "last_read_date": "",
         "notification_prefs": DEFAULT_NOTIFICATION_PREFS.copy(),
         "device_tokens": [], "timezone": "UTC",
         "stories_read_count": 0, "reactions_given_count": 0, "days_active": [],
     }
-    await db.users.insert_one(doc)
+    await db.users.insert_one(child_doc)
     mock_send_parent_email(req.parent_email, req.child_name)
-    token = create_token(user_id)
-    user_resp = {k: v for k, v in doc.items() if k not in ("password_hash", "_id")}
-    return {"token": token, "user": user_resp}
+
+    child_resp = {k: v for k, v in child_doc.items() if k not in ("password_hash", "_id")}
+    result = {
+        "token": create_token(child_id),
+        "user": child_resp,
+    }
+    if parent_doc:
+        result["parent_token"] = create_token(parent_id)
+        result["parent_user"] = {k: v for k, v in parent_doc.items() if k not in ("password_hash", "_id")}
+    return result
 
 
 @api_router.post("/auth/register-self")
 async def register_self(req: RegisterSelfRequest):
-    """Self signup for age 14+."""
+    """Self signup for age 14+. Optionally creates a linked parent account."""
     existing = await db.users.find_one({"email": req.email.lower().strip()})
     if existing:
         raise HTTPException(status_code=400, detail="Email already registered")
@@ -1253,13 +1303,20 @@ async def register_self(req: RegisterSelfRequest):
     username_clean = req.username.lower().strip().lstrip("@")
     if not re.match(r'^[a-z0-9_]{3,20}$', username_clean):
         raise HTTPException(status_code=400, detail="Username must be 3-20 characters, letters, numbers, underscores only")
-    existing_username = await db.users.find_one({"username": username_clean})
-    if existing_username:
+    if await db.users.find_one({"username": username_clean}):
         raise HTTPException(status_code=400, detail="Username already taken")
+
+    has_parent = bool(req.parent_name and req.parent_email and req.parent_password)
+    if has_parent:
+        if await db.users.find_one({"email": req.parent_email.lower().strip()}):
+            raise HTTPException(status_code=400, detail="Parent email already registered")
+        if len(req.parent_password) < 8:
+            raise HTTPException(status_code=400, detail="Parent password must be at least 8 characters")
 
     age_group = age_group_from_age(req.age)
     password_hash = bcrypt.hashpw(req.password.encode(), bcrypt.gensalt()).decode()
     user_id = str(uuid.uuid4())
+    parent_id = str(uuid.uuid4()) if has_parent else None
     invite_code = generate_invite_code()
     now = datetime.now(timezone.utc).isoformat()
     approx_dob = f"{date.today().year - req.age}-06-15"
@@ -1270,7 +1327,10 @@ async def register_self(req: RegisterSelfRequest):
         "password_hash": password_hash,
         "dob": approx_dob, "age": req.age, "gender": "",
         "city": req.city.strip(), "country": req.country.strip(),
-        "age_group": age_group, "account_type": "self",
+        "age_group": age_group,
+        "account_type": "child" if has_parent else "independent",
+        "parent_id": parent_id,
+        "linked_profiles": [parent_id] if has_parent else [],
         "username": username_clean,
         "avatar_url": req.avatar_url or f"https://api.dicebear.com/9.x/adventurer/svg?seed={username_clean}",
         "invite_code": invite_code, "knowledge_score": 0,
@@ -1281,9 +1341,65 @@ async def register_self(req: RegisterSelfRequest):
         "stories_read_count": 0, "reactions_given_count": 0, "days_active": [],
     }
     await db.users.insert_one(doc)
+
+    parent_doc = None
+    if has_parent:
+        parent_username = await ensure_unique_username(
+            re.sub(r'[^a-z0-9_]', '', req.parent_name.lower().replace(" ", "")))
+        parent_doc = {
+            "id": parent_id,
+            "full_name": req.parent_name.strip(),
+            "email": req.parent_email.lower().strip(),
+            "password_hash": bcrypt.hashpw(req.parent_password.encode(), bcrypt.gensalt()).decode(),
+            "dob": "", "age": None, "gender": "",
+            "city": req.city.strip(), "country": req.country.strip(),
+            "age_group": "adult", "account_type": "parent",
+            "child_ids": [user_id], "linked_profiles": [user_id],
+            "username": parent_username,
+            "avatar_url": f"https://api.dicebear.com/9.x/adventurer/svg?seed={parent_username}",
+            "invite_code": generate_invite_code(), "knowledge_score": 0,
+            "member_since": now, "created_at": now,
+            "current_streak": 0, "longest_streak": 0, "last_read_date": "",
+            "notification_prefs": DEFAULT_NOTIFICATION_PREFS.copy(),
+            "device_tokens": [], "timezone": "UTC",
+            "stories_read_count": 0, "reactions_given_count": 0, "days_active": [],
+        }
+        await db.users.insert_one(parent_doc)
+
     token = create_token(user_id)
     user_resp = {k: v for k, v in doc.items() if k not in ("password_hash", "_id")}
+    result = {"token": token, "user": user_resp}
+    if parent_doc:
+        result["parent_token"] = create_token(parent_id)
+        result["parent_user"] = {k: v for k, v in parent_doc.items() if k not in ("password_hash", "_id")}
+    return result
+
+
+@api_router.post("/auth/switch-profile")
+async def switch_profile(req: SwitchProfileRequest, user=Depends(get_current_user)):
+    """Return a JWT for a linked profile (parent↔child switching)."""
+    linked = user.get("linked_profiles", [])
+    if req.target_user_id not in linked:
+        raise HTTPException(status_code=403, detail="Not linked to this profile")
+    target = await db.users.find_one({"id": req.target_user_id}, {"_id": 0})
+    if not target:
+        raise HTTPException(status_code=404, detail="Profile not found")
+    token = create_token(req.target_user_id)
+    user_resp = {k: v for k, v in target.items() if k != "password_hash"}
     return {"token": token, "user": user_resp}
+
+
+@api_router.get("/auth/linked-profiles")
+async def get_linked_profiles(user=Depends(get_current_user)):
+    """Return all profiles linked to the current user."""
+    linked_ids = user.get("linked_profiles", [])
+    if not linked_ids:
+        return {"profiles": []}
+    profiles = await db.users.find(
+        {"id": {"$in": linked_ids}},
+        {"_id": 0, "password_hash": 0},
+    ).to_list(20)
+    return {"profiles": profiles}
 
 
 @api_router.get("/auth/check-username/{username}")
