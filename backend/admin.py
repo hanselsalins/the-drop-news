@@ -169,7 +169,10 @@ _DASHBOARD_HTML = r"""<!DOCTYPE html>
   .response-box.visible{display:block}
   /* Status badges */
   .badge-status{display:inline-block;padding:2px 8px;border-radius:10px;font-size:11px;font-weight:500}
+  .badge-raw{background:#1e3a5f;color:#60a5fa}
   .badge-pending{background:#451a03;color:#fbbf24}
+  .badge-selected{background:#3b1d8a;color:#c4b5fd}
+  .badge-rewritten{background:#052e16;color:#34d399}
   .badge-done{background:#052e16;color:#34d399}
   .badge-failed{background:#450a0a;color:#f87171}
   .badge-safe{background:#052e16;color:#34d399}
@@ -298,6 +301,8 @@ _DASHBOARD_HTML = r"""<!DOCTYPE html>
   <div class="btn-grid">
     <button class="btn btn-green" onclick="triggerRewrite()">✏️ Rewrite Pending</button>
     <button class="btn btn-green" onclick="triggerRetryFailed()">🔄 Retry Failed Rewrites</button>
+    <button class="btn btn-secondary" onclick="triggerResetSelectedToRaw()">↩️ Reset Selected→Raw</button>
+    <button class="btn btn-secondary" onclick="triggerResetRewrittenToSelected()">↩️ Reset Rewritten→Selected</button>
     <button class="btn btn-secondary" onclick="triggerResetRewrite()">🔄 Reset &amp; Rewrite All</button>
     <button class="btn btn-secondary" onclick="triggerResetRewriteCC('IN')">🔄 Reset IN</button>
     <button class="btn btn-secondary" onclick="triggerResetRewriteCC('US')">🔄 Reset US</button>
@@ -364,8 +369,9 @@ _DASHBOARD_HTML = r"""<!DOCTYPE html>
     </select>
     <select class="filter-select" id="artStatus" onchange="loadArticles(1)">
       <option value="">All Statuses</option>
-      <option value="pending">Pending</option>
-      <option value="done">Done</option>
+      <option value="raw">Raw</option>
+      <option value="selected">Selected</option>
+      <option value="rewritten">Rewritten</option>
       <option value="failed">Failed</option>
     </select>
   </div>
@@ -566,6 +572,24 @@ async function triggerResetRewrite(cc) {
 }
 
 function triggerResetRewriteCC(cc) { triggerResetRewrite(cc); }
+
+async function triggerResetSelectedToRaw() {
+  showResponse('Resetting selected articles back to raw…');
+  try {
+    const r = await fetch('/admin/api/reset-selected-to-raw', {method:'POST'});
+    const d = await r.json();
+    showResponse(JSON.stringify(d, null, 2), r.ok);
+  } catch(e) { showResponse('Error: '+e.message, false); }
+}
+
+async function triggerResetRewrittenToSelected() {
+  showResponse('Resetting rewritten articles back to selected…');
+  try {
+    const r = await fetch('/admin/api/reset-rewritten-to-selected', {method:'POST'});
+    const d = await r.json();
+    showResponse(JSON.stringify(d, null, 2), r.ok);
+  } catch(e) { showResponse('Error: '+e.message, false); }
+}
 
 async function triggerRetryFailed() {
   showResponse('Resetting failed articles to pending, then triggering rewrite…');
@@ -1250,6 +1274,32 @@ async def admin_api_reset_failed(request: Request):
         result = await _db["articles"].update_many(
             {"rewrite_status": "failed"},
             {"$set": {"rewrites": {}, "rewrite_status": "pending"}},
+        )
+        return JSONResponse({"ok": True, "reset_count": result.modified_count})
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+
+@admin_router.post("/api/reset-selected-to-raw")
+async def admin_api_reset_selected_to_raw(request: Request):
+    _require_api_auth(request)
+    try:
+        result = await _db["articles"].update_many(
+            {"rewrite_status": "selected"},
+            {"$set": {"rewrite_status": "raw", "rewrites": {}}},
+        )
+        return JSONResponse({"ok": True, "reset_count": result.modified_count})
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+
+@admin_router.post("/api/reset-rewritten-to-selected")
+async def admin_api_reset_rewritten_to_selected(request: Request):
+    _require_api_auth(request)
+    try:
+        result = await _db["articles"].update_many(
+            {"rewrite_status": "rewritten"},
+            {"$set": {"rewrite_status": "selected", "rewrites": {}}},
         )
         return JSONResponse({"ok": True, "reset_count": result.modified_count})
     except Exception as e:

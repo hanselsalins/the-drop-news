@@ -974,7 +974,7 @@ async def crawl_rss_feeds(country_code: str = None):
                             "published_at": published,
                             "crawled_at": datetime.now(timezone.utc).isoformat(),
                             "safety_status": "safe",
-                            "rewrite_status": "pending",
+                            "rewrite_status": "raw",
                             "low_confidence_flag": False,
                             "rewrites": {},
                             "reaction_counts": {},
@@ -1051,10 +1051,74 @@ async def _crawl_legacy_feeds():
     return articles_added
 
 
+async def _claude_select_best_articles(candidates: list, country: str, category: str) -> list:
+    """Use Claude to pick the 3 best articles from a list of candidates."""
+    titles = "\n".join(f"{i+1}. {c['original_title']}" for i, c in enumerate(candidates))
+    prompt = (
+        f"You are a news editor for a youth news app targeting readers aged 8–20 in {country}.\n"
+        f"Category: {category}\n\n"
+        f"From the headlines below, pick the 3 most newsworthy, relevant, and age-appropriate stories. "
+        f"Avoid near-duplicates. Reply with ONLY the numbers of your 3 choices, comma-separated (e.g. 2,5,7).\n\n"
+        f"Headlines:\n{titles}"
+    )
+    try:
+        async with _claude_semaphore:
+            resp = anthropic_client.messages.create(
+                model="claude-sonnet-4-5",
+                max_tokens=20,
+                messages=[{"role": "user", "content": prompt}],
+            )
+        text = resp.content[0].text.strip()
+        indices = [int(x.strip()) - 1 for x in text.split(",") if x.strip().isdigit()]
+        valid = [candidates[i]["id"] for i in indices if 0 <= i < len(candidates)]
+        return valid[:3] if valid else [c["id"] for c in candidates[:3]]
+    except Exception as e:
+        logger.error(f"[select_articles] Claude selection failed for {country}/{category}: {e}")
+        return [c["id"] for c in candidates[:3]]
+
+
+async def select_articles_for_display() -> int:
+    """Curate the best raw articles into 'selected' status for each country × category."""
+    countries = ["IN", "US", "GB", "AU", "AE"]
+    categories = ["world", "power", "money", "tech", "sports", "entertainment", "environment"]
+    cutoff = (datetime.now(timezone.utc) - timedelta(hours=48)).isoformat()
+    total_selected = 0
+
+    for country in countries:
+        country_selected = 0
+        for category in categories:
+            candidates = await db.articles.find(
+                {"source_country": country, "category": category,
+                 "rewrite_status": "raw", "published_at": {"$gte": cutoff}},
+                {"_id": 0, "id": 1, "original_title": 1},
+            ).to_list(50)
+
+            if not candidates:
+                continue
+
+            if len(candidates) <= 5:
+                selected_ids = [c["id"] for c in candidates]
+            else:
+                selected_ids = await _claude_select_best_articles(candidates, country, category)
+
+            if selected_ids:
+                result = await db.articles.update_many(
+                    {"id": {"$in": selected_ids}},
+                    {"$set": {"rewrite_status": "selected"}},
+                )
+                country_selected += result.modified_count
+
+        logger.info(f"[select_articles] {country}: {country_selected} articles selected")
+        total_selected += country_selected
+
+    logger.info(f"[select_articles] total {total_selected} articles selected across all countries")
+    return total_selected
+
+
 async def rewrite_pending_articles(age_group: str):
     logger.info(f"Starting rewrites for age_group={age_group}...")
     cursor = db.articles.find(
-        {f"rewrites.{age_group}": {"$exists": False}},
+        {"rewrite_status": "selected", f"rewrites.{age_group}": {"$exists": False}},
         {"_id": 0, "id": 1, "original_title": 1, "original_headline": 1,
          "original_content": 1, "original_body": 1, "original_url": 1, "category": 1,
          "source_language": 1, "source_country": 1}
@@ -1075,21 +1139,26 @@ async def rewrite_pending_articles(age_group: str):
                     content = scraped
                     logger.info(f"Scraped full body for article {article['id']} ({len(content)} chars)")
 
-        rewrite = await rewrite_article_for_age_group(
-            title, content, age_group, article["category"],
-            source_language=source_lang, source_country=source_country)
+        try:
+            rewrite = await rewrite_article_for_age_group(
+                title, content, age_group, article["category"],
+                source_language=source_lang, source_country=source_country)
+        except Exception as e:
+            logger.error(f"Rewrite failed for article {article['id']} age_group={age_group}: {e}")
+            continue  # Keep rewrite_status="selected" so it's retried next run
 
         update_fields = {f"rewrites.{age_group}": rewrite}
-        # Update article-level fields from rewrite result
-        if rewrite.get("rewrite_status"):
-            update_fields["rewrite_status"] = rewrite["rewrite_status"]
         if rewrite.get("low_confidence_flag") is not None:
             update_fields["low_confidence_flag"] = rewrite["low_confidence_flag"]
-        # Store AI-tagged geolocation fields at article level
         update_fields["country_relevance"] = rewrite.get("country_relevance", ["GLOBAL"])
         update_fields["impact_flags"] = rewrite.get("impact_flags", [])
-
         await db.articles.update_one({"id": article["id"]}, {"$set": update_fields})
+
+        # If all 4 age groups are now written, promote to "rewritten"
+        updated = await db.articles.find_one({"id": article["id"]}, {"_id": 0, "rewrites": 1})
+        if updated and {"8-10", "11-13", "14-16", "17-20"}.issubset(set(updated.get("rewrites", {}).keys())):
+            await db.articles.update_one({"id": article["id"]}, {"$set": {"rewrite_status": "rewritten"}})
+
     logger.info(f"Rewrites complete for {len(articles)} articles, age_group={age_group}")
 
 
@@ -2093,6 +2162,7 @@ async def _get_or_generate_todays_drop(age_group: str, user: dict, user_country_
             "category": cat,
             f"rewrites.{age_group}": {"$exists": True},
             "crawled_at": {"$gte": since},
+            "rewrite_status": "rewritten",
         }
         loc_filter = _build_localised_query(cat, user_country_code)
         if loc_filter:
@@ -2100,12 +2170,20 @@ async def _get_or_generate_todays_drop(age_group: str, user: dict, user_country_
 
         candidates = await db.articles.find(base_query, {"_id": 0}).sort("crawled_at", -1).to_list(20)
 
+        # Fallback: include "selected" articles that have this age_group rewrite
+        if len(candidates) < 2:
+            fallback_q = {**base_query, "rewrite_status": "selected"}
+            extra = await db.articles.find(fallback_q, {"_id": 0}).sort("crawled_at", -1).to_list(20)
+            seen = {a["id"] for a in candidates}
+            candidates += [a for a in extra if a["id"] not in seen]
+
         if not candidates and cat == "power" and user_country_code:
             fallback_query = {
                 "category": cat,
                 f"rewrites.{age_group}": {"$exists": True},
                 "crawled_at": {"$gte": since},
                 "country_relevance": "GLOBAL",
+                "rewrite_status": {"$in": ["rewritten", "selected"]},
             }
             candidates = await db.articles.find(fallback_query, {"_id": 0}).sort("crawled_at", -1).to_list(20)
 
@@ -2148,6 +2226,7 @@ async def get_articles(category: Optional[str] = None, age_group: str = "14-16",
     query = {
         "category": cat,
         f"rewrites.{age_group}": {"$exists": True},
+        "rewrite_status": "rewritten",
     }
     loc_filter = _build_localised_query(cat, effective_country)
     if loc_filter:
@@ -2157,6 +2236,15 @@ async def get_articles(category: Optional[str] = None, age_group: str = "14-16",
     candidates = await db.articles.find(
         query, {"_id": 0, "original_content": 0}
     ).sort("crawled_at", -1).to_list(50)
+
+    # Fallback: include "selected" articles that have this age_group rewrite
+    if len(candidates) < 3:
+        fallback_q = {**query, "rewrite_status": "selected"}
+        extra = await db.articles.find(
+            fallback_q, {"_id": 0, "original_content": 0}
+        ).sort("crawled_at", -1).to_list(50)
+        seen = {a["id"] for a in candidates}
+        candidates += [a for a in extra if a["id"] not in seen]
 
     # Exclude articles already in today's drop for this user
     today = today_str()
@@ -2348,6 +2436,15 @@ async def job_crawl_all_countries():
         logger.error(f"[Scheduler] job_crawl_all_countries failed: {e}")
 
 
+async def job_select_articles():
+    logger.info("[Scheduler] job_select_articles: starting")
+    try:
+        selected = await select_articles_for_display()
+        logger.info(f"[Scheduler] job_select_articles: done, {selected} articles selected")
+    except Exception as e:
+        logger.error(f"[Scheduler] job_select_articles failed: {e}")
+
+
 async def job_cleanup_old_articles():
     logger.info("[Scheduler] job_cleanup_old_articles: removing articles older than 7 days")
     try:
@@ -2426,11 +2523,13 @@ async def startup_event():
             asyncio.create_task(generate_micro_facts("14-16"))
 
     # Register and start APScheduler — after DB is ready
-    scheduler.add_job(job_crawl_all_countries,         IntervalTrigger(hours=3),                              id="crawl_all_countries",    replace_existing=True)
-    scheduler.add_job(job_rewrite_pending,             IntervalTrigger(minutes=60),                           id="rewrite_pending",        replace_existing=True)
-    scheduler.add_job(job_generate_todays_drop_all_users, CronTrigger(hour=0, minute=0, timezone="UTC"),      id="todays_drop_all_users",  replace_existing=True)
-    scheduler.add_job(job_cleanup_old_articles,        CronTrigger(hour=1, minute=0, timezone="UTC"),         id="cleanup_old_articles",   replace_existing=True)
-    scheduler.add_job(job_health_ping,                 IntervalTrigger(minutes=5),                            id="health_ping",            replace_existing=True)
+    # Pipeline: crawl (:00) → select (:30) → rewrite (:00 of next hour), all on 3-hour cycle
+    scheduler.add_job(job_crawl_all_countries,            CronTrigger(hour="0,3,6,9,12,15,18,21", minute=0,  timezone="UTC"), id="crawl_all_countries",    replace_existing=True)
+    scheduler.add_job(job_select_articles,                CronTrigger(hour="0,3,6,9,12,15,18,21", minute=30, timezone="UTC"), id="select_articles",        replace_existing=True)
+    scheduler.add_job(job_rewrite_pending,                CronTrigger(hour="1,4,7,10,13,16,19,22", minute=0, timezone="UTC"), id="rewrite_pending",        replace_existing=True)
+    scheduler.add_job(job_generate_todays_drop_all_users, CronTrigger(hour=0,  minute=0,  timezone="UTC"),                    id="todays_drop_all_users",  replace_existing=True)
+    scheduler.add_job(job_cleanup_old_articles,           CronTrigger(hour=1,  minute=30, timezone="UTC"),                    id="cleanup_old_articles",   replace_existing=True)
+    scheduler.add_job(job_health_ping,                    IntervalTrigger(minutes=5),                                         id="health_ping",            replace_existing=True)
     scheduler.start()
 
     jobs = scheduler.get_jobs()
@@ -2449,6 +2548,7 @@ async def _initial_crawl():
     try:
         for cc in ["US", "GB", "IN", "AU", "AE"]:
             await crawl_rss_feeds(country_code=cc)
+        await select_articles_for_display()
         for ag in ["8-10", "11-13", "14-16", "17-20"]:
             await rewrite_pending_articles(ag)
         await generate_micro_facts("8-10")
