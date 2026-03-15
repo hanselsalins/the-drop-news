@@ -837,6 +837,18 @@ def generate_why_reason(article: dict, user: dict = None) -> str:
 
 
 # ===== RSS CRAWLING =====
+def _entry_published_iso(entry) -> str:
+    """Return the entry's publish date as an ISO 8601 UTC string, falling back to now."""
+    import time as _time
+    parsed = entry.get("published_parsed") or entry.get("updated_parsed")
+    if parsed:
+        try:
+            return datetime.fromtimestamp(_time.mktime(parsed), tz=timezone.utc).isoformat()
+        except Exception:
+            pass
+    return datetime.now(timezone.utc).isoformat()
+
+
 def _entry_is_recent(entry, max_age_days: int = 7) -> bool:
     """Return True if the entry's publish date is within max_age_days. Skip if unparseable."""
     import time as _time
@@ -852,8 +864,8 @@ def _entry_is_recent(entry, max_age_days: int = 7) -> bool:
 
 async def cleanup_old_articles(max_age_days: int = 7) -> int:
     """Delete articles with published_at older than max_age_days. Returns deleted count."""
-    cutoff = datetime.now(timezone.utc) - timedelta(days=max_age_days)
-    result = await db.articles.delete_many({"published_at": {"$lt": cutoff.isoformat()}})
+    cutoff = (datetime.now(timezone.utc) - timedelta(days=max_age_days)).isoformat()
+    result = await db.articles.delete_many({"published_at": {"$lt": cutoff}})
     logger.info(f"cleanup_old_articles: deleted {result.deleted_count} articles older than {max_age_days} days")
     return result.deleted_count
 
@@ -909,7 +921,7 @@ async def crawl_rss_feeds(country_code: str = None):
                             src.get("category_tags", ["world"])[0], CATEGORY_IMAGES.get("world", ""))
 
                     content = entry.get('summary', entry.get('description', entry.get('title', '')))
-                    published = entry.get('published', '') or datetime.now(timezone.utc).isoformat()
+                    published = _entry_published_iso(entry)
                     article_id = str(uuid.uuid4())
                     logo_url = src.get("logo_url", "") or await get_source_logo(src["name"])
 
@@ -1010,7 +1022,7 @@ async def _crawl_legacy_feeds():
                         image_url = CATEGORY_IMAGES.get(category, "")
 
                     content = entry.get('summary', entry.get('description', entry.get('title', '')))
-                    published = entry.get('published', '') or datetime.now(timezone.utc).isoformat()
+                    published = _entry_published_iso(entry)
                     article_id = str(uuid.uuid4())
                     logo_url = await get_source_logo(feed_info["source"])
 
