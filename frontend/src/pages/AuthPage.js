@@ -639,6 +639,7 @@ function FlowB({ setPhase, setToken, setUserData, navigate, error, setError, con
 
 // ━━━━━━━━━━━━━━━━━━━ LOGIN FORM ━━━━━━━━━━━━━━━━━━━
 function LoginForm({ setPhase, setToken, setUserData, navigate, error, setError }) {
+  const { setLinkedProfiles } = useTheme();
   const [loading, setLoading] = useState(false);
   const [showPass, setShowPass] = useState(false);
   const [email, setEmail] = useState('');
@@ -652,6 +653,7 @@ function LoginForm({ setPhase, setToken, setUserData, navigate, error, setError 
       const res = await axios.post(`${BACKEND_URL}/api/auth/login`, { email, password });
       setToken(res.data.token);
       setUserData(res.data.user);
+      setLinkedProfiles(res.data.linked_profiles || []);
       navigate('/feed');
     } catch (e) {
       setError(e.response?.data?.detail || 'Login failed');

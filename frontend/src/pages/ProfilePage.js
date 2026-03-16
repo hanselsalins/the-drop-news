@@ -5,7 +5,7 @@ import { useNotifications } from '../hooks/useNotifications';
 import { BottomNav } from '../components/BottomNav';
 import { NotificationSettings } from '../components/NotificationSettings';
 import { motion, AnimatePresence } from 'framer-motion';
-import { LogOut, MapPin, Calendar, Globe, Flame, BookOpen, Trophy, Zap, Heart, Users, ChevronDown, Edit3, Check, Search, UserPlus, Crown, Link, Copy, X } from 'lucide-react';
+import { LogOut, MapPin, Calendar, Globe, Flame, BookOpen, Trophy, Zap, Heart, Users, ChevronDown, Edit3, Check, Search, UserPlus, Crown, Link, Copy, X, CheckCircle2, RefreshCw } from 'lucide-react';
 import axios from 'axios';
 
 const BACKEND_URL = import.meta.env.VITE_BACKEND_URL;
@@ -30,10 +30,19 @@ const CATEGORY_ICONS = {
   history: BookOpen, local: MapPin,
 };
 
+const AGE_GROUP_COLORS = {
+  '8-10': '#FFD60A',
+  '11-13': '#3A86FF',
+  '14-16': '#CCFF00',
+  '17-20': '#FF006E',
+  adult: '#888',
+};
+
 export default function ProfilePage() {
   const navigate = useNavigate();
-  const { user, setUserData, token, ageGroup, themeMode, logout } = useTheme();
+  const { user, setUserData, token, setToken, ageGroup, themeMode, logout, linkedProfiles, setLinkedProfiles } = useTheme();
   const [stats, setStats] = useState(null);
+  const [switchingTo, setSwitchingTo] = useState(null);
   const [countries, setCountries] = useState([]);
   const [showCountryPicker, setShowCountryPicker] = useState(false);
   const [editingCity, setEditingCity] = useState(false);
@@ -74,6 +83,10 @@ export default function ProfilePage() {
     axios.get(`${BACKEND_URL}/api/invite/my-link`, { headers }).then(r => {
       setInviteLink(`${window.location.origin}${r.data.invite_url}`);
     }).catch(() => {});
+    // Always refresh linked profiles when page opens
+    axios.get(`${BACKEND_URL}/api/auth/linked-profiles`, { headers })
+      .then(r => setLinkedProfiles(r.data.profiles || []))
+      .catch(() => {});
   }, [token]);
 
   const badge = AGE_BADGES[ageGroup] || AGE_BADGES['14-16'];
@@ -100,6 +113,29 @@ export default function ProfilePage() {
   };
 
   const handleLogout = () => { logout(); navigate('/auth'); };
+
+  const handleSwitchProfile = async (targetUserId) => {
+    if (targetUserId === user?.id || switchingTo) return;
+    setSwitchingTo(targetUserId);
+    try {
+      const res = await axios.post(
+        `${BACKEND_URL}/api/auth/switch-profile`,
+        { target_user_id: targetUserId },
+        { headers }
+      );
+      setToken(res.data.token);
+      setUserData(res.data.user);
+      // Fetch linked profiles for the switched account
+      try {
+        const lpRes = await axios.get(`${BACKEND_URL}/api/auth/linked-profiles`, {
+          headers: { Authorization: `Bearer ${res.data.token}` },
+        });
+        setLinkedProfiles(lpRes.data.profiles || []);
+      } catch {}
+      navigate('/feed');
+    } catch {}
+    setSwitchingTo(null);
+  };
 
   const handleSearchFriends = async (q) => {
     setSearchQuery(q);
@@ -233,6 +269,89 @@ export default function ProfilePage() {
             </div>
           </div>
         </motion.div>
+
+        {/* ━━━━━ SECTION 1.5: LINKED PROFILES ━━━━━ */}
+        {linkedProfiles.length > 0 && (
+          <motion.div initial={{ y: 15, opacity: 0 }} animate={{ y: 0, opacity: 1 }} transition={{ delay: 0.04 }}
+            className="p-4 rounded-2xl mb-4"
+            style={{ background: card, border: `1px solid ${border}` }}>
+            <p className="text-[10px] font-bold tracking-[0.18em] uppercase mb-3 opacity-40"
+              style={{ fontFamily: 'JetBrains Mono, monospace', color: text }}>
+              PROFILES
+            </p>
+            <div className="space-y-1">
+              {/* Active profile (current user) */}
+              {(() => {
+                const initials = (user?.full_name || 'U').split(' ').map(w => w[0]).join('').slice(0, 2).toUpperCase();
+                const agColor = AGE_GROUP_COLORS[user?.age_group] || '#888';
+                const agBadge = AGE_BADGES[user?.age_group];
+                return (
+                  <div className="flex items-center gap-3 px-3 py-2.5 rounded-xl"
+                    style={{ background: `${accent}10`, border: `1px solid ${accent}30` }}>
+                    <div className="w-9 h-9 rounded-full flex-shrink-0 flex items-center justify-center text-sm font-bold"
+                      style={{ background: `linear-gradient(135deg, ${agColor}, ${agColor}88)`, color: '#050505' }}>
+                      {initials}
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <p className="text-sm font-semibold truncate" style={{ fontFamily: 'Outfit, sans-serif', color: text }}>
+                        {user?.full_name}
+                      </p>
+                      {agBadge && (
+                        <span className="text-[9px] font-bold uppercase tracking-wider px-1.5 py-0.5 rounded-full"
+                          style={{ background: `${agBadge.color}20`, color: agBadge.color, fontFamily: 'JetBrains Mono, monospace' }}>
+                          {agBadge.label}
+                        </span>
+                      )}
+                    </div>
+                    <CheckCircle2 size={16} color={accent} />
+                  </div>
+                );
+              })()}
+
+              {/* Linked profiles */}
+              {linkedProfiles.map(profile => {
+                const initials = (profile.full_name || 'U').split(' ').map(w => w[0]).join('').slice(0, 2).toUpperCase();
+                const agColor = AGE_GROUP_COLORS[profile.age_group] || '#888';
+                const agBadge = AGE_BADGES[profile.age_group];
+                const isSwitching = switchingTo === profile.id;
+                return (
+                  <button key={profile.id}
+                    onClick={() => handleSwitchProfile(profile.id)}
+                    disabled={!!switchingTo}
+                    className="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl transition-all text-left"
+                    style={{
+                      background: 'transparent',
+                      border: `1px solid ${border}`,
+                      opacity: switchingTo && !isSwitching ? 0.4 : 1,
+                    }}>
+                    <div className="w-9 h-9 rounded-full flex-shrink-0 flex items-center justify-center text-sm font-bold"
+                      style={{ background: `linear-gradient(135deg, ${agColor}, ${agColor}88)`, color: '#050505' }}>
+                      {initials}
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <p className="text-sm font-medium truncate" style={{ fontFamily: 'Outfit, sans-serif', color: text }}>
+                        {profile.full_name}
+                      </p>
+                      {agBadge && (
+                        <span className="text-[9px] font-bold uppercase tracking-wider px-1.5 py-0.5 rounded-full"
+                          style={{ background: `${agBadge.color}15`, color: agBadge.color, fontFamily: 'JetBrains Mono, monospace' }}>
+                          {agBadge.label}
+                        </span>
+                      )}
+                    </div>
+                    {isSwitching
+                      ? <RefreshCw size={14} color={sub} className="animate-spin" />
+                      : <span className="text-[10px] font-bold uppercase px-2.5 py-1 rounded-lg flex-shrink-0"
+                          style={{ fontFamily: 'JetBrains Mono, monospace', background: `${accent}15`, color: accent }}>
+                          Switch
+                        </span>
+                    }
+                  </button>
+                );
+              })}
+            </div>
+          </motion.div>
+        )}
 
         {/* ━━━━━ SECTION 2: STATS DASHBOARD ━━━━━ */}
         {stats && (

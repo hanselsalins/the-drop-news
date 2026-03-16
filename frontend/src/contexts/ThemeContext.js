@@ -17,6 +17,10 @@ export function ThemeProvider({ children }) {
     const saved = localStorage.getItem('user');
     return saved ? JSON.parse(saved) : null;
   });
+  const [linkedProfiles, setLinkedProfilesState] = useState(() => {
+    const saved = localStorage.getItem('linkedProfiles');
+    return saved ? JSON.parse(saved) : [];
+  });
   const [loading, setLoading] = useState(true);
 
   const ageGroup = user?.age_group || null;
@@ -41,11 +45,19 @@ export function ThemeProvider({ children }) {
     }
   }, []);
 
+  const setLinkedProfiles = useCallback((profiles) => {
+    const arr = Array.isArray(profiles) ? profiles : [];
+    setLinkedProfilesState(arr);
+    localStorage.setItem('linkedProfiles', JSON.stringify(arr));
+  }, []);
+
   const logout = useCallback(() => {
     setToken(null);
     setUserData(null);
+    setLinkedProfilesState([]);
     localStorage.removeItem('token');
     localStorage.removeItem('user');
+    localStorage.removeItem('linkedProfiles');
     localStorage.removeItem('ageGroup');
     localStorage.removeItem('userId');
     localStorage.removeItem('hasOnboarded');
@@ -81,6 +93,7 @@ export function ThemeProvider({ children }) {
     <ThemeContext.Provider value={{
       token, setToken,
       user, setUserData,
+      linkedProfiles, setLinkedProfiles,
       ageGroup,
       themeMode,
       isAuthenticated,
