@@ -1,4 +1,6 @@
-from fastapi import FastAPI, APIRouter, HTTPException, BackgroundTasks, Depends
+from fastapi import FastAPI, APIRouter, HTTPException, BackgroundTasks, Depends, Request
+from fastapi.exceptions import RequestValidationError
+from fastapi.responses import JSONResponse
 from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
 from dotenv import load_dotenv
 from starlette.middleware.cors import CORSMiddleware
@@ -45,6 +47,44 @@ security = HTTPBearer(auto_error=False)
 
 app = FastAPI()
 api_router = APIRouter(prefix="/api")
+
+# Human-readable labels for validation error messages
+_FIELD_LABELS: dict[str, str] = {
+    # register-self
+    "name": "Name",
+    "email": "Email",
+    "password": "Password",
+    "age": "Age",
+    "gender": "Gender",
+    "country_code": "Country",
+    "city": "City",
+    "username": "Username",
+    # register-child
+    "parent_name": "Parent's name",
+    "parent_email": "Parent email",
+    "parent_password": "Parent password",
+    "parent_relation": "Parent relation",
+    "child_name": "Child's name",
+    "child_age": "Child's age",
+    "child_gender": "Child's gender",
+    "child_country_code": "Child's country",
+    "child_city": "Child's city",
+}
+
+@app.exception_handler(RequestValidationError)
+async def validation_exception_handler(request: Request, exc: RequestValidationError):
+    errors: dict[str, str] = {}
+    for error in exc.errors():
+        field = error["loc"][-1] if error["loc"] else "body"
+        label = _FIELD_LABELS.get(str(field), str(field).replace("_", " ").capitalize())
+        msg_type = error.get("type", "")
+        if msg_type in ("missing", "value_error.missing"):
+            errors[str(field)] = f"{label} is required"
+        elif msg_type in ("int_parsing", "int_type"):
+            errors[str(field)] = f"{label} must be a number"
+        else:
+            errors[str(field)] = f"{label}: {error['msg']}"
+    return JSONResponse(status_code=422, content={"errors": errors})
 
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(name)s - %(levelname)s - %(message)s')
 logger = logging.getLogger(__name__)
@@ -182,26 +222,39 @@ class RegisterChildRequest(BaseModel):
     parent_name: str
     parent_email: str
     parent_password: str
+    parent_relation: str = "guardian"  # mother / father / guardian
     child_name: str
     child_age: int
-    child_country: str
+    child_gender: str = ""
+    child_country_code: str
     child_city: str = ""
     avatar_url: str = ""
 
 
 class RegisterSelfRequest(BaseModel):
-    full_name: str
+    name: str
     email: str
     password: str
     age: int
-    country: str
+    gender: str = ""
+    country_code: str
     city: str = ""
-    username: str
+    username: str = ""   # auto-generated if omitted
     avatar_url: str = ""
     # Optional parent account creation
     parent_name: Optional[str] = None
     parent_email: Optional[str] = None
     parent_password: Optional[str] = None
+
+
+class AddProfileRequest(BaseModel):
+    """Add a child profile to an existing parent account."""
+    child_name: str
+    child_age: int
+    child_gender: str = ""
+    child_country_code: str
+    child_city: str = ""
+    avatar_url: str = ""
 
 
 class SwitchProfileRequest(BaseModel):
@@ -1202,72 +1255,25 @@ async def register(req: RegisterRequest):
     return {"token": token, "user": user_resp}
 
 
-@api_router.post("/auth/register-child")
-async def register_child(req: RegisterChildRequest, calling_user=Depends(get_optional_user)):
-    """Parent-led signup for under-14 users. Creates linked parent + child accounts."""
-    if req.child_age >= 14:
-        raise HTTPException(status_code=400, detail="Use self-signup for age 14+")
-    if len(req.parent_password) < 8:
-        raise HTTPException(status_code=400, detail="Password must be at least 8 characters")
-
-    now = datetime.now(timezone.utc).isoformat()
-    child_id = str(uuid.uuid4())
-    approx_dob = f"{date.today().year - req.child_age}-06-15"
-    age_group = age_group_from_age(req.child_age)
-    child_username = await ensure_unique_username(
-        re.sub(r'[^a-z0-9_]', '', req.child_name.lower().replace(" ", "")))
-    # Children under 14 have no personal email — use a synthetic internal address
-    child_email = f"child_{child_id[:8]}@family.thedrop.internal"
-
-    # If an authenticated parent is calling, link to their existing account
-    if calling_user and calling_user.get("account_type") == "parent":
-        parent_id = calling_user["id"]
-        parent_doc = None  # Already exists
-        # Link child to existing parent
-        await db.users.update_one(
-            {"id": parent_id},
-            {"$addToSet": {"child_ids": child_id, "linked_profiles": child_id}},
-        )
-    else:
-        # Create a new parent account
-        existing = await db.users.find_one({"email": req.parent_email.lower().strip()})
-        if existing:
-            raise HTTPException(status_code=400, detail="Parent email already registered")
-        parent_id = str(uuid.uuid4())
-        parent_username = await ensure_unique_username(
-            re.sub(r'[^a-z0-9_]', '', req.parent_name.lower().replace(" ", "")))
-        parent_doc = {
-            "id": parent_id,
-            "full_name": req.parent_name.strip(),
-            "email": req.parent_email.lower().strip(),
-            "password_hash": bcrypt.hashpw(req.parent_password.encode(), bcrypt.gensalt()).decode(),
-            "dob": "", "age": None, "gender": "",
-            "city": req.child_city.strip(), "country": req.child_country.strip(),
-            "age_group": "adult", "account_type": "parent",
-            "child_ids": [child_id], "linked_profiles": [child_id],
-            "username": parent_username,
-            "avatar_url": f"https://api.dicebear.com/9.x/adventurer/svg?seed={parent_username}",
-            "invite_code": generate_invite_code(), "knowledge_score": 0,
-            "member_since": now, "created_at": now,
-            "current_streak": 0, "longest_streak": 0, "last_read_date": "",
-            "notification_prefs": DEFAULT_NOTIFICATION_PREFS.copy(),
-            "device_tokens": [], "timezone": "UTC",
-            "stories_read_count": 0, "reactions_given_count": 0, "days_active": [],
-        }
-        await db.users.insert_one(parent_doc)
-
-    child_doc = {
-        "id": child_id, "full_name": req.child_name.strip(),
-        "email": child_email,
-        "password_hash": "",  # Children log in via parent account → switch-profile
-        "dob": approx_dob, "age": req.child_age, "gender": "",
-        "city": req.child_city.strip(), "country": req.child_country.strip(),
-        "age_group": age_group, "account_type": "child",
+def _make_child_doc(child_id: str, child_name: str, child_age: int, child_gender: str,
+                    child_country_code: str, child_city: str, avatar_url: str,
+                    parent_id: str, parent_name: str, parent_email: str, now: str) -> dict:
+    """Build a child user document."""
+    username = ""  # filled by caller after ensure_unique_username
+    approx_dob = f"{date.today().year - child_age}-06-15"
+    return {
+        "id": child_id, "full_name": child_name.strip(),
+        "email": f"child_{child_id[:8]}@family.thedrop.internal",
+        "password_hash": "",  # children log in via parent → switch-profile
+        "dob": approx_dob, "age": child_age, "gender": child_gender,
+        "city": child_city.strip(), "country": child_country_code.strip(),
+        "age_group": age_group_from_age(child_age),
+        "account_type": "child",
         "parent_id": parent_id, "linked_profiles": [parent_id],
-        "parent_name": req.parent_name.strip(),
-        "parent_email": req.parent_email.lower().strip(),
-        "username": child_username,
-        "avatar_url": req.avatar_url or f"https://api.dicebear.com/9.x/adventurer/svg?seed={child_username}",
+        "parent_name": parent_name.strip(),
+        "parent_email": parent_email.lower().strip(),
+        "username": username,
+        "avatar_url": avatar_url or f"https://api.dicebear.com/9.x/adventurer/svg?seed={child_id[:8]}",
         "invite_code": generate_invite_code(), "knowledge_score": 0,
         "member_since": now, "created_at": now,
         "current_streak": 0, "longest_streak": 0, "last_read_date": "",
@@ -1275,36 +1281,85 @@ async def register_child(req: RegisterChildRequest, calling_user=Depends(get_opt
         "device_tokens": [], "timezone": "UTC",
         "stories_read_count": 0, "reactions_given_count": 0, "days_active": [],
     }
+
+
+@api_router.post("/auth/register-child")
+async def register_child(req: RegisterChildRequest):
+    """Parent-led signup for under-14. Creates linked parent + child accounts."""
+    if req.child_age >= 14:
+        raise HTTPException(status_code=400, detail="Use self-signup for age 14+")
+    if len(req.parent_password) < 8:
+        raise HTTPException(status_code=400, detail="Password must be at least 8 characters")
+    if await db.users.find_one({"email": req.parent_email.lower().strip()}):
+        raise HTTPException(status_code=400, detail="Parent email already registered")
+
+    now = datetime.now(timezone.utc).isoformat()
+    parent_id = str(uuid.uuid4())
+    child_id = str(uuid.uuid4())
+
+    parent_username = await ensure_unique_username(
+        re.sub(r'[^a-z0-9_]', '', req.parent_name.lower().replace(" ", "")))
+    parent_doc = {
+        "id": parent_id,
+        "full_name": req.parent_name.strip(),
+        "email": req.parent_email.lower().strip(),
+        "password_hash": bcrypt.hashpw(req.parent_password.encode(), bcrypt.gensalt()).decode(),
+        "dob": "", "age": None, "gender": "",
+        "city": req.child_city.strip(), "country": req.child_country_code.strip(),
+        "age_group": "adult", "account_type": "parent",
+        "parent_relation": req.parent_relation,
+        "child_ids": [child_id], "linked_profiles": [child_id],
+        "username": parent_username,
+        "avatar_url": f"https://api.dicebear.com/9.x/adventurer/svg?seed={parent_username}",
+        "invite_code": generate_invite_code(), "knowledge_score": 0,
+        "member_since": now, "created_at": now,
+        "current_streak": 0, "longest_streak": 0, "last_read_date": "",
+        "notification_prefs": DEFAULT_NOTIFICATION_PREFS.copy(),
+        "device_tokens": [], "timezone": "UTC",
+        "stories_read_count": 0, "reactions_given_count": 0, "days_active": [],
+    }
+
+    child_doc = _make_child_doc(
+        child_id, req.child_name, req.child_age, req.child_gender,
+        req.child_country_code, req.child_city, req.avatar_url,
+        parent_id, req.parent_name, req.parent_email, now)
+    child_username = await ensure_unique_username(
+        re.sub(r'[^a-z0-9_]', '', req.child_name.lower().replace(" ", "")))
+    child_doc["username"] = child_username
+    child_doc["avatar_url"] = req.avatar_url or f"https://api.dicebear.com/9.x/adventurer/svg?seed={child_username}"
+
+    await db.users.insert_one(parent_doc)
     await db.users.insert_one(child_doc)
     mock_send_parent_email(req.parent_email, req.child_name)
 
-    child_resp = {k: v for k, v in child_doc.items() if k not in ("password_hash", "_id")}
-    result = {
+    return {
         "token": create_token(child_id),
-        "user": child_resp,
+        "user": {k: v for k, v in child_doc.items() if k not in ("password_hash", "_id")},
+        "parent_token": create_token(parent_id),
+        "parent_user": {k: v for k, v in parent_doc.items() if k not in ("password_hash", "_id")},
     }
-    if parent_doc:
-        result["parent_token"] = create_token(parent_id)
-        result["parent_user"] = {k: v for k, v in parent_doc.items() if k not in ("password_hash", "_id")}
-    return result
 
 
 @api_router.post("/auth/register-self")
 async def register_self(req: RegisterSelfRequest):
     """Self signup for age 14+. Optionally creates a linked parent account."""
-    existing = await db.users.find_one({"email": req.email.lower().strip()})
-    if existing:
+    if await db.users.find_one({"email": req.email.lower().strip()}):
         raise HTTPException(status_code=400, detail="Email already registered")
     if req.age < 14:
         raise HTTPException(status_code=400, detail="Under-14 users must use parent signup")
     if len(req.password) < 8:
         raise HTTPException(status_code=400, detail="Password must be at least 8 characters")
 
-    username_clean = req.username.lower().strip().lstrip("@")
-    if not re.match(r'^[a-z0-9_]{3,20}$', username_clean):
-        raise HTTPException(status_code=400, detail="Username must be 3-20 characters, letters, numbers, underscores only")
-    if await db.users.find_one({"username": username_clean}):
-        raise HTTPException(status_code=400, detail="Username already taken")
+    # Username: validate if provided, auto-generate if omitted
+    if req.username:
+        username_clean = req.username.lower().strip().lstrip("@")
+        if not re.match(r'^[a-z0-9_]{3,20}$', username_clean):
+            raise HTTPException(status_code=400, detail="Username must be 3-20 characters, letters/numbers/underscores only")
+        if await db.users.find_one({"username": username_clean}):
+            raise HTTPException(status_code=400, detail="Username already taken")
+    else:
+        username_clean = await ensure_unique_username(
+            re.sub(r'[^a-z0-9_]', '', req.name.lower().replace(" ", "")))
 
     has_parent = bool(req.parent_name and req.parent_email and req.parent_password)
     if has_parent:
@@ -1313,27 +1368,24 @@ async def register_self(req: RegisterSelfRequest):
         if len(req.parent_password) < 8:
             raise HTTPException(status_code=400, detail="Parent password must be at least 8 characters")
 
-    age_group = age_group_from_age(req.age)
-    password_hash = bcrypt.hashpw(req.password.encode(), bcrypt.gensalt()).decode()
+    now = datetime.now(timezone.utc).isoformat()
     user_id = str(uuid.uuid4())
     parent_id = str(uuid.uuid4()) if has_parent else None
-    invite_code = generate_invite_code()
-    now = datetime.now(timezone.utc).isoformat()
     approx_dob = f"{date.today().year - req.age}-06-15"
 
     doc = {
-        "id": user_id, "full_name": req.full_name.strip(),
+        "id": user_id, "full_name": req.name.strip(),
         "email": req.email.lower().strip(),
-        "password_hash": password_hash,
-        "dob": approx_dob, "age": req.age, "gender": "",
-        "city": req.city.strip(), "country": req.country.strip(),
-        "age_group": age_group,
+        "password_hash": bcrypt.hashpw(req.password.encode(), bcrypt.gensalt()).decode(),
+        "dob": approx_dob, "age": req.age, "gender": req.gender,
+        "city": req.city.strip(), "country": req.country_code.strip(),
+        "age_group": age_group_from_age(req.age),
         "account_type": "child" if has_parent else "independent",
         "parent_id": parent_id,
         "linked_profiles": [parent_id] if has_parent else [],
         "username": username_clean,
         "avatar_url": req.avatar_url or f"https://api.dicebear.com/9.x/adventurer/svg?seed={username_clean}",
-        "invite_code": invite_code, "knowledge_score": 0,
+        "invite_code": generate_invite_code(), "knowledge_score": 0,
         "member_since": now, "created_at": now,
         "current_streak": 0, "longest_streak": 0, "last_read_date": "",
         "notification_prefs": DEFAULT_NOTIFICATION_PREFS.copy(),
@@ -1352,7 +1404,7 @@ async def register_self(req: RegisterSelfRequest):
             "email": req.parent_email.lower().strip(),
             "password_hash": bcrypt.hashpw(req.parent_password.encode(), bcrypt.gensalt()).decode(),
             "dob": "", "age": None, "gender": "",
-            "city": req.city.strip(), "country": req.country.strip(),
+            "city": req.city.strip(), "country": req.country_code.strip(),
             "age_group": "adult", "account_type": "parent",
             "child_ids": [user_id], "linked_profiles": [user_id],
             "username": parent_username,
@@ -1366,9 +1418,8 @@ async def register_self(req: RegisterSelfRequest):
         }
         await db.users.insert_one(parent_doc)
 
-    token = create_token(user_id)
     user_resp = {k: v for k, v in doc.items() if k not in ("password_hash", "_id")}
-    result = {"token": token, "user": user_resp}
+    result = {"token": create_token(user_id), "user": user_resp}
     if parent_doc:
         result["parent_token"] = create_token(parent_id)
         result["parent_user"] = {k: v for k, v in parent_doc.items() if k not in ("password_hash", "_id")}
@@ -1400,6 +1451,35 @@ async def get_linked_profiles(user=Depends(get_current_user)):
         {"_id": 0, "password_hash": 0},
     ).to_list(20)
     return {"profiles": profiles}
+
+
+@api_router.post("/auth/add-profile")
+async def add_profile(req: AddProfileRequest, user=Depends(get_current_user)):
+    """Add a child profile linked to the current (parent) user's account."""
+    now = datetime.now(timezone.utc).isoformat()
+    child_id = str(uuid.uuid4())
+    child_doc = _make_child_doc(
+        child_id=child_id,
+        child_name=req.child_name,
+        child_age=req.child_age,
+        child_gender=req.child_gender,
+        child_country_code=req.child_country_code,
+        child_city=req.child_city,
+        avatar_url=req.avatar_url,
+        parent_id=user["id"],
+        parent_name=user.get("full_name", ""),
+        parent_email=user.get("email", ""),
+        now=now,
+    )
+    child_doc["username"] = await ensure_unique_username(child_doc["full_name"])
+    await db.users.insert_one(child_doc)
+    # Link child to parent
+    await db.users.update_one(
+        {"id": user["id"]},
+        {"$addToSet": {"linked_profiles": child_id}},
+    )
+    child_resp = {k: v for k, v in child_doc.items() if k not in ("_id", "password_hash")}
+    return {"user": child_resp}
 
 
 @api_router.get("/auth/check-username/{username}")
@@ -1437,7 +1517,15 @@ async def login(req: LoginRequest):
         raise HTTPException(status_code=401, detail="Invalid email or password")
     token = create_token(user["id"])
     user_resp = {k: v for k, v in user.items() if k != "password_hash" and k != "_id"}
-    return {"token": token, "user": user_resp}
+    linked_ids = user.get("linked_profiles", [])
+    linked_profiles = []
+    if linked_ids:
+        profiles = await db.users.find(
+            {"id": {"$in": linked_ids}},
+            {"_id": 0, "password_hash": 0},
+        ).to_list(20)
+        linked_profiles = profiles
+    return {"token": token, "user": user_resp, "linked_profiles": linked_profiles}
 
 @api_router.get("/auth/me")
 async def get_me(user=Depends(get_current_user)):
