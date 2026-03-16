@@ -6,6 +6,8 @@ import { BottomNav } from '../components/BottomNav';
 import { NotificationSettings } from '../components/NotificationSettings';
 import { motion, AnimatePresence } from 'framer-motion';
 import { LogOut, MapPin, Calendar, Globe, Flame, BookOpen, Trophy, Zap, Heart, Users, ChevronDown, Edit3, Check, Search, UserPlus, Crown, Link, Copy, X } from 'lucide-react';
+import { ProfileButton } from '../components/ProfileButton';
+import { ProfilePanel } from '../components/ProfilePanel';
 import axios from 'axios';
 
 const BACKEND_URL = import.meta.env.VITE_BACKEND_URL;
@@ -51,6 +53,7 @@ export default function ProfilePage() {
   const [inviteLink, setInviteLink] = useState('');
   const [copiedLink, setCopiedLink] = useState(false);
   const { permission, requestPermission } = useNotifications();
+  const [profilePanelOpen, setProfilePanelOpen] = useState(false);
 
   const isKids = themeMode === 'kids';
   const bg = isKids ? '#F0F4F8' : '#050505';
@@ -170,7 +173,10 @@ export default function ProfilePage() {
 
   return (
     <div data-testid="profile-page" className="min-h-screen pb-24" style={{ background: bg }}>
-      <div className="px-5 pt-6 max-w-lg mx-auto">
+      <div className="px-5 pt-6 max-w-lg mx-auto relative">
+        <div className="absolute top-6 right-5 z-10">
+          <ProfileButton onClick={() => setProfilePanelOpen(true)} size={34} />
+        </div>
 
         {/* ━━━━━ SECTION 1: IDENTITY HEADER ━━━━━ */}
         <motion.div initial={{ y: 20, opacity: 0 }} animate={{ y: 0, opacity: 1 }}
@@ -656,6 +662,7 @@ export default function ProfilePage() {
       </div>
 
       <BottomNav isKids={isKids} active="profile" />
+      <ProfilePanel open={profilePanelOpen} onClose={() => setProfilePanelOpen(false)} />
     </div>
   );
 }
