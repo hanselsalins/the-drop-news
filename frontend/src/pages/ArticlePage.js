@@ -3,6 +3,8 @@ import { useParams, useNavigate } from 'react-router-dom';
 import { useTheme } from '../contexts/ThemeContext';
 import { BottomNav } from '../components/BottomNav';
 import { ReactionBar } from '../components/ReactionBar';
+import { ProfileButton } from '../components/ProfileButton';
+import { ProfilePanel } from '../components/ProfilePanel';
 import { motion } from 'framer-motion';
 import { ChevronLeft, ExternalLink, Share2, Clock } from 'lucide-react';
 import axios from 'axios';
@@ -72,6 +74,7 @@ export default function ArticlePage() {
   const { ageGroup, token } = useTheme();
   const [article, setArticle] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [profileOpen, setProfileOpen] = useState(false);
 
   const headers = token ? { Authorization: `Bearer ${token}` } : {};
 
@@ -155,16 +158,9 @@ export default function ArticlePage() {
           }}>
           <ChevronLeft size={22} style={{ color: '#0F172A' }} />
         </button>
-        <button data-testid="share-btn" onClick={handleShare}
-          className="absolute top-4 right-4 p-2.5 z-10"
-          style={{
-            background: '#FFFFFF',
-            borderRadius: 14,
-            border: '1.5px solid #E2E8F0',
-            boxShadow: '0 2px 8px rgba(0,0,0,0.06)',
-          }}>
-          <Share2 size={20} style={{ color: '#0F172A' }} />
-        </button>
+        <div className="absolute top-4 right-4 z-10">
+          <ProfileButton onClick={() => setProfileOpen(true)} size={34} />
+        </div>
       </div>
 
       {/* Content */}
@@ -251,6 +247,22 @@ export default function ArticlePage() {
         {/* Reaction Bar */}
         <ReactionBar articleId={article.id} categoryColor={catColor} />
 
+        {/* Share Button */}
+        <button
+          data-testid="share-btn"
+          onClick={handleShare}
+          className="flex items-center justify-center gap-2 w-full mt-5 py-3 rounded-2xl text-sm font-bold transition-all duration-200"
+          style={{
+            fontFamily: 'Outfit, sans-serif',
+            background: `linear-gradient(135deg, ${catColor}15, ${catColor}25)`,
+            color: catColor,
+            border: `1.5px solid ${catColor}30`,
+          }}
+        >
+          <Share2 size={16} />
+          Share this story
+        </button>
+
         {/* Source Link */}
         <a data-testid="source-link" href={article.original_url} target="_blank" rel="noopener noreferrer"
           className="inline-flex items-center gap-2 mt-6 mb-4 px-5 py-3 text-sm font-medium transition-all duration-200"
@@ -267,6 +279,7 @@ export default function ArticlePage() {
       </motion.div>
 
       <BottomNav active="home" />
+      <ProfilePanel open={profileOpen} onClose={() => setProfileOpen(false)} />
     </div>
   );
 }

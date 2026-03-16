@@ -6,11 +6,13 @@ import { CategoryTabs } from '../components/CategoryTabs';
 import { BottomNav } from '../components/BottomNav';
 import { StreakBadge } from '../components/StreakBadge';
 import { MicroFactCard } from '../components/MicroFactCard';
+import { ProfileButton } from '../components/ProfileButton';
+import { ProfilePanel } from '../components/ProfilePanel';
 import { MilestoneBanner } from '../components/MilestoneBanner';
 import { ProgressDots } from '../components/ProgressDots';
 import { useReadArticles } from '../hooks/useReadArticles';
 import { motion } from 'framer-motion';
-import { Loader2, RefreshCw } from 'lucide-react';
+import { Loader2 } from 'lucide-react';
 import axios from 'axios';
 
 const BACKEND_URL = import.meta.env.VITE_BACKEND_URL;
@@ -23,8 +25,8 @@ export default function FeedPage() {
   const [streak, setStreak] = useState({ current_streak: 0, longest_streak: 0, read_today: false });
   const [activeCategory, setActiveCategory] = useState('today');
   const [loading, setLoading] = useState(true);
-  const [refreshing, setRefreshing] = useState(false);
   const [countries, setCountries] = useState([]);
+  const [profileOpen, setProfileOpen] = useState(false);
 
   const isKids = themeMode === 'kids';
   const headers = token ? { Authorization: `Bearer ${token}` } : {};
@@ -104,16 +106,6 @@ export default function FeedPage() {
     }
   }, [allTodayRead, token]);
 
-  const handleRefresh = async () => {
-    setRefreshing(true);
-    try {
-      await axios.post(`${BACKEND_URL}/api/crawl?age_group=${ageGroup || '14-16'}`);
-      await new Promise(r => setTimeout(r, 3000));
-      await fetchArticles();
-      await fetchMicroFacts();
-    } catch (e) {}
-    setRefreshing(false);
-  };
 
   const buildFeedItems = () => {
     const items = [];
@@ -183,20 +175,7 @@ export default function FeedPage() {
               readToday={streak.read_today}
               variant="compact"
             />
-            <button
-              data-testid="refresh-btn"
-              onClick={handleRefresh}
-              disabled={refreshing}
-              className="p-2 transition-all duration-200"
-              style={{
-                background: 'rgba(255,255,255,0.15)',
-                borderRadius: 12,
-                border: 'none',
-              }}
-            >
-              <RefreshCw size={18} className={refreshing ? 'animate-spin' : ''}
-                style={{ color: '#FFFFFF' }} />
-            </button>
+            <ProfileButton onClick={() => setProfileOpen(true)} size={34} />
           </div>
         </div>
       </div>
@@ -245,6 +224,7 @@ export default function FeedPage() {
       </div>
 
       <BottomNav active="home" />
+      <ProfilePanel open={profileOpen} onClose={() => setProfileOpen(false)} />
     </div>
   );
 }
