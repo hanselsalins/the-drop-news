@@ -41,14 +41,15 @@ export const ProfilePanel = ({ open, onClose }) => {
     if (!token) return;
     try {
       const [streakRes, profilesRes] = await Promise.all([
-        axios.get(`${BACKEND_URL}/api/streak`, { headers }),
+        axios.get(`${BACKEND_URL}/api/streak`, { headers }).catch(() => ({ data: { current_streak: 0 } })),
         axios.get(`${BACKEND_URL}/api/auth/linked-profiles`, { headers }).catch(() => ({ data: [] })),
       ]);
       setStreak(streakRes.data);
-      const profiles = profilesRes.data?.profiles || profilesRes.data;
-      setLinkedProfiles(Array.isArray(profiles) ? profiles : []);
+      const linked = Array.isArray(profilesRes.data) ? profilesRes.data : [];
+      // Filter out current user from linked list, we'll show them separately as active
+      setLinkedProfiles(linked.filter(p => p.id !== user?.id));
     } catch {}
-  }, [token]);
+  }, [token, user?.id]);
 
   useEffect(() => {
     if (open) {
@@ -61,14 +62,14 @@ export const ProfilePanel = ({ open, onClose }) => {
     }
   }, [open, fetchData]);
 
-  const handleSwitchProfile = async (profileId) => {
-    if (profileId === user?.id) return;
+  const handleSwitchProfile = async (profile) => {
+    if (profile.id === user?.id) return; // Already active
     try {
-      const res = await axios.post(`${BACKEND_URL}/api/auth/switch-profile`, { target_user_id: profileId }, { headers });
+      const res = await axios.post(`${BACKEND_URL}/api/auth/switch-profile`, { target_user_id: profile.id }, { headers });
       if (res.data.token) setToken(res.data.token);
       if (res.data.user) setUserData(res.data.user);
       onClose();
-      navigate('/feed');
+      window.location.reload();
     } catch {}
   };
 
@@ -228,7 +229,7 @@ export const ProfilePanel = ({ open, onClose }) => {
             {/* Profile Switching */}
             {/* Profile Switching */}
             <div className="px-6 py-4">
-              {linkedProfiles.length > 0 && (
+              {(linkedProfiles.length > 0) && (
                 <>
                   <p
                     className="text-[10px] font-bold tracking-wider uppercase mb-3"
@@ -237,10 +238,10 @@ export const ProfilePanel = ({ open, onClose }) => {
                     Profiles
                   </p>
                   <div className="space-y-2">
-                    {/* Active profile (current user) */}
+                    {/* Current active profile */}
                     <div
                       className="w-full flex items-center gap-3 p-3 rounded-xl"
-                      style={{ background: '#EFF6FF', border: '1.5px solid #BFDBFE' }}
+                      style={{ background: '#EFF6FF', border: '1.5px solid #93C5FD' }}
                     >
                       <div
                         className="w-9 h-9 rounded-full overflow-hidden flex-shrink-0"
@@ -261,22 +262,19 @@ export const ProfilePanel = ({ open, onClose }) => {
                         <p className="text-sm font-medium" style={{ fontFamily: 'Outfit, sans-serif', color: '#0F172A' }}>
                           {user?.full_name}
                         </p>
-                        <p className="text-[10px]" style={{ fontFamily: 'Outfit, sans-serif', color: '#94A3B8' }}>
-                          {AGE_BADGES[ageGroup]?.label || ageGroup}
+                        <p className="text-[10px]" style={{ fontFamily: 'Outfit, sans-serif', color: '#3B82F6' }}>
+                          {AGE_BADGES[user?.age_group]?.label || user?.age_group || 'Active'}
                         </p>
                       </div>
-                      <div className="w-5 h-5 rounded-full flex items-center justify-center flex-shrink-0"
-                        style={{ background: '#3B82F6' }}>
-                        <Check size={12} color="#FFFFFF" strokeWidth={3} />
-                      </div>
+                      <Check size={16} style={{ color: '#3B82F6' }} strokeWidth={3} />
                     </div>
 
                     {/* Linked profiles */}
                     {linkedProfiles.map((profile) => (
                       <button
                         key={profile.id}
-                        onClick={() => handleSwitchProfile(profile.id)}
-                        className="w-full flex items-center gap-3 p-3 rounded-xl transition-colors"
+                        onClick={() => handleSwitchProfile(profile)}
+                        className="w-full flex items-center gap-3 p-3 rounded-xl transition-colors hover:bg-slate-50"
                         style={{ background: '#F8FAFC', border: '1.5px solid #F1F5F9' }}
                       >
                         <div
@@ -302,7 +300,9 @@ export const ProfilePanel = ({ open, onClose }) => {
                             {AGE_BADGES[profile.age_group]?.label || profile.age_group}
                           </p>
                         </div>
-                        <ChevronRight size={16} style={{ color: '#CBD5E1' }} />
+                        <span className="text-xs font-medium px-2.5 py-1 rounded-full" style={{ background: '#F1F5F9', color: '#64748B', fontFamily: 'Outfit, sans-serif' }}>
+                          Switch
+                        </span>
                       </button>
                     ))}
                   </div>
