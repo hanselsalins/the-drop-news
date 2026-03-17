@@ -1220,10 +1220,27 @@ async def rewrite_pending_articles(age_group: str):
         update_fields["impact_flags"] = rewrite.get("impact_flags", [])
         await db.articles.update_one({"id": article["id"]}, {"$set": update_fields})
 
-        # If all 4 age groups are now written, promote to "rewritten"
+        # Promote to "rewritten" only when all 4 bands have valid Claude-generated content:
+        # key must exist, rewrite_status must be "complete", and body must have ≥100 chars.
         updated = await db.articles.find_one({"id": article["id"]}, {"_id": 0, "rewrites": 1})
-        if updated and {"8-10", "11-13", "14-16", "17-20"}.issubset(set(updated.get("rewrites", {}).keys())):
-            await db.articles.update_one({"id": article["id"]}, {"$set": {"rewrite_status": "rewritten"}})
+        if updated:
+            rewrites = updated.get("rewrites", {})
+            all_valid = all(
+                isinstance(rewrites.get(ag), dict)
+                and rewrites[ag].get("rewrite_status") == "complete"
+                and len(rewrites[ag].get("body", "")) >= 100
+                for ag in ("8-10", "11-13", "14-16", "17-20")
+            )
+            if all_valid:
+                await db.articles.update_one({"id": article["id"]}, {"$set": {"rewrite_status": "rewritten"}})
+            else:
+                missing = [
+                    ag for ag in ("8-10", "11-13", "14-16", "17-20")
+                    if not (isinstance(rewrites.get(ag), dict)
+                            and rewrites[ag].get("rewrite_status") == "complete"
+                            and len(rewrites[ag].get("body", "")) >= 100)
+                ]
+                logger.debug(f"[rewrite] article {article['id']} not promoted — invalid/missing bands: {missing}")
 
     logger.info(f"Rewrites complete for {len(articles)} articles, age_group={age_group}")
 
