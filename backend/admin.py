@@ -314,6 +314,10 @@ _DASHBOARD_HTML = r"""<!DOCTYPE html>
     <button class="btn btn-secondary" onclick="triggerResetRewriteCC('AU')">🔄 Reset AU</button>
     <button class="btn btn-secondary" onclick="triggerResetRewriteCC('AE')">🔄 Reset AE</button>
   </div>
+  <div class="section-title" style="margin-top:20px">Setup</div>
+  <div class="btn-grid">
+    <button class="btn btn-secondary" onclick="createTestProfiles()">👤 Create Test Profiles</button>
+  </div>
   <div class="response-box" id="pipelineResponse"></div>
 </div>
 
@@ -539,6 +543,19 @@ async function triggerCrawl() {
     const r = await fetch('/admin/api/crawl', {method:'POST'});
     const d = await r.json();
     showResponse(JSON.stringify(d, null, 2), r.ok);
+  } catch(e) { showResponse('Error: '+e.message, false); }
+}
+
+async function createTestProfiles() {
+  showResponse('Creating test profiles…');
+  try {
+    const r = await fetch('/api/admin/api/create-test-profiles', {method:'POST'});
+    const d = await r.json();
+    if (d.skipped) {
+      showResponse('Already exists — hansel_admin is set up.', true);
+    } else {
+      showResponse(`✓ ${d.message}\nAdmin: ${d.admin_username}\nChildren: ${d.child_usernames.join(', ')}`, true);
+    }
   } catch(e) { showResponse('Error: '+e.message, false); }
 }
 
