@@ -33,6 +33,7 @@ load_dotenv(ROOT_DIR / '.env')
 
 from global_sources import GLOBAL_SOURCES, get_country_by_code, get_active_sources, get_countries_list
 from admin import admin_router, init_admin
+from agents import init_agents, get_all_agents, get_agent
 
 mongo_url = os.environ['MONGO_URL']
 client = AsyncIOMotorClient(mongo_url)
@@ -2619,6 +2620,90 @@ async def update_system_prompt(prompt_id: str, body: PromptUpdate):
     return await db.system_prompts.find_one({"id": prompt_id}, {"_id": 0})
 
 
+# ========== AGENT ROUTES ==========
+@api_router.get("/agents")
+async def list_agents():
+    """List all registered agents and their config."""
+    agents_out = []
+    for name, agent in get_all_agents().items():
+        config = await db.agent_config.find_one({"agent_name": name}, {"_id": 0})
+        last_run = await db.agent_runs.find_one(
+            {"agent_name": name}, {"_id": 0},
+            sort=[("started_at", -1)],
+        )
+        agents_out.append({
+            "name": name,
+            "description": agent.description,
+            "enabled": config.get("enabled", True) if config else True,
+            "last_run": {
+                "id": last_run["id"],
+                "status": last_run["status"],
+                "started_at": last_run["started_at"],
+                "duration_ms": last_run.get("duration_ms"),
+            } if last_run else None,
+        })
+    return {"agents": agents_out}
+
+@api_router.post("/agents/{agent_name}/run")
+async def trigger_agent(agent_name: str, background_tasks: BackgroundTasks):
+    """Manually trigger an agent run."""
+    agent = get_agent(agent_name)
+    if not agent:
+        raise HTTPException(status_code=404, detail=f"Agent '{agent_name}' not found")
+    clients = {"anthropic": anthropic_client, "openai": openai_client}
+    background_tasks.add_task(agent.run, db, clients)
+    return {"status": "triggered", "agent": agent_name}
+
+@api_router.get("/agents/{agent_name}/runs")
+async def get_agent_runs(agent_name: str, limit: int = 20):
+    """Get recent runs for a specific agent."""
+    runs = await db.agent_runs.find(
+        {"agent_name": agent_name}, {"_id": 0}
+    ).sort("started_at", -1).to_list(limit)
+    return {"agent": agent_name, "runs": runs}
+
+@api_router.put("/agents/{agent_name}/config")
+async def update_agent_config(agent_name: str, request: Request):
+    """Enable/disable an agent."""
+    body = await request.json()
+    enabled = body.get("enabled")
+    if enabled is None:
+        raise HTTPException(status_code=400, detail="'enabled' field required")
+    await db.agent_config.update_one(
+        {"agent_name": agent_name},
+        {"$set": {"enabled": enabled}},
+        upsert=True,
+    )
+    return {"agent": agent_name, "enabled": enabled}
+
+@api_router.get("/agents/dashboard")
+async def agent_dashboard():
+    """Comprehensive agent dashboard data for admin UI."""
+    agents_out = []
+    for name, agent in get_all_agents().items():
+        config = await db.agent_config.find_one({"agent_name": name}, {"_id": 0})
+        last_5_runs = await db.agent_runs.find(
+            {"agent_name": name}, {"_id": 0}
+        ).sort("started_at", -1).to_list(5)
+        agents_out.append({
+            "name": name,
+            "description": agent.description,
+            "enabled": config.get("enabled", True) if config else True,
+            "runs": last_5_runs,
+        })
+    alerts = await db.anomaly_alerts.find(
+        {"acknowledged": False}, {"_id": 0}
+    ).sort("created_at", -1).to_list(10)
+    latest_report = await db.daily_reports.find_one(
+        {}, {"_id": 0}, sort=[("date", -1)]
+    )
+    return {
+        "agents": agents_out,
+        "unacknowledged_alerts": alerts,
+        "latest_report": latest_report,
+    }
+
+
 # ========== HEALTH CHECK ==========
 @app.get("/health")
 async def health_check():
@@ -2711,6 +2796,15 @@ async def startup_event():
     await db.articles.create_index("category")
     await db.reactions.create_index("user_id")
     await db.reactions.create_index([("article_id", 1), ("user_id", 1)], unique=True)
+    await db.agent_runs.create_index("agent_name")
+    await db.agent_runs.create_index("started_at")
+    await db.agent_runs.create_index([("agent_name", 1), ("status", 1)])
+    await db.agent_config.create_index("agent_name", unique=True)
+    await db.anomaly_alerts.create_index("created_at")
+    await db.anomaly_alerts.create_index("acknowledged")
+    await db.daily_reports.create_index("date", unique=True)
+    await db.reading_journeys.create_index("user_id", unique=True)
+    await db.notification_log.create_index([("user_id", 1), ("type", 1), ("created_at", -1)])
     logger.info("MongoDB indexes ensured.")
 
     await seed_system_prompts()
@@ -2747,6 +2841,10 @@ async def startup_event():
     admin_pwd = os.environ.get("ADMIN_PASSWORD", "admin")
     init_admin(db, admin_pwd, crawl=crawl_rss_feeds, select=select_articles_for_display, rewrite=rewrite_pending_articles)
     logger.info("Admin dashboard ready at /admin")
+
+    agent_clients = {"anthropic": anthropic_client, "openai": openai_client}
+    await init_agents(db, scheduler, agent_clients)
+    logger.info("Agent system initialized and scheduled.")
 
 
 async def _initial_crawl():
