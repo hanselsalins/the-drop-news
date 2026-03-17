@@ -78,8 +78,8 @@ export function getCardStyle(band, catColor) {
       return {
         borderRadius: 28,
         background: 'var(--drop-surface)',
-        border: `3px solid ${catColor || 'var(--drop-border)'}`,
-        borderTopWidth: catColor ? 3 : undefined,
+        border: 'none',
+        borderTop: catColor ? `3px solid ${catColor}` : '3px solid var(--drop-border)',
         boxShadow: 'var(--drop-shadow-card)',
       };
     case 'cool-connected':

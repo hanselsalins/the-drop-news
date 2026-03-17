@@ -1,8 +1,19 @@
 import { motion, AnimatePresence } from 'framer-motion';
 import { Trophy, X } from 'lucide-react';
+import { useTheme } from '../contexts/ThemeContext';
+
+const BAND_GRADIENTS = {
+  'big-bold-bright': 'linear-gradient(135deg, #FF4B4B, #FFD93D)',
+  'cool-connected': 'linear-gradient(135deg, #1E90FF, #00D4AA)',
+  'sharp-aware': 'linear-gradient(135deg, #5C4EFA, #22D3EE)',
+  'editorial': 'linear-gradient(135deg, #00D4FF, #FF2D78)',
+};
 
 export const MilestoneBanner = ({ milestone, onDismiss }) => {
+  const { band } = useTheme();
   if (!milestone) return null;
+
+  const gradient = BAND_GRADIENTS[band] || BAND_GRADIENTS['cool-connected'];
 
   return (
     <AnimatePresence>
@@ -16,23 +27,24 @@ export const MilestoneBanner = ({ milestone, onDismiss }) => {
         style={{ maxWidth: '430px', margin: '0 auto' }}
       >
         <div
-          className="p-4 rounded-2xl flex items-start gap-3"
+          className="p-4 flex items-start gap-3"
           style={{
-            background: 'linear-gradient(135deg, #3B82F6, #8B5CF6)',
-            boxShadow: '0 8px 40px rgba(59,130,246,0.3)',
+            background: gradient,
+            boxShadow: '0 8px 40px rgba(0,0,0,0.25)',
+            borderRadius: 'var(--drop-radius-card, 18px)',
           }}
         >
-          <div className="w-12 h-12 rounded-2xl flex items-center justify-center shrink-0"
-            style={{ background: 'rgba(255,255,255,0.15)' }}>
+          <div className="w-12 h-12 flex items-center justify-center shrink-0"
+            style={{ background: 'rgba(255,255,255,0.15)', borderRadius: 'var(--drop-radius-card, 14px)' }}>
             <Trophy size={24} color="#fff" />
           </div>
           <div className="flex-1 min-w-0">
             <p className="text-[10px] font-semibold tracking-wider uppercase opacity-80"
-              style={{ fontFamily: 'Outfit, sans-serif', color: '#fff' }}>
+              style={{ fontFamily: 'var(--drop-font-body)', color: '#fff' }}>
               MILESTONE REACHED
             </p>
             <p className="text-base font-bold mt-0.5 leading-snug"
-              style={{ fontFamily: 'Fredoka, sans-serif', color: '#fff' }}>
+              style={{ fontFamily: 'var(--drop-font-heading)', color: '#fff' }}>
               {milestone.emoji} {milestone.message}
             </p>
           </div>

@@ -1,7 +1,10 @@
+import "@fontsource/outfit/300.css";
 import "@fontsource/outfit/400.css";
 import "@fontsource/outfit/500.css";
 import "@fontsource/outfit/600.css";
 import "@fontsource/outfit/700.css";
+import "@fontsource/syne/400.css";
+import "@fontsource/syne/600.css";
 import "@fontsource/syne/700.css";
 import "@fontsource/syne/800.css";
 import "@fontsource/fredoka/400.css";

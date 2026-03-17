@@ -2,18 +2,11 @@ import { useState, useEffect, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useTheme } from '../contexts/ThemeContext';
 import { motion, AnimatePresence } from 'framer-motion';
-import { X, Flame, ChevronRight, LogOut, Trash2, Lock, Eye, EyeOff, Check, Users } from 'lucide-react';
+import { X, Flame, ChevronRight, LogOut, Trash2, Lock, Eye, EyeOff, Users } from 'lucide-react';
 import { ProfileSwitcherModal } from './ProfileSwitcherModal';
 import axios from 'axios';
 
 const BACKEND_URL = import.meta.env.VITE_BACKEND_URL;
-
-const AGE_TO_BAND = {
-  '8-10': 'big-bold-bright',
-  '11-13': 'cool-connected',
-  '14-16': 'sharp-aware',
-  '17-20': 'editorial',
-};
 
 const AGE_BADGES = {
   '8-10': { label: 'Junior Reader', color: '#FFD60A' },
@@ -26,11 +19,12 @@ const ACCOUNT_TYPES = {
   child: { label: 'Child Account', color: '#3B82F6' },
   parent: { label: 'Parent Account', color: '#8B5CF6' },
   independent: { label: 'Independent', color: '#10B981' },
+  self: { label: 'Independent', color: '#10B981' },
 };
 
 export const ProfilePanel = ({ open, onClose }) => {
   const navigate = useNavigate();
-  const { user, token, ageGroup, band, logout, linkedProfiles: ctxLinkedProfiles, fetchLinkedProfiles } = useTheme();
+  const { user, token, ageGroup, band, logout, linkedProfiles: ctxLinkedProfiles, fetchLinkedProfiles, parentToken } = useTheme();
   const headers = token ? { Authorization: `Bearer ${token}` } : {};
   const isDark = band === 'sharp-aware' || band === 'editorial';
 
@@ -43,8 +37,25 @@ export const ProfilePanel = ({ open, onClose }) => {
   const [showCurrentPw, setShowCurrentPw] = useState(false);
   const [showNewPw, setShowNewPw] = useState(false);
   const [deleting, setDeleting] = useState(false);
-
   const [showSwitcher, setShowSwitcher] = useState(false);
+
+  // Show Switch Profile for child accounts or accounts with linked profiles
+  const isChildAccount = user?.account_type === 'child';
+  const hasLinkedProfiles = (ctxLinkedProfiles || []).length > 0;
+  const showSwitchButton = isChildAccount || hasLinkedProfiles;
+  // Self accounts: no switch, no create
+  const isSelfAccount = user?.account_type === 'self' || user?.account_type === 'independent';
+
+  useEffect(() => {
+    if (open) {
+      console.log('[ProfilePanel] Panel opened');
+      console.log('[ProfilePanel] user.account_type:', user?.account_type);
+      console.log('[ProfilePanel] ctxLinkedProfiles:', (ctxLinkedProfiles || []).length);
+      console.log('[ProfilePanel] showSwitchButton:', showSwitchButton, '(child:', isChildAccount, ', profiles:', hasLinkedProfiles, ')');
+      console.log('[ProfilePanel] isSelfAccount:', isSelfAccount);
+      console.log('[ProfilePanel] parentToken present:', !!parentToken);
+    }
+  }, [open]);
 
   const fetchData = useCallback(async () => {
     if (!token) return;
@@ -92,7 +103,6 @@ export const ProfilePanel = ({ open, onClose }) => {
   const badge = AGE_BADGES[ageGroup] || AGE_BADGES['14-16'];
   const accountType = ACCOUNT_TYPES[user?.account_type] || ACCOUNT_TYPES.independent;
 
-  // Band-aware gradient
   const gradients = {
     'big-bold-bright': 'linear-gradient(135deg, #FF4B4B, #FFD93D)',
     'cool-connected': 'linear-gradient(135deg, #1E90FF, #00D4AA)',
@@ -100,8 +110,6 @@ export const ProfilePanel = ({ open, onClose }) => {
     'editorial': 'linear-gradient(135deg, #00D4FF, #FF2D78)',
   };
   const avatarGradient = gradients[band] || 'linear-gradient(135deg, #3B82F6, #8B5CF6)';
-
-  const panelBg = isDark ? 'var(--drop-surface)' : 'var(--drop-surface)';
   const dividerColor = isDark ? 'var(--drop-border)' : '#F1F5F9';
   const inputBg = isDark ? 'rgba(255,255,255,0.06)' : '#F8FAFC';
   const inputBorder = isDark ? 'var(--drop-border)' : '1.5px solid #E2E8F0';
@@ -118,7 +126,7 @@ export const ProfilePanel = ({ open, onClose }) => {
             initial={{ x: '100%' }} animate={{ x: 0 }} exit={{ x: '100%' }}
             transition={{ type: 'spring', damping: 28, stiffness: 300 }}
             className="fixed top-0 right-0 bottom-0 z-[70] overflow-y-auto"
-            style={{ width: 'min(360px, 85vw)', background: panelBg, boxShadow: '-8px 0 40px rgba(0,0,0,0.12)' }}
+            style={{ width: 'min(360px, 85vw)', background: 'var(--drop-surface)', boxShadow: '-8px 0 40px rgba(0,0,0,0.12)' }}
           >
             <div className="flex justify-end p-4">
               <button onClick={onClose} className="p-2 rounded-xl"
@@ -174,21 +182,24 @@ export const ProfilePanel = ({ open, onClose }) => {
 
             <div style={{ height: 1, background: dividerColor, margin: '0 24px' }} />
 
-            {/* Switch Profile row */}
-            <div className="px-6 py-4">
-              <button onClick={() => setShowSwitcher(true)} className="w-full flex items-center gap-3 py-2.5 px-4 rounded-2xl transition-colors"
-                style={{ background: isDark ? 'rgba(92,78,250,0.08)' : '#EFF6FF', border: isDark ? '1px solid rgba(92,78,250,0.2)' : '1.5px solid #BFDBFE' }}>
-                <Users size={20} style={{ color: isDark ? 'var(--drop-accent, #00D4FF)' : '#3B82F6' }} />
-                <span className="flex-1 text-left text-sm font-bold" style={{ fontFamily: 'var(--drop-font-body)', color: 'var(--drop-text)' }}>
-                  Switch Profile
-                </span>
-                <span className="text-xs font-medium px-2.5 py-1 rounded-full"
-                  style={{ background: isDark ? 'rgba(255,255,255,0.06)' : '#F1F5F9', color: 'var(--drop-text-muted)', fontFamily: 'var(--drop-font-body)' }}>
-                  {(ctxLinkedProfiles || []).length} profiles
-                </span>
-                <ChevronRight size={16} style={{ color: 'var(--drop-text-muted)' }} />
-              </button>
-            </div>
+            {/* Switch Profile — only for child accounts or accounts with linked profiles, NOT for self */}
+            {!isSelfAccount && showSwitchButton && (
+              <div className="px-6 py-4">
+                <button onClick={() => { console.log('[ProfilePanel] Switch Profile tapped'); setShowSwitcher(true); }}
+                  className="w-full flex items-center gap-3 py-2.5 px-4 rounded-2xl transition-colors"
+                  style={{ background: isDark ? 'rgba(92,78,250,0.08)' : '#EFF6FF', border: isDark ? '1px solid rgba(92,78,250,0.2)' : '1.5px solid #BFDBFE' }}>
+                  <Users size={20} style={{ color: isDark ? 'var(--drop-accent, #00D4FF)' : '#3B82F6' }} />
+                  <span className="flex-1 text-left text-sm font-bold" style={{ fontFamily: 'var(--drop-font-body)', color: 'var(--drop-text)' }}>
+                    Switch Profile
+                  </span>
+                  <span className="text-xs font-medium px-2.5 py-1 rounded-full"
+                    style={{ background: isDark ? 'rgba(255,255,255,0.06)' : '#F1F5F9', color: 'var(--drop-text-muted)', fontFamily: 'var(--drop-font-body)' }}>
+                    {(ctxLinkedProfiles || []).length} profiles
+                  </span>
+                  <ChevronRight size={16} style={{ color: 'var(--drop-text-muted)' }} />
+                </button>
+              </div>
+            )}
 
             <ProfileSwitcherModal open={showSwitcher} onClose={() => setShowSwitcher(false)} onPanelClose={onClose} />
 
@@ -212,7 +223,7 @@ export const ProfilePanel = ({ open, onClose }) => {
                           className="w-full px-3 py-2.5 rounded-xl text-sm outline-none"
                           style={{ fontFamily: 'var(--drop-font-body)', background: inputBg, border: inputBorder, color: 'var(--drop-text)' }} />
                         <button onClick={() => setShowCurrentPw(!showCurrentPw)} className="absolute right-3 top-1/2 -translate-y-1/2">
-                          {showCurrentPw ? <EyeOff size={14} style={{ color: 'var(--drop-text-muted)' }} /> : <Eye size={14} style={{ color: 'var(--drop-text-muted)' }} />}
+                          {showCurrentPw ? <Eye size={14} style={{ color: 'var(--drop-text-muted)' }} /> : <EyeOff size={14} style={{ color: 'var(--drop-text-muted)' }} />}
                         </button>
                       </div>
                       <div className="relative">
@@ -221,7 +232,7 @@ export const ProfilePanel = ({ open, onClose }) => {
                           className="w-full px-3 py-2.5 rounded-xl text-sm outline-none"
                           style={{ fontFamily: 'var(--drop-font-body)', background: inputBg, border: inputBorder, color: 'var(--drop-text)' }} />
                         <button onClick={() => setShowNewPw(!showNewPw)} className="absolute right-3 top-1/2 -translate-y-1/2">
-                          {showNewPw ? <EyeOff size={14} style={{ color: 'var(--drop-text-muted)' }} /> : <Eye size={14} style={{ color: 'var(--drop-text-muted)' }} />}
+                          {showNewPw ? <Eye size={14} style={{ color: 'var(--drop-text-muted)' }} /> : <EyeOff size={14} style={{ color: 'var(--drop-text-muted)' }} />}
                         </button>
                       </div>
                       <input type="password" placeholder="Confirm new password"

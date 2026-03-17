@@ -1,12 +1,24 @@
 import { motion } from 'framer-motion';
+import { useTheme } from '../contexts/ThemeContext';
+
+const BAND_GRADIENTS = {
+  'big-bold-bright': ['#FF4B4B', '#FFD93D'],
+  'cool-connected': ['#1E90FF', '#00D4AA'],
+  'sharp-aware': ['#5C4EFA', '#22D3EE'],
+  'editorial': ['#00D4FF', '#FF2D78'],
+};
 
 export const ProgressDots = ({ articleIds, readArticleIds }) => {
+  const { band } = useTheme();
   const total = 5;
   const dots = Array.from({ length: total }, (_, i) => {
     const articleId = articleIds[i];
     return articleId ? readArticleIds.has(String(articleId)) : false;
   });
   const allRead = dots.every(Boolean) && articleIds.length === total;
+  const isDark = band === 'sharp-aware' || band === 'editorial';
+  const colors = BAND_GRADIENTS[band] || BAND_GRADIENTS['cool-connected'];
+  const gradient = `linear-gradient(135deg, ${colors[0]}, ${colors[1]})`;
 
   return (
     <div className="flex flex-col items-center gap-3 py-4">
@@ -21,12 +33,8 @@ export const ProgressDots = ({ articleIds, readArticleIds }) => {
               width: 10,
               height: 10,
               borderRadius: '50%',
-              background: filled
-                ? 'linear-gradient(135deg, #3B82F6, #8B5CF6)'
-                : '#E2E8F0',
-              boxShadow: filled
-                ? '0 2px 8px rgba(99,102,241,0.35)'
-                : 'none',
+              background: filled ? gradient : (isDark ? 'rgba(255,255,255,0.15)' : '#E2E8F0'),
+              boxShadow: filled ? `0 2px 8px ${colors[0]}55` : 'none',
               transition: 'background 0.3s, box-shadow 0.3s',
             }}
           />
@@ -43,8 +51,8 @@ export const ProgressDots = ({ articleIds, readArticleIds }) => {
           <p
             className="text-sm font-semibold"
             style={{
-              fontFamily: 'Fredoka, sans-serif',
-              background: 'linear-gradient(135deg, #3B82F6, #8B5CF6)',
+              fontFamily: 'var(--drop-font-heading)',
+              background: gradient,
               WebkitBackgroundClip: 'text',
               WebkitTextFillColor: 'transparent',
             }}
@@ -53,7 +61,7 @@ export const ProgressDots = ({ articleIds, readArticleIds }) => {
           </p>
           <p
             className="text-xs mt-0.5"
-            style={{ fontFamily: 'Outfit, sans-serif', color: '#94A3B8' }}
+            style={{ fontFamily: 'var(--drop-font-body)', color: 'var(--drop-text-muted)' }}
           >
             See you tomorrow
           </p>

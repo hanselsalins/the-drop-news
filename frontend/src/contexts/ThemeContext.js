@@ -26,6 +26,7 @@ function applyBand(ageGroup) {
 
 export function ThemeProvider({ children }) {
   const [token, setTokenState] = useState(() => localStorage.getItem('token') || null);
+  const [parentToken, setParentTokenState] = useState(() => localStorage.getItem('parent_token') || null);
   const [user, setUser] = useState(() => {
     const saved = localStorage.getItem('user');
     return saved ? JSON.parse(saved) : null;
@@ -47,11 +48,19 @@ export function ThemeProvider({ children }) {
     }
   }, []);
 
+  const setParentToken = useCallback((newToken) => {
+    setParentTokenState(newToken);
+    if (newToken) {
+      localStorage.setItem('parent_token', newToken);
+    } else {
+      localStorage.removeItem('parent_token');
+    }
+  }, []);
+
   const setUserData = useCallback((userData) => {
     setUser(userData);
     if (userData) {
       localStorage.setItem('user', JSON.stringify(userData));
-      // Apply band immediately on user data change
       if (userData.age_group) {
         applyBand(userData.age_group);
       }
@@ -63,29 +72,39 @@ export function ThemeProvider({ children }) {
 
   const logout = useCallback(() => {
     setToken(null);
+    setParentToken(null);
     setUserData(null);
     localStorage.removeItem('token');
+    localStorage.removeItem('parent_token');
     localStorage.removeItem('user');
     localStorage.removeItem('ageGroup');
     localStorage.removeItem('userId');
     localStorage.removeItem('hasOnboarded');
     document.documentElement.removeAttribute('data-band');
-  }, [setToken, setUserData]);
+  }, [setToken, setParentToken, setUserData]);
 
   const fetchLinkedProfiles = useCallback(async (tkn) => {
-    const t = tkn || token;
+    const t = tkn || parentToken || token;
     if (!t) return;
     try {
+      console.log('[ThemeContext] Fetching linked-profiles...');
       const res = await axios.get(`${BACKEND_URL}/api/auth/linked-profiles`, {
         headers: { Authorization: `Bearer ${t}` },
       });
-      const profiles = Array.isArray(res.data) ? res.data : [];
+      console.log('[ThemeContext] linked-profiles raw:', JSON.stringify(res.data));
+      let profiles = [];
+      if (Array.isArray(res.data)) {
+        profiles = res.data;
+      } else if (Array.isArray(res.data?.profiles)) {
+        profiles = res.data.profiles;
+      }
+      console.log('[ThemeContext] Parsed profiles count:', profiles.length);
       setLinkedProfiles(profiles);
     } catch (err) {
-      console.error('[LinkedProfiles] Fetch error:', err.response?.status);
+      console.error('[ThemeContext] LinkedProfiles fetch error:', err.response?.status, err.message);
       setLinkedProfiles([]);
     }
-  }, []);
+  }, [parentToken, token]);
 
   // Apply band on mount from saved user
   useEffect(() => {
@@ -110,7 +129,7 @@ export function ThemeProvider({ children }) {
           localStorage.setItem('user', JSON.stringify(res.data));
           if (res.data.age_group) applyBand(res.data.age_group);
         }
-        fetchLinkedProfiles(token);
+        fetchLinkedProfiles(parentToken || token);
       } catch (e) {
         logout();
       }
@@ -122,6 +141,7 @@ export function ThemeProvider({ children }) {
   return (
     <ThemeContext.Provider value={{
       token, setToken,
+      parentToken, setParentToken,
       user, setUserData,
       ageGroup,
       band,

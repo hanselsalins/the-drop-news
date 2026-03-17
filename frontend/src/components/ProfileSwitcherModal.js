@@ -30,26 +30,42 @@ const GRADIENTS = {
 
 export const ProfileSwitcherModal = ({ open, onClose, onPanelClose }) => {
   const navigate = useNavigate();
-  const { user, token, band, setToken, setUserData, fetchLinkedProfiles } = useTheme();
+  const { user, token, band, parentToken, setToken, setUserData, fetchLinkedProfiles } = useTheme();
   const isDark = band === 'sharp-aware' || band === 'editorial';
   const [switching, setSwitching] = useState(null);
   const [profiles, setProfiles] = useState([]);
   const [loadingProfiles, setLoadingProfiles] = useState(false);
 
-  // Fetch profiles directly when modal opens
+  // Use parent token for fetching linked profiles (more permissions)
+  const fetchToken = parentToken || token;
+  // Only show "Add New Profile" if we have a parent_token
+  const canAddProfile = !!parentToken;
+
   useEffect(() => {
-    if (!open || !token) return;
+    if (!open || !fetchToken) return;
     let cancelled = false;
     const fetchProfiles = async () => {
       setLoadingProfiles(true);
       try {
+        console.log('[ProfileSwitcher] Fetching GET /api/auth/linked-profiles');
+        console.log('[ProfileSwitcher] Using token type:', parentToken ? 'parent_token' : 'user_token');
         const res = await axios.get(`${BACKEND_URL}/api/auth/linked-profiles`, {
-          headers: { Authorization: `Bearer ${token}` },
+          headers: { Authorization: `Bearer ${fetchToken}` },
         });
-        console.log('[ProfileSwitcher] linked-profiles response:', JSON.stringify(res.data));
-        console.log('[ProfileSwitcher] Current user:', JSON.stringify({ id: user?.id, name: user?.full_name }));
-        const fetched = Array.isArray(res.data) ? res.data : (Array.isArray(res.data?.profiles) ? res.data.profiles : []);
-        // Combine current user + fetched, deduplicate by id
+        console.log('[ProfileSwitcher] Raw response:', JSON.stringify(res.data));
+
+        let fetched = [];
+        if (Array.isArray(res.data)) {
+          fetched = res.data;
+        } else if (Array.isArray(res.data?.profiles)) {
+          fetched = res.data.profiles;
+        } else if (res.data && typeof res.data === 'object') {
+          const values = Object.values(res.data);
+          const arr = values.find(v => Array.isArray(v));
+          if (arr) fetched = arr;
+        }
+
+        // Combine current user + fetched, deduplicate
         const combined = user ? [user, ...fetched] : fetched;
         const seen = new Set();
         const all = combined.filter(p => {
@@ -57,20 +73,23 @@ export const ProfileSwitcherModal = ({ open, onClose, onPanelClose }) => {
           seen.add(p.id);
           return true;
         });
-        console.log('[ProfileSwitcher] Final list:', all.map(p => ({ id: p.id, name: p.full_name, age: p.age_group })));
-        if (!cancelled) setProfiles(all);
+
+        // Filter to child profiles only
+        const childOnly = all.filter(p => p.account_type === 'child');
+        const finalList = childOnly.length > 0 ? childOnly : all;
+        console.log('[ProfileSwitcher] Final profiles:', finalList.map(p => ({ id: p.id, name: p.full_name, type: p.account_type })));
+
+        if (!cancelled) setProfiles(finalList);
       } catch (err) {
-        console.error('[ProfileSwitcher] Fetch failed:', err.response?.status, err.message);
-        // Fallback: show at least the current user
+        console.error('[ProfileSwitcher] Fetch FAILED:', err.response?.status, err.message);
         if (!cancelled) setProfiles(user ? [user] : []);
       }
       if (!cancelled) setLoadingProfiles(false);
     };
     fetchProfiles();
     return () => { cancelled = true; };
-  }, [open, token, user?.id]);
+  }, [open, fetchToken, user?.id]);
 
-  // Sort: current user first
   const sorted = [
     ...profiles.filter(p => p.id === user?.id),
     ...profiles.filter(p => p.id !== user?.id),
@@ -80,15 +99,26 @@ export const ProfileSwitcherModal = ({ open, onClose, onPanelClose }) => {
     if (profile.id === user?.id) return;
     setSwitching(profile.id);
     try {
-      const headers = { Authorization: `Bearer ${token}` };
-      const res = await axios.post(`${BACKEND_URL}/api/auth/switch-profile`, { target_user_id: profile.id }, { headers });
+      // Use parent token for switching if available
+      const switchToken = parentToken || token;
+      console.log('[Switch] POST /api/auth/switch-profile target:', profile.id);
+      const res = await axios.post(`${BACKEND_URL}/api/auth/switch-profile`,
+        { target_user_id: profile.id },
+        { headers: { Authorization: `Bearer ${switchToken}` } }
+      );
+      console.log('[Switch] Response:', JSON.stringify(res.data));
       if (res.data.token) {
         setToken(res.data.token);
-        const meRes = await axios.get(`${BACKEND_URL}/api/auth/me`, {
-          headers: { Authorization: `Bearer ${res.data.token}` },
-        });
-        setUserData(meRes.data);
-        fetchLinkedProfiles(res.data.token);
+        localStorage.setItem('token', res.data.token);
+        if (res.data.user) {
+          setUserData(res.data.user);
+        } else {
+          const meRes = await axios.get(`${BACKEND_URL}/api/auth/me`, {
+            headers: { Authorization: `Bearer ${res.data.token}` },
+          });
+          setUserData(meRes.data);
+        }
+        fetchLinkedProfiles(parentToken || res.data.token);
       } else if (res.data.user) {
         setUserData(res.data.user);
       }
@@ -96,7 +126,7 @@ export const ProfileSwitcherModal = ({ open, onClose, onPanelClose }) => {
       onPanelClose();
       navigate('/feed');
     } catch (e) {
-      console.error('[Switch] Failed:', e);
+      console.error('[Switch] FAILED:', e.response?.status, JSON.stringify(e.response?.data));
     }
     setSwitching(null);
   };
@@ -120,10 +150,7 @@ export const ProfileSwitcherModal = ({ open, onClose, onPanelClose }) => {
             exit={{ opacity: 0, scale: 0.92, y: 20 }}
             transition={{ type: 'spring', damping: 25, stiffness: 350 }}
             className="fixed z-[90] left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 w-[min(380px,90vw)] max-h-[80vh] overflow-y-auto rounded-3xl"
-            style={{
-              background: modalBg,
-              boxShadow: '0 25px 60px rgba(0,0,0,0.25), 0 0 0 1px var(--drop-border)',
-            }}
+            style={{ background: modalBg, boxShadow: '0 25px 60px rgba(0,0,0,0.25), 0 0 0 1px var(--drop-border)' }}
           >
             {/* Header */}
             <div className="flex items-center justify-between px-5 pt-5 pb-3">
@@ -150,12 +177,14 @@ export const ProfileSwitcherModal = ({ open, onClose, onPanelClose }) => {
                   No profiles found
                 </p>
               ) : null}
+
               {!loadingProfiles && sorted.map((profile) => {
                 const isActive = profile.id === user?.id;
                 const profBadge = AGE_BADGES[profile.age_group] || AGE_BADGES['14-16'];
                 const profBand = AGE_TO_BAND[profile.age_group];
                 const profGradient = GRADIENTS[profBand] || fallbackGradient;
                 const isSwitching = switching === profile.id;
+                const isOnlyProfile = sorted.length <= 1;
 
                 return (
                   <motion.button
@@ -163,7 +192,7 @@ export const ProfileSwitcherModal = ({ open, onClose, onPanelClose }) => {
                     whileHover={{ scale: 1.01 }}
                     whileTap={{ scale: 0.98 }}
                     onClick={() => handleSwitch(profile)}
-                    disabled={isActive || isSwitching}
+                    disabled={isActive || isSwitching || isOnlyProfile}
                     className="w-full flex items-center gap-4 p-4 rounded-2xl transition-all"
                     style={{
                       background: isActive
@@ -172,11 +201,10 @@ export const ProfileSwitcherModal = ({ open, onClose, onPanelClose }) => {
                       border: isActive
                         ? (isDark ? '1.5px solid rgba(92,78,250,0.3)' : '1.5px solid #93C5FD')
                         : '1.5px solid var(--drop-border)',
-                      opacity: isSwitching ? 0.5 : 1,
-                      cursor: isActive ? 'default' : 'pointer',
+                      opacity: (isSwitching || (isOnlyProfile && !isActive)) ? 0.5 : 1,
+                      cursor: isActive || isOnlyProfile ? 'default' : 'pointer',
                     }}
                   >
-                    {/* Large avatar */}
                     <div className="flex-shrink-0" style={{ width: 52, height: 52, borderRadius: '50%', padding: 2.5, background: profGradient }}>
                       <div className="w-full h-full rounded-full overflow-hidden">
                         {profile.avatar_url ? (
@@ -190,7 +218,6 @@ export const ProfileSwitcherModal = ({ open, onClose, onPanelClose }) => {
                       </div>
                     </div>
 
-                    {/* Info */}
                     <div className="flex-1 text-left min-w-0">
                       <p className="text-sm font-bold truncate" style={{ fontFamily: 'var(--drop-font-body)', color: 'var(--drop-text)' }}>
                         {profile.full_name}
@@ -201,7 +228,6 @@ export const ProfileSwitcherModal = ({ open, onClose, onPanelClose }) => {
                       </span>
                     </div>
 
-                    {/* Status */}
                     {isActive ? (
                       <div className="flex-shrink-0 w-7 h-7 rounded-full flex items-center justify-center"
                         style={{ background: `${profBadge.color}20` }}>
@@ -209,7 +235,11 @@ export const ProfileSwitcherModal = ({ open, onClose, onPanelClose }) => {
                       </div>
                     ) : (
                       <span className="flex-shrink-0 text-xs font-semibold px-3 py-1.5 rounded-full"
-                        style={{ background: isDark ? 'rgba(255,255,255,0.08)' : '#F1F5F9', color: 'var(--drop-text-muted)', fontFamily: 'var(--drop-font-body)' }}>
+                        style={{
+                          background: isDark ? 'rgba(255,255,255,0.08)' : '#F1F5F9',
+                          color: isOnlyProfile ? '#CBD5E1' : 'var(--drop-text-muted)',
+                          fontFamily: 'var(--drop-font-body)',
+                        }}>
                         {isSwitching ? '...' : 'Switch'}
                       </span>
                     )}
@@ -217,19 +247,30 @@ export const ProfileSwitcherModal = ({ open, onClose, onPanelClose }) => {
                 );
               })}
 
-              {/* Add New Profile */}
-              <button
-                onClick={() => { onClose(); onPanelClose(); navigate('/auth', { state: { addProfile: true } }); }}
-                className="w-full flex items-center gap-4 p-4 rounded-2xl transition-colors"
-                style={{ background: isDark ? 'rgba(0,212,255,0.06)' : '#F0F9FF', border: isDark ? '1.5px dashed rgba(0,212,255,0.3)' : '1.5px dashed #93C5FD' }}>
-                <div className="flex-shrink-0 w-[52px] h-[52px] rounded-full flex items-center justify-center"
-                  style={{ background: GRADIENTS[band] || fallbackGradient }}>
-                  <span className="text-white text-2xl font-bold">+</span>
+              {/* Add New Profile — only if parent_token exists */}
+              {canAddProfile && (
+                <button
+                  onClick={() => { onClose(); onPanelClose(); navigate('/auth', { state: { addProfile: true } }); }}
+                  className="w-full flex items-center gap-4 p-4 rounded-2xl transition-colors"
+                  style={{ background: isDark ? 'rgba(0,212,255,0.06)' : '#F0F9FF', border: isDark ? '1.5px dashed rgba(0,212,255,0.3)' : '1.5px dashed #93C5FD' }}>
+                  <div className="flex-shrink-0 w-[52px] h-[52px] rounded-full flex items-center justify-center"
+                    style={{ background: GRADIENTS[band] || fallbackGradient }}>
+                    <span className="text-white text-2xl font-bold">+</span>
+                  </div>
+                  <span className="text-sm font-semibold" style={{ fontFamily: 'var(--drop-font-body)', color: isDark ? 'var(--drop-accent, #00D4FF)' : '#3B82F6' }}>
+                    Add New Profile
+                  </span>
+                </button>
+              )}
+
+              {/* Message for child accounts without parent token */}
+              {!canAddProfile && user?.account_type === 'child' && (
+                <div className="p-4 rounded-2xl text-center" style={{ background: isDark ? 'rgba(255,255,255,0.04)' : '#FFF7ED', border: isDark ? '1px solid rgba(255,255,255,0.08)' : '1.5px solid #FFEDD5' }}>
+                  <p className="text-xs" style={{ fontFamily: 'var(--drop-font-body)', color: isDark ? 'var(--drop-text-muted)' : '#9A3412' }}>
+                    Ask your parent to add a new profile from the login screen
+                  </p>
                 </div>
-                <span className="text-sm font-semibold" style={{ fontFamily: 'var(--drop-font-body)', color: isDark ? 'var(--drop-accent, #00D4FF)' : '#3B82F6' }}>
-                  Add New Profile
-                </span>
-              </button>
+              )}
             </div>
           </motion.div>
         </>
