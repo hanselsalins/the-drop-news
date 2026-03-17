@@ -1324,15 +1324,6 @@ def _make_child_doc(child_id: str, child_name: str, child_age: int, child_gender
 @api_router.post("/auth/register-child")
 async def register_child(req: RegisterChildRequest):
     """Parent-led signup. Creates a parent credential account + one or more child profiles."""
-    import traceback as _tb
-    try:
-        return await _register_child_impl(req)
-    except HTTPException:
-        raise
-    except Exception as e:
-        raise HTTPException(status_code=500, detail=f"DEBUG: {type(e).__name__}: {e}\n{_tb.format_exc()}")
-
-async def _register_child_impl(req: RegisterChildRequest):
     if not req.children:
         raise HTTPException(status_code=400, detail="At least one child profile is required")
     for child in req.children:
@@ -1357,7 +1348,7 @@ async def _register_child_impl(req: RegisterChildRequest):
         "age_group": "adult", "account_type": "parent",
         "parent_relation": req.parent_relation,
         "child_ids": child_ids, "linked_profiles": child_ids,
-        "username": "",
+        "username": f"_parent_{parent_id[:8]}",
         "avatar_url": "",
         "invite_code": generate_invite_code(), "knowledge_score": 0,
         "member_since": now, "created_at": now,
