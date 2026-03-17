@@ -3046,10 +3046,14 @@ async def create_test_profiles():
 app.include_router(api_router)
 app.include_router(admin_router)
 
+_cors_origins = [o for o in os.environ.get('CORS_ORIGINS', '').split(',') if o.strip()]
 app.add_middleware(
-    CORSMiddleware, allow_credentials=True,
-    allow_origins=os.environ.get('CORS_ORIGINS', '*').split(','),
-    allow_methods=["*"], allow_headers=["*"],
+    CORSMiddleware,
+    allow_origins=_cors_origins or ["*"],
+    allow_origin_regex=r"https://.*\.(lovable\.app|lovableproject\.com)",
+    allow_credentials=True,
+    allow_methods=["GET", "POST", "PUT", "DELETE", "OPTIONS"],
+    allow_headers=["Authorization", "Content-Type", "Accept", "Origin", "X-Requested-With"],
 )
 
 @app.on_event("shutdown")
