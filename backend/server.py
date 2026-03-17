@@ -1187,7 +1187,10 @@ async def select_articles_for_display() -> int:
 async def rewrite_pending_articles(age_group: str):
     logger.info(f"Starting rewrites for age_group={age_group}...")
     cursor = db.articles.find(
-        {"rewrite_status": "selected", f"rewrites.{age_group}": {"$exists": False}},
+        {"rewrite_status": "selected", "$or": [
+            {f"rewrites.{age_group}": {"$exists": False}},
+            {f"rewrites.{age_group}.rewrite_status": "failed"},
+        ]},
         {"_id": 0, "id": 1, "original_title": 1, "original_headline": 1,
          "original_content": 1, "original_body": 1, "original_url": 1, "category": 1,
          "source_language": 1, "source_country": 1}
