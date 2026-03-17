@@ -2367,7 +2367,7 @@ async def _get_or_generate_todays_drop(age_group: str, user: dict, user_country_
             "category": cat,
             f"rewrites.{age_group}": {"$exists": True},
             "crawled_at": {"$gte": since},
-            "rewrite_status": "rewritten",
+            "rewrite_status": {"$in": ["rewritten", "failed"]},
         }
         loc_filter = _build_localised_query(cat, user_country_code)
         if loc_filter:
@@ -2377,7 +2377,7 @@ async def _get_or_generate_todays_drop(age_group: str, user: dict, user_country_
 
         # Fallback: include "selected" articles that have this age_group rewrite
         if len(candidates) < 2:
-            fallback_q = {**base_query, "rewrite_status": "selected"}
+            fallback_q = {**base_query, "rewrite_status": {"$in": ["selected", "failed"]}}
             extra = await db.articles.find(fallback_q, {"_id": 0}).sort("crawled_at", -1).to_list(20)
             seen = {a["id"] for a in candidates}
             candidates += [a for a in extra if a["id"] not in seen]
@@ -2388,7 +2388,7 @@ async def _get_or_generate_todays_drop(age_group: str, user: dict, user_country_
                 f"rewrites.{age_group}": {"$exists": True},
                 "crawled_at": {"$gte": since},
                 "country_relevance": "GLOBAL",
-                "rewrite_status": {"$in": ["rewritten", "selected"]},
+                "rewrite_status": {"$in": ["rewritten", "selected", "failed"]},
             }
             candidates = await db.articles.find(fallback_query, {"_id": 0}).sort("crawled_at", -1).to_list(20)
 
@@ -2431,7 +2431,7 @@ async def get_articles(category: Optional[str] = None, age_group: str = "14-16",
     query = {
         "category": cat,
         f"rewrites.{age_group}": {"$exists": True},
-        "rewrite_status": "rewritten",
+        "rewrite_status": {"$in": ["rewritten", "failed"]},
     }
     loc_filter = _build_localised_query(cat, effective_country)
     if loc_filter:
@@ -2444,7 +2444,7 @@ async def get_articles(category: Optional[str] = None, age_group: str = "14-16",
 
     # Fallback: include "selected" articles that have this age_group rewrite
     if len(candidates) < 3:
-        fallback_q = {**query, "rewrite_status": "selected"}
+        fallback_q = {**query, "rewrite_status": {"$in": ["selected", "failed"]}}
         extra = await db.articles.find(
             fallback_q, {"_id": 0, "original_content": 0}
         ).sort("crawled_at", -1).to_list(50)
