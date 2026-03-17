@@ -2762,6 +2762,108 @@ async def _initial_crawl():
     except Exception as e:
         logger.error(f"Initial crawl failed: {e}")
 
+@api_router.post("/admin/api/create-test-profiles")
+async def create_test_profiles():
+    """One-time setup: creates admin account + 4 child test profiles. Idempotent."""
+    if await db.users.find_one({"username": "hansel_admin"}):
+        return {"message": "Already set up — hansel_admin exists.", "skipped": True}
+
+    now = datetime.now(timezone.utc).isoformat()
+    admin_id = str(uuid.uuid4())
+
+    admin_doc = {
+        "id": admin_id,
+        "full_name": "Hansel Salins",
+        "email": "hanselsalins@gmail.com",
+        "password_hash": bcrypt.hashpw("DropAdmin2026!".encode(), bcrypt.gensalt()).decode(),
+        "dob": f"{date.today().year - 35}-06-15",
+        "age": 35,
+        "gender": "",
+        "city": "",
+        "country": "IN",
+        "age_group": "adult",
+        "account_type": "parent",
+        "is_admin": True,
+        "username": "hansel_admin",
+        "avatar_url": "https://api.dicebear.com/9.x/adventurer/svg?seed=hansel_admin",
+        "invite_code": generate_invite_code(),
+        "knowledge_score": 0,
+        "member_since": now,
+        "created_at": now,
+        "current_streak": 0,
+        "longest_streak": 0,
+        "last_read_date": "",
+        "notification_prefs": DEFAULT_NOTIFICATION_PREFS.copy(),
+        "device_tokens": [],
+        "timezone": "UTC",
+        "stories_read_count": 0,
+        "reactions_given_count": 0,
+        "days_active": [],
+        "child_ids": [],
+        "linked_profiles": [],
+    }
+
+    child_profiles = [
+        {"name": "Test Kid 8",    "age": 9,  "age_band": "8-10",  "username": "test_8_10"},
+        {"name": "Test Tween 12", "age": 12, "age_band": "11-13", "username": "test_11_13"},
+        {"name": "Test Teen 15",  "age": 15, "age_band": "14-16", "username": "test_14_16"},
+        {"name": "Test Young 18", "age": 18, "age_band": "17-20", "username": "test_17_20"},
+    ]
+
+    child_ids = []
+    child_docs = []
+    for profile in child_profiles:
+        child_id = str(uuid.uuid4())
+        child_ids.append(child_id)
+        approx_dob = f"{date.today().year - profile['age']}-06-15"
+        child_doc = {
+            "id": child_id,
+            "full_name": profile["name"],
+            "email": f"child_{child_id[:8]}@family.thedrop.internal",
+            "password_hash": "",
+            "dob": approx_dob,
+            "age": profile["age"],
+            "age_group": profile["age_band"],
+            "gender": "",
+            "city": "",
+            "country": "IN",
+            "account_type": "child",
+            "parent_id": admin_id,
+            "linked_profiles": [admin_id],
+            "parent_name": "Hansel Salins",
+            "parent_email": "hanselsalins@gmail.com",
+            "username": profile["username"],
+            "avatar_url": f"https://api.dicebear.com/9.x/adventurer/svg?seed={profile['username']}",
+            "invite_code": generate_invite_code(),
+            "knowledge_score": 0,
+            "member_since": now,
+            "created_at": now,
+            "current_streak": 0,
+            "longest_streak": 0,
+            "last_read_date": "",
+            "notification_prefs": DEFAULT_NOTIFICATION_PREFS.copy(),
+            "device_tokens": [],
+            "timezone": "UTC",
+            "stories_read_count": 0,
+            "reactions_given_count": 0,
+            "days_active": [],
+        }
+        child_docs.append(child_doc)
+
+    admin_doc["child_ids"] = child_ids
+    admin_doc["linked_profiles"] = child_ids
+
+    await db.users.insert_one(admin_doc)
+    for doc in child_docs:
+        await db.users.insert_one(doc)
+
+    return {
+        "message": "Test profiles created successfully.",
+        "admin_username": "hansel_admin",
+        "child_usernames": [p["username"] for p in child_profiles],
+    }
+
+
 app.include_router(api_router)
 app.include_router(admin_router)
 
