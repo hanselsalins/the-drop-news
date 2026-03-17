@@ -4,10 +4,23 @@ import "@fontsource/outfit/600.css";
 import "@fontsource/outfit/700.css";
 import "@fontsource/syne/700.css";
 import "@fontsource/syne/800.css";
+import "@fontsource/fredoka/400.css";
 import "@fontsource/fredoka/600.css";
 import "@fontsource/fredoka/700.css";
 import "@fontsource/jetbrains-mono/400.css";
 import "@fontsource/jetbrains-mono/700.css";
+import "@fontsource/baloo-2/400.css";
+import "@fontsource/baloo-2/600.css";
+import "@fontsource/baloo-2/700.css";
+import "@fontsource/baloo-2/800.css";
+import "@fontsource/urbanist/400.css";
+import "@fontsource/urbanist/500.css";
+import "@fontsource/urbanist/600.css";
+import "@fontsource/urbanist/700.css";
+import "@fontsource/urbanist/800.css";
+import "@fontsource/nunito/400.css";
+import "@fontsource/nunito/600.css";
+import "@fontsource/nunito/700.css";
 
 import "@/App.css";
 import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
@@ -24,8 +37,8 @@ function ProtectedRoute({ children }) {
   const { isAuthenticated, loading } = useTheme();
   if (loading) {
     return (
-      <div className="min-h-screen flex items-center justify-center" style={{ background: '#0A0E1A' }}>
-        <Loader2 className="animate-spin" size={32} style={{ color: '#3B82F6' }} />
+      <div className="min-h-screen flex items-center justify-center" style={{ background: 'var(--drop-bg, #0A0E1A)' }}>
+        <Loader2 className="animate-spin" size={32} style={{ color: 'var(--drop-accent, #3B82F6)' }} />
       </div>
     );
   }

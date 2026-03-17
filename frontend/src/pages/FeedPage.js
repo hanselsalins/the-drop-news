@@ -21,7 +21,7 @@ import axios from 'axios';
 const BACKEND_URL = import.meta.env.VITE_BACKEND_URL;
 
 export default function FeedPage() {
-  const { ageGroup, themeMode, user, token } = useTheme();
+  const { ageGroup, themeMode, band, user, token } = useTheme();
   const [articles, setArticles] = useState([]);
   const [categories, setCategories] = useState([]);
   const [microFacts, setMicroFacts] = useState([]);
@@ -31,14 +31,14 @@ export default function FeedPage() {
   const [countries, setCountries] = useState([]);
   const [profileOpen, setProfileOpen] = useState(false);
 
-  const isKids = themeMode === 'kids';
-  const isTeen = ageGroup === '14-16';
-  const isYoungAdult = ageGroup === '17-20';
+  const isBand1 = band === 'big-bold-bright';
+  const isBand2 = band === 'cool-connected';
+  const isBand3 = band === 'sharp-aware';
+  const isBand4 = band === 'editorial';
+  const isKids = isBand1 || isBand2;
   const headers = token ? { Authorization: `Bearer ${token}` } : {};
   const { milestone, checkMilestone, acknowledgeMilestone, requestPermission, permission } = useNotifications();
   const { readIds, refresh: refreshReadIds } = useReadArticles();
-
-  const userCountryObj = countries.find(c => c.country_name === user?.country);
 
   useEffect(() => {
     if (permission === 'default') {
@@ -54,7 +54,10 @@ export default function FeedPage() {
       const params = { age_group: ageGroup || '14-16', limit };
       if (!isToday) params.category = activeCategory;
       const res = await axios.get(`${BACKEND_URL}/api/articles`, { params, headers });
-      setArticles(res.data);
+      const visible = (Array.isArray(res.data) ? res.data : []).filter(a =>
+        a.rewrite || a.original_title || a.original_content
+      );
+      setArticles(visible);
     } catch (e) {
       console.error('Failed to fetch articles:', e);
     } finally {
@@ -94,13 +97,10 @@ export default function FeedPage() {
   useEffect(() => { fetchCategories(); fetchCountries(); }, [fetchCategories, fetchCountries]);
   useEffect(() => { fetchStreak(); }, [fetchStreak]);
   useEffect(() => { fetchMicroFacts(); }, [fetchMicroFacts]);
-  useEffect(() => { setLoading(true); fetchArticles(); }, [fetchArticles]);
+  useEffect(() => { setArticles([]); setMicroFacts([]); setLoading(true); fetchArticles(); }, [fetchArticles]);
   useEffect(() => { checkMilestone(); }, [checkMilestone]);
-
-  // Refresh read status when articles change or component regains focus
   useEffect(() => { refreshReadIds(); }, [articles, refreshReadIds]);
 
-  // Check if all today's articles are read → increment streak
   const todayArticleIds = activeCategory === 'today' ? articles.map(a => String(a.id)) : [];
   const allTodayRead = todayArticleIds.length === 5 && todayArticleIds.every(id => readIds.has(id));
 
@@ -111,8 +111,6 @@ export default function FeedPage() {
     }
   }, [allTodayRead, token]);
 
-
-  // Determine top category from today's articles
   const topCategory = articles.length > 0
     ? (() => {
         const counts = {};
@@ -145,143 +143,118 @@ export default function FeedPage() {
     day: 'numeric',
   });
 
+  // Band-specific header gradient
+  const headerGradient = isBand1
+    ? 'linear-gradient(135deg, #FF4B4B 0%, #FFD93D 100%)'
+    : isBand2
+    ? 'linear-gradient(135deg, #1E90FF 0%, #00D4AA 100%)'
+    : isBand3
+    ? 'var(--drop-header-bg)'
+    : 'var(--drop-header-bg)';
+
+  // Header font
+  const headerFont = isBand1 ? 'Fredoka, cursive'
+    : isBand2 ? 'Baloo 2, cursive'
+    : isBand3 ? 'Syne, sans-serif'
+    : 'Urbanist, sans-serif';
+
   return (
-    <div data-testid="feed-page" className="min-h-screen pb-28" style={{ background: '#F8FAFC' }}>
+    <div data-testid="feed-page" className="min-h-screen pb-28" style={{ background: 'var(--drop-bg)' }}>
       <MilestoneBanner
         milestone={milestone}
         onDismiss={() => acknowledgeMilestone(milestone?.notification_id)}
         isKids={isKids}
       />
 
-      {/* Header — kids get slim bar + mission card, teens get full gradient header */}
-      {isKids ? (
+      {/* ═══ BAND 1: Big Bold Bright header ═══ */}
+      {isBand1 && (
         <>
-          {/* Slim top bar for kids */}
-          <div
-            style={{
-              background: 'linear-gradient(135deg, #3B82F6 0%, #8B5CF6 60%, #EC4899 100%)',
-              padding: '12px 20px',
-            }}
-          >
+          <div style={{ background: headerGradient, padding: '12px 20px' }}>
             <div className="flex items-center justify-between">
               <div>
-                <h1
-                  style={{
-                    fontFamily: 'Fredoka, sans-serif',
-                    fontSize: 24,
-                    fontWeight: 900,
-                    color: '#FFFFFF',
-                    lineHeight: 1.2,
-                    margin: 0,
-                  }}
-                >
+                <h1 style={{ fontFamily: headerFont, fontSize: 28, fontWeight: 700, color: '#FFFFFF', lineHeight: 1.2, margin: 0 }}>
                   The Drop
                 </h1>
-                <p
-                  style={{
-                    fontFamily: 'Outfit, sans-serif',
-                    fontSize: 11,
-                    color: 'rgba(255,255,255,0.75)',
-                    marginTop: 2,
-                  }}
-                >
+                <p style={{ fontFamily: 'var(--drop-font-body)', fontSize: 12, color: 'rgba(255,255,255,0.8)', marginTop: 2 }}>
                   {today}
                 </p>
               </div>
               <ProfileButton onClick={() => setProfileOpen(true)} size={34} />
             </div>
           </div>
-
-          {/* Category tabs */}
-          <CategoryTabs categories={categories} activeCategory={activeCategory}
-            setActiveCategory={setActiveCategory} />
-
-          {/* Mission Header for kids — only on Today's Drop */}
+          <CategoryTabs categories={categories} activeCategory={activeCategory} setActiveCategory={setActiveCategory} />
           {activeCategory === 'today' && !loading && articles.length > 0 && (
-            <MissionHeader
-              articles={articles}
-              readArticleIds={readIds}
-              streak={streak}
-              topCategory={topCategory}
-            />
+            <MissionHeader articles={articles} readArticleIds={readIds} streak={streak} topCategory={topCategory} />
           )}
         </>
-      ) : isTeen ? (
+      )}
+
+      {/* ═══ BAND 2: Cool & Connected header ═══ */}
+      {isBand2 && (
         <>
-          {/* Editorial header for 14-16 */}
-          <div
-            style={{
-              background: 'linear-gradient(135deg, #3B82F6 0%, #8B5CF6 60%, #EC4899 100%)',
-              padding: '14px 20px 18px',
-            }}
-          >
+          <div style={{ background: headerGradient, padding: '12px 20px' }}>
             <div className="flex items-center justify-between">
               <div>
-                <h1
-                  style={{
-                    fontFamily: 'Syne, sans-serif',
-                    fontSize: 24,
-                    fontWeight: 800,
-                    color: '#FFFFFF',
-                    lineHeight: 1.2,
-                    margin: 0,
-                  }}
-                >
+                <h1 style={{ fontFamily: headerFont, fontSize: 26, fontWeight: 700, color: '#FFFFFF', lineHeight: 1.2, margin: 0 }}>
                   The Drop
                 </h1>
-                <p
-                  style={{
-                    fontFamily: 'Outfit, sans-serif',
-                    fontSize: 12,
-                    color: 'rgba(255,255,255,0.75)',
-                    marginTop: 2,
-                  }}
-                >
+                <p style={{ fontFamily: 'var(--drop-font-body)', fontSize: 12, color: 'rgba(255,255,255,0.8)', marginTop: 2 }}>
                   {today}
                 </p>
               </div>
               <ProfileButton onClick={() => setProfileOpen(true)} size={34} />
             </div>
           </div>
-
-          {/* Category tabs */}
-          <CategoryTabs categories={categories} activeCategory={activeCategory}
-            setActiveCategory={setActiveCategory} />
-
-          {/* Briefing Header for teens — only on Today's Drop */}
+          <CategoryTabs categories={categories} activeCategory={activeCategory} setActiveCategory={setActiveCategory} />
           {activeCategory === 'today' && !loading && articles.length > 0 && (
-            <BriefingHeader
-              articles={articles}
-              readArticleIds={readIds}
-              streak={streak}
-              topCategory={topCategory}
-            />
+            <MissionHeader articles={articles} readArticleIds={readIds} streak={streak} topCategory={topCategory} />
           )}
         </>
-      ) : isYoungAdult ? (
+      )}
+
+      {/* ═══ BAND 3: Sharp & Aware header ═══ */}
+      {isBand3 && (
         <>
-          {/* Editorial header for 17-20 */}
+          <div style={{ background: 'var(--drop-header-bg)', padding: '14px 20px 18px' }}>
+            <div className="flex items-center justify-between">
+              <div>
+                <h1 style={{ fontFamily: headerFont, fontSize: 22, fontWeight: 800, color: 'var(--drop-text)', lineHeight: 1.2, margin: 0, letterSpacing: '-0.04em', textTransform: 'uppercase' }}>
+                  The Drop
+                </h1>
+                <p style={{ fontFamily: 'var(--drop-font-body)', fontSize: 12, color: 'var(--drop-text-muted)', marginTop: 2 }}>
+                  {today}
+                </p>
+              </div>
+              <ProfileButton onClick={() => setProfileOpen(true)} size={34} />
+            </div>
+          </div>
+          <CategoryTabs categories={categories} activeCategory={activeCategory} setActiveCategory={setActiveCategory} />
+          {activeCategory === 'today' && !loading && articles.length > 0 && (
+            <BriefingHeader articles={articles} readArticleIds={readIds} streak={streak} topCategory={topCategory} />
+          )}
+        </>
+      )}
+
+      {/* ═══ BAND 4: Cyber Editorial header ═══ */}
+      {isBand4 && (
+        <>
           {!loading && articles.length > 0 && activeCategory === 'today' ? (
-            <EditorialHeader
-              articles={articles}
-              topCategory={topCategory}
-              onProfileOpen={() => setProfileOpen(true)}
-            />
+            <EditorialHeader articles={articles} topCategory={topCategory} onProfileOpen={() => setProfileOpen(true)} />
           ) : (
-            <div style={{ background: '#1A1A2E', padding: '14px 20px' }}>
+            <div style={{ background: 'var(--drop-bg)', padding: '14px 20px' }}>
               <div className="flex items-center justify-between">
-                <span style={{ fontFamily: 'Urbanist, sans-serif', fontSize: 13, letterSpacing: 1, color: '#64748B' }}>the drop</span>
+                <span style={{ fontFamily: 'var(--drop-font-heading)', fontSize: 13, letterSpacing: 1, color: 'var(--drop-text-muted)' }}>the drop</span>
                 <ProfileButton onClick={() => setProfileOpen(true)} size={34} />
               </div>
             </div>
           )}
-
-          <CategoryTabs categories={categories} activeCategory={activeCategory}
-            setActiveCategory={setActiveCategory} />
+          <CategoryTabs categories={categories} activeCategory={activeCategory} setActiveCategory={setActiveCategory} />
         </>
-      ) : (
+      )}
+
+      {/* ═══ Fallback (no band set) ═══ */}
+      {!band && (
         <>
-          {/* Fallback header */}
           <div style={{ background: 'linear-gradient(135deg, #3B82F6 0%, #8B5CF6 60%, #EC4899 100%)', padding: '14px 20px 18px' }}>
             <div className="flex items-center justify-between">
               <div>
@@ -291,8 +264,7 @@ export default function FeedPage() {
               <ProfileButton onClick={() => setProfileOpen(true)} size={34} />
             </div>
           </div>
-          <CategoryTabs categories={categories} activeCategory={activeCategory}
-            setActiveCategory={setActiveCategory} />
+          <CategoryTabs categories={categories} activeCategory={activeCategory} setActiveCategory={setActiveCategory} />
         </>
       )}
 
@@ -300,11 +272,11 @@ export default function FeedPage() {
       <div className="px-4 pt-4 space-y-3">
         {loading ? (
           <div className="flex items-center justify-center py-20">
-            <Loader2 className="animate-spin" size={32} style={{ color: '#3B82F6' }} />
+            <Loader2 className="animate-spin" size={32} style={{ color: 'var(--drop-accent, #3B82F6)' }} />
           </div>
         ) : feedItems.length === 0 ? (
           <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="text-center py-20">
-            <p className="text-lg" style={{ fontFamily: 'Outfit, sans-serif', color: '#94A3B8' }}>
+            <p className="text-lg" style={{ fontFamily: 'var(--drop-font-body)', color: 'var(--drop-text-muted)' }}>
               No articles yet. Hit refresh to load fresh news!
             </p>
           </motion.div>

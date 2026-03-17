@@ -14,10 +14,11 @@ const REACTIONS = [
 ];
 
 export const ReactionBar = ({ articleId, categoryColor = '#3B82F6' }) => {
-  const { token } = useTheme();
+  const { token, band } = useTheme();
   const [counts, setCounts] = useState({});
   const [userReaction, setUserReaction] = useState(null);
   const [animating, setAnimating] = useState(null);
+  const isDark = band === 'sharp-aware' || band === 'editorial';
 
   useEffect(() => {
     const fetchReactions = async () => {
@@ -36,13 +37,11 @@ export const ReactionBar = ({ articleId, categoryColor = '#3B82F6' }) => {
   const handleReact = async (reactionId) => {
     if (!token) return;
     setAnimating(reactionId);
-
     try {
       const res = await axios.post(`${BACKEND_URL}/api/articles/${articleId}/react`,
         { reaction: reactionId },
         { headers: { Authorization: `Bearer ${token}` } }
       );
-
       if (res.data.action === 'removed') {
         setCounts(prev => ({ ...prev, [reactionId]: Math.max(0, (prev[reactionId] || 0) - 1) }));
         setUserReaction(null);
@@ -69,13 +68,13 @@ export const ReactionBar = ({ articleId, categoryColor = '#3B82F6' }) => {
       data-testid="reaction-bar"
       className="mt-8 p-5"
       style={{
-        background: '#FFFFFF',
-        border: '1.5px solid #E2E8F0',
-        borderRadius: 18,
+        background: isDark ? 'var(--drop-surface)' : 'var(--drop-surface)',
+        border: `1px solid var(--drop-border)`,
+        borderRadius: 'var(--drop-radius-card, 18px)',
       }}
     >
       <p className="text-[11px] font-semibold tracking-wider uppercase mb-4"
-        style={{ fontFamily: 'Outfit, sans-serif', color: '#94A3B8' }}>
+        style={{ fontFamily: 'var(--drop-font-body)', color: 'var(--drop-text-muted)' }}>
         HOW DID THIS MAKE YOU FEEL?
       </p>
       <div className="flex items-center justify-between">
@@ -92,7 +91,7 @@ export const ReactionBar = ({ articleId, categoryColor = '#3B82F6' }) => {
               style={{
                 background: isActive ? `${categoryColor}15` : 'transparent',
                 border: isActive ? `1.5px solid ${categoryColor}33` : '1.5px solid transparent',
-                borderRadius: 14,
+                borderRadius: 'var(--drop-radius-card, 14px)',
               }}
             >
               <motion.span
@@ -106,19 +105,12 @@ export const ReactionBar = ({ articleId, categoryColor = '#3B82F6' }) => {
               >
                 {r.emoji}
               </motion.span>
-              <span
-                className="text-[10px] font-bold"
-                style={{
-                  fontFamily: 'Outfit, sans-serif',
-                  color: isActive ? categoryColor : '#94A3B8',
-                }}
-              >
+              <span className="text-[10px] font-bold"
+                style={{ fontFamily: 'var(--drop-font-body)', color: isActive ? categoryColor : 'var(--drop-text-muted)' }}>
                 {count > 0 ? count : ''}
               </span>
-              <span
-                className="text-[9px]"
-                style={{ fontFamily: 'Outfit, sans-serif', color: '#94A3B8' }}
-              >
+              <span className="text-[9px]"
+                style={{ fontFamily: 'var(--drop-font-body)', color: 'var(--drop-text-muted)' }}>
                 {r.label}
               </span>
             </motion.button>

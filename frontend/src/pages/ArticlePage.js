@@ -5,6 +5,7 @@ import { BottomNav } from '../components/BottomNav';
 import { ReactionBar } from '../components/ReactionBar';
 import { ProfileButton } from '../components/ProfileButton';
 import { ProfilePanel } from '../components/ProfilePanel';
+import { getCategoryColor, CATEGORY_EMOJI, CATEGORY_LABELS } from '../lib/bandUtils';
 import { motion } from 'framer-motion';
 import { ChevronLeft, ExternalLink, Share2, Clock } from 'lucide-react';
 import axios from 'axios';
@@ -12,70 +13,16 @@ import { markArticleRead } from '../hooks/useReadArticles';
 
 const BACKEND_URL = import.meta.env.VITE_BACKEND_URL;
 
-const CATEGORY_COLORS = {
-  world: '#3B82F6',
-  science: '#10B981',
-  sports: '#F97316',
-  tech: '#8B5CF6',
-  environment: '#14B8A6',
-  'weird & wonderful': '#F59E0B',
-  weird: '#F59E0B',
-  entertainment: '#EC4899',
-  money: '#F59E0B',
-  history: '#F97316',
-  local: '#14B8A6',
-};
-
-const CATEGORY_LIGHT_BG = {
-  world: '#EFF6FF',
-  science: '#ECFDF5',
-  sports: '#FFF7ED',
-  tech: '#F5F3FF',
-  environment: '#F0FDFA',
-  'weird & wonderful': '#FFFBEB',
-  weird: '#FFFBEB',
-  entertainment: '#FDF2F8',
-  money: '#FFFBEB',
-  history: '#FFF7ED',
-  local: '#F0FDFA',
-};
-
-const CATEGORY_LABELS = {
-  world: "World",
-  science: "Science",
-  sports: "Sports",
-  tech: "Tech",
-  environment: "Environment",
-  'weird & wonderful': "Weird & Wonderful",
-  weird: "Weird & Wonderful",
-  entertainment: "Entertainment",
-  money: "Money",
-  history: "History",
-  local: "Local",
-};
-
-const CATEGORY_EMOJI = {
-  world: '🌍',
-  science: '🔬',
-  sports: '⚽',
-  tech: '💻',
-  environment: '🌱',
-  'weird & wonderful': '🦄',
-  weird: '🦄',
-  entertainment: '🎬',
-  money: '💰',
-  history: '📜',
-  local: '📍',
-};
-
 export default function ArticlePage() {
   const { id } = useParams();
   const navigate = useNavigate();
-  const { ageGroup, token } = useTheme();
+  const { ageGroup, band, token } = useTheme();
   const [article, setArticle] = useState(null);
   const [loading, setLoading] = useState(true);
   const [profileOpen, setProfileOpen] = useState(false);
+  const [readProgress, setReadProgress] = useState(0);
 
+  const isDark = band === 'sharp-aware' || band === 'editorial';
   const headers = token ? { Authorization: `Bearer ${token}` } : {};
 
   useEffect(() => {
@@ -98,6 +45,17 @@ export default function ArticlePage() {
     markArticleRead(article.id);
   }, [article]);
 
+  // Reading progress bar for band 4
+  useEffect(() => {
+    if (band !== 'editorial') return;
+    const handleScroll = () => {
+      const h = document.documentElement.scrollHeight - window.innerHeight;
+      setReadProgress(h > 0 ? (window.scrollY / h) * 100 : 0);
+    };
+    window.addEventListener('scroll', handleScroll);
+    return () => window.removeEventListener('scroll', handleScroll);
+  }, [band]);
+
   const handleShare = async () => {
     if (navigator.share) {
       try {
@@ -111,17 +69,17 @@ export default function ArticlePage() {
 
   if (loading) {
     return (
-      <div className="min-h-screen flex items-center justify-center" style={{ background: '#F8FAFC' }}>
+      <div className="min-h-screen flex items-center justify-center" style={{ background: 'var(--drop-bg)' }}>
         <div className="w-8 h-8 rounded-full border-2 border-t-transparent animate-spin"
-          style={{ borderColor: '#3B82F6', borderTopColor: 'transparent' }} />
+          style={{ borderColor: 'var(--drop-accent, #3B82F6)', borderTopColor: 'transparent' }} />
       </div>
     );
   }
 
   if (!article) {
     return (
-      <div className="min-h-screen flex items-center justify-center" style={{ background: '#F8FAFC' }}>
-        <p style={{ color: '#64748B', fontFamily: 'Outfit, sans-serif' }}>Article not found.</p>
+      <div className="min-h-screen flex items-center justify-center" style={{ background: 'var(--drop-bg)' }}>
+        <p style={{ color: 'var(--drop-text-muted)', fontFamily: 'var(--drop-font-body)' }}>Article not found.</p>
       </div>
     );
   }
@@ -132,31 +90,43 @@ export default function ArticlePage() {
   const summary = rw?.summary || '';
   const readingTime = rw?.reading_time || '2 min';
   const wonderQuestion = rw?.wonder_question || '';
-  const catColor = CATEGORY_COLORS[article.category] || '#3B82F6';
-  const lightBg = CATEGORY_LIGHT_BG[article.category] || '#EFF6FF';
+  const catColor = getCategoryColor(article.category, band);
   const emoji = CATEGORY_EMOJI[article.category] || '📰';
 
   return (
-    <div data-testid="article-page" className="min-h-screen pb-28" style={{ background: '#F8FAFC' }}>
-      {/* Hero area with gradient */}
+    <div data-testid="article-page" className="min-h-screen pb-28" style={{ background: 'var(--drop-bg)' }}>
+      {/* Reading progress bar — band 4 only */}
+      {band === 'editorial' && (
+        <div className="fixed top-0 left-0 right-0 z-50" style={{ height: 2, background: 'rgba(0,212,255,0.1)' }}>
+          <div style={{ width: `${readProgress}%`, height: '100%', background: '#00D4FF', transition: 'width 0.1s' }} />
+        </div>
+      )}
+
+      {/* Hero area */}
       <div
         className="relative w-full flex items-center justify-center"
         style={{
-          background: `linear-gradient(135deg, ${catColor}22, ${catColor}44)`,
+          background: isDark
+            ? `linear-gradient(135deg, ${catColor}22, ${catColor}44)`
+            : `linear-gradient(135deg, ${catColor}22, ${catColor}44)`,
           minHeight: 200,
         }}
       >
-        <span style={{ fontSize: 80 }}>{emoji}</span>
+        {/* No emoji for band 3 */}
+        {band !== 'sharp-aware' && <span style={{ fontSize: 80 }}>{emoji}</span>}
+        {band === 'sharp-aware' && (
+          <div style={{ width: 60, height: 3, background: catColor, borderRadius: 2 }} />
+        )}
 
         <button data-testid="back-btn" onClick={() => navigate(-1)}
           className="absolute top-4 left-4 p-2.5 z-10"
           style={{
-            background: '#FFFFFF',
-            borderRadius: 14,
-            border: '1.5px solid #E2E8F0',
-            boxShadow: '0 2px 8px rgba(0,0,0,0.06)',
+            background: 'var(--drop-surface)',
+            borderRadius: 'var(--drop-radius-card, 14px)',
+            border: `1px solid var(--drop-border)`,
+            boxShadow: isDark ? 'none' : '0 2px 8px rgba(0,0,0,0.06)',
           }}>
-          <ChevronLeft size={22} style={{ color: '#0F172A' }} />
+          <ChevronLeft size={22} style={{ color: 'var(--drop-text)' }} />
         </button>
         <div className="absolute top-4 right-4 z-10">
           <ProfileButton onClick={() => setProfileOpen(true)} size={34} />
@@ -167,78 +137,94 @@ export default function ArticlePage() {
       <motion.div initial={{ y: 20, opacity: 0 }} animate={{ y: 0, opacity: 1 }} transition={{ duration: 0.4 }}
         className="px-5 pt-5">
 
-        {/* Category pill */}
+        {/* Category */}
         <div className="flex items-center gap-1.5 mb-3">
-          <span
-            style={{
-              width: 6,
-              height: 6,
-              borderRadius: '50%',
-              background: catColor,
-              display: 'inline-block',
-            }}
-          />
+          {band !== 'sharp-aware' && (
+            <span style={{ width: 6, height: 6, borderRadius: '50%', background: catColor, display: 'inline-block' }} />
+          )}
           <span className="text-[11px] font-bold tracking-wider uppercase"
-            style={{ fontFamily: 'Outfit, sans-serif', color: catColor }}>
+            style={{
+              fontFamily: band === 'sharp-aware' ? 'var(--drop-font-heading)' : 'var(--drop-font-body)',
+              color: catColor,
+              letterSpacing: band === 'sharp-aware' ? '0.08em' : undefined,
+            }}>
             {CATEGORY_LABELS[article.category] || article.category}
           </span>
         </div>
 
         {/* Title */}
         <h1 className="text-[26px] font-bold tracking-tight leading-tight mb-3"
-          style={{ fontFamily: 'Fredoka, sans-serif', color: '#0F172A' }}>
+          style={{
+            fontFamily: 'var(--drop-font-heading)',
+            color: 'var(--drop-text)',
+            letterSpacing: 'var(--drop-letter-space-heading, normal)',
+            fontWeight: band === 'editorial' ? 800 : 700,
+          }}>
           {title}
         </h1>
 
         {/* Meta */}
         <div className="flex items-center gap-3 mb-5">
-          <span className="text-sm" style={{ fontFamily: 'Outfit, sans-serif', color: '#94A3B8' }}>
+          <span className="text-sm" style={{ fontFamily: 'var(--drop-font-body)', color: 'var(--drop-text-muted)' }}>
             {article.source}
           </span>
-          <div className="flex items-center gap-1.5 text-sm" style={{ color: '#94A3B8' }}>
+          <div className="flex items-center gap-1.5 text-sm" style={{ color: 'var(--drop-text-muted)' }}>
             <Clock size={14} />
-            <span style={{ fontFamily: 'Outfit, sans-serif' }}>{readingTime} read</span>
+            <span style={{ fontFamily: 'var(--drop-font-body)' }}>
+              {band === 'big-bold-bright' ? `⏱ ${readingTime}` : `${readingTime} read`}
+            </span>
           </div>
         </div>
 
         {/* Summary */}
         {summary && (
           <div className="p-4 mb-5" style={{
-            background: lightBg,
-            border: `1.5px solid ${catColor}22`,
-            borderRadius: 18,
+            background: isDark ? 'var(--drop-surface)' : `${catColor}08`,
+            border: `1px solid var(--drop-border)`,
+            borderRadius: 'var(--drop-radius-card, 18px)',
           }}>
             <p className="text-sm font-medium leading-relaxed"
-              style={{ fontFamily: 'Outfit, sans-serif', color: '#334155' }}>
+              style={{ fontFamily: 'var(--drop-font-body)', color: isDark ? 'var(--drop-text)' : '#334155' }}>
               {summary}
             </p>
           </div>
         )}
 
         {/* Body */}
-        <div className="text-base leading-[1.8] space-y-4"
-          style={{ fontFamily: 'Outfit, sans-serif', color: '#475569' }}>
+        <div className="space-y-4"
+          style={{
+            fontFamily: 'var(--drop-font-body)',
+            color: band === 'editorial' ? 'var(--drop-text-body, #B0BEC5)' : 'var(--drop-text)',
+            fontSize: band === 'big-bold-bright' ? '1.25rem' : 'var(--drop-text-body, 1rem)',
+            lineHeight: 'var(--drop-line-height, 1.75)',
+          }}>
           {body.split('\n').filter(Boolean).map((p, i) => (
             <p key={i}>{p}</p>
           ))}
         </div>
 
-        {/* Wonder Question */}
+        {/* Wonder Question — band 1 gets special purple box */}
         {wonderQuestion && (
           <div data-testid="wonder-question" className="mt-8 p-5" style={{
-            background: lightBg,
-            border: `1.5px solid ${catColor}33`,
-            borderRadius: 18,
+            background: band === 'big-bold-bright' ? '#A259FF' : isDark ? 'var(--drop-surface)' : `${catColor}08`,
+            border: band === 'big-bold-bright' ? 'none' : `1px solid var(--drop-border)`,
+            borderRadius: band === 'big-bold-bright' ? 20 : 'var(--drop-radius-card, 18px)',
           }}>
             <div className="flex items-center gap-2 mb-2">
               <span className="text-xl">❓</span>
               <p className="text-xs font-bold tracking-wider uppercase"
-                style={{ fontFamily: 'Outfit, sans-serif', color: catColor }}>
+                style={{
+                  fontFamily: 'var(--drop-font-body)',
+                  color: band === 'big-bold-bright' ? 'rgba(255,255,255,0.7)' : catColor,
+                }}>
                 Wonder Question
               </p>
             </div>
             <p className="text-base font-semibold leading-relaxed"
-              style={{ fontFamily: 'Outfit, sans-serif', color: '#0F172A' }}>
+              style={{
+                fontFamily: 'var(--drop-font-body)',
+                color: band === 'big-bold-bright' ? '#FFFFFF' : 'var(--drop-text)',
+              }}>
               {wonderQuestion}
             </p>
           </div>
@@ -251,12 +237,13 @@ export default function ArticlePage() {
         <button
           data-testid="share-btn"
           onClick={handleShare}
-          className="flex items-center justify-center gap-2 w-full mt-5 py-3 rounded-2xl text-sm font-bold transition-all duration-200"
+          className="flex items-center justify-center gap-2 w-full mt-5 py-3 text-sm font-bold transition-all duration-200"
           style={{
-            fontFamily: 'Outfit, sans-serif',
-            background: `linear-gradient(135deg, ${catColor}15, ${catColor}25)`,
+            fontFamily: 'var(--drop-font-body)',
+            background: isDark ? 'var(--drop-surface)' : `${catColor}10`,
             color: catColor,
-            border: `1.5px solid ${catColor}30`,
+            border: `1px solid var(--drop-border)`,
+            borderRadius: 'var(--drop-radius-btn, 16px)',
           }}
         >
           <Share2 size={16} />
@@ -267,11 +254,11 @@ export default function ArticlePage() {
         <a data-testid="source-link" href={article.original_url} target="_blank" rel="noopener noreferrer"
           className="inline-flex items-center gap-2 mt-6 mb-4 px-5 py-3 text-sm font-medium transition-all duration-200"
           style={{
-            fontFamily: 'Outfit, sans-serif',
-            background: '#FFFFFF',
-            border: '1.5px solid #E2E8F0',
-            borderRadius: 18,
-            color: '#64748B',
+            fontFamily: 'var(--drop-font-body)',
+            background: 'var(--drop-surface)',
+            border: `1px solid var(--drop-border)`,
+            borderRadius: 'var(--drop-radius-card, 18px)',
+            color: 'var(--drop-text-muted)',
           }}>
           <ExternalLink size={16} />
           Read the original at {article.source} →

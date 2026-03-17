@@ -34,7 +34,8 @@ const CATEGORY_ICONS = {
 
 export default function ProfilePage() {
   const navigate = useNavigate();
-  const { user, setUserData, token, ageGroup, themeMode, logout } = useTheme();
+  const { user, setUserData, token, ageGroup, band, logout } = useTheme();
+  const isDark = band === 'sharp-aware' || band === 'editorial';
   const [stats, setStats] = useState(null);
   const [countries, setCountries] = useState([]);
   const [showCountryPicker, setShowCountryPicker] = useState(false);
@@ -45,7 +46,7 @@ export default function ProfilePage() {
   const [friendRequests, setFriendRequests] = useState([]);
   const [leaderboard, setLeaderboard] = useState(null);
   const [prevWinner, setPrevWinner] = useState(null);
-  const [socialTab, setSocialTab] = useState('friends'); // 'friends', 'leaderboard', 'requests'
+  const [socialTab, setSocialTab] = useState('friends');
   const [showAddFriend, setShowAddFriend] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
   const [searchResults, setSearchResults] = useState([]);
@@ -55,13 +56,17 @@ export default function ProfilePage() {
   const { permission, requestPermission } = useNotifications();
   const [profilePanelOpen, setProfilePanelOpen] = useState(false);
 
-  const isKids = themeMode === 'kids';
-  const bg = isKids ? '#F0F4F8' : '#050505';
-  const text = isKids ? '#1A1A1A' : '#FAFAFA';
-  const card = isKids ? '#FFFFFF' : '#0d0d0d';
-  const sub = isKids ? '#666' : '#666';
-  const border = isKids ? 'rgba(0,0,0,0.06)' : 'rgba(255,255,255,0.06)';
-  const accent = isKids ? '#3A86FF' : '#CCFF00';
+  // Band-aware colors
+  const bg = 'var(--drop-bg)';
+  const text = 'var(--drop-text)';
+  const card = 'var(--drop-surface)';
+  const sub = 'var(--drop-text-muted)';
+  const border = 'var(--drop-border)';
+  const accent = band === 'big-bold-bright' ? '#FF4B4B'
+    : band === 'cool-connected' ? '#1E90FF'
+    : band === 'sharp-aware' ? '#5C4EFA'
+    : band === 'editorial' ? '#00D4FF'
+    : '#3A86FF';
   const headers = token ? { Authorization: `Bearer ${token}` } : {};
 
   useEffect(() => {
@@ -126,7 +131,6 @@ export default function ProfilePage() {
     try {
       await axios.post(`${BACKEND_URL}/api/friends/accept/${friendshipId}`, {}, { headers });
       setFriendRequests(prev => prev.filter(r => r.friendship_id !== friendshipId));
-      // Refresh friends
       const r = await axios.get(`${BACKEND_URL}/api/friends`, { headers });
       setFriends(r.data);
     } catch {}
@@ -156,13 +160,9 @@ export default function ProfilePage() {
 
   const formatMemberSince = (d) => {
     if (!d) return '';
-    try {
-      const dt = new Date(d);
-      return dt.toLocaleDateString('en-US', { month: 'long', year: 'numeric' });
-    } catch { return ''; }
+    try { return new Date(d).toLocaleDateString('en-US', { month: 'long', year: 'numeric' }); } catch { return ''; }
   };
 
-  // Flame size based on streak milestones
   const getFlameSize = (streak) => {
     if (streak >= 100) return 48;
     if (streak >= 50) return 40;
@@ -171,6 +171,8 @@ export default function ProfilePage() {
     return 24;
   };
 
+  const inputFieldBg = isDark ? 'rgba(255,255,255,0.04)' : '#f5f5f5';
+
   return (
     <div data-testid="profile-page" className="min-h-screen pb-24" style={{ background: bg }}>
       <div className="px-5 pt-6 max-w-lg mx-auto relative">
@@ -178,12 +180,11 @@ export default function ProfilePage() {
           <ProfileButton onClick={() => setProfilePanelOpen(true)} size={34} />
         </div>
 
-        {/* ━━━━━ SECTION 1: IDENTITY HEADER ━━━━━ */}
+        {/* ━━━ IDENTITY HEADER ━━━ */}
         <motion.div initial={{ y: 20, opacity: 0 }} animate={{ y: 0, opacity: 1 }}
           className="relative p-5 rounded-2xl mb-4"
-          style={{ background: card, border: `1px solid ${border}` }}>
+          style={{ background: card, border: `1px solid ${border}`, borderRadius: 'var(--drop-radius-card, 16px)' }}>
 
-          {/* Logout */}
           <button data-testid="logout-btn" onClick={handleLogout}
             className="absolute top-4 right-4 p-2 rounded-xl transition-colors"
             style={{ background: 'rgba(255,42,109,0.08)' }}>
@@ -191,22 +192,20 @@ export default function ProfilePage() {
           </button>
 
           <div className="flex items-start gap-4">
-            {/* Avatar */}
-            <div className="w-20 h-20 rounded-full overflow-hidden flex-shrink-0 border-3"
-              style={{ borderColor: accent, borderWidth: '3px' }}>
+            <div className="w-20 h-20 rounded-full overflow-hidden flex-shrink-0"
+              style={{ borderColor: accent, borderWidth: '3px', borderStyle: 'solid' }}>
               {user?.avatar_url ? (
                 <img src={user.avatar_url} alt="Avatar" className="w-full h-full object-cover" data-testid="profile-avatar" />
               ) : (
                 <div className="w-full h-full flex items-center justify-center text-2xl font-bold"
-                  style={{ background: `linear-gradient(135deg, ${accent}, #7209B7)`, color: '#fff', fontFamily: 'Syne, sans-serif' }}>
+                  style={{ background: `linear-gradient(135deg, ${accent}, #7209B7)`, color: '#fff', fontFamily: 'var(--drop-font-heading)' }}>
                   {user?.full_name?.charAt(0)?.toUpperCase() || 'U'}
                 </div>
               )}
             </div>
 
             <div className="flex-1 min-w-0 pt-1">
-              {/* Name + username */}
-              <h1 className="text-xl font-bold truncate" style={{ fontFamily: isKids ? 'Fredoka, sans-serif' : 'Syne, sans-serif', color: text }}>
+              <h1 className="text-xl font-bold truncate" style={{ fontFamily: 'var(--drop-font-heading)', color: text }}>
                 {user?.full_name}
                 {user?.username && (
                   <span className="text-sm font-normal opacity-40 ml-2" style={{ fontFamily: 'JetBrains Mono, monospace' }}>
@@ -215,15 +214,13 @@ export default function ProfilePage() {
                 )}
               </h1>
 
-              {/* Country + City */}
               <div className="flex items-center gap-1.5 mt-1">
                 {userCountry && <span className="text-sm">{userCountry.flag_emoji}</span>}
-                <span className="text-xs" style={{ fontFamily: 'Outfit, sans-serif', color: sub }}>
+                <span className="text-xs" style={{ fontFamily: 'var(--drop-font-body)', color: sub }}>
                   {user?.city ? `${user.city}, ` : ''}{user?.country || ''}
                 </span>
               </div>
 
-              {/* Member since + Age badge */}
               <div className="flex items-center gap-2 mt-2 flex-wrap">
                 {stats?.member_since && (
                   <span className="text-[10px] opacity-40" style={{ fontFamily: 'JetBrains Mono, monospace', color: text }}>
@@ -240,29 +237,27 @@ export default function ProfilePage() {
           </div>
         </motion.div>
 
-        {/* ━━━━━ SECTION 2: STATS DASHBOARD ━━━━━ */}
+        {/* ━━━ STATS ━━━ */}
         {stats && (
           <div className="space-y-3 mb-4">
-
-            {/* Knowledge Score — hero card */}
             <motion.div initial={{ y: 15, opacity: 0 }} animate={{ y: 0, opacity: 1 }} transition={{ delay: 0.05 }}
               data-testid="knowledge-score-card"
-              className="p-5 rounded-2xl text-center relative overflow-hidden"
+              className="p-5 text-center relative overflow-hidden"
               style={{
-                background: isKids
-                  ? 'linear-gradient(135deg, #3A86FF, #8338EC)'
-                  : 'linear-gradient(135deg, #0d0d0d 0%, #1a1a1a 100%)',
+                borderRadius: 'var(--drop-radius-card, 16px)',
+                background: isDark
+                  ? `linear-gradient(135deg, var(--drop-surface) 0%, var(--drop-bg) 100%)`
+                  : `linear-gradient(135deg, ${accent}, #7209B7)`,
                 border: `1px solid ${border}`,
               }}>
               <div className="absolute top-0 right-0 w-32 h-32 rounded-full opacity-10 blur-2xl"
-                style={{ background: RANK_COLORS[stats.knowledge_score.rank_label] || '#CCFF00' }} />
-
+                style={{ background: RANK_COLORS[stats.knowledge_score.rank_label] || accent }} />
               <p className="text-xs font-bold tracking-[0.2em] uppercase mb-2 opacity-50"
-                style={{ fontFamily: 'JetBrains Mono, monospace', color: isKids ? '#fff' : text }}>
+                style={{ fontFamily: 'JetBrains Mono, monospace', color: isDark ? text : '#fff' }}>
                 KNOWLEDGE SCORE
               </p>
               <p data-testid="knowledge-score-value" className="text-5xl font-bold mb-1"
-                style={{ fontFamily: 'Syne, sans-serif', color: RANK_COLORS[stats.knowledge_score.rank_label] || accent }}>
+                style={{ fontFamily: 'var(--drop-font-heading)', color: RANK_COLORS[stats.knowledge_score.rank_label] || accent }}>
                 {stats.knowledge_score.score}
               </p>
               <span data-testid="knowledge-rank-label" className="inline-block px-3 py-1 rounded-full text-xs font-bold tracking-wider uppercase"
@@ -276,143 +271,101 @@ export default function ProfilePage() {
               </span>
             </motion.div>
 
-            {/* Streak + Stories Read — 2-col grid */}
             <div className="grid grid-cols-2 gap-3">
-              {/* Streak */}
               <motion.div initial={{ y: 15, opacity: 0 }} animate={{ y: 0, opacity: 1 }} transition={{ delay: 0.1 }}
-                data-testid="streak-card"
-                className="p-4 rounded-xl" style={{ background: card, border: `1px solid ${border}` }}>
+                data-testid="streak-card" className="p-4"
+                style={{ borderRadius: 'var(--drop-radius-card, 12px)', background: card, border: `1px solid ${border}` }}>
                 <div className="flex items-center justify-center mb-2">
-                  <Flame size={getFlameSize(stats.streak.current)} color="#FF6B35"
-                    fill={stats.streak.current > 0 ? '#FF6B35' : 'none'} />
+                  <Flame size={getFlameSize(stats.streak.current)} color="#FF6B35" fill={stats.streak.current > 0 ? '#FF6B35' : 'none'} />
                 </div>
                 <p data-testid="streak-current" className="text-2xl font-bold text-center"
-                  style={{ fontFamily: 'Syne, sans-serif', color: text }}>
-                  {stats.streak.current}
-                </p>
+                  style={{ fontFamily: 'var(--drop-font-heading)', color: text }}>{stats.streak.current}</p>
                 <p className="text-[10px] text-center uppercase tracking-wider opacity-40"
-                  style={{ fontFamily: 'JetBrains Mono, monospace', color: text }}>
-                  day streak
-                </p>
+                  style={{ fontFamily: 'JetBrains Mono, monospace', color: text }}>day streak</p>
                 <p className="text-[10px] text-center mt-1.5 opacity-30"
-                  style={{ fontFamily: 'Outfit, sans-serif', color: text }}>
-                  Best: {stats.streak.longest}
-                </p>
+                  style={{ fontFamily: 'var(--drop-font-body)', color: text }}>Best: {stats.streak.longest}</p>
               </motion.div>
 
-              {/* Stories Read */}
               <motion.div initial={{ y: 15, opacity: 0 }} animate={{ y: 0, opacity: 1 }} transition={{ delay: 0.12 }}
-                data-testid="stories-read-card"
-                className="p-4 rounded-xl" style={{ background: card, border: `1px solid ${border}` }}>
+                data-testid="stories-read-card" className="p-4"
+                style={{ borderRadius: 'var(--drop-radius-card, 12px)', background: card, border: `1px solid ${border}` }}>
                 <div className="flex items-center justify-center mb-2">
                   <BookOpen size={24} color={accent} />
                 </div>
                 <p data-testid="stories-read-total" className="text-2xl font-bold text-center"
-                  style={{ fontFamily: 'Syne, sans-serif', color: text }}>
-                  {stats.stories_read.total}
-                </p>
+                  style={{ fontFamily: 'var(--drop-font-heading)', color: text }}>{stats.stories_read.total}</p>
                 <p className="text-[10px] text-center uppercase tracking-wider opacity-40"
-                  style={{ fontFamily: 'JetBrains Mono, monospace', color: text }}>
-                  stories read
-                </p>
+                  style={{ fontFamily: 'JetBrains Mono, monospace', color: text }}>stories read</p>
                 <p className="text-[10px] text-center mt-1.5 opacity-30"
-                  style={{ fontFamily: 'Outfit, sans-serif', color: text }}>
+                  style={{ fontFamily: 'var(--drop-font-body)', color: text }}>
                   This week: {stats.stories_read.this_week} / Month: {stats.stories_read.this_month}
                 </p>
               </motion.div>
             </div>
 
-            {/* Favourite Topic + Reactions — 2-col grid */}
             <div className="grid grid-cols-2 gap-3">
-              {/* Favourite Topic */}
               <motion.div initial={{ y: 15, opacity: 0 }} animate={{ y: 0, opacity: 1 }} transition={{ delay: 0.15 }}
-                data-testid="favourite-topic-card"
-                className="p-4 rounded-xl" style={{ background: card, border: `1px solid ${border}` }}>
-                {(() => {
-                  const CatIcon = CATEGORY_ICONS[stats.favourite_category] || Globe;
-                  return (
-                    <>
-                      <div className="flex items-center justify-center mb-2">
-                        <Trophy size={24} color="#FFD60A" />
-                      </div>
-                      <p className="text-sm font-bold text-center capitalize"
-                        style={{ fontFamily: 'Syne, sans-serif', color: text }}>
-                        {stats.favourite_category}
-                      </p>
-                      <p className="text-[10px] text-center uppercase tracking-wider opacity-40"
-                        style={{ fontFamily: 'JetBrains Mono, monospace', color: text }}>
-                        top topic
-                      </p>
-                    </>
-                  );
-                })()}
+                data-testid="favourite-topic-card" className="p-4"
+                style={{ borderRadius: 'var(--drop-radius-card, 12px)', background: card, border: `1px solid ${border}` }}>
+                <div className="flex items-center justify-center mb-2"><Trophy size={24} color="#FFD60A" /></div>
+                <p className="text-sm font-bold text-center capitalize"
+                  style={{ fontFamily: 'var(--drop-font-heading)', color: text }}>{stats.favourite_category}</p>
+                <p className="text-[10px] text-center uppercase tracking-wider opacity-40"
+                  style={{ fontFamily: 'JetBrains Mono, monospace', color: text }}>top topic</p>
               </motion.div>
 
-              {/* Reactions */}
               <motion.div initial={{ y: 15, opacity: 0 }} animate={{ y: 0, opacity: 1 }} transition={{ delay: 0.17 }}
-                data-testid="reactions-card"
-                className="p-4 rounded-xl" style={{ background: card, border: `1px solid ${border}` }}>
+                data-testid="reactions-card" className="p-4"
+                style={{ borderRadius: 'var(--drop-radius-card, 12px)', background: card, border: `1px solid ${border}` }}>
                 <div className="flex items-center justify-center mb-2">
                   <span className="text-2xl">{stats.reactions.most_used || '---'}</span>
                 </div>
                 <p data-testid="reactions-total" className="text-2xl font-bold text-center"
-                  style={{ fontFamily: 'Syne, sans-serif', color: text }}>
-                  {stats.reactions.total}
-                </p>
+                  style={{ fontFamily: 'var(--drop-font-heading)', color: text }}>{stats.reactions.total}</p>
                 <p className="text-[10px] text-center uppercase tracking-wider opacity-40"
-                  style={{ fontFamily: 'JetBrains Mono, monospace', color: text }}>
-                  reactions
-                </p>
+                  style={{ fontFamily: 'JetBrains Mono, monospace', color: text }}>reactions</p>
                 <p className="text-[10px] text-center mt-1.5 opacity-30"
-                  style={{ fontFamily: 'Outfit, sans-serif', color: text }}>
-                  This month: {stats.reactions.this_month}
-                </p>
+                  style={{ fontFamily: 'var(--drop-font-body)', color: text }}>This month: {stats.reactions.this_month}</p>
               </motion.div>
             </div>
 
-            {/* Countries Covered */}
             <motion.div initial={{ y: 15, opacity: 0 }} animate={{ y: 0, opacity: 1 }} transition={{ delay: 0.2 }}
-              data-testid="countries-card"
-              className="p-4 rounded-xl flex items-center gap-4" style={{ background: card, border: `1px solid ${border}` }}>
+              data-testid="countries-card" className="p-4 flex items-center gap-4"
+              style={{ borderRadius: 'var(--drop-radius-card, 12px)', background: card, border: `1px solid ${border}` }}>
               <Globe size={28} color={accent} />
               <div>
-                <p className="text-lg font-bold" style={{ fontFamily: 'Syne, sans-serif', color: text }}>
+                <p className="text-lg font-bold" style={{ fontFamily: 'var(--drop-font-heading)', color: text }}>
                   {stats.countries_covered} <span className="text-sm font-normal opacity-40">countries</span>
                 </p>
                 <p className="text-[10px] uppercase tracking-wider opacity-40"
-                  style={{ fontFamily: 'JetBrains Mono, monospace', color: text }}>
-                  in your feed this week
-                </p>
+                  style={{ fontFamily: 'JetBrains Mono, monospace', color: text }}>in your feed this week</p>
               </div>
             </motion.div>
           </div>
         )}
 
-        {/* ━━━━━ SECTION 3: SETTINGS ━━━━━ */}
+        {/* ━━━ SETTINGS ━━━ */}
         <div className="space-y-3 mb-4">
-          {/* Country Selector */}
           <motion.div initial={{ y: 15, opacity: 0 }} animate={{ y: 0, opacity: 1 }} transition={{ delay: 0.25 }}
-            className="p-4 rounded-xl relative" style={{ background: card, border: `1px solid ${border}` }}>
+            className="p-4 relative" style={{ borderRadius: 'var(--drop-radius-card, 12px)', background: card, border: `1px solid ${border}` }}>
             <p className="text-[10px] font-bold tracking-wider uppercase mb-2 opacity-40"
               style={{ fontFamily: 'JetBrains Mono, monospace', color: text }}>NEWS COUNTRY</p>
             <button data-testid="country-selector-btn" onClick={() => setShowCountryPicker(!showCountryPicker)}
               className="w-full flex items-center justify-between px-3 py-2.5 rounded-lg"
-              style={{ background: isKids ? '#f5f5f5' : 'rgba(255,255,255,0.04)', border: `1px solid ${border}` }}>
-              <span className="text-sm font-medium" style={{ fontFamily: 'Outfit, sans-serif', color: text }}>
+              style={{ background: inputFieldBg, border: `1px solid ${border}` }}>
+              <span className="text-sm font-medium" style={{ fontFamily: 'var(--drop-font-body)', color: text }}>
                 {userCountry ? `${userCountry.flag_emoji} ${userCountry.country_name}` : (user?.country || 'Select')}
               </span>
               <ChevronDown size={14} style={{ color: sub }} />
             </button>
             {showCountryPicker && (
               <div className="absolute left-0 right-0 mt-1 mx-4 rounded-xl overflow-hidden z-20 max-h-52 overflow-y-auto"
-                style={{ background: isKids ? '#fff' : '#1a1a1a', border: `1px solid ${border}`, boxShadow: '0 8px 32px rgba(0,0,0,0.3)' }}>
+                style={{ background: card, border: `1px solid ${border}`, boxShadow: '0 8px 32px rgba(0,0,0,0.3)' }}>
                 {countries.map(c => (
                   <button key={c.country_code} data-testid={`country-option-${c.country_code}`}
                     onClick={() => handleCountrySelect(c)}
                     className="w-full text-left px-4 py-2.5 text-sm flex items-center gap-2 transition-colors"
-                    style={{ fontFamily: 'Outfit, sans-serif', color: c.country_name === user?.country ? accent : text }}
-                    onMouseEnter={e => e.target.style.background = isKids ? 'rgba(0,0,0,0.03)' : 'rgba(255,255,255,0.04)'}
-                    onMouseLeave={e => e.target.style.background = 'transparent'}>
+                    style={{ fontFamily: 'var(--drop-font-body)', color: c.country_name === user?.country ? accent : text }}>
                     <span>{c.flag_emoji}</span><span>{c.country_name}</span>
                   </button>
                 ))}
@@ -420,9 +373,8 @@ export default function ProfilePage() {
             )}
           </motion.div>
 
-          {/* City */}
           <motion.div initial={{ y: 15, opacity: 0 }} animate={{ y: 0, opacity: 1 }} transition={{ delay: 0.27 }}
-            className="p-4 rounded-xl" style={{ background: card, border: `1px solid ${border}` }}>
+            className="p-4" style={{ borderRadius: 'var(--drop-radius-card, 12px)', background: card, border: `1px solid ${border}` }}>
             <div className="flex items-center justify-between mb-2">
               <p className="text-[10px] font-bold tracking-wider uppercase opacity-40"
                 style={{ fontFamily: 'JetBrains Mono, monospace', color: text }}>CITY</p>
@@ -441,29 +393,23 @@ export default function ProfilePage() {
             {editingCity ? (
               <input data-testid="edit-city-input" value={editCity} onChange={e => setEditCity(e.target.value)}
                 className="w-full px-3 py-2 rounded-lg text-sm outline-none"
-                style={{ fontFamily: 'Outfit, sans-serif', background: isKids ? '#f5f5f5' : 'rgba(255,255,255,0.04)', border: `1px solid ${border}`, color: text }} />
+                style={{ fontFamily: 'var(--drop-font-body)', background: inputFieldBg, border: `1px solid ${border}`, color: text }} />
             ) : (
-              <p className="text-sm font-medium" style={{ fontFamily: 'Outfit, sans-serif', color: text }}>
+              <p className="text-sm font-medium" style={{ fontFamily: 'var(--drop-font-body)', color: text }}>
                 {user?.city || 'Not set'}
               </p>
             )}
           </motion.div>
 
-          {/* Notification Settings */}
           <motion.div initial={{ y: 15, opacity: 0 }} animate={{ y: 0, opacity: 1 }} transition={{ delay: 0.3 }}>
-            <NotificationSettings isKids={isKids} permission={permission} onRequestPermission={requestPermission} />
+            <NotificationSettings isKids={!isDark} permission={permission} onRequestPermission={requestPermission} />
           </motion.div>
         </div>
 
-        {/* ━━━━━ SECTION 3: SOCIAL / FRIENDS ━━━━━ */}
-        <motion.div initial={{ y: 15, opacity: 0 }} animate={{ y: 0, opacity: 1 }} transition={{ delay: 0.35 }}
-          className="mb-4">
-
-          {/* Section header + Add Friend */}
+        {/* ━━━ SOCIAL ━━━ */}
+        <motion.div initial={{ y: 15, opacity: 0 }} animate={{ y: 0, opacity: 1 }} transition={{ delay: 0.35 }} className="mb-4">
           <div className="flex items-center justify-between mb-3">
-            <h2 className="text-lg font-bold" style={{ fontFamily: isKids ? 'Fredoka, sans-serif' : 'Syne, sans-serif', color: text }}>
-              Friends
-            </h2>
+            <h2 className="text-lg font-bold" style={{ fontFamily: 'var(--drop-font-heading)', color: text }}>Friends</h2>
             <div className="flex gap-2">
               <button data-testid="invite-link-btn" onClick={handleCopyInvite}
                 className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-[10px] font-bold uppercase tracking-wider"
@@ -478,32 +424,28 @@ export default function ProfilePage() {
             </div>
           </div>
 
-          {/* Add Friend Search Modal */}
           <AnimatePresence>
             {showAddFriend && (
-              <motion.div initial={{ height: 0, opacity: 0 }} animate={{ height: 'auto', opacity: 1 }} exit={{ height: 0, opacity: 0 }}
-                className="mb-3 overflow-hidden">
-                <div className="p-4 rounded-xl" style={{ background: card, border: `1px solid ${border}` }}>
+              <motion.div initial={{ height: 0, opacity: 0 }} animate={{ height: 'auto', opacity: 1 }} exit={{ height: 0, opacity: 0 }} className="mb-3 overflow-hidden">
+                <div className="p-4" style={{ borderRadius: 'var(--drop-radius-card, 12px)', background: card, border: `1px solid ${border}` }}>
                   <div className="relative mb-3">
                     <Search size={14} className="absolute left-3 top-1/2 -translate-y-1/2 opacity-30" style={{ color: text }} />
                     <input data-testid="friend-search-input" placeholder="Find @username" value={searchQuery}
                       onChange={e => handleSearchFriends(e.target.value)}
                       className="w-full pl-9 pr-4 py-2.5 rounded-lg text-sm outline-none"
-                      style={{ fontFamily: 'JetBrains Mono, monospace', background: isKids ? '#f5f5f5' : 'rgba(255,255,255,0.04)', border: `1px solid ${border}`, color: text }} />
+                      style={{ fontFamily: 'JetBrains Mono, monospace', background: inputFieldBg, border: `1px solid ${border}`, color: text }} />
                   </div>
                   {searching && <p className="text-xs opacity-30 text-center py-2" style={{ color: text }}>Searching...</p>}
                   {searchResults.map(r => (
                     <div key={r.id} className="flex items-center gap-3 py-2.5 border-t" style={{ borderColor: border }}>
                       <img src={r.avatar_url} alt="" className="w-9 h-9 rounded-full" />
                       <div className="flex-1 min-w-0">
-                        <p className="text-sm font-medium truncate" style={{ fontFamily: 'Outfit, sans-serif', color: text }}>{r.full_name}</p>
+                        <p className="text-sm font-medium truncate" style={{ fontFamily: 'var(--drop-font-body)', color: text }}>{r.full_name}</p>
                         <p className="text-[10px] opacity-40" style={{ fontFamily: 'JetBrains Mono, monospace', color: text }}>@{r.username} · {r.knowledge_score} pts</p>
                       </div>
                       <button data-testid={`add-friend-${r.username}`} onClick={() => handleSendRequest(r.username)}
                         className="px-3 py-1.5 rounded-lg text-[10px] font-bold uppercase"
-                        style={{ fontFamily: 'JetBrains Mono, monospace', background: accent, color: '#050505' }}>
-                        Add
-                      </button>
+                        style={{ fontFamily: 'JetBrains Mono, monospace', background: accent, color: '#050505' }}>Add</button>
                     </div>
                   ))}
                   {searchQuery.length >= 2 && !searching && searchResults.length === 0 && (
@@ -514,8 +456,7 @@ export default function ProfilePage() {
             )}
           </AnimatePresence>
 
-          {/* Tabs: Friends / Leaderboard / Requests */}
-          <div className="flex gap-1 p-1 rounded-xl mb-3" style={{ background: isKids ? '#e8e8e8' : 'rgba(255,255,255,0.04)' }}>
+          <div className="flex gap-1 p-1 rounded-xl mb-3" style={{ background: isDark ? 'rgba(255,255,255,0.04)' : '#e8e8e8' }}>
             {[
               { id: 'friends', label: 'Friends', count: friends.length },
               { id: 'leaderboard', label: 'Board' },
@@ -526,7 +467,7 @@ export default function ProfilePage() {
                 className="flex-1 py-2 rounded-lg text-[10px] font-bold uppercase tracking-wider transition-colors flex items-center justify-center gap-1"
                 style={{
                   fontFamily: 'JetBrains Mono, monospace',
-                  background: socialTab === tab.id ? (isKids ? '#fff' : 'rgba(255,255,255,0.08)') : 'transparent',
+                  background: socialTab === tab.id ? (isDark ? 'rgba(255,255,255,0.08)' : '#fff') : 'transparent',
                   color: socialTab === tab.id ? accent : sub,
                 }}>
                 {tab.label}
@@ -540,11 +481,10 @@ export default function ProfilePage() {
             ))}
           </div>
 
-          {/* Friends List */}
           {socialTab === 'friends' && (
-            <div className="space-y-1" style={{ background: card, borderRadius: '12px', border: `1px solid ${border}` }}>
+            <div className="space-y-1" style={{ background: card, borderRadius: 'var(--drop-radius-card, 12px)', border: `1px solid ${border}` }}>
               {friends.length === 0 ? (
-                <p className="text-xs opacity-30 text-center py-6" style={{ fontFamily: 'Outfit, sans-serif', color: text }}>
+                <p className="text-xs opacity-30 text-center py-6" style={{ fontFamily: 'var(--drop-font-body)', color: text }}>
                   No friends yet. Search or share your invite link!
                 </p>
               ) : (
@@ -554,7 +494,7 @@ export default function ProfilePage() {
                     style={{ borderTop: i > 0 ? `1px solid ${border}` : 'none' }}>
                     <img src={f.avatar_url} alt="" className="w-9 h-9 rounded-full" />
                     <div className="flex-1 min-w-0">
-                      <p className="text-sm font-medium truncate" style={{ fontFamily: 'Outfit, sans-serif', color: text }}>
+                      <p className="text-sm font-medium truncate" style={{ fontFamily: 'var(--drop-font-body)', color: text }}>
                         {f.full_name} <span className="text-[10px] opacity-40" style={{ fontFamily: 'JetBrains Mono, monospace' }}>@{f.username}</span>
                       </p>
                       <div className="flex items-center gap-2">
@@ -566,20 +506,14 @@ export default function ProfilePage() {
                         </span>
                       </div>
                     </div>
-                    {f.last_read_date !== new Date().toISOString().split('T')[0] && f.current_streak > 0 && (
-                      <span className="text-[8px] px-1.5 py-0.5 rounded-full" style={{ background: 'rgba(255,107,53,0.1)', color: '#FF6B35', fontFamily: 'JetBrains Mono, monospace' }}>
-                        at risk
-                      </span>
-                    )}
                   </div>
                 ))
               )}
             </div>
           )}
 
-          {/* Leaderboard */}
           {socialTab === 'leaderboard' && leaderboard && (
-            <div style={{ background: card, borderRadius: '12px', border: `1px solid ${border}` }}>
+            <div style={{ background: card, borderRadius: 'var(--drop-radius-card, 12px)', border: `1px solid ${border}` }}>
               {prevWinner && (
                 <div className="px-4 py-3 text-center" style={{ borderBottom: `1px solid ${border}` }}>
                   <span className="text-[10px] opacity-40" style={{ fontFamily: 'JetBrains Mono, monospace', color: text }}>
@@ -590,27 +524,18 @@ export default function ProfilePage() {
               {leaderboard.map((e, i) => (
                 <div key={e.id} data-testid={`leaderboard-${e.rank}`}
                   className="flex items-center gap-3 px-4 py-3"
-                  style={{
-                    borderTop: i > 0 ? `1px solid ${border}` : 'none',
-                    background: e.is_self ? `${accent}08` : 'transparent',
-                  }}>
+                  style={{ borderTop: i > 0 ? `1px solid ${border}` : 'none', background: e.is_self ? `${accent}08` : 'transparent' }}>
                   <span className="w-6 text-center text-sm font-bold"
-                    style={{ fontFamily: 'Syne, sans-serif', color: e.rank <= 3 ? '#FFD60A' : sub }}>
-                    {e.rank}
-                  </span>
+                    style={{ fontFamily: 'var(--drop-font-heading)', color: e.rank <= 3 ? '#FFD60A' : sub }}>{e.rank}</span>
                   <img src={e.avatar_url} alt="" className="w-8 h-8 rounded-full" />
                   <div className="flex-1 min-w-0">
-                    <p className="text-sm font-medium truncate" style={{ fontFamily: 'Outfit, sans-serif', color: text }}>
+                    <p className="text-sm font-medium truncate" style={{ fontFamily: 'var(--drop-font-body)', color: text }}>
                       {e.full_name} {e.is_self && <span className="text-[9px] opacity-40">(you)</span>}
                     </p>
-                    <span className="text-[10px] opacity-40" style={{ fontFamily: 'JetBrains Mono, monospace', color: text }}>
-                      {e.rank_label}
-                    </span>
+                    <span className="text-[10px] opacity-40" style={{ fontFamily: 'JetBrains Mono, monospace', color: text }}>{e.rank_label}</span>
                   </div>
                   <div className="text-right">
-                    <p className="text-sm font-bold" style={{ fontFamily: 'Syne, sans-serif', color: RANK_COLORS[e.rank_label] || accent }}>
-                      {e.knowledge_score}
-                    </p>
+                    <p className="text-sm font-bold" style={{ fontFamily: 'var(--drop-font-heading)', color: RANK_COLORS[e.rank_label] || accent }}>{e.knowledge_score}</p>
                     <span className="text-[9px] flex items-center gap-0.5 justify-end" style={{ color: '#FF6B35' }}>
                       <Flame size={9} /> {e.current_streak}
                     </span>
@@ -620,11 +545,10 @@ export default function ProfilePage() {
             </div>
           )}
 
-          {/* Friend Requests */}
           {socialTab === 'requests' && (
-            <div style={{ background: card, borderRadius: '12px', border: `1px solid ${border}` }}>
+            <div style={{ background: card, borderRadius: 'var(--drop-radius-card, 12px)', border: `1px solid ${border}` }}>
               {friendRequests.length === 0 ? (
-                <p className="text-xs opacity-30 text-center py-6" style={{ fontFamily: 'Outfit, sans-serif', color: text }}>
+                <p className="text-xs opacity-30 text-center py-6" style={{ fontFamily: 'var(--drop-font-body)', color: text }}>
                   No pending requests
                 </p>
               ) : (
@@ -634,24 +558,16 @@ export default function ProfilePage() {
                     style={{ borderTop: i > 0 ? `1px solid ${border}` : 'none' }}>
                     <img src={r.sender.avatar_url} alt="" className="w-9 h-9 rounded-full" />
                     <div className="flex-1 min-w-0">
-                      <p className="text-sm font-medium truncate" style={{ fontFamily: 'Outfit, sans-serif', color: text }}>
-                        {r.sender.full_name}
-                      </p>
-                      <p className="text-[10px] opacity-40" style={{ fontFamily: 'JetBrains Mono, monospace', color: text }}>
-                        @{r.sender.username}
-                      </p>
+                      <p className="text-sm font-medium truncate" style={{ fontFamily: 'var(--drop-font-body)', color: text }}>{r.sender.full_name}</p>
+                      <p className="text-[10px] opacity-40" style={{ fontFamily: 'JetBrains Mono, monospace', color: text }}>@{r.sender.username}</p>
                     </div>
                     <div className="flex gap-1.5">
                       <button data-testid={`accept-${r.sender.username}`} onClick={() => handleAcceptRequest(r.friendship_id)}
                         className="px-3 py-1.5 rounded-lg text-[10px] font-bold uppercase"
-                        style={{ fontFamily: 'JetBrains Mono, monospace', background: accent, color: '#050505' }}>
-                        Accept
-                      </button>
+                        style={{ fontFamily: 'JetBrains Mono, monospace', background: accent, color: '#050505' }}>Accept</button>
                       <button data-testid={`decline-${r.sender.username}`} onClick={() => handleDeclineRequest(r.friendship_id)}
                         className="px-3 py-1.5 rounded-lg text-[10px] font-bold uppercase"
-                        style={{ fontFamily: 'JetBrains Mono, monospace', background: 'rgba(255,42,109,0.1)', color: '#FF2A6D' }}>
-                        Decline
-                      </button>
+                        style={{ fontFamily: 'JetBrains Mono, monospace', background: 'rgba(255,42,109,0.1)', color: '#FF2A6D' }}>Decline</button>
                     </div>
                   </div>
                 ))
@@ -661,7 +577,7 @@ export default function ProfilePage() {
         </motion.div>
       </div>
 
-      <BottomNav isKids={isKids} active="profile" />
+      <BottomNav active="profile" />
       <ProfilePanel open={profilePanelOpen} onClose={() => setProfilePanelOpen(false)} />
     </div>
   );

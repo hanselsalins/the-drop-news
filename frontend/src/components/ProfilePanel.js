@@ -2,10 +2,18 @@ import { useState, useEffect, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useTheme } from '../contexts/ThemeContext';
 import { motion, AnimatePresence } from 'framer-motion';
-import { X, Flame, ChevronRight, LogOut, Trash2, Lock, Eye, EyeOff, Check } from 'lucide-react';
+import { X, Flame, ChevronRight, LogOut, Trash2, Lock, Eye, EyeOff, Check, Users } from 'lucide-react';
+import { ProfileSwitcherModal } from './ProfileSwitcherModal';
 import axios from 'axios';
 
 const BACKEND_URL = import.meta.env.VITE_BACKEND_URL;
+
+const AGE_TO_BAND = {
+  '8-10': 'big-bold-bright',
+  '11-13': 'cool-connected',
+  '14-16': 'sharp-aware',
+  '17-20': 'editorial',
+};
 
 const AGE_BADGES = {
   '8-10': { label: 'Junior Reader', color: '#FFD60A' },
@@ -22,8 +30,9 @@ const ACCOUNT_TYPES = {
 
 export const ProfilePanel = ({ open, onClose }) => {
   const navigate = useNavigate();
-  const { user, token, ageGroup, logout, setToken, setUserData, linkedProfiles: ctxLinkedProfiles, fetchLinkedProfiles } = useTheme();
+  const { user, token, ageGroup, band, logout, linkedProfiles: ctxLinkedProfiles, fetchLinkedProfiles } = useTheme();
   const headers = token ? { Authorization: `Bearer ${token}` } : {};
+  const isDark = band === 'sharp-aware' || band === 'editorial';
 
   const [streak, setStreak] = useState({ current_streak: 0 });
   const [showChangePassword, setShowChangePassword] = useState(false);
@@ -35,11 +44,7 @@ export const ProfilePanel = ({ open, onClose }) => {
   const [showNewPw, setShowNewPw] = useState(false);
   const [deleting, setDeleting] = useState(false);
 
-  // Filter out current user from linked profiles
-  console.log('[ProfilePanel] ctxLinkedProfiles:', JSON.stringify(ctxLinkedProfiles));
-  console.log('[ProfilePanel] current user id:', user?.id);
-  const linkedProfiles = (ctxLinkedProfiles || []).filter(p => p.id !== user?.id);
-  console.log('[ProfilePanel] filtered linkedProfiles:', linkedProfiles.length);
+  const [showSwitcher, setShowSwitcher] = useState(false);
 
   const fetchData = useCallback(async () => {
     if (!token) return;
@@ -47,52 +52,30 @@ export const ProfilePanel = ({ open, onClose }) => {
       const streakRes = await axios.get(`${BACKEND_URL}/api/streak`, { headers }).catch(() => ({ data: { current_streak: 0 } }));
       setStreak(streakRes.data);
     } catch {}
-    // Refresh linked profiles from context
     fetchLinkedProfiles();
   }, [token, fetchLinkedProfiles]);
 
   useEffect(() => {
     if (open) {
       fetchData();
+      setShowSwitcher(false);
       setShowChangePassword(false);
-      setShowDeleteConfirm(false);
       setPasswordForm({ current: '', new: '', confirm: '' });
       setPasswordError('');
       setPasswordSuccess(false);
     }
   }, [open, fetchData]);
 
-  const handleSwitchProfile = async (profile) => {
-    if (profile.id === user?.id) return; // Already active
-    try {
-      const res = await axios.post(`${BACKEND_URL}/api/auth/switch-profile`, { target_user_id: profile.id }, { headers });
-      if (res.data.token) setToken(res.data.token);
-      if (res.data.user) setUserData(res.data.user);
-      onClose();
-      window.location.reload();
-    } catch {}
-  };
-
   const handleChangePassword = async () => {
     setPasswordError('');
-    if (passwordForm.new !== passwordForm.confirm) {
-      setPasswordError('Passwords do not match');
-      return;
-    }
-    if (passwordForm.new.length < 6) {
-      setPasswordError('Password must be at least 6 characters');
-      return;
-    }
+    if (passwordForm.new !== passwordForm.confirm) { setPasswordError('Passwords do not match'); return; }
+    if (passwordForm.new.length < 6) { setPasswordError('Password must be at least 6 characters'); return; }
     try {
       await axios.post(`${BACKEND_URL}/api/auth/change-password`, {
-        current_password: passwordForm.current,
-        new_password: passwordForm.new,
+        current_password: passwordForm.current, new_password: passwordForm.new,
       }, { headers });
       setPasswordSuccess(true);
-      setTimeout(() => {
-        setShowChangePassword(false);
-        setPasswordSuccess(false);
-      }, 2000);
+      setTimeout(() => { setShowChangePassword(false); setPasswordSuccess(false); }, 2000);
     } catch (e) {
       setPasswordError(e.response?.data?.error || 'Failed to change password');
     }
@@ -100,316 +83,155 @@ export const ProfilePanel = ({ open, onClose }) => {
 
   const handleDeleteAccount = async () => {
     setDeleting(true);
-    try {
-      await axios.delete(`${BACKEND_URL}/api/auth/account`, { headers });
-      logout();
-      navigate('/auth');
-    } catch {}
+    try { await axios.delete(`${BACKEND_URL}/api/auth/account`, { headers }); logout(); navigate('/auth'); } catch {}
     setDeleting(false);
   };
 
-  const handleLogout = () => {
-    logout();
-    onClose();
-    navigate('/auth');
-  };
+  const handleLogout = () => { logout(); onClose(); navigate('/auth'); };
 
   const badge = AGE_BADGES[ageGroup] || AGE_BADGES['14-16'];
   const accountType = ACCOUNT_TYPES[user?.account_type] || ACCOUNT_TYPES.independent;
+
+  // Band-aware gradient
+  const gradients = {
+    'big-bold-bright': 'linear-gradient(135deg, #FF4B4B, #FFD93D)',
+    'cool-connected': 'linear-gradient(135deg, #1E90FF, #00D4AA)',
+    'sharp-aware': 'linear-gradient(135deg, #5C4EFA, #22D3EE)',
+    'editorial': 'linear-gradient(135deg, #00D4FF, #FF2D78)',
+  };
+  const avatarGradient = gradients[band] || 'linear-gradient(135deg, #3B82F6, #8B5CF6)';
+
+  const panelBg = isDark ? 'var(--drop-surface)' : 'var(--drop-surface)';
+  const dividerColor = isDark ? 'var(--drop-border)' : '#F1F5F9';
+  const inputBg = isDark ? 'rgba(255,255,255,0.06)' : '#F8FAFC';
+  const inputBorder = isDark ? 'var(--drop-border)' : '1.5px solid #E2E8F0';
 
   return (
     <AnimatePresence>
       {open && (
         <>
-          {/* Backdrop */}
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            onClick={onClose}
-            className="fixed inset-0 z-[60]"
-            style={{ background: 'rgba(0,0,0,0.4)', backdropFilter: 'blur(4px)' }}
-          />
+          <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
+            onClick={onClose} className="fixed inset-0 z-[60]"
+            style={{ background: 'rgba(0,0,0,0.4)', backdropFilter: 'blur(4px)' }} />
 
-          {/* Panel */}
           <motion.div
-            initial={{ x: '100%' }}
-            animate={{ x: 0 }}
-            exit={{ x: '100%' }}
+            initial={{ x: '100%' }} animate={{ x: 0 }} exit={{ x: '100%' }}
             transition={{ type: 'spring', damping: 28, stiffness: 300 }}
             className="fixed top-0 right-0 bottom-0 z-[70] overflow-y-auto"
-            style={{
-              width: 'min(360px, 85vw)',
-              background: '#FFFFFF',
-              boxShadow: '-8px 0 40px rgba(0,0,0,0.12)',
-            }}
+            style={{ width: 'min(360px, 85vw)', background: panelBg, boxShadow: '-8px 0 40px rgba(0,0,0,0.12)' }}
           >
-            {/* Close button */}
             <div className="flex justify-end p-4">
-              <button onClick={onClose} className="p-2 rounded-xl" style={{ background: '#F1F5F9' }}>
-                <X size={18} style={{ color: '#64748B' }} />
+              <button onClick={onClose} className="p-2 rounded-xl"
+                style={{ background: isDark ? 'rgba(255,255,255,0.06)' : '#F1F5F9' }}>
+                <X size={18} style={{ color: 'var(--drop-text-muted)' }} />
               </button>
             </div>
 
-            {/* Profile picture */}
+            {/* Avatar */}
             <div className="flex flex-col items-center px-6 pb-5">
-              <div
-                style={{
-                  width: 80,
-                  height: 80,
-                  borderRadius: '50%',
-                  padding: 3,
-                  background: 'linear-gradient(135deg, #3B82F6, #8B5CF6)',
-                }}
-              >
+              <div style={{ width: 80, height: 80, borderRadius: '50%', padding: 3, background: avatarGradient }}>
                 <div style={{ width: '100%', height: '100%', borderRadius: '50%', overflow: 'hidden' }}>
                   {user?.avatar_url ? (
                     <img src={user.avatar_url} alt="Profile" className="w-full h-full object-cover" />
                   ) : (
-                    <div
-                      className="w-full h-full flex items-center justify-center"
-                      style={{
-                        background: 'linear-gradient(135deg, #3B82F6, #8B5CF6)',
-                        color: '#FFFFFF',
-                        fontFamily: 'Fredoka, sans-serif',
-                        fontSize: 32,
-                        fontWeight: 700,
-                      }}
-                    >
+                    <div className="w-full h-full flex items-center justify-center"
+                      style={{ background: avatarGradient, color: '#FFFFFF', fontFamily: 'var(--drop-font-heading)', fontSize: 32, fontWeight: 700 }}>
                       {user?.full_name?.charAt(0)?.toUpperCase() || 'U'}
                     </div>
                   )}
                 </div>
               </div>
 
-              {/* Name */}
-              <h2
-                className="mt-3 text-xl font-bold text-center"
-                style={{ fontFamily: 'Fredoka, sans-serif', color: '#0F172A' }}
-              >
+              <h2 className="mt-3 text-xl font-bold text-center"
+                style={{ fontFamily: 'var(--drop-font-heading)', color: 'var(--drop-text)' }}>
                 {user?.full_name}
               </h2>
               {user?.username && (
-                <p className="text-sm mt-0.5" style={{ fontFamily: 'Outfit, sans-serif', color: '#94A3B8' }}>
+                <p className="text-sm mt-0.5" style={{ fontFamily: 'var(--drop-font-body)', color: 'var(--drop-text-muted)' }}>
                   @{user.username}
                 </p>
               )}
 
-              {/* Badges */}
               <div className="flex items-center gap-2 mt-3">
-                <span
-                  className="text-[10px] font-bold tracking-wider uppercase px-2.5 py-1 rounded-full"
-                  style={{ fontFamily: 'Outfit, sans-serif', background: `${badge.color}15`, color: badge.color }}
-                >
+                <span className="text-[10px] font-bold tracking-wider uppercase px-2.5 py-1 rounded-full"
+                  style={{ fontFamily: 'var(--drop-font-body)', background: `${badge.color}15`, color: badge.color }}>
                   {badge.label}
                 </span>
-                <span
-                  className="text-[10px] font-bold tracking-wider uppercase px-2.5 py-1 rounded-full"
-                  style={{ fontFamily: 'Outfit, sans-serif', background: `${accountType.color}15`, color: accountType.color }}
-                >
+                <span className="text-[10px] font-bold tracking-wider uppercase px-2.5 py-1 rounded-full"
+                  style={{ fontFamily: 'var(--drop-font-body)', background: `${accountType.color}15`, color: accountType.color }}>
                   {accountType.label}
                 </span>
               </div>
 
-              {/* Streak */}
-              <div
-                className="flex items-center gap-2 mt-4 px-4 py-2 rounded-full"
-                style={{ background: '#FFF7ED', border: '1.5px solid #FFEDD5' }}
-              >
+              <div className="flex items-center gap-2 mt-4 px-4 py-2 rounded-full"
+                style={{ background: isDark ? 'rgba(249,115,22,0.1)' : '#FFF7ED', border: isDark ? '1px solid rgba(249,115,22,0.2)' : '1.5px solid #FFEDD5' }}>
                 <Flame size={18} style={{ color: '#F97316' }} fill="#F97316" />
-                <span className="text-sm font-bold" style={{ fontFamily: 'Fredoka, sans-serif', color: '#F97316' }}>
+                <span className="text-sm font-bold" style={{ fontFamily: 'var(--drop-font-heading)', color: '#F97316' }}>
                   {streak.current_streak} day streak
                 </span>
               </div>
             </div>
 
-            {/* Divider */}
-            <div style={{ height: 1, background: '#F1F5F9', margin: '0 24px' }} />
+            <div style={{ height: 1, background: dividerColor, margin: '0 24px' }} />
 
-            {/* Profile Switching */}
-            {/* Profile Switching */}
+            {/* Switch Profile row */}
             <div className="px-6 py-4">
-              {(linkedProfiles.length > 0) && (
-                <>
-                  <p
-                    className="text-[10px] font-bold tracking-wider uppercase mb-3"
-                    style={{ fontFamily: 'Outfit, sans-serif', color: '#94A3B8' }}
-                  >
-                    Profiles
-                  </p>
-                  <div className="space-y-2">
-                    {/* Current active profile */}
-                    <div
-                      className="w-full flex items-center gap-3 p-3 rounded-xl"
-                      style={{ background: '#EFF6FF', border: '1.5px solid #93C5FD' }}
-                    >
-                      <div
-                        className="w-9 h-9 rounded-full overflow-hidden flex-shrink-0"
-                        style={{ border: '2px solid #3B82F6' }}
-                      >
-                        {user?.avatar_url ? (
-                          <img src={user.avatar_url} alt="" className="w-full h-full object-cover" />
-                        ) : (
-                          <div
-                            className="w-full h-full flex items-center justify-center text-sm font-bold"
-                            style={{ background: 'linear-gradient(135deg, #3B82F6, #8B5CF6)', color: '#FFFFFF', fontFamily: 'Fredoka, sans-serif' }}
-                          >
-                            {user?.full_name?.charAt(0)?.toUpperCase() || '?'}
-                          </div>
-                        )}
-                      </div>
-                      <div className="flex-1 text-left">
-                        <p className="text-sm font-medium" style={{ fontFamily: 'Outfit, sans-serif', color: '#0F172A' }}>
-                          {user?.full_name}
-                        </p>
-                        <p className="text-[10px]" style={{ fontFamily: 'Outfit, sans-serif', color: '#3B82F6' }}>
-                          {AGE_BADGES[user?.age_group]?.label || user?.age_group || 'Active'}
-                        </p>
-                      </div>
-                      <Check size={16} style={{ color: '#3B82F6' }} strokeWidth={3} />
-                    </div>
-
-                    {/* Linked profiles */}
-                    {linkedProfiles.map((profile) => (
-                      <button
-                        key={profile.id}
-                        onClick={() => handleSwitchProfile(profile)}
-                        className="w-full flex items-center gap-3 p-3 rounded-xl transition-colors hover:bg-slate-50"
-                        style={{ background: '#F8FAFC', border: '1.5px solid #F1F5F9' }}
-                      >
-                        <div
-                          className="w-9 h-9 rounded-full overflow-hidden flex-shrink-0"
-                          style={{ border: '2px solid #E2E8F0' }}
-                        >
-                          {profile.avatar_url ? (
-                            <img src={profile.avatar_url} alt="" className="w-full h-full object-cover" />
-                          ) : (
-                            <div
-                              className="w-full h-full flex items-center justify-center text-sm font-bold"
-                              style={{ background: '#E2E8F0', color: '#64748B', fontFamily: 'Fredoka, sans-serif' }}
-                            >
-                              {profile.full_name?.charAt(0)?.toUpperCase() || '?'}
-                            </div>
-                          )}
-                        </div>
-                        <div className="flex-1 text-left">
-                          <p className="text-sm font-medium" style={{ fontFamily: 'Outfit, sans-serif', color: '#0F172A' }}>
-                            {profile.full_name}
-                          </p>
-                          <p className="text-[10px]" style={{ fontFamily: 'Outfit, sans-serif', color: '#94A3B8' }}>
-                            {AGE_BADGES[profile.age_group]?.label || profile.age_group}
-                          </p>
-                        </div>
-                        <span className="text-xs font-medium px-2.5 py-1 rounded-full" style={{ background: '#F1F5F9', color: '#64748B', fontFamily: 'Outfit, sans-serif' }}>
-                          Switch
-                        </span>
-                      </button>
-                    ))}
-                  </div>
-                </>
-              )}
-
-              {/* Add New Profile button */}
-              <button
-                onClick={() => {
-                  onClose();
-                  navigate('/auth', { state: { addProfile: true } });
-                }}
-                className="w-full flex items-center gap-3 p-3 rounded-xl mt-2 transition-colors"
-                style={{ background: '#F0F9FF', border: '1.5px dashed #93C5FD' }}
-              >
-                <div
-                  className="w-9 h-9 rounded-full flex items-center justify-center flex-shrink-0"
-                  style={{ background: 'linear-gradient(135deg, #3B82F6, #8B5CF6)' }}
-                >
-                  <span className="text-white text-lg font-bold">+</span>
-                </div>
-                <span className="text-sm font-medium" style={{ fontFamily: 'Outfit, sans-serif', color: '#3B82F6' }}>
-                  Add New Profile
+              <button onClick={() => setShowSwitcher(true)} className="w-full flex items-center gap-3 py-2.5 px-4 rounded-2xl transition-colors"
+                style={{ background: isDark ? 'rgba(92,78,250,0.08)' : '#EFF6FF', border: isDark ? '1px solid rgba(92,78,250,0.2)' : '1.5px solid #BFDBFE' }}>
+                <Users size={20} style={{ color: isDark ? 'var(--drop-accent, #00D4FF)' : '#3B82F6' }} />
+                <span className="flex-1 text-left text-sm font-bold" style={{ fontFamily: 'var(--drop-font-body)', color: 'var(--drop-text)' }}>
+                  Switch Profile
                 </span>
+                <span className="text-xs font-medium px-2.5 py-1 rounded-full"
+                  style={{ background: isDark ? 'rgba(255,255,255,0.06)' : '#F1F5F9', color: 'var(--drop-text-muted)', fontFamily: 'var(--drop-font-body)' }}>
+                  {(ctxLinkedProfiles || []).length} profiles
+                </span>
+                <ChevronRight size={16} style={{ color: 'var(--drop-text-muted)' }} />
               </button>
             </div>
-            <div style={{ height: 1, background: '#F1F5F9', margin: '0 24px' }} />
+
+            <ProfileSwitcherModal open={showSwitcher} onClose={() => setShowSwitcher(false)} onPanelClose={onClose} />
 
             {/* Change Password */}
             <div className="px-6 py-4">
-              <button
-                onClick={() => setShowChangePassword(!showChangePassword)}
-                className="w-full flex items-center gap-3 py-2"
-              >
-                <Lock size={18} style={{ color: '#64748B' }} />
-                <span className="flex-1 text-left text-sm font-medium" style={{ fontFamily: 'Outfit, sans-serif', color: '#0F172A' }}>
+              <button onClick={() => setShowChangePassword(!showChangePassword)} className="w-full flex items-center gap-3 py-2">
+                <Lock size={18} style={{ color: 'var(--drop-text-muted)' }} />
+                <span className="flex-1 text-left text-sm font-medium" style={{ fontFamily: 'var(--drop-font-body)', color: 'var(--drop-text)' }}>
                   Change Password
                 </span>
-                <ChevronRight
-                  size={16}
-                  style={{
-                    color: '#CBD5E1',
-                    transform: showChangePassword ? 'rotate(90deg)' : 'none',
-                    transition: 'transform 0.2s',
-                  }}
-                />
+                <ChevronRight size={16} style={{ color: 'var(--drop-text-muted)', transform: showChangePassword ? 'rotate(90deg)' : 'none', transition: 'transform 0.2s' }} />
               </button>
 
               <AnimatePresence>
                 {showChangePassword && (
-                  <motion.div
-                    initial={{ height: 0, opacity: 0 }}
-                    animate={{ height: 'auto', opacity: 1 }}
-                    exit={{ height: 0, opacity: 0 }}
-                    className="overflow-hidden"
-                  >
+                  <motion.div initial={{ height: 0, opacity: 0 }} animate={{ height: 'auto', opacity: 1 }} exit={{ height: 0, opacity: 0 }} className="overflow-hidden">
                     <div className="pt-3 space-y-3">
                       <div className="relative">
-                        <input
-                          type={showCurrentPw ? 'text' : 'password'}
-                          placeholder="Current password"
-                          value={passwordForm.current}
-                          onChange={(e) => setPasswordForm({ ...passwordForm, current: e.target.value })}
+                        <input type={showCurrentPw ? 'text' : 'password'} placeholder="Current password"
+                          value={passwordForm.current} onChange={(e) => setPasswordForm({ ...passwordForm, current: e.target.value })}
                           className="w-full px-3 py-2.5 rounded-xl text-sm outline-none"
-                          style={{ fontFamily: 'Outfit, sans-serif', background: '#F8FAFC', border: '1.5px solid #E2E8F0' }}
-                        />
+                          style={{ fontFamily: 'var(--drop-font-body)', background: inputBg, border: inputBorder, color: 'var(--drop-text)' }} />
                         <button onClick={() => setShowCurrentPw(!showCurrentPw)} className="absolute right-3 top-1/2 -translate-y-1/2">
-                          {showCurrentPw ? <EyeOff size={14} style={{ color: '#94A3B8' }} /> : <Eye size={14} style={{ color: '#94A3B8' }} />}
+                          {showCurrentPw ? <EyeOff size={14} style={{ color: 'var(--drop-text-muted)' }} /> : <Eye size={14} style={{ color: 'var(--drop-text-muted)' }} />}
                         </button>
                       </div>
                       <div className="relative">
-                        <input
-                          type={showNewPw ? 'text' : 'password'}
-                          placeholder="New password"
-                          value={passwordForm.new}
-                          onChange={(e) => setPasswordForm({ ...passwordForm, new: e.target.value })}
+                        <input type={showNewPw ? 'text' : 'password'} placeholder="New password"
+                          value={passwordForm.new} onChange={(e) => setPasswordForm({ ...passwordForm, new: e.target.value })}
                           className="w-full px-3 py-2.5 rounded-xl text-sm outline-none"
-                          style={{ fontFamily: 'Outfit, sans-serif', background: '#F8FAFC', border: '1.5px solid #E2E8F0' }}
-                        />
+                          style={{ fontFamily: 'var(--drop-font-body)', background: inputBg, border: inputBorder, color: 'var(--drop-text)' }} />
                         <button onClick={() => setShowNewPw(!showNewPw)} className="absolute right-3 top-1/2 -translate-y-1/2">
-                          {showNewPw ? <EyeOff size={14} style={{ color: '#94A3B8' }} /> : <Eye size={14} style={{ color: '#94A3B8' }} />}
+                          {showNewPw ? <EyeOff size={14} style={{ color: 'var(--drop-text-muted)' }} /> : <Eye size={14} style={{ color: 'var(--drop-text-muted)' }} />}
                         </button>
                       </div>
-                      <input
-                        type="password"
-                        placeholder="Confirm new password"
-                        value={passwordForm.confirm}
-                        onChange={(e) => setPasswordForm({ ...passwordForm, confirm: e.target.value })}
+                      <input type="password" placeholder="Confirm new password"
+                        value={passwordForm.confirm} onChange={(e) => setPasswordForm({ ...passwordForm, confirm: e.target.value })}
                         className="w-full px-3 py-2.5 rounded-xl text-sm outline-none"
-                        style={{ fontFamily: 'Outfit, sans-serif', background: '#F8FAFC', border: '1.5px solid #E2E8F0' }}
-                      />
-                      {passwordError && (
-                        <p className="text-xs" style={{ color: '#EF4444', fontFamily: 'Outfit, sans-serif' }}>{passwordError}</p>
-                      )}
-                      {passwordSuccess && (
-                        <p className="text-xs" style={{ color: '#10B981', fontFamily: 'Outfit, sans-serif' }}>Password changed successfully!</p>
-                      )}
-                      <button
-                        onClick={handleChangePassword}
-                        className="w-full py-2.5 rounded-xl text-sm font-bold"
-                        style={{
-                          fontFamily: 'Outfit, sans-serif',
-                          background: 'linear-gradient(135deg, #3B82F6, #8B5CF6)',
-                          color: '#FFFFFF',
-                          border: 'none',
-                        }}
-                      >
+                        style={{ fontFamily: 'var(--drop-font-body)', background: inputBg, border: inputBorder, color: 'var(--drop-text)' }} />
+                      {passwordError && <p className="text-xs" style={{ color: '#EF4444', fontFamily: 'var(--drop-font-body)' }}>{passwordError}</p>}
+                      {passwordSuccess && <p className="text-xs" style={{ color: '#10B981', fontFamily: 'var(--drop-font-body)' }}>Password changed!</p>}
+                      <button onClick={handleChangePassword} className="w-full py-2.5 rounded-xl text-sm font-bold"
+                        style={{ fontFamily: 'var(--drop-font-body)', background: avatarGradient, color: '#FFFFFF', border: 'none' }}>
                         Update Password
                       </button>
                     </div>
@@ -420,42 +242,29 @@ export const ProfilePanel = ({ open, onClose }) => {
 
             {/* Delete Account */}
             <div className="px-6 pb-2">
-              <button
-                onClick={() => setShowDeleteConfirm(!showDeleteConfirm)}
-                className="w-full flex items-center gap-3 py-2"
-              >
+              <button onClick={() => setShowDeleteConfirm(!showDeleteConfirm)} className="w-full flex items-center gap-3 py-2">
                 <Trash2 size={18} style={{ color: '#EF4444' }} />
-                <span className="flex-1 text-left text-sm font-medium" style={{ fontFamily: 'Outfit, sans-serif', color: '#EF4444' }}>
+                <span className="flex-1 text-left text-sm font-medium" style={{ fontFamily: 'var(--drop-font-body)', color: '#EF4444' }}>
                   Delete Account
                 </span>
               </button>
 
               <AnimatePresence>
                 {showDeleteConfirm && (
-                  <motion.div
-                    initial={{ height: 0, opacity: 0 }}
-                    animate={{ height: 'auto', opacity: 1 }}
-                    exit={{ height: 0, opacity: 0 }}
-                    className="overflow-hidden"
-                  >
-                    <div className="p-4 rounded-xl mt-2" style={{ background: '#FEF2F2', border: '1.5px solid #FECACA' }}>
-                      <p className="text-sm mb-3" style={{ fontFamily: 'Outfit, sans-serif', color: '#991B1B' }}>
-                        Are you sure? This action cannot be undone. All your data will be permanently deleted.
+                  <motion.div initial={{ height: 0, opacity: 0 }} animate={{ height: 'auto', opacity: 1 }} exit={{ height: 0, opacity: 0 }} className="overflow-hidden">
+                    <div className="p-4 rounded-xl mt-2" style={{ background: isDark ? 'rgba(239,68,68,0.1)' : '#FEF2F2', border: isDark ? '1px solid rgba(239,68,68,0.2)' : '1.5px solid #FECACA' }}>
+                      <p className="text-sm mb-3" style={{ fontFamily: 'var(--drop-font-body)', color: isDark ? '#FCA5A5' : '#991B1B' }}>
+                        Are you sure? This action cannot be undone.
                       </p>
                       <div className="flex gap-2">
-                        <button
-                          onClick={() => setShowDeleteConfirm(false)}
+                        <button onClick={() => setShowDeleteConfirm(false)}
                           className="flex-1 py-2 rounded-xl text-sm font-medium"
-                          style={{ fontFamily: 'Outfit, sans-serif', background: '#FFFFFF', border: '1.5px solid #E2E8F0', color: '#64748B' }}
-                        >
+                          style={{ fontFamily: 'var(--drop-font-body)', background: 'var(--drop-surface)', border: `1px solid var(--drop-border)`, color: 'var(--drop-text-muted)' }}>
                           Cancel
                         </button>
-                        <button
-                          onClick={handleDeleteAccount}
-                          disabled={deleting}
+                        <button onClick={handleDeleteAccount} disabled={deleting}
                           className="flex-1 py-2 rounded-xl text-sm font-bold"
-                          style={{ fontFamily: 'Outfit, sans-serif', background: '#EF4444', color: '#FFFFFF', border: 'none' }}
-                        >
+                          style={{ fontFamily: 'var(--drop-font-body)', background: '#EF4444', color: '#FFFFFF', border: 'none' }}>
                           {deleting ? 'Deleting...' : 'Delete'}
                         </button>
                       </div>
@@ -465,21 +274,13 @@ export const ProfilePanel = ({ open, onClose }) => {
               </AnimatePresence>
             </div>
 
-            {/* Divider */}
-            <div style={{ height: 1, background: '#F1F5F9', margin: '0 24px' }} />
+            <div style={{ height: 1, background: dividerColor, margin: '0 24px' }} />
 
             {/* Logout */}
             <div className="px-6 py-4 pb-8">
-              <button
-                onClick={handleLogout}
+              <button onClick={handleLogout}
                 className="w-full flex items-center justify-center gap-2 py-3 rounded-xl text-sm font-bold"
-                style={{
-                  fontFamily: 'Outfit, sans-serif',
-                  background: '#FEF2F2',
-                  color: '#EF4444',
-                  border: '1.5px solid #FECACA',
-                }}
-              >
+                style={{ fontFamily: 'var(--drop-font-body)', background: isDark ? 'rgba(239,68,68,0.1)' : '#FEF2F2', color: '#EF4444', border: isDark ? '1px solid rgba(239,68,68,0.2)' : '1.5px solid #FECACA' }}>
                 <LogOut size={16} />
                 Log Out
               </button>

@@ -1,48 +1,67 @@
-const CATEGORY_COLORS = {
-  today: '#3B82F6',
-  world: '#3B82F6',
-  science: '#10B981',
-  sports: '#F97316',
-  tech: '#8B5CF6',
-  environment: '#14B8A6',
-  'weird & wonderful': '#F59E0B',
-  weird: '#F59E0B',
-  entertainment: '#EC4899',
-  money: '#F59E0B',
-  history: '#F97316',
-  local: '#14B8A6',
-};
-
-const CATEGORY_LIGHT_BG = {
-  today: '#EFF6FF',
-  world: '#EFF6FF',
-  science: '#ECFDF5',
-  sports: '#FFF7ED',
-  tech: '#F5F3FF',
-  environment: '#F0FDFA',
-  'weird & wonderful': '#FFFBEB',
-  weird: '#FFFBEB',
-  entertainment: '#FDF2F8',
-  money: '#FFFBEB',
-  history: '#FFF7ED',
-  local: '#F0FDFA',
-};
+import { useTheme } from '../contexts/ThemeContext';
+import { getCategoryColor } from '../lib/bandUtils';
 
 export const CategoryTabs = ({ categories, activeCategory, setActiveCategory }) => {
+  const { band } = useTheme();
+  const isDark = band === 'sharp-aware' || band === 'editorial';
+
   return (
     <div
       className="w-full overflow-x-auto scrollbar-hide"
       style={{
-        background: '#FFFFFF',
-        borderBottom: '1.5px solid #F1F5F9',
+        background: isDark ? 'var(--drop-surface)' : 'var(--drop-surface)',
+        borderBottom: `1.5px solid var(--drop-border)`,
         WebkitOverflowScrolling: 'touch',
       }}
     >
       <div className="flex gap-2 px-4 py-3 min-w-max">
         {categories.map((cat) => {
           const isActive = activeCategory === cat.id;
-          const color = CATEGORY_COLORS[cat.id] || '#3B82F6';
-          const lightBg = CATEGORY_LIGHT_BG[cat.id] || '#EFF6FF';
+          const color = getCategoryColor(cat.id, band);
+
+          // Band 3: no pill badges, ALL CAPS dot separators
+          if (band === 'sharp-aware') {
+            return (
+              <button
+                key={cat.id}
+                data-testid={`category-tab-${cat.id}`}
+                onClick={() => setActiveCategory(cat.id)}
+                className="shrink-0 px-3 py-2 text-[11px] font-semibold tracking-[0.08em] uppercase whitespace-nowrap transition-all duration-200"
+                style={{
+                  fontFamily: 'var(--drop-font-heading)',
+                  borderRadius: 6,
+                  background: isActive ? 'var(--drop-surface-hover, #352F80)' : 'transparent',
+                  color: isActive ? 'var(--drop-text)' : 'var(--drop-text-muted)',
+                  border: isActive ? '1px solid var(--drop-border)' : '1px solid transparent',
+                }}
+              >
+                {cat.name}
+              </button>
+            );
+          }
+
+          // Band 4: minimal rectangular tabs
+          if (band === 'editorial') {
+            return (
+              <button
+                key={cat.id}
+                data-testid={`category-tab-${cat.id}`}
+                onClick={() => setActiveCategory(cat.id)}
+                className="shrink-0 px-3 py-2 text-[11px] font-medium tracking-wide uppercase whitespace-nowrap transition-all duration-200"
+                style={{
+                  fontFamily: 'var(--drop-font-heading)',
+                  borderRadius: 6,
+                  background: isActive ? `${color}20` : 'transparent',
+                  color: isActive ? color : 'var(--drop-text-muted)',
+                  borderBottom: isActive ? `2px solid ${color}` : '2px solid transparent',
+                }}
+              >
+                {cat.name}
+              </button>
+            );
+          }
+
+          // Bands 1 & 2: pill badges
           return (
             <button
               key={cat.id}
@@ -50,12 +69,12 @@ export const CategoryTabs = ({ categories, activeCategory, setActiveCategory }) 
               onClick={() => setActiveCategory(cat.id)}
               className="shrink-0 px-4 py-2 text-xs font-semibold tracking-wide uppercase whitespace-nowrap transition-all duration-200"
               style={{
-                fontFamily: 'Outfit, sans-serif',
-                borderRadius: '20px',
-                background: isActive ? color : lightBg,
+                fontFamily: band === 'big-bold-bright' ? 'var(--drop-font-heading)' : 'var(--drop-font-body)',
+                borderRadius: band === 'big-bold-bright' ? 999 : 20,
+                background: isActive ? color : `${color}12`,
                 color: isActive ? '#FFFFFF' : color,
                 fontWeight: isActive ? 700 : 600,
-                border: 'none',
+                border: band === 'big-bold-bright' && !isActive ? `2px solid ${color}40` : 'none',
               }}
             >
               {cat.name}

@@ -2,11 +2,8 @@
 @tailwind components;
 @tailwind utilities;
 
-@import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;700&display=swap');
-
 body {
   margin: 0;
-  font-family: 'Outfit', -apple-system, BlinkMacSystemFont, sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   overscroll-behavior: none;
@@ -16,6 +13,142 @@ code {
   font-family: 'JetBrains Mono', monospace;
 }
 
+/* ═══════════════════════════════════════════════════
+   BAND 1 — Ages 8-10 — "Big Bold Bright"
+   ═══════════════════════════════════════════════════ */
+[data-band="big-bold-bright"] {
+  --drop-primary: #FF4B4B;
+  --drop-secondary: #FFD93D;
+  --drop-accent: #06C48B;
+  --drop-bg: #FFF8F0;
+  --drop-surface: #FFFFFF;
+  --drop-text: #1A1035;
+  --drop-text-muted: #6B4E3D;
+  --drop-border: #FFD5B8;
+  --drop-font-heading: 'Fredoka', cursive;
+  --drop-font-body: 'Outfit', sans-serif;
+  --drop-text-body: 1.25rem;
+  --drop-line-height: 1.75;
+  --drop-radius-card: 28px;
+  --drop-radius-btn: 999px;
+  --drop-shadow-card: 6px 6px 0px 0px #FFB3A0, 0 12px 32px rgba(0,0,0,0.08);
+  --drop-shadow-btn: 4px 4px 0px 0px #CC2E2E;
+  --drop-min-touch: 56px;
+  --drop-cat-world: #3B82F6;
+  --drop-cat-power: #EF4444;
+  --drop-cat-money: #F59E0B;
+  --drop-cat-tech: #8B5CF6;
+  --drop-cat-sports: #F97316;
+  --drop-cat-entertainment: #EC4899;
+  --drop-cat-environment: #10B981;
+  --drop-cat-science: #10B981;
+  --drop-header-bg: linear-gradient(135deg, #FF4B4B 0%, #FFD93D 100%);
+}
+
+/* ═══════════════════════════════════════════════════
+   BAND 2 — Ages 11-13 — "Cool & Connected"
+   ═══════════════════════════════════════════════════ */
+[data-band="cool-connected"] {
+  --drop-primary: #0A1628;
+  --drop-accent: #1E90FF;
+  --drop-accent2: #00D4AA;
+  --drop-bg: #F4F6F9;
+  --drop-surface: #FFFFFF;
+  --drop-text: #0A1628;
+  --drop-text-muted: #4A5568;
+  --drop-border: #D1DCE8;
+  --drop-font-heading: 'Baloo 2', cursive;
+  --drop-font-body: 'Nunito', sans-serif;
+  --drop-text-body: 1.0625rem;
+  --drop-line-height: 1.6;
+  --drop-radius-card: 22px;
+  --drop-radius-btn: 999px;
+  --drop-shadow-card: 0 2px 16px rgba(10,22,40,0.08);
+  --drop-shadow-btn: 0 4px 16px rgba(30,144,255,0.3);
+  --drop-min-touch: 48px;
+  --drop-cat-world: #3B82F6;
+  --drop-cat-power: #EF4444;
+  --drop-cat-money: #F59E0B;
+  --drop-cat-tech: #8B5CF6;
+  --drop-cat-sports: #F97316;
+  --drop-cat-entertainment: #EC4899;
+  --drop-cat-environment: #10B981;
+  --drop-cat-science: #10B981;
+  --drop-header-bg: linear-gradient(135deg, #1E90FF 0%, #00D4AA 100%);
+}
+
+/* ═══════════════════════════════════════════════════
+   BAND 3 — Ages 14-16 — "Sharp & Aware"
+   ═══════════════════════════════════════════════════ */
+[data-band="sharp-aware"] {
+  --drop-primary: #5C4EFA;
+  --drop-accent: #22D3EE;
+  --drop-accent2: #F472B6;
+  --drop-bg: #1E1B4B;
+  --drop-surface: #2D2A6E;
+  --drop-surface-hover: #352F80;
+  --drop-text: #F0F0FF;
+  --drop-text-muted: #A89EC9;
+  --drop-border: rgba(255,255,255,0.12);
+  --drop-font-heading: 'Syne', sans-serif;
+  --drop-font-body: 'Outfit', sans-serif;
+  --drop-text-body: 1rem;
+  --drop-letter-space-heading: -0.04em;
+  --drop-line-height: 1.6;
+  --drop-radius-card: 8px;
+  --drop-radius-btn: 6px;
+  --drop-shadow-card: 0 2px 8px rgba(0,0,0,0.2);
+  --drop-shadow-btn: none;
+  --drop-min-touch: 44px;
+  --drop-cat-world: #3B82F6;
+  --drop-cat-power: #EF4444;
+  --drop-cat-money: #F59E0B;
+  --drop-cat-tech: #8B5CF6;
+  --drop-cat-sports: #F97316;
+  --drop-cat-entertainment: #EC4899;
+  --drop-cat-environment: #10B981;
+  --drop-cat-science: #10B981;
+  --drop-header-bg: linear-gradient(160deg, #1E1B4B 0%, #2D2A6E 55%, #1A184A 100%);
+}
+
+/* ═══════════════════════════════════════════════════
+   BAND 4 — Ages 17-20 — "Cyber Editorial"
+   ═══════════════════════════════════════════════════ */
+[data-band="editorial"] {
+  --drop-primary: #FFFFFF;
+  --drop-accent: #00D4FF;
+  --drop-accent2: #FF2D78;
+  --drop-accent3: #39FF85;
+  --drop-bg: #1A1A2E;
+  --drop-surface: #16213E;
+  --drop-text: #FFFFFF;
+  --drop-text-body: #B0BEC5;
+  --drop-text-muted: #B0BEC5;
+  --drop-border: rgba(0,212,255,0.12);
+  --drop-font-heading: 'Urbanist', sans-serif;
+  --drop-font-body: 'Outfit', sans-serif;
+  --drop-text-body-size: 1.0625rem;
+  --drop-letter-space-heading: -0.04em;
+  --drop-line-height: 1.6;
+  --drop-radius-card: 14px;
+  --drop-radius-btn: 6px;
+  --drop-shadow-card: 0 2px 12px rgba(0,0,0,0.3);
+  --drop-shadow-btn: none;
+  --drop-min-touch: 44px;
+  --drop-cat-world: #00D4FF;
+  --drop-cat-science: #39FF85;
+  --drop-cat-power: #FF2D78;
+  --drop-cat-tech: #A78BFA;
+  --drop-cat-sports: #FF9500;
+  --drop-cat-money: #00D4AA;
+  --drop-cat-entertainment: #EC4899;
+  --drop-cat-environment: #10B981;
+  --drop-header-bg: #1A1A2E;
+}
+
+/* ═══════════════════════════════════════════════════
+   Default / Fallback (shadcn compatibility)
+   ═══════════════════════════════════════════════════ */
 @layer base {
   :root {
     --background: 210 40% 98%;
@@ -38,19 +171,6 @@ code {
     --input: 214 32% 91%;
     --ring: 217 91% 60%;
     --radius: 1.125rem;
-
-    /* Category colors */
-    --cat-world: 217 91% 60%;
-    --cat-science: 160 59% 40%;
-    --cat-sports: 25 95% 53%;
-    --cat-tech: 258 59% 59%;
-    --cat-environment: 173 58% 39%;
-    --cat-weird: 38 92% 50%;
-    --cat-entertainment: 330 81% 60%;
-
-    /* Surface colors */
-    --surface-raised: 0 0% 100%;
-    --surface-overlay: 210 40% 96%;
   }
 }
 
@@ -59,7 +179,9 @@ code {
     @apply border-border;
   }
   body {
-    @apply bg-background text-foreground;
+    font-family: 'Outfit', -apple-system, BlinkMacSystemFont, sans-serif;
+    background: var(--drop-bg, hsl(var(--background)));
+    color: var(--drop-text, hsl(var(--foreground)));
   }
 }
 

@@ -1,7 +1,14 @@
 import { useTheme } from '../contexts/ThemeContext';
 
 export const ProfileButton = ({ onClick, size = 36 }) => {
-  const { user } = useTheme();
+  const { user, band } = useTheme();
+
+  const gradients = {
+    'big-bold-bright': 'linear-gradient(135deg, #FF4B4B, #FFD93D)',
+    'cool-connected': 'linear-gradient(135deg, #1E90FF, #00D4AA)',
+    'sharp-aware': 'linear-gradient(135deg, #5C4EFA, #22D3EE)',
+    'editorial': 'linear-gradient(135deg, #00D4FF, #FF2D78)',
+  };
 
   return (
     <button
@@ -13,7 +20,7 @@ export const ProfileButton = ({ onClick, size = 36 }) => {
         height: size,
         borderRadius: '50%',
         padding: 2,
-        background: 'linear-gradient(135deg, #3B82F6, #8B5CF6)',
+        background: gradients[band] || 'linear-gradient(135deg, #3B82F6, #8B5CF6)',
         border: 'none',
         cursor: 'pointer',
       }}
@@ -24,22 +31,18 @@ export const ProfileButton = ({ onClick, size = 36 }) => {
           height: '100%',
           borderRadius: '50%',
           overflow: 'hidden',
-          background: '#FFFFFF',
+          background: 'var(--drop-surface, #FFFFFF)',
         }}
       >
         {user?.avatar_url ? (
-          <img
-            src={user.avatar_url}
-            alt="Profile"
-            className="w-full h-full object-cover"
-          />
+          <img src={user.avatar_url} alt="Profile" className="w-full h-full object-cover" />
         ) : (
           <div
             className="w-full h-full flex items-center justify-center"
             style={{
-              background: 'linear-gradient(135deg, #3B82F6, #8B5CF6)',
+              background: gradients[band] || 'linear-gradient(135deg, #3B82F6, #8B5CF6)',
               color: '#FFFFFF',
-              fontFamily: 'Fredoka, sans-serif',
+              fontFamily: 'var(--drop-font-heading)',
               fontSize: size * 0.4,
               fontWeight: 700,
             }}
