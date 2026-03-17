@@ -1477,7 +1477,23 @@ async def switch_profile(req: SwitchProfileRequest, user=Depends(get_current_use
 @api_router.get("/auth/linked-profiles")
 async def get_linked_profiles(user=Depends(get_current_user)):
     """Return child profiles linked to the current user (excludes the parent's own profile)."""
-    linked_ids = user.get("linked_profiles", [])
+    account_type = user.get("account_type", "independent")
+
+    if account_type == "independent":
+        return {"profiles": []}
+
+    if account_type == "child":
+        parent_id = user.get("parent_id")
+        if not parent_id:
+            return {"profiles": []}
+        parent = await db.users.find_one({"id": parent_id}, {"_id": 0, "linked_profiles": 1})
+        if not parent:
+            return {"profiles": []}
+        linked_ids = parent.get("linked_profiles", [])
+    else:
+        # parent
+        linked_ids = user.get("linked_profiles", [])
+
     if not linked_ids:
         return {"profiles": []}
     profiles = await db.users.find(
