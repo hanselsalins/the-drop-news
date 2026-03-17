@@ -220,18 +220,23 @@ class UserUpdate(BaseModel):
     avatar_url: Optional[str] = None
 
 
-class RegisterChildRequest(BaseModel):
-    parent_name: str
-    parent_email: str
-    parent_password: str
-    parent_relation: str = "guardian"  # mother / father / guardian
+class ChildProfileInput(BaseModel):
     child_name: str
+    child_username: str = ""
     child_age: int
     child_gender: str = ""
     child_country_code: str
     child_city: str = ""
     child_school: str = ""
     avatar_url: str = ""
+
+
+class RegisterChildRequest(BaseModel):
+    parent_name: str
+    parent_email: str
+    parent_password: str
+    parent_relation: str = "guardian"  # mother / father / guardian
+    children: List[ChildProfileInput]
 
 
 class RegisterSelfRequest(BaseModel):
@@ -1318,9 +1323,12 @@ def _make_child_doc(child_id: str, child_name: str, child_age: int, child_gender
 
 @api_router.post("/auth/register-child")
 async def register_child(req: RegisterChildRequest):
-    """Parent-led signup for under-14. Creates linked parent + child accounts."""
-    if req.child_age >= 14:
-        raise HTTPException(status_code=400, detail="Use self-signup for age 14+")
+    """Parent-led signup. Creates a parent credential account + one or more child profiles."""
+    if not req.children:
+        raise HTTPException(status_code=400, detail="At least one child profile is required")
+    for child in req.children:
+        if child.child_age >= 14:
+            raise HTTPException(status_code=400, detail="Use self-signup for age 14+")
     if len(req.parent_password) < 8:
         raise HTTPException(status_code=400, detail="Password must be at least 8 characters")
     if await db.users.find_one({"email": req.parent_email.lower().strip()}):
@@ -1328,22 +1336,20 @@ async def register_child(req: RegisterChildRequest):
 
     now = datetime.now(timezone.utc).isoformat()
     parent_id = str(uuid.uuid4())
-    child_id = str(uuid.uuid4())
+    child_ids = [str(uuid.uuid4()) for _ in req.children]
 
-    parent_username = await ensure_unique_username(
-        re.sub(r'[^a-z0-9_]', '', req.parent_name.lower().replace(" ", "")))
     parent_doc = {
         "id": parent_id,
         "full_name": req.parent_name.strip(),
         "email": req.parent_email.lower().strip(),
         "password_hash": bcrypt.hashpw(req.parent_password.encode(), bcrypt.gensalt()).decode(),
         "dob": "", "age": None, "gender": "",
-        "city": req.child_city.strip(), "country": req.child_country_code.strip(),
+        "city": "", "country": "",
         "age_group": "adult", "account_type": "parent",
         "parent_relation": req.parent_relation,
-        "child_ids": [child_id], "linked_profiles": [child_id],
-        "username": parent_username,
-        "avatar_url": f"https://api.dicebear.com/9.x/adventurer/svg?seed={parent_username}",
+        "child_ids": child_ids, "linked_profiles": child_ids,
+        "username": "",
+        "avatar_url": "",
         "invite_code": generate_invite_code(), "knowledge_score": 0,
         "member_since": now, "created_at": now,
         "current_streak": 0, "longest_streak": 0, "last_read_date": "",
@@ -1352,25 +1358,37 @@ async def register_child(req: RegisterChildRequest):
         "stories_read_count": 0, "reactions_given_count": 0, "days_active": [],
     }
 
-    child_doc = _make_child_doc(
-        child_id, req.child_name, req.child_age, req.child_gender,
-        req.child_country_code, req.child_city, req.avatar_url,
-        parent_id, req.parent_name, req.parent_email, now,
-        child_school=req.child_school)
-    child_username = await ensure_unique_username(
-        re.sub(r'[^a-z0-9_]', '', req.child_name.lower().replace(" ", "")))
-    child_doc["username"] = child_username
-    child_doc["avatar_url"] = req.avatar_url or f"https://api.dicebear.com/9.x/adventurer/svg?seed={child_username}"
+    child_docs = []
+    for child_id, child in zip(child_ids, req.children):
+        child_doc = _make_child_doc(
+            child_id, child.child_name, child.child_age, child.child_gender,
+            child.child_country_code, child.child_city, child.avatar_url,
+            parent_id, req.parent_name, req.parent_email, now,
+            child_school=child.child_school)
+        if child.child_username:
+            username_clean = child.child_username.lower().strip().lstrip("@")
+            if not re.match(r'^[a-z0-9_]{3,20}$', username_clean):
+                raise HTTPException(status_code=400, detail=f"Username for {child.child_name} must be 3-20 chars, letters/numbers/underscores only")
+            if await db.users.find_one({"username": username_clean}):
+                raise HTTPException(status_code=400, detail=f"Username '{username_clean}' is already taken")
+            child_doc["username"] = username_clean
+        else:
+            child_doc["username"] = await ensure_unique_username(
+                re.sub(r'[^a-z0-9_]', '', child.child_name.lower().replace(" ", "")))
+        child_doc["avatar_url"] = child.avatar_url or f"https://api.dicebear.com/9.x/adventurer/svg?seed={child_doc['username']}"
+        child_docs.append(child_doc)
 
     await db.users.insert_one(parent_doc)
-    await db.users.insert_one(child_doc)
-    mock_send_parent_email(req.parent_email, req.child_name)
+    for child_doc in child_docs:
+        await db.users.insert_one(child_doc)
+    mock_send_parent_email(req.parent_email, child_docs[0]["full_name"])
 
+    first_child = child_docs[0]
+    profiles = [{k: v for k, v in d.items() if k not in ("password_hash", "_id")} for d in child_docs]
     return {
-        "token": create_token(child_id),
-        "user": {k: v for k, v in child_doc.items() if k not in ("password_hash", "_id")},
-        "parent_token": create_token(parent_id),
-        "parent_user": {k: v for k, v in parent_doc.items() if k not in ("password_hash", "_id")},
+        "token": create_token(first_child["id"]),
+        "user": {k: v for k, v in first_child.items() if k not in ("password_hash", "_id")},
+        "linked_profiles": profiles,
     }
 
 
@@ -1414,7 +1432,7 @@ async def register_self(req: RegisterSelfRequest):
         "dob": approx_dob, "age": req.age, "gender": req.gender,
         "city": req.city.strip(), "country": req.country_code.strip(),
         "age_group": age_group_from_age(req.age),
-        "account_type": "child" if has_parent else "independent",
+        "account_type": "child" if has_parent else "self",
         "parent_id": parent_id,
         "linked_profiles": [parent_id] if has_parent else [],
         "username": username_clean,
@@ -1477,9 +1495,9 @@ async def switch_profile(req: SwitchProfileRequest, user=Depends(get_current_use
 @api_router.get("/auth/linked-profiles")
 async def get_linked_profiles(user=Depends(get_current_user)):
     """Return child profiles linked to the current user (excludes the parent's own profile)."""
-    account_type = user.get("account_type", "independent")
+    account_type = user.get("account_type", "self")
 
-    if account_type == "independent":
+    if account_type == "self":
         return {"profiles": []}
 
     if account_type == "child":
@@ -1574,17 +1592,22 @@ async def login(req: LoginRequest):
     user = await db.users.find_one({"email": req.email.lower().strip()})
     if not user or not bcrypt.checkpw(req.password.encode(), user["password_hash"].encode()):
         raise HTTPException(status_code=401, detail="Invalid email or password")
+
+    if user.get("account_type") == "parent":
+        # Parent accounts have no app profile — return child profiles for picker
+        child_ids = user.get("linked_profiles", [])
+        profiles = []
+        if child_ids:
+            profiles = await db.users.find(
+                {"id": {"$in": child_ids}, "account_type": "child"},
+                {"_id": 0, "password_hash": 0},
+            ).to_list(20)
+        return {"account_type": "parent", "profiles": profiles}
+
+    # child or self — return JWT as normal
     token = create_token(user["id"])
     user_resp = {k: v for k, v in user.items() if k != "password_hash" and k != "_id"}
-    linked_ids = user.get("linked_profiles", [])
-    linked_profiles = []
-    if linked_ids:
-        profiles = await db.users.find(
-            {"id": {"$in": linked_ids}},
-            {"_id": 0, "password_hash": 0},
-        ).to_list(20)
-        linked_profiles = profiles
-    return {"token": token, "user": user_resp, "linked_profiles": linked_profiles}
+    return {"token": token, "user": user_resp}
 
 @api_router.get("/auth/me")
 async def get_me(user=Depends(get_current_user)):
