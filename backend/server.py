@@ -230,6 +230,7 @@ class RegisterChildRequest(BaseModel):
     child_gender: str = ""
     child_country_code: str
     child_city: str = ""
+    child_school: str = ""
     avatar_url: str = ""
 
 
@@ -256,6 +257,7 @@ class AddProfileRequest(BaseModel):
     child_gender: str = ""
     child_country_code: str
     child_city: str = ""
+    child_school: str = ""
     avatar_url: str = ""
 
 
@@ -1286,16 +1288,18 @@ async def register(req: RegisterRequest):
 
 def _make_child_doc(child_id: str, child_name: str, child_age: int, child_gender: str,
                     child_country_code: str, child_city: str, avatar_url: str,
-                    parent_id: str, parent_name: str, parent_email: str, now: str) -> dict:
-    """Build a child user document."""
+                    parent_id: str, parent_name: str, parent_email: str, now: str,
+                    child_school: str = "") -> dict:
+    """Build a child user document. Children have no login email — they access via parent switch-profile."""
     username = ""  # filled by caller after ensure_unique_username
     approx_dob = f"{date.today().year - child_age}-06-15"
     return {
         "id": child_id, "full_name": child_name.strip(),
-        "email": f"child_{child_id[:8]}@family.thedrop.internal",
-        "password_hash": "",  # children log in via parent → switch-profile
+        "email": "",  # children have no email — login is via parent account + switch-profile
+        "password_hash": "",
         "dob": approx_dob, "age": child_age, "gender": child_gender,
         "city": child_city.strip(), "country": child_country_code.strip(),
+        "school": child_school.strip(),
         "age_group": age_group_from_age(child_age),
         "account_type": "child",
         "parent_id": parent_id, "linked_profiles": [parent_id],
@@ -1351,7 +1355,8 @@ async def register_child(req: RegisterChildRequest):
     child_doc = _make_child_doc(
         child_id, req.child_name, req.child_age, req.child_gender,
         req.child_country_code, req.child_city, req.avatar_url,
-        parent_id, req.parent_name, req.parent_email, now)
+        parent_id, req.parent_name, req.parent_email, now,
+        child_school=req.child_school)
     child_username = await ensure_unique_username(
         re.sub(r'[^a-z0-9_]', '', req.child_name.lower().replace(" ", "")))
     child_doc["username"] = child_username
@@ -1471,12 +1476,12 @@ async def switch_profile(req: SwitchProfileRequest, user=Depends(get_current_use
 
 @api_router.get("/auth/linked-profiles")
 async def get_linked_profiles(user=Depends(get_current_user)):
-    """Return all profiles linked to the current user."""
+    """Return child profiles linked to the current user (excludes the parent's own profile)."""
     linked_ids = user.get("linked_profiles", [])
     if not linked_ids:
         return {"profiles": []}
     profiles = await db.users.find(
-        {"id": {"$in": linked_ids}},
+        {"id": {"$in": linked_ids}, "account_type": "child"},
         {"_id": 0, "password_hash": 0},
     ).to_list(20)
     return {"profiles": profiles}
@@ -1484,7 +1489,7 @@ async def get_linked_profiles(user=Depends(get_current_user)):
 
 @api_router.post("/auth/add-profile")
 async def add_profile(req: AddProfileRequest, user=Depends(get_current_user)):
-    """Add a child profile linked to the current (parent) user's account."""
+    """Add a child profile linked to the current (parent) user's account. No email/password required."""
     now = datetime.now(timezone.utc).isoformat()
     child_id = str(uuid.uuid4())
     child_doc = _make_child_doc(
@@ -1499,16 +1504,25 @@ async def add_profile(req: AddProfileRequest, user=Depends(get_current_user)):
         parent_name=user.get("full_name", ""),
         parent_email=user.get("email", ""),
         now=now,
+        child_school=req.child_school,
     )
-    child_doc["username"] = await ensure_unique_username(child_doc["full_name"])
+    child_doc["username"] = await ensure_unique_username(
+        re.sub(r'[^a-z0-9_]', '', req.child_name.lower().replace(" ", "")))
     await db.users.insert_one(child_doc)
-    # Link child to parent
+    # Link child to parent (both linked_profiles and child_ids)
     await db.users.update_one(
         {"id": user["id"]},
-        {"$addToSet": {"linked_profiles": child_id}},
+        {"$addToSet": {"linked_profiles": child_id, "child_ids": child_id}},
     )
+    # Return new child profile + updated child profiles list
+    updated_parent = await db.users.find_one({"id": user["id"]}, {"_id": 0, "linked_profiles": 1})
+    linked_ids = (updated_parent or {}).get("linked_profiles", [])
+    linked_profiles = await db.users.find(
+        {"id": {"$in": linked_ids}, "account_type": "child"},
+        {"_id": 0, "password_hash": 0},
+    ).to_list(20)
     child_resp = {k: v for k, v in child_doc.items() if k not in ("_id", "password_hash")}
-    return {"user": child_resp}
+    return {"user": child_resp, "linked_profiles": linked_profiles}
 
 
 @api_router.get("/auth/check-username/{username}")
