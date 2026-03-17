@@ -1,8 +1,8 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useTheme } from '../contexts/ThemeContext';
 import { motion, AnimatePresence } from 'framer-motion';
-import { X, Check, Users } from 'lucide-react';
+import { X, Check, Users, Loader2 } from 'lucide-react';
 import axios from 'axios';
 
 const BACKEND_URL = import.meta.env.VITE_BACKEND_URL;
@@ -30,15 +30,50 @@ const GRADIENTS = {
 
 export const ProfileSwitcherModal = ({ open, onClose, onPanelClose }) => {
   const navigate = useNavigate();
-  const { user, token, band, setToken, setUserData, linkedProfiles: ctxLinkedProfiles, fetchLinkedProfiles } = useTheme();
+  const { user, token, band, setToken, setUserData, fetchLinkedProfiles } = useTheme();
   const isDark = band === 'sharp-aware' || band === 'editorial';
   const [switching, setSwitching] = useState(null);
+  const [profiles, setProfiles] = useState([]);
+  const [loadingProfiles, setLoadingProfiles] = useState(false);
 
-  const allProfiles = ctxLinkedProfiles || [];
-  // Ensure current user is first
+  // Fetch profiles directly when modal opens
+  useEffect(() => {
+    if (!open || !token) return;
+    let cancelled = false;
+    const fetchProfiles = async () => {
+      setLoadingProfiles(true);
+      try {
+        const res = await axios.get(`${BACKEND_URL}/api/auth/linked-profiles`, {
+          headers: { Authorization: `Bearer ${token}` },
+        });
+        console.log('[ProfileSwitcher] linked-profiles response:', JSON.stringify(res.data));
+        console.log('[ProfileSwitcher] Current user:', JSON.stringify({ id: user?.id, name: user?.full_name }));
+        const fetched = Array.isArray(res.data) ? res.data : (Array.isArray(res.data?.profiles) ? res.data.profiles : []);
+        // Combine current user + fetched, deduplicate by id
+        const combined = user ? [user, ...fetched] : fetched;
+        const seen = new Set();
+        const all = combined.filter(p => {
+          if (!p?.id || seen.has(p.id)) return false;
+          seen.add(p.id);
+          return true;
+        });
+        console.log('[ProfileSwitcher] Final list:', all.map(p => ({ id: p.id, name: p.full_name, age: p.age_group })));
+        if (!cancelled) setProfiles(all);
+      } catch (err) {
+        console.error('[ProfileSwitcher] Fetch failed:', err.response?.status, err.message);
+        // Fallback: show at least the current user
+        if (!cancelled) setProfiles(user ? [user] : []);
+      }
+      if (!cancelled) setLoadingProfiles(false);
+    };
+    fetchProfiles();
+    return () => { cancelled = true; };
+  }, [open, token, user?.id]);
+
+  // Sort: current user first
   const sorted = [
-    ...allProfiles.filter(p => p.id === user?.id),
-    ...allProfiles.filter(p => p.id !== user?.id),
+    ...profiles.filter(p => p.id === user?.id),
+    ...profiles.filter(p => p.id !== user?.id),
   ];
 
   const handleSwitch = async (profile) => {
@@ -106,7 +141,16 @@ export const ProfileSwitcherModal = ({ open, onClose, onPanelClose }) => {
 
             {/* Profile cards */}
             <div className="px-4 pb-4 space-y-2.5">
-              {sorted.map((profile) => {
+              {loadingProfiles ? (
+                <div className="flex items-center justify-center py-8">
+                  <Loader2 className="animate-spin" size={24} style={{ color: 'var(--drop-text-muted)' }} />
+                </div>
+              ) : sorted.length === 0 ? (
+                <p className="text-center text-sm py-6" style={{ color: 'var(--drop-text-muted)', fontFamily: 'var(--drop-font-body)' }}>
+                  No profiles found
+                </p>
+              ) : null}
+              {!loadingProfiles && sorted.map((profile) => {
                 const isActive = profile.id === user?.id;
                 const profBadge = AGE_BADGES[profile.age_group] || AGE_BADGES['14-16'];
                 const profBand = AGE_TO_BAND[profile.age_group];
