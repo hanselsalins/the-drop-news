@@ -317,6 +317,7 @@ _DASHBOARD_HTML = r"""<!DOCTYPE html>
   <div class="section-title" style="margin-top:20px">Setup</div>
   <div class="btn-grid">
     <button class="btn btn-secondary" onclick="createTestProfiles()">👤 Create Test Profiles</button>
+    <a class="btn btn-secondary" href="https://the-drop-news.lovable.app" target="_blank" rel="noopener">🚀 Open Live App</a>
   </div>
   <div class="response-box" id="pipelineResponse"></div>
 </div>
