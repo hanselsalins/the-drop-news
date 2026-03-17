@@ -161,6 +161,8 @@ _DASHBOARD_HTML = r"""<!DOCTYPE html>
   .btn-green{background:#059669;color:#fff}
   .btn-green:hover{background:#047857}
   .btn:disabled{opacity:.5;cursor:not-allowed}
+  .btn-danger{background:#dc2626;color:#fff}
+  .btn-danger:hover{background:#b91c1c}
   /* Response box */
   .response-box{background:#0d1117;border:1px solid #374151;border-radius:8px;
                 padding:14px 16px;font-size:12px;font-family:'Courier New',monospace;
@@ -307,6 +309,7 @@ _DASHBOARD_HTML = r"""<!DOCTYPE html>
   </div>
   <div class="section-title" style="margin-top:20px">Reset</div>
   <div class="btn-grid">
+    <button class="btn btn-danger" onclick="deleteAllArticles()">🗑️ Delete ALL Articles</button>
     <button class="btn btn-secondary" onclick="triggerResetRewrite()">🔄 Reset &amp; Rewrite All</button>
     <button class="btn btn-secondary" onclick="triggerResetRewriteCC('IN')">🔄 Reset IN</button>
     <button class="btn btn-secondary" onclick="triggerResetRewriteCC('US')">🔄 Reset US</button>
@@ -544,6 +547,17 @@ async function triggerCrawl() {
     const r = await fetch('/admin/api/crawl', {method:'POST'});
     const d = await r.json();
     showResponse(JSON.stringify(d, null, 2), r.ok);
+  } catch(e) { showResponse('Error: '+e.message, false); }
+}
+
+async function deleteAllArticles() {
+  const ok = confirm('Are you sure? This will permanently delete ALL articles from the database. This cannot be undone.');
+  if (!ok) return;
+  showResponse('Deleting all articles…');
+  try {
+    const r = await fetch('/admin/api/delete-all-articles', {method:'POST'});
+    const d = await r.json();
+    showResponse(r.ok ? `✓ Deleted ${d.deleted_count} articles.` : `Error: ${JSON.stringify(d)}`, r.ok);
   } catch(e) { showResponse('Error: '+e.message, false); }
 }
 
@@ -1265,6 +1279,16 @@ async def admin_api_cleanup_old_articles(request: Request):
     try:
         cutoff = (datetime.now(timezone.utc) - timedelta(days=7)).isoformat()
         result = await _db["articles"].delete_many({"published_at": {"$lt": cutoff}})
+        return JSONResponse({"ok": True, "deleted_count": result.deleted_count})
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+
+@admin_router.post("/api/delete-all-articles")
+async def admin_api_delete_all_articles(request: Request):
+    _require_api_auth(request)
+    try:
+        result = await _db["articles"].delete_many({})
         return JSONResponse({"ok": True, "deleted_count": result.deleted_count})
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
