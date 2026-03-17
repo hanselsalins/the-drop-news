@@ -686,17 +686,20 @@ _claude_semaphore = asyncio.Semaphore(3)
 
 async def rewrite_with_claude(system_prompt: str, user_prompt: str) -> str:
     """Call Claude Sonnet for article rewriting. Returns response text or '' on error."""
+    model = "claude-sonnet-4-5"
+    max_tokens = 1500
     async with _claude_semaphore:
+        logger.info(f"[claude] calling model={model} max_tokens={max_tokens} prompt_chars={len(user_prompt)}")
         try:
             message = await anthropic_client.messages.create(
-                model="claude-sonnet-4-5",
-                max_tokens=1500,
+                model=model,
+                max_tokens=max_tokens,
                 system=system_prompt,
                 messages=[{"role": "user", "content": user_prompt}],
             )
             return message.content[0].text
         except Exception as e:
-            logger.error(f"rewrite_with_claude failed: {e}")
+            logger.error(f"[claude] rewrite_with_claude failed: {type(e).__name__}: {e}")
             return ""
 
 
