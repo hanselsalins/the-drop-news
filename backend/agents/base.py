@@ -21,6 +21,8 @@ Run document schema stored in `agent_runs`:
     }
 """
 
+from __future__ import annotations
+
 import uuid
 import logging
 from abc import ABC, abstractmethod
