@@ -1196,6 +1196,7 @@ async def rewrite_pending_articles(age_group: str):
          "source_language": 1, "source_country": 1}
     )
     articles = await cursor.to_list(50)
+    logger.info(f"[rewrite] age_group={age_group} found {len(articles)} articles to rewrite")
     for article in articles:
         title = article.get("original_headline") or article.get("original_title", "")
         content = article.get("original_body") or article.get("original_content", "")
