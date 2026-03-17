@@ -749,6 +749,7 @@ async def rewrite_article_for_age_group(title: str, content: str, age_group: str
     system_prompt = _AGE_SYSTEM_PROMPTS.get(age_group, _AGE_SYSTEM_PROMPTS["17-20"]) + "\n" + safety
     logger.info(f"[rewrite] age_group={age_group} system_prompt[:100]={system_prompt[:100]!r}")
     age_instruction = _AGE_USER_INSTRUCTIONS.get(age_group, _AGE_USER_INSTRUCTIONS["17-20"])
+    logger.info(f"[rewrite] age_group={age_group} age_instruction[:150]={age_instruction[:150]!r}")
 
     confidence_instruction = ""
     if source_language in ("Urdu", "Bangla"):
@@ -784,6 +785,7 @@ Return ONLY valid JSON, no markdown, no code blocks.{confidence_instruction}"""
     for attempt in range(2):
         try:
             raw = await rewrite_with_claude(system_prompt, prompt)
+            logger.info(f"[rewrite] age_group={age_group} attempt={attempt} raw[:100]={raw[:100]!r}")
             if not raw:
                 raise ValueError("Empty response from Claude")
 
