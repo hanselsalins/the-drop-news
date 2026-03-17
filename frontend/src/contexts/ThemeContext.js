@@ -18,6 +18,7 @@ export function ThemeProvider({ children }) {
     return saved ? JSON.parse(saved) : null;
   });
   const [loading, setLoading] = useState(true);
+  const [linkedProfiles, setLinkedProfiles] = useState([]);
 
   const ageGroup = user?.age_group || null;
   const themeMode = ageGroup && (ageGroup === '8-10' || ageGroup === '11-13') ? 'kids' : 'teens';
@@ -51,6 +52,27 @@ export function ThemeProvider({ children }) {
     localStorage.removeItem('hasOnboarded');
   }, [setToken, setUserData]);
 
+  const fetchLinkedProfiles = useCallback(async (tkn) => {
+    const t = tkn || token;
+    if (!t) {
+      console.log('[LinkedProfiles] No token available, skipping fetch');
+      return;
+    }
+    try {
+      console.log('[LinkedProfiles] Fetching with token:', t.substring(0, 20) + '...');
+      const res = await axios.get(`${BACKEND_URL}/api/auth/linked-profiles`, {
+        headers: { Authorization: `Bearer ${t}` },
+      });
+      console.log('[LinkedProfiles] Raw response:', JSON.stringify(res.data));
+      const profiles = Array.isArray(res.data) ? res.data : [];
+      console.log('[LinkedProfiles] Parsed profiles count:', profiles.length);
+      setLinkedProfiles(profiles);
+    } catch (err) {
+      console.error('[LinkedProfiles] Fetch error:', err.response?.status, err.response?.data || err.message);
+      setLinkedProfiles([]);
+    }
+  }, []);
+
   // Verify token on mount
   useEffect(() => {
     const verifyToken = async () => {
@@ -63,6 +85,7 @@ export function ThemeProvider({ children }) {
           headers: { Authorization: `Bearer ${token}` },
         });
         setUserData(res.data);
+        fetchLinkedProfiles(token);
       } catch (e) {
         logout();
       }
@@ -87,6 +110,8 @@ export function ThemeProvider({ children }) {
       loading,
       logout,
       AGE_GROUPS,
+      linkedProfiles,
+      fetchLinkedProfiles,
     }}>
       {children}
     </ThemeContext.Provider>

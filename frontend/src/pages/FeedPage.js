@@ -10,6 +10,9 @@ import { ProfileButton } from '../components/ProfileButton';
 import { ProfilePanel } from '../components/ProfilePanel';
 import { MilestoneBanner } from '../components/MilestoneBanner';
 import { ProgressDots } from '../components/ProgressDots';
+import { MissionHeader } from '../components/MissionHeader';
+import { BriefingHeader } from '../components/BriefingHeader';
+import { EditorialHeader } from '../components/EditorialHeader';
 import { useReadArticles } from '../hooks/useReadArticles';
 import { motion } from 'framer-motion';
 import { Loader2 } from 'lucide-react';
@@ -29,6 +32,8 @@ export default function FeedPage() {
   const [profileOpen, setProfileOpen] = useState(false);
 
   const isKids = themeMode === 'kids';
+  const isTeen = ageGroup === '14-16';
+  const isYoungAdult = ageGroup === '17-20';
   const headers = token ? { Authorization: `Bearer ${token}` } : {};
   const { milestone, checkMilestone, acknowledgeMilestone, requestPermission, permission } = useNotifications();
   const { readIds, refresh: refreshReadIds } = useReadArticles();
@@ -107,6 +112,18 @@ export default function FeedPage() {
   }, [allTodayRead, token]);
 
 
+  // Determine top category from today's articles
+  const topCategory = articles.length > 0
+    ? (() => {
+        const counts = {};
+        articles.forEach(a => {
+          const cat = (a.category || '').toLowerCase();
+          counts[cat] = (counts[cat] || 0) + 1;
+        });
+        return Object.entries(counts).sort((a, b) => b[1] - a[1])[0]?.[0] || 'world';
+      })()
+    : 'world';
+
   const buildFeedItems = () => {
     const items = [];
     let factIdx = 0;
@@ -136,57 +153,147 @@ export default function FeedPage() {
         isKids={isKids}
       />
 
-      {/* Header */}
-      <div
-        style={{
-          background: 'linear-gradient(135deg, #3B82F6 0%, #8B5CF6 60%, #EC4899 100%)',
-          padding: '14px 20px 18px',
-        }}
-      >
-        <div className="flex items-center justify-between">
-          <div>
-            <h1
-              style={{
-                fontFamily: 'Fredoka, sans-serif',
-                fontSize: 28,
-                fontWeight: 900,
-                color: '#FFFFFF',
-                lineHeight: 1.2,
-                margin: 0,
-              }}
-            >
-              The Drop
-            </h1>
-            <p
-              style={{
-                fontFamily: 'Outfit, sans-serif',
-                fontSize: 12,
-                color: 'rgba(255,255,255,0.75)',
-                marginTop: 2,
-              }}
-            >
-              {today}
-            </p>
+      {/* Header — kids get slim bar + mission card, teens get full gradient header */}
+      {isKids ? (
+        <>
+          {/* Slim top bar for kids */}
+          <div
+            style={{
+              background: 'linear-gradient(135deg, #3B82F6 0%, #8B5CF6 60%, #EC4899 100%)',
+              padding: '12px 20px',
+            }}
+          >
+            <div className="flex items-center justify-between">
+              <div>
+                <h1
+                  style={{
+                    fontFamily: 'Fredoka, sans-serif',
+                    fontSize: 24,
+                    fontWeight: 900,
+                    color: '#FFFFFF',
+                    lineHeight: 1.2,
+                    margin: 0,
+                  }}
+                >
+                  The Drop
+                </h1>
+                <p
+                  style={{
+                    fontFamily: 'Outfit, sans-serif',
+                    fontSize: 11,
+                    color: 'rgba(255,255,255,0.75)',
+                    marginTop: 2,
+                  }}
+                >
+                  {today}
+                </p>
+              </div>
+              <ProfileButton onClick={() => setProfileOpen(true)} size={34} />
+            </div>
           </div>
-          <div className="flex items-center gap-3">
-            <StreakBadge
-              currentStreak={streak.current_streak}
-              longestStreak={streak.longest_streak}
-              readToday={streak.read_today}
-              variant="compact"
+
+          {/* Category tabs */}
+          <CategoryTabs categories={categories} activeCategory={activeCategory}
+            setActiveCategory={setActiveCategory} />
+
+          {/* Mission Header for kids — only on Today's Drop */}
+          {activeCategory === 'today' && !loading && articles.length > 0 && (
+            <MissionHeader
+              articles={articles}
+              readArticleIds={readIds}
+              streak={streak}
+              topCategory={topCategory}
             />
-            <ProfileButton onClick={() => setProfileOpen(true)} size={34} />
+          )}
+        </>
+      ) : isTeen ? (
+        <>
+          {/* Editorial header for 14-16 */}
+          <div
+            style={{
+              background: 'linear-gradient(135deg, #3B82F6 0%, #8B5CF6 60%, #EC4899 100%)',
+              padding: '14px 20px 18px',
+            }}
+          >
+            <div className="flex items-center justify-between">
+              <div>
+                <h1
+                  style={{
+                    fontFamily: 'Syne, sans-serif',
+                    fontSize: 24,
+                    fontWeight: 800,
+                    color: '#FFFFFF',
+                    lineHeight: 1.2,
+                    margin: 0,
+                  }}
+                >
+                  The Drop
+                </h1>
+                <p
+                  style={{
+                    fontFamily: 'Outfit, sans-serif',
+                    fontSize: 12,
+                    color: 'rgba(255,255,255,0.75)',
+                    marginTop: 2,
+                  }}
+                >
+                  {today}
+                </p>
+              </div>
+              <ProfileButton onClick={() => setProfileOpen(true)} size={34} />
+            </div>
           </div>
-        </div>
-      </div>
 
-      {/* Category tabs */}
-      <CategoryTabs categories={categories} activeCategory={activeCategory}
-        setActiveCategory={setActiveCategory} />
+          {/* Category tabs */}
+          <CategoryTabs categories={categories} activeCategory={activeCategory}
+            setActiveCategory={setActiveCategory} />
 
-      {/* Progress dots for Today's Drop */}
-      {activeCategory === 'today' && !loading && articles.length > 0 && (
-        <ProgressDots articleIds={todayArticleIds} readArticleIds={readIds} />
+          {/* Briefing Header for teens — only on Today's Drop */}
+          {activeCategory === 'today' && !loading && articles.length > 0 && (
+            <BriefingHeader
+              articles={articles}
+              readArticleIds={readIds}
+              streak={streak}
+              topCategory={topCategory}
+            />
+          )}
+        </>
+      ) : isYoungAdult ? (
+        <>
+          {/* Editorial header for 17-20 */}
+          {!loading && articles.length > 0 && activeCategory === 'today' ? (
+            <EditorialHeader
+              articles={articles}
+              topCategory={topCategory}
+              onProfileOpen={() => setProfileOpen(true)}
+            />
+          ) : (
+            <div style={{ background: '#1A1A2E', padding: '14px 20px' }}>
+              <div className="flex items-center justify-between">
+                <span style={{ fontFamily: 'Urbanist, sans-serif', fontSize: 13, letterSpacing: 1, color: '#64748B' }}>the drop</span>
+                <ProfileButton onClick={() => setProfileOpen(true)} size={34} />
+              </div>
+            </div>
+          )}
+
+          <CategoryTabs categories={categories} activeCategory={activeCategory}
+            setActiveCategory={setActiveCategory} />
+        </>
+      ) : (
+        <>
+          {/* Fallback header */}
+          <div style={{ background: 'linear-gradient(135deg, #3B82F6 0%, #8B5CF6 60%, #EC4899 100%)', padding: '14px 20px 18px' }}>
+            <div className="flex items-center justify-between">
+              <div>
+                <h1 style={{ fontFamily: 'Fredoka, sans-serif', fontSize: 28, fontWeight: 900, color: '#FFFFFF', lineHeight: 1.2, margin: 0 }}>The Drop</h1>
+                <p style={{ fontFamily: 'Outfit, sans-serif', fontSize: 12, color: 'rgba(255,255,255,0.75)', marginTop: 2 }}>{today}</p>
+              </div>
+              <ProfileButton onClick={() => setProfileOpen(true)} size={34} />
+            </div>
+          </div>
+          <CategoryTabs categories={categories} activeCategory={activeCategory}
+            setActiveCategory={setActiveCategory} />
+        </>
       )}
 
       {/* Feed */}

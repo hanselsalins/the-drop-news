@@ -34,7 +34,7 @@ export default function AuthPage() {
   const location = useLocation();
   const invitedBy = location.state?.invitedBy || '';
   const addProfile = location.state?.addProfile || false;
-  const { setToken, setUserData, token } = useTheme();
+  const { setToken, setUserData, token, fetchLinkedProfiles } = useTheme();
   const [phase, setPhase] = useState(addProfile ? 'gate' : 'gate');
   const [error, setError] = useState('');
 
@@ -71,7 +71,7 @@ export default function AuthPage() {
           )}
           {phase === 'login' && (
             <LoginForm key="login" setPhase={setPhase} setToken={setToken} setUserData={setUserData}
-              navigate={navigate} error={error} setError={setError} />
+              navigate={navigate} error={error} setError={setError} fetchLinkedProfiles={fetchLinkedProfiles} />
           )}
         </AnimatePresence>
       </div>
@@ -658,7 +658,7 @@ function ChildSignup({ setPhase, setToken, setUserData, navigate, error, setErro
 }
 
 // ━━━━━━━━━━━━━━━━━━━ LOGIN FORM ━━━━━━━━━━━━━━━━━━━
-function LoginForm({ setPhase, setToken, setUserData, navigate, error, setError }) {
+function LoginForm({ setPhase, setToken, setUserData, navigate, error, setError, fetchLinkedProfiles }) {
   const [loading, setLoading] = useState(false);
   const [showPass, setShowPass] = useState(false);
   const [email, setEmail] = useState('');
@@ -689,6 +689,7 @@ function LoginForm({ setPhase, setToken, setUserData, navigate, error, setError 
       } else {
         setToken(token);
         setUserData(user);
+        fetchLinkedProfiles(token);
         navigate('/feed');
       }
     } catch (e) {
@@ -700,9 +701,9 @@ function LoginForm({ setPhase, setToken, setUserData, navigate, error, setError 
 
   const handlePickProfile = async (profile) => {
     if (profile.id === loginUser?.id) {
-      // Current user, just proceed
       setToken(loginToken);
       setUserData(loginUser);
+      fetchLinkedProfiles(loginToken);
       navigate('/feed');
       return;
     }
@@ -711,12 +712,15 @@ function LoginForm({ setPhase, setToken, setUserData, navigate, error, setError 
         { target_user_id: profile.id },
         { headers: { Authorization: `Bearer ${loginToken}` } }
       );
-      setToken(res.data.token || loginToken);
+      const newToken = res.data.token || loginToken;
+      setToken(newToken);
       setUserData(res.data.user || profile);
+      fetchLinkedProfiles(newToken);
       navigate('/feed');
     } catch {
       setToken(loginToken);
       setUserData(loginUser);
+      fetchLinkedProfiles(loginToken);
       navigate('/feed');
     }
   };

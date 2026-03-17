@@ -22,11 +22,9 @@ const ACCOUNT_TYPES = {
 
 export const ProfilePanel = ({ open, onClose }) => {
   const navigate = useNavigate();
-  const { user, token, ageGroup, logout, setToken, setUserData } = useTheme();
+  const { user, token, ageGroup, logout, setToken, setUserData, linkedProfiles: ctxLinkedProfiles, fetchLinkedProfiles } = useTheme();
   const headers = token ? { Authorization: `Bearer ${token}` } : {};
 
-  const [linkedProfiles, setLinkedProfiles] = useState([]);
-  const [loadingProfiles, setLoadingProfiles] = useState(false);
   const [streak, setStreak] = useState({ current_streak: 0 });
   const [showChangePassword, setShowChangePassword] = useState(false);
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
@@ -37,19 +35,21 @@ export const ProfilePanel = ({ open, onClose }) => {
   const [showNewPw, setShowNewPw] = useState(false);
   const [deleting, setDeleting] = useState(false);
 
+  // Filter out current user from linked profiles
+  console.log('[ProfilePanel] ctxLinkedProfiles:', JSON.stringify(ctxLinkedProfiles));
+  console.log('[ProfilePanel] current user id:', user?.id);
+  const linkedProfiles = (ctxLinkedProfiles || []).filter(p => p.id !== user?.id);
+  console.log('[ProfilePanel] filtered linkedProfiles:', linkedProfiles.length);
+
   const fetchData = useCallback(async () => {
     if (!token) return;
     try {
-      const [streakRes, profilesRes] = await Promise.all([
-        axios.get(`${BACKEND_URL}/api/streak`, { headers }).catch(() => ({ data: { current_streak: 0 } })),
-        axios.get(`${BACKEND_URL}/api/auth/linked-profiles`, { headers }).catch(() => ({ data: [] })),
-      ]);
+      const streakRes = await axios.get(`${BACKEND_URL}/api/streak`, { headers }).catch(() => ({ data: { current_streak: 0 } }));
       setStreak(streakRes.data);
-      const linked = Array.isArray(profilesRes.data) ? profilesRes.data : [];
-      // Filter out current user from linked list, we'll show them separately as active
-      setLinkedProfiles(linked.filter(p => p.id !== user?.id));
     } catch {}
-  }, [token, user?.id]);
+    // Refresh linked profiles from context
+    fetchLinkedProfiles();
+  }, [token, fetchLinkedProfiles]);
 
   useEffect(() => {
     if (open) {
