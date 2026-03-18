@@ -442,10 +442,14 @@ _DASHBOARD_HTML = r"""<!DOCTYPE html>
 <div class="rw-overlay" id="rwOverlay" onclick="closeRewriteModal(event)">
   <div class="rw-card" onclick="event.stopPropagation()">
     <div class="rw-header">
-      <div style="flex:1;min-width:0">
+      <div style="flex:1;min-width:0;display:flex;align-items:center;gap:10px;flex-wrap:wrap">
         <div class="rw-title" id="rwArticleTitle">Rewrites</div>
         <a id="rwOriginalLink" href="#" target="_blank" rel="noopener noreferrer"
-           style="display:none;font-size:11px;color:#6b7280;text-decoration:none;margin-top:5px">
+           style="display:none;font-size:11px;font-weight:500;color:#60a5fa;text-decoration:none;
+                  background:#1e3a5f;border:1px solid #2563eb;border-radius:5px;
+                  padding:3px 9px;white-space:nowrap;flex-shrink:0;transition:.2s"
+           onmouseover="this.style.background='#2563eb';this.style.color='#fff'"
+           onmouseout="this.style.background='#1e3a5f';this.style.color='#60a5fa'">
           Read Original →
         </a>
       </div>
