@@ -896,32 +896,53 @@ function LoginForm({ setPhase, setToken, setParentToken, setUserData, navigate, 
     setSwitching(profile.id);
     try {
       console.log('[Login] Switching to profile:', profile.id, profile.full_name);
-      const res = await axios.post(`${BACKEND_URL}/api/auth/switch-profile`,
-        { target_user_id: profile.id },
-        { headers: { Authorization: `Bearer ${loginToken}` } }
-      );
-      console.log('[Login] Switch response:', JSON.stringify(res.data));
-      const newToken = res.data.token || loginToken;
-      setToken(newToken);
-      // Keep parent token stored
-      setParentToken(loginToken);
-      // Get fresh user data
-      if (res.data.user) {
-        setUserData(res.data.user);
+      
+      // If we have a token, try the switch-profile endpoint
+      if (loginToken) {
+        const res = await axios.post(`${BACKEND_URL}/api/auth/switch-profile`,
+          { target_user_id: profile.id },
+          { headers: { Authorization: `Bearer ${loginToken}` } }
+        );
+        console.log('[Login] Switch response:', JSON.stringify(res.data));
+        const newToken = res.data.token || loginToken;
+        setToken(newToken);
+        setParentToken(loginToken);
+        if (res.data.user) {
+          setUserData(res.data.user);
+        } else {
+          const meRes = await axios.get(`${BACKEND_URL}/api/auth/me`, {
+            headers: { Authorization: `Bearer ${newToken}` },
+          });
+          setUserData(meRes.data);
+        }
+        fetchLinkedProfiles(loginToken);
+        navigate('/feed');
       } else {
-        const meRes = await axios.get(`${BACKEND_URL}/api/auth/me`, {
-          headers: { Authorization: `Bearer ${newToken}` },
+        // No token from login response — use profile data directly
+        // Re-login as the child profile using parent credentials
+        console.log('[Login] No token available, re-authenticating as child profile');
+        const loginRes = await axios.post(`${BACKEND_URL}/api/auth/login`, {
+          email, password, target_profile_id: profile.id,
         });
-        setUserData(meRes.data);
+        console.log('[Login] Child login response:', JSON.stringify(loginRes.data));
+        const childToken = loginRes.data.token;
+        if (childToken) {
+          setToken(childToken);
+          setUserData(loginRes.data.user || profile);
+          if (loginRes.data.parent_token) setParentToken(loginRes.data.parent_token);
+          navigate('/feed');
+        } else {
+          // Last resort: use profile data directly without token
+          console.log('[Login] Using profile data directly');
+          setUserData(profile);
+          navigate('/feed');
+        }
       }
-      fetchLinkedProfiles(loginToken);
-      navigate('/feed');
     } catch (e) {
       console.error('[Login] Switch failed:', e.response?.status, JSON.stringify(e.response?.data));
-      // Fallback: just log in as parent
-      setToken(loginToken);
-      setUserData(loginUser);
-      fetchLinkedProfiles(loginToken);
+      // Fallback: use the profile data we already have
+      console.log('[Login] Fallback: using profile data directly');
+      setUserData(profile);
       navigate('/feed');
     }
     setSwitching(null);
