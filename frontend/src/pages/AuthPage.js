@@ -940,8 +940,8 @@ function LoginForm({ setPhase, setToken, setParentToken, setUserData, navigate, 
       }
     } catch (e) {
       console.error('[Login] Switch failed:', e.response?.status, JSON.stringify(e.response?.data));
-      // Fallback: use the profile data we already have
       console.log('[Login] Fallback: using profile data directly');
+      setToken('session_' + profile.id);
       setUserData(profile);
       navigate('/feed');
     }
