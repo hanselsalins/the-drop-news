@@ -140,7 +140,6 @@ class CoverageBalanceAgent(BaseAgent):
             {
                 "agent_name":  self.name,
                 "report_type": "coverage_balance",
-                "date":        today_start.date().isoformat(),
             },
             {"$set": report},
             upsert=True,
