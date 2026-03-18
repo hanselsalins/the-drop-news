@@ -864,18 +864,18 @@ function LoginForm({ setPhase, setToken, setParentToken, setUserData, navigate, 
       console.log('[Login] POST /api/auth/login');
       const res = await axios.post(`${BACKEND_URL}/api/auth/login`, { email, password });
       console.log('[Login] Response:', JSON.stringify(res.data));
-      const { token, user, linked_profiles } = res.data;
+      const { token, user, linked_profiles, account_type, profiles: responseProfiles } = res.data;
 
       // If parent account → show profile picker
-      if (user?.account_type === 'parent') {
+      if (account_type === 'parent' || user?.account_type === 'parent') {
         console.log('[Login] Parent account detected, showing profile picker');
         setLoginToken(token);
         setLoginUser(user);
-        // Use profiles from response
-        const profs = linked_profiles || res.data.profiles || [];
+        // Use profiles from response (handle both response shapes)
+        const profs = responseProfiles || linked_profiles || [];
         setProfiles(profs);
-        // Store parent token
-        setParentToken(token);
+        // Store parent token if available
+        if (token) setParentToken(token);
       } else {
         // Direct login (self or child somehow logging in directly)
         setToken(token);
