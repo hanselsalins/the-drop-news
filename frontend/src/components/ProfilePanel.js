@@ -2,7 +2,7 @@ import { useState, useEffect, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useTheme } from '../contexts/ThemeContext';
 import { motion, AnimatePresence } from 'framer-motion';
-import { X, Flame, ChevronRight, LogOut, Trash2, Lock, Eye, EyeOff, Users } from 'lucide-react';
+import { X, Flame, ChevronRight, LogOut, Trash2, Lock, Eye, EyeOff, Users, Moon, Sun } from 'lucide-react';
 import { ProfileSwitcherModal } from './ProfileSwitcherModal';
 import axios from 'axios';
 
@@ -24,7 +24,7 @@ const ACCOUNT_TYPES = {
 
 export const ProfilePanel = ({ open, onClose }) => {
   const navigate = useNavigate();
-  const { user, token, ageGroup, band, logout, linkedProfiles: ctxLinkedProfiles, fetchLinkedProfiles, parentToken } = useTheme();
+  const { user, token, ageGroup, band, logout, linkedProfiles: ctxLinkedProfiles, fetchLinkedProfiles, parentToken, darkMode, toggleDarkMode } = useTheme();
   const headers = token ? { Authorization: `Bearer ${token}` } : {};
   const isDark = band === 'sharp-aware' || band === 'editorial';
 
@@ -179,6 +179,19 @@ export const ProfilePanel = ({ open, onClose }) => {
                 </span>
               </div>
             </div>
+
+            {/* Dark Mode Toggle — only for Bands 1 & 2 (light-themed bands) */}
+            {(band === 'big-bold-bright' || band === 'cool-connected') && (
+              <div className="px-6 py-3">
+                <button onClick={toggleDarkMode} className="w-full flex items-center gap-3 py-2.5 px-4 rounded-2xl transition-colors"
+                  style={{ background: isDark || darkMode ? 'rgba(255,255,255,0.06)' : '#F8FAFC', border: `1px solid var(--drop-border)` }}>
+                  {darkMode ? <Sun size={18} style={{ color: '#F59E0B' }} /> : <Moon size={18} style={{ color: 'var(--drop-text-muted)' }} />}
+                  <span className="flex-1 text-left text-sm font-medium" style={{ fontFamily: 'var(--drop-font-body)', color: 'var(--drop-text)' }}>
+                    {darkMode ? 'Light Mode' : 'Dark Mode'}
+                  </span>
+                </button>
+              </div>
+            )}
 
             <div style={{ height: 1, background: dividerColor, margin: '0 24px' }} />
 

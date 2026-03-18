@@ -1,6 +1,8 @@
 import { useState, useEffect } from 'react';
 import { useTheme } from '../contexts/ThemeContext';
 import { motion } from 'framer-motion';
+import { useReducedMotion } from '../hooks/useReducedMotion';
+import { light } from '../lib/haptic';
 import axios from 'axios';
 
 const BACKEND_URL = import.meta.env.VITE_BACKEND_URL;
@@ -15,6 +17,7 @@ const REACTIONS = [
 
 export const ReactionBar = ({ articleId, categoryColor = '#3B82F6' }) => {
   const { token, band } = useTheme();
+  const prefersReducedMotion = useReducedMotion();
   const [counts, setCounts] = useState({});
   const [userReaction, setUserReaction] = useState(null);
   const [animating, setAnimating] = useState(null);
@@ -36,6 +39,7 @@ export const ReactionBar = ({ articleId, categoryColor = '#3B82F6' }) => {
 
   const handleReact = async (reactionId) => {
     if (!token) return;
+    light();
     setAnimating(reactionId);
     try {
       const res = await axios.post(`${BACKEND_URL}/api/articles/${articleId}/react`,
@@ -63,6 +67,18 @@ export const ReactionBar = ({ articleId, categoryColor = '#3B82F6' }) => {
     setTimeout(() => setAnimating(null), 300);
   };
 
+  // Band 2: squishy tactile press
+  const getWhileTap = () => {
+    if (prefersReducedMotion) return undefined;
+    if (band === 'cool-connected') return { scale: 1.1, scaleY: 0.9 };
+    return { scale: 1.15 };
+  };
+
+  const getTapTransition = () => {
+    if (band === 'cool-connected') return { type: 'spring', stiffness: 400, damping: 15 };
+    return undefined;
+  };
+
   return (
     <div
       data-testid="reaction-bar"
@@ -85,8 +101,10 @@ export const ReactionBar = ({ articleId, categoryColor = '#3B82F6' }) => {
             <motion.button
               key={r.id}
               data-testid={`reaction-${r.id}`}
+              aria-label={r.label}
               onClick={() => handleReact(r.id)}
-              whileTap={{ scale: 1.15 }}
+              whileTap={getWhileTap()}
+              transition={getTapTransition()}
               className="flex flex-col items-center gap-1.5 px-2 py-2 transition-all duration-200"
               style={{
                 background: isActive ? `${categoryColor}15` : 'transparent',
@@ -96,7 +114,8 @@ export const ReactionBar = ({ articleId, categoryColor = '#3B82F6' }) => {
             >
               <motion.span
                 className="text-3xl"
-                animate={animating === r.id ? { scale: [1, 1.5, 1] } : {}}
+                aria-hidden="true"
+                animate={!prefersReducedMotion && animating === r.id ? { scale: [1, 1.5, 1] } : {}}
                 transition={{ duration: 0.3 }}
                 style={{
                   filter: isActive ? 'none' : 'grayscale(0.3)',

@@ -1,6 +1,7 @@
 import { useState, useEffect, useCallback } from 'react';
 import { useTheme } from '../contexts/ThemeContext';
 import { useNotifications } from '../hooks/useNotifications';
+import { useReducedMotion } from '../hooks/useReducedMotion';
 import { NewsCard } from '../components/NewsCard';
 import { CategoryTabs } from '../components/CategoryTabs';
 import { BottomNav } from '../components/BottomNav';
@@ -13,15 +14,19 @@ import { ProgressDots } from '../components/ProgressDots';
 import { MissionHeader } from '../components/MissionHeader';
 import { BriefingHeader } from '../components/BriefingHeader';
 import { EditorialHeader } from '../components/EditorialHeader';
+import { SkeletonCard } from '../components/SkeletonCard';
+import { SkeletonTabs } from '../components/SkeletonTabs';
+import { StreakCelebration } from '../components/StreakCelebration';
 import { useReadArticles } from '../hooks/useReadArticles';
 import { motion } from 'framer-motion';
-import { Loader2 } from 'lucide-react';
+import { RefreshCw } from 'lucide-react';
 import axios from 'axios';
 
 const BACKEND_URL = import.meta.env.VITE_BACKEND_URL;
 
 export default function FeedPage() {
   const { ageGroup, themeMode, band, user, token } = useTheme();
+  const prefersReducedMotion = useReducedMotion();
   const [articles, setArticles] = useState([]);
   const [categories, setCategories] = useState([]);
   const [microFacts, setMicroFacts] = useState([]);
@@ -30,6 +35,12 @@ export default function FeedPage() {
   const [loading, setLoading] = useState(true);
   const [countries, setCountries] = useState([]);
   const [profileOpen, setProfileOpen] = useState(false);
+  const [showCelebration, setShowCelebration] = useState(false);
+
+  // Pull-to-refresh state
+  const [pullDistance, setPullDistance] = useState(0);
+  const [isRefreshing, setIsRefreshing] = useState(false);
+  const [atTop, setAtTop] = useState(true);
 
   const isBand1 = band === 'big-bold-bright';
   const isBand2 = band === 'cool-connected';
@@ -39,6 +50,13 @@ export default function FeedPage() {
   const headers = token ? { Authorization: `Bearer ${token}` } : {};
   const { milestone, checkMilestone, acknowledgeMilestone, requestPermission, permission } = useNotifications();
   const { readIds, refresh: refreshReadIds } = useReadArticles();
+
+  // Track scroll position for pull-to-refresh
+  useEffect(() => {
+    const handleScroll = () => setAtTop(window.scrollY <= 0);
+    window.addEventListener('scroll', handleScroll, { passive: true });
+    return () => window.removeEventListener('scroll', handleScroll);
+  }, []);
 
   useEffect(() => {
     if (permission === 'default') {
@@ -143,7 +161,6 @@ export default function FeedPage() {
     day: 'numeric',
   });
 
-  // Band-specific header gradient
   const headerGradient = isBand1
     ? 'linear-gradient(135deg, #FF4B4B 0%, #FFD93D 100%)'
     : isBand2
@@ -152,14 +169,25 @@ export default function FeedPage() {
     ? 'var(--drop-header-bg)'
     : 'var(--drop-header-bg)';
 
-  // Header font
   const headerFont = isBand1 ? 'Fredoka, cursive'
     : isBand2 ? 'Baloo 2, cursive'
     : isBand3 ? 'Syne, sans-serif'
     : 'Urbanist, sans-serif';
 
+  const handlePullRefresh = async () => {
+    if (isRefreshing) return;
+    setIsRefreshing(true);
+    setPullDistance(0);
+    await fetchArticles();
+    await fetchMicroFacts();
+    setIsRefreshing(false);
+  };
+
   return (
-    <div data-testid="feed-page" className="min-h-screen pb-28" style={{ background: 'var(--drop-bg)' }}>
+    <div data-testid="feed-page" className="min-h-screen pb-28" style={{ background: 'var(--drop-bg)', position: 'relative', overflow: 'hidden' }}>
+      {/* Streak celebration */}
+      <StreakCelebration streakCount={streak.current_streak} onComplete={() => setShowCelebration(false)} />
+
       <MilestoneBanner
         milestone={milestone}
         onDismiss={() => acknowledgeMilestone(milestone?.notification_id)}
@@ -182,7 +210,9 @@ export default function FeedPage() {
               <ProfileButton onClick={() => setProfileOpen(true)} size={34} />
             </div>
           </div>
-          <CategoryTabs categories={categories} activeCategory={activeCategory} setActiveCategory={setActiveCategory} />
+          {loading && categories.length === 0 ? <SkeletonTabs /> : (
+            <CategoryTabs categories={categories} activeCategory={activeCategory} setActiveCategory={setActiveCategory} />
+          )}
           {activeCategory === 'today' && !loading && articles.length > 0 && (
             <MissionHeader articles={articles} readArticleIds={readIds} streak={streak} topCategory={topCategory} />
           )}
@@ -205,7 +235,9 @@ export default function FeedPage() {
               <ProfileButton onClick={() => setProfileOpen(true)} size={34} />
             </div>
           </div>
-          <CategoryTabs categories={categories} activeCategory={activeCategory} setActiveCategory={setActiveCategory} />
+          {loading && categories.length === 0 ? <SkeletonTabs /> : (
+            <CategoryTabs categories={categories} activeCategory={activeCategory} setActiveCategory={setActiveCategory} />
+          )}
           {activeCategory === 'today' && !loading && articles.length > 0 && (
             <MissionHeader articles={articles} readArticleIds={readIds} streak={streak} topCategory={topCategory} />
           )}
@@ -228,7 +260,9 @@ export default function FeedPage() {
               <ProfileButton onClick={() => setProfileOpen(true)} size={34} />
             </div>
           </div>
-          <CategoryTabs categories={categories} activeCategory={activeCategory} setActiveCategory={setActiveCategory} />
+          {loading && categories.length === 0 ? <SkeletonTabs /> : (
+            <CategoryTabs categories={categories} activeCategory={activeCategory} setActiveCategory={setActiveCategory} />
+          )}
           {activeCategory === 'today' && !loading && articles.length > 0 && (
             <BriefingHeader articles={articles} readArticleIds={readIds} streak={streak} topCategory={topCategory} />
           )}
@@ -248,7 +282,9 @@ export default function FeedPage() {
               </div>
             </div>
           )}
-          <CategoryTabs categories={categories} activeCategory={activeCategory} setActiveCategory={setActiveCategory} />
+          {loading && categories.length === 0 ? <SkeletonTabs /> : (
+            <CategoryTabs categories={categories} activeCategory={activeCategory} setActiveCategory={setActiveCategory} />
+          )}
         </>
       )}
 
@@ -268,25 +304,58 @@ export default function FeedPage() {
         </>
       )}
 
+      {/* Pull-to-refresh indicator */}
+      {(pullDistance > 10 || isRefreshing) && (
+        <div className="flex items-center justify-center py-2" style={{ height: Math.min(pullDistance * 0.5, 50) }}>
+          <RefreshCw
+            size={20}
+            className={isRefreshing ? 'animate-spin' : ''}
+            style={{
+              color: 'var(--drop-accent, #3B82F6)',
+              transform: isRefreshing ? undefined : `rotate(${Math.min(pullDistance * 2, 360)}deg)`,
+              transition: isRefreshing ? 'none' : 'transform 0.1s',
+            }}
+          />
+        </div>
+      )}
+
       {/* Feed */}
-      <div className="px-4 pt-4 space-y-3">
+      <motion.div
+        className="px-4 pt-4 space-y-3"
+        drag={atTop && !isRefreshing ? 'y' : false}
+        dragConstraints={{ top: 0, bottom: 0 }}
+        dragElastic={0.4}
+        onDrag={(e, info) => {
+          if (info.offset.y > 0) setPullDistance(info.offset.y);
+        }}
+        onDragEnd={(e, info) => {
+          if (info.offset.y > 80) {
+            handlePullRefresh();
+          } else {
+            setPullDistance(0);
+          }
+        }}
+        style={{ touchAction: atTop ? 'none' : 'auto' }}
+      >
         {loading ? (
-          <div className="flex items-center justify-center py-20">
-            <Loader2 className="animate-spin" size={32} style={{ color: 'var(--drop-accent, #3B82F6)' }} />
+          <div className="space-y-3">
+            {Array.from({ length: 5 }).map((_, i) => (
+              <SkeletonCard key={i} />
+            ))}
           </div>
         ) : feedItems.length === 0 ? (
           <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="text-center py-20">
             <p className="text-lg" style={{ fontFamily: 'var(--drop-font-body)', color: 'var(--drop-text-muted)' }}>
-              No articles yet. Hit refresh to load fresh news!
+              No articles yet. Pull down to refresh!
             </p>
           </motion.div>
         ) : (
           feedItems.map((item, index) => (
             <motion.div
               key={item.type === 'article' ? item.data.id : `fact-${index}`}
-              initial={{ y: 30, opacity: 0 }}
-              animate={{ y: 0, opacity: 1 }}
-              transition={{
+              initial={prefersReducedMotion ? undefined : { y: 30, opacity: 0 }}
+              animate={prefersReducedMotion ? undefined : { y: 0, opacity: 1 }}
+              transition={prefersReducedMotion ? undefined : {
                 delay: Math.min(index * 0.05, 0.5),
                 duration: 0.4,
                 ease: [0.16, 1, 0.3, 1],
@@ -300,7 +369,7 @@ export default function FeedPage() {
             </motion.div>
           ))
         )}
-      </div>
+      </motion.div>
 
       <BottomNav active="home" />
       <ProfilePanel open={profileOpen} onClose={() => setProfileOpen(false)} />

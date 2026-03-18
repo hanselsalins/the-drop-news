@@ -1,0 +1,1694 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>The Drop — Design System Showcase (All 4 Age Bands)</title>
+
+<!-- Fonts: All 4 age band combinations -->
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@400;500;600;700&family=Fredoka:wght@400;500;600;700&family=Inter:wght@300;400;500;600;700&family=Newsreader:ital,wght@0,400;0,500;0,600;0,700;1,400&family=Nunito:wght@300;400;500;600;700&family=Outfit:wght@300;400;500;600;700&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+
+<!-- Lucide Icons CDN -->
+<script src="https://unpkg.com/lucide@latest"></script>
+
+<style>
+  /* ============================================
+     RESET & GLOBAL
+     ============================================ */
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  html { scroll-behavior: smooth; -webkit-font-smoothing: antialiased; }
+  body {
+    background: #F1F5F9;
+    font-family: 'Inter', system-ui, sans-serif;
+    color: #1E293B;
+    line-height: 1.5;
+  }
+
+  /* ============================================
+     SHARED CATEGORY COLORS
+     ============================================ */
+  :root {
+    --cat-world: #3B82F6;
+    --cat-world-bg: #EFF6FF;
+    --cat-tech: #8B5CF6;
+    --cat-tech-bg: #F5F3FF;
+    --cat-sports: #F97316;
+    --cat-sports-bg: #FFF7ED;
+    --cat-environment: #14B8A6;
+    --cat-environment-bg: #F0FDFA;
+    --cat-entertainment: #EC4899;
+    --cat-entertainment-bg: #FDF2F8;
+    --cat-money: #F59E0B;
+    --cat-money-bg: #FFFBEB;
+    --cat-power: #EF4444;
+    --cat-power-bg: #FEF2F2;
+  }
+
+  /* ============================================
+     PAGE LAYOUT
+     ============================================ */
+  .page-header {
+    text-align: center;
+    padding: 48px 24px 32px;
+    background: linear-gradient(135deg, #0F172A, #1E293B);
+    color: white;
+  }
+  .page-header h1 {
+    font-family: 'Plus Jakarta Sans', sans-serif;
+    font-weight: 800;
+    font-size: 36px;
+    letter-spacing: -0.02em;
+  }
+  .page-header p {
+    margin-top: 8px;
+    color: #94A3B8;
+    font-size: 15px;
+    max-width: 600px;
+    margin-left: auto;
+    margin-right: auto;
+  }
+
+  .band-nav {
+    display: flex;
+    justify-content: center;
+    gap: 8px;
+    padding: 16px;
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    background: rgba(241, 245, 249, 0.9);
+    backdrop-filter: blur(12px);
+    border-bottom: 1px solid #E2E8F0;
+  }
+  .band-nav a {
+    padding: 8px 20px;
+    border-radius: 24px;
+    font-size: 13px;
+    font-weight: 600;
+    text-decoration: none;
+    transition: all 200ms ease;
+    cursor: pointer;
+  }
+  .band-nav a:nth-child(1) { background: #EEF2FF; color: #4F46E5; }
+  .band-nav a:nth-child(2) { background: #EFF6FF; color: #2563EB; }
+  .band-nav a:nth-child(3) { background: #FFF1F2; color: #E11D48; }
+  .band-nav a:nth-child(4) { background: #171717; color: #D4AF37; }
+  .band-nav a:hover { transform: translateY(-1px); }
+
+  .band-section {
+    padding: 40px 24px;
+    scroll-margin-top: 56px;
+  }
+
+  .band-label {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 12px;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    padding: 6px 14px;
+    border-radius: 20px;
+    margin-bottom: 8px;
+  }
+
+  .band-title {
+    font-size: 28px;
+    font-weight: 700;
+    letter-spacing: -0.02em;
+    margin-bottom: 4px;
+  }
+
+  .band-subtitle {
+    font-size: 14px;
+    margin-bottom: 32px;
+    max-width: 520px;
+  }
+
+  /* Phone frame wrapper */
+  .phone-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(340px, 1fr));
+    gap: 32px;
+    max-width: 1200px;
+    margin: 0 auto;
+  }
+
+  .phone-frame {
+    width: 375px;
+    margin: 0 auto;
+    border-radius: 36px;
+    overflow: hidden;
+    position: relative;
+    box-shadow: 0 20px 60px rgba(0,0,0,0.12), 0 0 0 1px rgba(0,0,0,0.06);
+  }
+  .phone-frame::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 120px;
+    height: 28px;
+    background: #000;
+    border-radius: 0 0 18px 18px;
+    z-index: 10;
+  }
+
+  .phone-screen {
+    padding-top: 36px;
+    min-height: 720px;
+    position: relative;
+    overflow-y: auto;
+  }
+
+  .component-label {
+    font-family: 'Inter', sans-serif;
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: #94A3B8;
+    margin: 16px 16px 6px;
+  }
+
+  /* ============================================
+     KIDS THEME (8-10) — CLAYMORPHISM
+     ============================================ */
+  .kids { background: #EEF2FF; }
+  .kids .band-label { background: #C7D2FE; color: #4F46E5; }
+  .kids .band-title { font-family: 'Baloo 2', sans-serif; color: #4F46E5; }
+  .kids .band-subtitle { color: #6366F1; font-family: 'Nunito', sans-serif; }
+
+  .kids .phone-screen { background: #EEF2FF; font-family: 'Nunito', sans-serif; }
+
+  /* Kids Header */
+  .kids-header {
+    background: #4F46E5;
+    padding: 16px 20px 14px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+  .kids-header-title {
+    font-family: 'Baloo 2', sans-serif;
+    font-size: 24px;
+    font-weight: 700;
+    color: white;
+  }
+  .kids-header-streak {
+    background: #F97316;
+    color: white;
+    padding: 4px 12px;
+    border-radius: 20px;
+    font-weight: 700;
+    font-size: 14px;
+    border: 2.5px solid #FBBF24;
+    box-shadow: 2px 2px 0 #C2410C;
+  }
+
+  /* Kids Category Tabs */
+  .kids-tabs {
+    display: flex;
+    gap: 8px;
+    padding: 12px 16px;
+    overflow-x: auto;
+    scrollbar-width: none;
+  }
+  .kids-tabs::-webkit-scrollbar { display: none; }
+  .kids-tab {
+    flex-shrink: 0;
+    padding: 10px 18px;
+    border-radius: 20px;
+    font-family: 'Fredoka', sans-serif;
+    font-size: 14px;
+    font-weight: 600;
+    border: 3px solid #C7D2FE;
+    background: white;
+    color: #4F46E5;
+    cursor: pointer;
+    box-shadow: 3px 3px 0 #C7D2FE;
+    transition: all 200ms ease;
+  }
+  .kids-tab.active {
+    background: #4F46E5;
+    color: white;
+    border-color: #3730A3;
+    box-shadow: 2px 2px 0 #3730A3;
+  }
+
+  /* Kids News Card */
+  .kids-card {
+    margin: 10px 16px;
+    background: white;
+    border-radius: 24px;
+    border: 3px solid #C7D2FE;
+    box-shadow: 5px 5px 0 #C7D2FE;
+    overflow: hidden;
+    transition: all 200ms ease;
+    cursor: pointer;
+  }
+  .kids-card:active {
+    box-shadow: 2px 2px 0 #C7D2FE;
+    transform: translateY(3px);
+  }
+  .kids-card-img {
+    width: 100%;
+    height: 160px;
+    object-fit: cover;
+    display: block;
+  }
+  .kids-card-body { padding: 16px; }
+  .kids-card-pill {
+    display: inline-block;
+    font-family: 'Fredoka', sans-serif;
+    font-size: 11px;
+    font-weight: 600;
+    padding: 4px 12px;
+    border-radius: 14px;
+    background: var(--cat-world-bg);
+    color: var(--cat-world);
+    border: 2px solid var(--cat-world);
+    margin-bottom: 8px;
+  }
+  .kids-card-title {
+    font-family: 'Fredoka', sans-serif;
+    font-size: 17px;
+    font-weight: 700;
+    color: #1E1B4B;
+    line-height: 1.3;
+    margin-bottom: 6px;
+  }
+  .kids-card-summary {
+    font-size: 14px;
+    color: #6366F1;
+    line-height: 1.6;
+  }
+  .kids-card-footer {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0 16px 14px;
+  }
+  .kids-card-source {
+    font-size: 11px;
+    color: #818CF8;
+    font-weight: 600;
+  }
+  .kids-reactions {
+    display: flex;
+    gap: 6px;
+  }
+  .kids-reaction {
+    width: 36px;
+    height: 36px;
+    border-radius: 14px;
+    border: 2.5px solid #C7D2FE;
+    background: white;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 16px;
+    cursor: pointer;
+    box-shadow: 2px 2px 0 #C7D2FE;
+    transition: all 150ms ease;
+  }
+  .kids-reaction:active {
+    box-shadow: 1px 1px 0 #C7D2FE;
+    transform: translateY(1px);
+  }
+
+  /* Kids Button */
+  .kids-btn {
+    font-family: 'Fredoka', sans-serif;
+    font-size: 16px;
+    font-weight: 700;
+    padding: 14px 28px;
+    border-radius: 18px;
+    border: 3px solid #C2410C;
+    background: #F97316;
+    color: white;
+    cursor: pointer;
+    box-shadow: 4px 4px 0 #C2410C;
+    transition: all 200ms ease;
+    min-height: 52px;
+  }
+  .kids-btn:active {
+    box-shadow: 2px 2px 0 #C2410C;
+    transform: translateY(2px);
+  }
+
+  /* Kids Bottom Nav */
+  .kids-nav {
+    display: flex;
+    justify-content: space-around;
+    align-items: center;
+    background: white;
+    border-top: 3px solid #C7D2FE;
+    padding: 8px 0 12px;
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+  }
+  .kids-nav-item {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 2px;
+    cursor: pointer;
+    min-width: 52px;
+    min-height: 52px;
+    justify-content: center;
+    border-radius: 16px;
+    transition: all 150ms ease;
+  }
+  .kids-nav-item.active { background: #EEF2FF; }
+  .kids-nav-icon {
+    width: 24px;
+    height: 24px;
+    color: #818CF8;
+  }
+  .kids-nav-item.active .kids-nav-icon { color: #4F46E5; }
+  .kids-nav-label {
+    font-family: 'Fredoka', sans-serif;
+    font-size: 10px;
+    font-weight: 600;
+    color: #818CF8;
+  }
+  .kids-nav-item.active .kids-nav-label { color: #4F46E5; }
+
+
+  /* ============================================
+     TWEENS THEME (11-13) — SOFT FLAT
+     ============================================ */
+  .tweens { background: #F8FAFC; }
+  .tweens .band-label { background: #DBEAFE; color: #2563EB; }
+  .tweens .band-title { font-family: 'Fredoka', sans-serif; color: #2563EB; }
+  .tweens .band-subtitle { color: #64748B; font-family: 'Outfit', sans-serif; }
+
+  .tweens .phone-screen { background: #F8FAFC; font-family: 'Outfit', sans-serif; }
+
+  /* Tweens Header */
+  .tweens-header {
+    background: linear-gradient(135deg, #2563EB, #3B82F6);
+    padding: 16px 20px 14px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+  .tweens-header-title {
+    font-family: 'Fredoka', sans-serif;
+    font-size: 22px;
+    font-weight: 700;
+    color: white;
+  }
+  .tweens-header-streak {
+    background: white;
+    color: #2563EB;
+    padding: 5px 14px;
+    border-radius: 16px;
+    font-weight: 700;
+    font-size: 13px;
+  }
+
+  /* Tweens Tabs */
+  .tweens-tabs {
+    display: flex;
+    gap: 6px;
+    padding: 12px 16px;
+    overflow-x: auto;
+    scrollbar-width: none;
+  }
+  .tweens-tabs::-webkit-scrollbar { display: none; }
+  .tweens-tab {
+    flex-shrink: 0;
+    padding: 8px 16px;
+    border-radius: 16px;
+    font-family: 'Outfit', sans-serif;
+    font-size: 13px;
+    font-weight: 600;
+    border: 1.5px solid #E2E8F0;
+    background: white;
+    color: #64748B;
+    cursor: pointer;
+    transition: all 200ms ease;
+  }
+  .tweens-tab.active {
+    background: #2563EB;
+    color: white;
+    border-color: #2563EB;
+  }
+
+  /* Tweens News Card */
+  .tweens-card {
+    margin: 8px 16px;
+    background: white;
+    border-radius: 18px;
+    border: 1.5px solid #E2E8F0;
+    box-shadow: 0 2px 8px rgba(37, 99, 235, 0.06);
+    overflow: hidden;
+    cursor: pointer;
+    transition: all 200ms ease;
+  }
+  .tweens-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 20px rgba(37, 99, 235, 0.1);
+  }
+  .tweens-card-img {
+    width: 100%;
+    height: 150px;
+    object-fit: cover;
+    display: block;
+  }
+  .tweens-card-body { padding: 14px 16px; }
+  .tweens-card-pill {
+    display: inline-block;
+    font-size: 10px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    padding: 3px 10px;
+    border-radius: 10px;
+    background: var(--cat-tech-bg);
+    color: var(--cat-tech);
+    margin-bottom: 8px;
+  }
+  .tweens-card-title {
+    font-family: 'Fredoka', sans-serif;
+    font-size: 16px;
+    font-weight: 600;
+    color: #0F172A;
+    line-height: 1.35;
+    margin-bottom: 6px;
+  }
+  .tweens-card-summary {
+    font-size: 14px;
+    color: #64748B;
+    line-height: 1.6;
+  }
+  .tweens-card-footer {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0 16px 12px;
+  }
+  .tweens-card-source { font-size: 11px; color: #94A3B8; font-weight: 500; }
+  .tweens-reactions { display: flex; gap: 4px; }
+  .tweens-reaction {
+    width: 32px;
+    height: 32px;
+    border-radius: 10px;
+    border: 1.5px solid #E2E8F0;
+    background: white;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 14px;
+    cursor: pointer;
+    transition: all 150ms ease;
+  }
+  .tweens-reaction:hover { background: #F1F5F9; }
+
+  /* Tweens Button */
+  .tweens-btn {
+    font-family: 'Outfit', sans-serif;
+    font-size: 15px;
+    font-weight: 600;
+    padding: 12px 24px;
+    border-radius: 14px;
+    border: none;
+    background: #2563EB;
+    color: white;
+    cursor: pointer;
+    transition: all 200ms ease;
+    min-height: 48px;
+  }
+  .tweens-btn:hover { background: #1D4ED8; }
+  .tweens-btn-secondary {
+    background: white;
+    color: #2563EB;
+    border: 1.5px solid #2563EB;
+  }
+  .tweens-btn-secondary:hover { background: #EFF6FF; }
+
+  /* Tweens Nav */
+  .tweens-nav {
+    display: flex;
+    justify-content: space-around;
+    align-items: center;
+    background: white;
+    border-top: 1px solid #E2E8F0;
+    padding: 6px 0 10px;
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+  }
+  .tweens-nav-item {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 2px;
+    cursor: pointer;
+    min-height: 48px;
+    justify-content: center;
+    padding: 4px 12px;
+    border-radius: 12px;
+    transition: all 150ms ease;
+  }
+  .tweens-nav-item.active { background: #EFF6FF; }
+  .tweens-nav-icon { width: 22px; height: 22px; color: #94A3B8; }
+  .tweens-nav-item.active .tweens-nav-icon { color: #2563EB; }
+  .tweens-nav-label { font-size: 10px; font-weight: 600; color: #94A3B8; }
+  .tweens-nav-item.active .tweens-nav-label { color: #2563EB; }
+
+
+  /* ============================================
+     TEENS THEME (14-16) — VIBRANT BLOCK
+     ============================================ */
+  .teens { background: #FAFAFA; }
+  .teens .band-label { background: #FFE4E6; color: #E11D48; }
+  .teens .band-title { font-family: 'Plus Jakarta Sans', sans-serif; color: #E11D48; }
+  .teens .band-subtitle { color: #64748B; font-family: 'Inter', sans-serif; }
+
+  .teens .phone-screen { background: #FAFAFA; font-family: 'Inter', sans-serif; }
+
+  /* Teens Header */
+  .teens-header {
+    background: #0F0F0F;
+    padding: 14px 20px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+  .teens-header-title {
+    font-family: 'Plus Jakarta Sans', sans-serif;
+    font-size: 20px;
+    font-weight: 800;
+    color: white;
+    letter-spacing: -0.02em;
+  }
+  .teens-header-streak {
+    background: #E11D48;
+    color: white;
+    padding: 4px 12px;
+    border-radius: 8px;
+    font-weight: 700;
+    font-size: 12px;
+  }
+
+  /* Teens Tabs */
+  .teens-tabs {
+    display: flex;
+    gap: 4px;
+    padding: 10px 16px;
+    overflow-x: auto;
+    scrollbar-width: none;
+    background: white;
+    border-bottom: 1px solid #E5E7EB;
+  }
+  .teens-tabs::-webkit-scrollbar { display: none; }
+  .teens-tab {
+    flex-shrink: 0;
+    padding: 7px 14px;
+    border-radius: 8px;
+    font-family: 'Inter', sans-serif;
+    font-size: 13px;
+    font-weight: 600;
+    background: transparent;
+    color: #6B7280;
+    border: none;
+    cursor: pointer;
+    transition: all 150ms ease;
+  }
+  .teens-tab.active {
+    background: #0F0F0F;
+    color: white;
+  }
+
+  /* Teens News Card */
+  .teens-card {
+    margin: 8px 16px;
+    background: white;
+    border-radius: 14px;
+    border: 1px solid #E5E7EB;
+    overflow: hidden;
+    cursor: pointer;
+    transition: all 200ms ease;
+  }
+  .teens-card:hover {
+    border-color: #D1D5DB;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.06);
+  }
+  .teens-card-row {
+    display: flex;
+    gap: 12px;
+    padding: 14px;
+  }
+  .teens-card-img {
+    width: 90px;
+    height: 90px;
+    border-radius: 10px;
+    object-fit: cover;
+    flex-shrink: 0;
+  }
+  .teens-card-content { flex: 1; min-width: 0; }
+  .teens-card-pill {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    font-size: 10px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    padding: 2px 8px;
+    border-radius: 4px;
+    background: var(--cat-sports-bg);
+    color: var(--cat-sports);
+    margin-bottom: 6px;
+  }
+  .teens-card-pill-dot {
+    width: 5px;
+    height: 5px;
+    border-radius: 50%;
+    background: var(--cat-sports);
+  }
+  .teens-card-title {
+    font-family: 'Plus Jakarta Sans', sans-serif;
+    font-size: 15px;
+    font-weight: 700;
+    color: #0F172A;
+    line-height: 1.3;
+    margin-bottom: 4px;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+  }
+  .teens-card-meta {
+    font-size: 12px;
+    color: #9CA3AF;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .teens-card-trending {
+    display: inline-flex;
+    align-items: center;
+    gap: 3px;
+    font-size: 10px;
+    font-weight: 700;
+    color: #E11D48;
+    background: #FFF1F2;
+    padding: 2px 8px;
+    border-radius: 4px;
+    animation: pulse-tag 2s ease infinite;
+  }
+  @keyframes pulse-tag {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.7; }
+  }
+
+  /* Teens Featured Card (full-width) */
+  .teens-featured {
+    margin: 8px 16px;
+    background: white;
+    border-radius: 14px;
+    overflow: hidden;
+    border: 1px solid #E5E7EB;
+    cursor: pointer;
+  }
+  .teens-featured-img {
+    width: 100%;
+    height: 180px;
+    object-fit: cover;
+    display: block;
+  }
+  .teens-featured-body { padding: 14px 16px 16px; }
+  .teens-featured-title {
+    font-family: 'Plus Jakarta Sans', sans-serif;
+    font-size: 18px;
+    font-weight: 800;
+    color: #0F172A;
+    line-height: 1.25;
+    letter-spacing: -0.01em;
+    margin-bottom: 6px;
+  }
+  .teens-featured-summary {
+    font-size: 14px;
+    color: #6B7280;
+    line-height: 1.55;
+  }
+
+  /* Teens Reactions */
+  .teens-reactions {
+    display: flex;
+    gap: 6px;
+    padding: 0 14px 12px;
+  }
+  .teens-reaction {
+    padding: 4px 10px;
+    border-radius: 6px;
+    border: 1px solid #E5E7EB;
+    background: white;
+    font-size: 12px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    transition: all 150ms ease;
+  }
+  .teens-reaction:hover { background: #F3F4F6; }
+  .teens-reaction-count {
+    font-size: 11px;
+    font-weight: 600;
+    color: #9CA3AF;
+  }
+
+  /* Teens Button */
+  .teens-btn {
+    font-family: 'Plus Jakarta Sans', sans-serif;
+    font-size: 14px;
+    font-weight: 700;
+    padding: 10px 20px;
+    border-radius: 10px;
+    border: none;
+    background: #E11D48;
+    color: white;
+    cursor: pointer;
+    transition: all 150ms ease;
+    min-height: 44px;
+  }
+  .teens-btn:hover { background: #BE123C; }
+  .teens-btn-ghost {
+    background: transparent;
+    color: #0F172A;
+    border: 1px solid #D1D5DB;
+  }
+  .teens-btn-ghost:hover { background: #F3F4F6; }
+
+  /* Teens Nav */
+  .teens-nav {
+    display: flex;
+    justify-content: space-around;
+    align-items: center;
+    background: #0F0F0F;
+    padding: 8px 0 12px;
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+  }
+  .teens-nav-item {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 2px;
+    cursor: pointer;
+    min-height: 44px;
+    justify-content: center;
+    padding: 4px 14px;
+    border-radius: 10px;
+    transition: all 150ms ease;
+  }
+  .teens-nav-item.active { background: rgba(225,29,72,0.15); }
+  .teens-nav-icon { width: 22px; height: 22px; color: #6B7280; }
+  .teens-nav-item.active .teens-nav-icon { color: #FB7185; }
+  .teens-nav-label { font-size: 10px; font-weight: 600; color: #6B7280; }
+  .teens-nav-item.active .teens-nav-label { color: #FB7185; }
+
+
+  /* ============================================
+     YOUNG ADULTS THEME (17-20) — REFINED MINIMAL
+     ============================================ */
+  .ya { background: #FFFFFF; }
+  .ya .band-label { background: #262626; color: #D4AF37; }
+  .ya .band-title { font-family: 'Newsreader', Georgia, serif; color: #171717; }
+  .ya .band-subtitle { color: #737373; font-family: 'Inter', sans-serif; }
+
+  .ya .phone-screen { background: #FFFFFF; font-family: 'Inter', sans-serif; }
+
+  /* YA Header */
+  .ya-header {
+    padding: 16px 20px 14px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    border-bottom: 1px solid #E5E5E5;
+  }
+  .ya-header-title {
+    font-family: 'Newsreader', Georgia, serif;
+    font-size: 22px;
+    font-weight: 700;
+    color: #171717;
+    letter-spacing: -0.02em;
+  }
+  .ya-header-date {
+    font-size: 12px;
+    color: #A3A3A3;
+    font-weight: 400;
+  }
+
+  /* YA Tabs */
+  .ya-tabs {
+    display: flex;
+    gap: 0;
+    padding: 0 16px;
+    overflow-x: auto;
+    scrollbar-width: none;
+    border-bottom: 1px solid #E5E5E5;
+  }
+  .ya-tabs::-webkit-scrollbar { display: none; }
+  .ya-tab {
+    flex-shrink: 0;
+    padding: 12px 16px;
+    font-family: 'Inter', sans-serif;
+    font-size: 13px;
+    font-weight: 500;
+    color: #A3A3A3;
+    border: none;
+    background: transparent;
+    cursor: pointer;
+    border-bottom: 2px solid transparent;
+    transition: all 150ms ease;
+  }
+  .ya-tab.active {
+    color: #171717;
+    border-bottom-color: #D4AF37;
+    font-weight: 600;
+  }
+
+  /* YA News Card */
+  .ya-card {
+    margin: 0;
+    padding: 16px 20px;
+    border-bottom: 1px solid #F5F5F5;
+    cursor: pointer;
+    transition: background 150ms ease;
+  }
+  .ya-card:hover { background: #FAFAFA; }
+  .ya-card-pill {
+    font-size: 10px;
+    font-weight: 500;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: #D4AF37;
+    margin-bottom: 6px;
+  }
+  .ya-card-title {
+    font-family: 'Newsreader', Georgia, serif;
+    font-size: 18px;
+    font-weight: 600;
+    color: #171717;
+    line-height: 1.35;
+    margin-bottom: 6px;
+    letter-spacing: -0.01em;
+  }
+  .ya-card-summary {
+    font-size: 14px;
+    color: #737373;
+    line-height: 1.6;
+    margin-bottom: 8px;
+  }
+  .ya-card-meta {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    font-size: 12px;
+    color: #A3A3A3;
+  }
+  .ya-card-meta-dot {
+    width: 3px;
+    height: 3px;
+    border-radius: 50%;
+    background: #D4D4D4;
+  }
+
+  /* YA Featured Card (with image) */
+  .ya-featured {
+    padding: 20px;
+    border-bottom: 1px solid #F5F5F5;
+    cursor: pointer;
+  }
+  .ya-featured-img {
+    width: 100%;
+    height: 200px;
+    object-fit: cover;
+    border-radius: 8px;
+    display: block;
+    margin-bottom: 14px;
+  }
+  .ya-featured-title {
+    font-family: 'Newsreader', Georgia, serif;
+    font-size: 22px;
+    font-weight: 700;
+    color: #171717;
+    line-height: 1.3;
+    letter-spacing: -0.02em;
+    margin-bottom: 8px;
+  }
+  .ya-featured-summary {
+    font-size: 15px;
+    color: #525252;
+    line-height: 1.65;
+  }
+
+  /* YA Button */
+  .ya-btn {
+    font-family: 'Inter', sans-serif;
+    font-size: 14px;
+    font-weight: 500;
+    padding: 10px 20px;
+    border-radius: 6px;
+    border: 1px solid #E5E5E5;
+    background: #171717;
+    color: white;
+    cursor: pointer;
+    transition: all 150ms ease;
+    min-height: 44px;
+  }
+  .ya-btn:hover { background: #262626; }
+  .ya-btn-outline {
+    background: white;
+    color: #171717;
+    border: 1px solid #D4D4D4;
+  }
+  .ya-btn-outline:hover { background: #FAFAFA; }
+  .ya-btn-accent {
+    background: #D4AF37;
+    border-color: #D4AF37;
+    color: #171717;
+    font-weight: 600;
+  }
+
+  /* YA Nav */
+  .ya-nav {
+    display: flex;
+    justify-content: space-around;
+    align-items: center;
+    background: white;
+    border-top: 1px solid #E5E5E5;
+    padding: 8px 0 12px;
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+  }
+  .ya-nav-item {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 2px;
+    cursor: pointer;
+    min-height: 44px;
+    justify-content: center;
+    transition: all 150ms ease;
+  }
+  .ya-nav-icon { width: 20px; height: 20px; color: #A3A3A3; }
+  .ya-nav-item.active .ya-nav-icon { color: #171717; }
+  .ya-nav-label { font-size: 10px; font-weight: 500; color: #A3A3A3; }
+  .ya-nav-item.active .ya-nav-label { color: #171717; }
+
+
+  /* ============================================
+     COMPONENT SHOWCASE PANELS
+     ============================================ */
+  .component-row {
+    display: flex;
+    gap: 10px;
+    padding: 12px 16px;
+    flex-wrap: wrap;
+  }
+
+  /* DARK MODE VARIANT (Teens) */
+  .teens-dark .phone-screen {
+    background: #0F0F0F;
+  }
+  .teens-dark .teens-header { background: #0F0F0F; border-bottom: 1px solid #2A2A2A; }
+  .teens-dark .teens-tabs { background: #0F0F0F; border-bottom-color: #2A2A2A; }
+  .teens-dark .teens-tab { color: #6B7280; }
+  .teens-dark .teens-tab.active { background: #FB7185; color: white; }
+  .teens-dark .teens-featured { background: #1A1A1A; border-color: #2A2A2A; }
+  .teens-dark .teens-featured-title { color: #F1F5F9; }
+  .teens-dark .teens-featured-summary { color: #94A3B8; }
+  .teens-dark .teens-card { background: #1A1A1A; border-color: #2A2A2A; }
+  .teens-dark .teens-card-title { color: #F1F5F9; }
+  .teens-dark .teens-card-meta { color: #6B7280; }
+  .teens-dark .teens-reaction { background: #1A1A1A; border-color: #2A2A2A; color: #94A3B8; }
+  .teens-dark .teens-reaction:hover { background: #262626; }
+  .teens-dark .teens-card-trending { background: rgba(225,29,72,0.15); }
+
+  /* DARK MODE VARIANT (YA) */
+  .ya-dark .phone-screen { background: #0A0A0A; }
+  .ya-dark .ya-header { border-bottom-color: #262626; }
+  .ya-dark .ya-header-title { color: #FAFAFA; }
+  .ya-dark .ya-header-date { color: #737373; }
+  .ya-dark .ya-tabs { border-bottom-color: #262626; }
+  .ya-dark .ya-tab { color: #525252; }
+  .ya-dark .ya-tab.active { color: #FAFAFA; border-bottom-color: #D4AF37; }
+  .ya-dark .ya-featured { border-bottom-color: #1A1A1A; }
+  .ya-dark .ya-featured-title { color: #FAFAFA; }
+  .ya-dark .ya-featured-summary { color: #A3A3A3; }
+  .ya-dark .ya-card { border-bottom-color: #1A1A1A; }
+  .ya-dark .ya-card:hover { background: #141414; }
+  .ya-dark .ya-card-title { color: #FAFAFA; }
+  .ya-dark .ya-card-summary { color: #737373; }
+  .ya-dark .ya-card-meta { color: #525252; }
+  .ya-dark .ya-nav { background: #0A0A0A; border-top-color: #262626; }
+  .ya-dark .ya-nav-icon { color: #525252; }
+  .ya-dark .ya-nav-item.active .ya-nav-icon { color: #FAFAFA; }
+  .ya-dark .ya-nav-label { color: #525252; }
+  .ya-dark .ya-nav-item.active .ya-nav-label { color: #FAFAFA; }
+
+  /* Dark mode toggle */
+  .dark-toggle {
+    position: absolute;
+    top: 42px;
+    right: 12px;
+    z-index: 20;
+    width: 32px;
+    height: 32px;
+    border-radius: 8px;
+    border: 1px solid #374151;
+    background: #1F2937;
+    color: white;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    font-size: 14px;
+  }
+
+  /* Comparison table */
+  .comparison {
+    max-width: 1100px;
+    margin: 40px auto;
+    padding: 0 24px;
+  }
+  .comparison h2 {
+    font-family: 'Plus Jakarta Sans', sans-serif;
+    font-size: 24px;
+    font-weight: 800;
+    margin-bottom: 20px;
+    color: #0F172A;
+  }
+  .comparison table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 13px;
+  }
+  .comparison th {
+    text-align: left;
+    padding: 10px 12px;
+    background: #F1F5F9;
+    font-weight: 700;
+    color: #334155;
+    border-bottom: 2px solid #E2E8F0;
+  }
+  .comparison td {
+    padding: 8px 12px;
+    border-bottom: 1px solid #F1F5F9;
+    color: #475569;
+  }
+  .comparison tr:hover td { background: #F8FAFC; }
+  .swatch {
+    display: inline-block;
+    width: 16px;
+    height: 16px;
+    border-radius: 4px;
+    vertical-align: middle;
+    margin-right: 6px;
+    border: 1px solid rgba(0,0,0,0.1);
+  }
+</style>
+</head>
+
+<body>
+
+<!-- ========== PAGE HEADER ========== -->
+<header class="page-header">
+  <h1>The Drop — Design System</h1>
+  <p>4 age-adaptive themes for India's youth news platform. Each band has its own personality, typography, colors, and component styling.</p>
+</header>
+
+<!-- ========== STICKY NAV ========== -->
+<nav class="band-nav">
+  <a href="#kids">Kids 8-10</a>
+  <a href="#tweens">Tweens 11-13</a>
+  <a href="#teens">Teens 14-16</a>
+  <a href="#ya">Adults 17-20</a>
+</nav>
+
+<!-- ========================================
+     BAND 1: KIDS (8-10) — CLAYMORPHISM
+     ======================================== -->
+<section id="kids" class="band-section kids">
+  <div class="band-label">Ages 8-10</div>
+  <h2 class="band-title">Kids: Claymorphism</h2>
+  <p class="band-subtitle">Warm, bubbly, safe. Chunky 3D-ish elements with thick borders and offset shadows. Everything feels like a toy you can press.</p>
+
+  <div class="phone-grid">
+    <!-- Feed Screen -->
+    <div class="phone-frame">
+      <div class="phone-screen">
+        <div class="kids-header">
+          <span class="kids-header-title">the drop</span>
+          <span class="kids-header-streak">7 days</span>
+        </div>
+        <div class="kids-tabs">
+          <div class="kids-tab active">Today</div>
+          <div class="kids-tab">World</div>
+          <div class="kids-tab">Tech</div>
+          <div class="kids-tab">Sports</div>
+          <div class="kids-tab">Fun</div>
+        </div>
+
+        <div class="component-label">Feed Card</div>
+        <div class="kids-card">
+          <img class="kids-card-img" src="https://images.unsplash.com/photo-1451187580459-43490279c0fa?w=400&h=200&fit=crop" alt="">
+          <div class="kids-card-body">
+            <span class="kids-card-pill">World</span>
+            <div class="kids-card-title">India Sends Its First Robot to the Moon!</div>
+            <div class="kids-card-summary">A special robot called a rover is going to explore the Moon's south pole. Scientists are very excited!</div>
+          </div>
+          <div class="kids-card-footer">
+            <span class="kids-card-source">BBC Kids</span>
+            <div class="kids-reactions">
+              <div class="kids-reaction">&#129327;</div>
+              <div class="kids-reaction">&#128562;</div>
+              <div class="kids-reaction">&#127775;</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="component-label">Buttons</div>
+        <div class="component-row">
+          <button class="kids-btn">Read Story</button>
+          <button class="kids-btn" style="background: #4F46E5; border-color: #3730A3; box-shadow: 4px 4px 0 #3730A3;">My Profile</button>
+        </div>
+
+        <div class="kids-nav">
+          <div class="kids-nav-item active">
+            <svg class="kids-nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+            <span class="kids-nav-label">Home</span>
+          </div>
+          <div class="kids-nav-item">
+            <svg class="kids-nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+            <span class="kids-nav-label">Search</span>
+          </div>
+          <div class="kids-nav-item">
+            <svg class="kids-nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+            <span class="kids-nav-label">Me</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+
+<!-- ========================================
+     BAND 2: TWEENS (11-13) — SOFT FLAT
+     ======================================== -->
+<section id="tweens" class="band-section tweens">
+  <div class="band-label">Ages 11-13</div>
+  <h2 class="band-title">Tweens: Soft Flat</h2>
+  <p class="band-subtitle">Still fun but growing up. Clean surfaces, strategic color use, and smooth micro-interactions. Duolingo energy meets Google News simplicity.</p>
+
+  <div class="phone-grid">
+    <div class="phone-frame">
+      <div class="phone-screen">
+        <div class="tweens-header">
+          <span class="tweens-header-title">the drop</span>
+          <span class="tweens-header-streak">12 days</span>
+        </div>
+        <div class="tweens-tabs">
+          <div class="tweens-tab active">Today</div>
+          <div class="tweens-tab">World</div>
+          <div class="tweens-tab">Tech</div>
+          <div class="tweens-tab">Sports</div>
+          <div class="tweens-tab">Money</div>
+        </div>
+
+        <div class="component-label">Feed Card</div>
+        <div class="tweens-card">
+          <img class="tweens-card-img" src="https://images.unsplash.com/photo-1518770660439-4636190af475?w=400&h=180&fit=crop" alt="">
+          <div class="tweens-card-body">
+            <span class="tweens-card-pill">Tech</span>
+            <div class="tweens-card-title">AI Can Now Help Doctors Find Diseases Faster</div>
+            <div class="tweens-card-summary">New artificial intelligence tools are helping doctors diagnose illnesses earlier than ever before.</div>
+          </div>
+          <div class="tweens-card-footer">
+            <span class="tweens-card-source">Reuters</span>
+            <div class="tweens-reactions">
+              <div class="tweens-reaction">&#129327;</div>
+              <div class="tweens-reaction">&#128562;</div>
+              <div class="tweens-reaction">&#128155;</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="component-label">Buttons</div>
+        <div class="component-row">
+          <button class="tweens-btn">Read More</button>
+          <button class="tweens-btn tweens-btn-secondary">Save</button>
+        </div>
+
+        <div class="tweens-nav">
+          <div class="tweens-nav-item active">
+            <svg class="tweens-nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+            <span class="tweens-nav-label">Home</span>
+          </div>
+          <div class="tweens-nav-item">
+            <svg class="tweens-nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+            <span class="tweens-nav-label">Explore</span>
+          </div>
+          <div class="tweens-nav-item">
+            <svg class="tweens-nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+            <span class="tweens-nav-label">Profile</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+
+<!-- ========================================
+     BAND 3: TEENS (14-16) — VIBRANT BLOCK
+     ======================================== -->
+<section id="teens" class="band-section teens">
+  <div class="band-label">Ages 14-16</div>
+  <h2 class="band-title">Teens: Vibrant Block</h2>
+  <p class="band-subtitle">Bold, confident, contemporary. Instagram/TikTok aesthetics applied to news. Dark mode available. Strong editorial hierarchy.</p>
+
+  <div class="phone-grid">
+    <!-- Light mode -->
+    <div class="phone-frame">
+      <div class="phone-screen">
+        <div class="teens-header">
+          <span class="teens-header-title">the drop</span>
+          <span class="teens-header-streak">28d</span>
+        </div>
+        <div class="teens-tabs">
+          <div class="teens-tab active">For You</div>
+          <div class="teens-tab">World</div>
+          <div class="teens-tab">Sports</div>
+          <div class="teens-tab">Tech</div>
+          <div class="teens-tab">Power</div>
+        </div>
+
+        <div class="component-label">Featured Card</div>
+        <div class="teens-featured">
+          <img class="teens-featured-img" src="https://images.unsplash.com/photo-1540747913346-19e32dc3e97e?w=400&h=200&fit=crop" alt="">
+          <div class="teens-featured-body">
+            <div style="display:flex; gap:6px; margin-bottom:8px;">
+              <span class="teens-card-pill" style="background:var(--cat-sports-bg); color:var(--cat-sports);">
+                <span class="teens-card-pill-dot" style="background:var(--cat-sports);"></span>
+                Sports
+              </span>
+              <span class="teens-card-trending">TRENDING</span>
+            </div>
+            <div class="teens-featured-title">IPL 2026: Mumbai Indians Pull Off Record Chase in Last Over Thriller</div>
+            <div class="teens-featured-summary">A stunning unbeaten 89 off 42 balls sealed the highest-ever successful run chase in IPL history.</div>
+          </div>
+          <div class="teens-reactions">
+            <div class="teens-reaction">&#129327; <span class="teens-reaction-count">42</span></div>
+            <div class="teens-reaction">&#128562; <span class="teens-reaction-count">18</span></div>
+            <div class="teens-reaction">&#128293; <span class="teens-reaction-count">91</span></div>
+          </div>
+        </div>
+
+        <div class="component-label">Compact Card</div>
+        <div class="teens-card">
+          <div class="teens-card-row">
+            <img class="teens-card-img" src="https://images.unsplash.com/photo-1485827404703-89b55fcc595e?w=200&h=200&fit=crop" alt="">
+            <div class="teens-card-content">
+              <span class="teens-card-pill" style="background:var(--cat-tech-bg); color:var(--cat-tech);">
+                <span class="teens-card-pill-dot" style="background:var(--cat-tech);"></span>
+                Tech
+              </span>
+              <div class="teens-card-title">India's UPI Crosses 20 Billion Monthly Transactions for First Time</div>
+              <div class="teens-card-meta">
+                <span>Economic Times</span>
+                <span class="ya-card-meta-dot"></span>
+                <span>3 min read</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="component-label">Buttons</div>
+        <div class="component-row">
+          <button class="teens-btn">Read</button>
+          <button class="teens-btn teens-btn-ghost">Share</button>
+        </div>
+
+        <div class="teens-nav">
+          <div class="teens-nav-item active">
+            <svg class="teens-nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+            <span class="teens-nav-label">Feed</span>
+          </div>
+          <div class="teens-nav-item">
+            <svg class="teens-nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+            <span class="teens-nav-label">Search</span>
+          </div>
+          <div class="teens-nav-item">
+            <svg class="teens-nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+            <span class="teens-nav-label">Profile</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Dark mode -->
+    <div class="phone-frame teens-dark">
+      <div class="dark-toggle" title="Dark mode variant">&#9790;</div>
+      <div class="phone-screen">
+        <div class="teens-header" style="border-bottom: 1px solid #2A2A2A;">
+          <span class="teens-header-title">the drop</span>
+          <span class="teens-header-streak">28d</span>
+        </div>
+        <div class="teens-tabs">
+          <div class="teens-tab active">For You</div>
+          <div class="teens-tab">World</div>
+          <div class="teens-tab">Sports</div>
+          <div class="teens-tab">Tech</div>
+        </div>
+
+        <div class="component-label" style="color:#525252;">Dark Mode</div>
+        <div class="teens-featured">
+          <img class="teens-featured-img" src="https://images.unsplash.com/photo-1540747913346-19e32dc3e97e?w=400&h=200&fit=crop" alt="">
+          <div class="teens-featured-body">
+            <div style="display:flex; gap:6px; margin-bottom:8px;">
+              <span class="teens-card-pill" style="background:rgba(249,115,22,0.15); color:#FB923C;">
+                <span class="teens-card-pill-dot" style="background:#FB923C;"></span>
+                Sports
+              </span>
+              <span class="teens-card-trending">TRENDING</span>
+            </div>
+            <div class="teens-featured-title">IPL 2026: Mumbai Indians Pull Off Record Chase</div>
+            <div class="teens-featured-summary">A stunning unbeaten 89 off 42 balls sealed the highest-ever successful run chase.</div>
+          </div>
+          <div class="teens-reactions">
+            <div class="teens-reaction">&#129327; <span class="teens-reaction-count">42</span></div>
+            <div class="teens-reaction">&#128562; <span class="teens-reaction-count">18</span></div>
+          </div>
+        </div>
+
+        <div class="teens-card">
+          <div class="teens-card-row">
+            <img class="teens-card-img" src="https://images.unsplash.com/photo-1485827404703-89b55fcc595e?w=200&h=200&fit=crop" alt="">
+            <div class="teens-card-content">
+              <span class="teens-card-pill" style="background:rgba(139,92,246,0.15); color:#A78BFA;">
+                <span class="teens-card-pill-dot" style="background:#A78BFA;"></span>
+                Tech
+              </span>
+              <div class="teens-card-title">India's UPI Crosses 20 Billion Monthly Transactions</div>
+              <div class="teens-card-meta"><span>Economic Times</span></div>
+            </div>
+          </div>
+        </div>
+
+        <div class="teens-nav">
+          <div class="teens-nav-item active">
+            <svg class="teens-nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+            <span class="teens-nav-label">Feed</span>
+          </div>
+          <div class="teens-nav-item">
+            <svg class="teens-nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+            <span class="teens-nav-label">Search</span>
+          </div>
+          <div class="teens-nav-item">
+            <svg class="teens-nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+            <span class="teens-nav-label">Profile</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+
+<!-- ========================================
+     BAND 4: YOUNG ADULTS (17-20) — REFINED MINIMAL
+     ======================================== -->
+<section id="ya" class="band-section ya">
+  <div class="band-label">Ages 17-20</div>
+  <h2 class="band-title">Young Adults: Refined Minimalism</h2>
+  <p class="band-subtitle">Sophisticated, information-dense, editorial. The Economist meets Apple News. Serif headings, zero decoration, maximum content.</p>
+
+  <div class="phone-grid">
+    <!-- Light -->
+    <div class="phone-frame">
+      <div class="phone-screen">
+        <div class="ya-header">
+          <span class="ya-header-title">the drop</span>
+          <span class="ya-header-date">March 17, 2026</span>
+        </div>
+        <div class="ya-tabs">
+          <div class="ya-tab active">Today</div>
+          <div class="ya-tab">World</div>
+          <div class="ya-tab">Power</div>
+          <div class="ya-tab">Money</div>
+          <div class="ya-tab">Tech</div>
+          <div class="ya-tab">Sports</div>
+        </div>
+
+        <div class="component-label">Featured Article</div>
+        <div class="ya-featured">
+          <img class="ya-featured-img" src="https://images.unsplash.com/photo-1611974789855-9c2a0a7236a3?w=400&h=220&fit=crop" alt="">
+          <div class="ya-card-pill">Money</div>
+          <div class="ya-featured-title">RBI Holds Rates Steady as Inflation Eases to 18-Month Low</div>
+          <div class="ya-featured-summary">The Reserve Bank of India maintained its key lending rate at 6.5% for the eighth consecutive meeting, citing improving inflation dynamics and steady growth outlook.</div>
+          <div class="ya-card-meta" style="margin-top:10px;">
+            <span>Reuters</span>
+            <span class="ya-card-meta-dot"></span>
+            <span>5 min read</span>
+            <span class="ya-card-meta-dot"></span>
+            <span>2h ago</span>
+          </div>
+        </div>
+
+        <div class="component-label">Text Card</div>
+        <div class="ya-card">
+          <div class="ya-card-pill">World</div>
+          <div class="ya-card-title">UN Climate Summit Reaches Historic Agreement on Carbon Markets</div>
+          <div class="ya-card-summary">Negotiators finalized rules for international carbon trading, a framework that could channel billions toward emissions reduction in developing nations.</div>
+          <div class="ya-card-meta">
+            <span>AP News</span>
+            <span class="ya-card-meta-dot"></span>
+            <span>4 min read</span>
+          </div>
+        </div>
+        <div class="ya-card">
+          <div class="ya-card-pill">Tech</div>
+          <div class="ya-card-title">ISRO's Gaganyaan Mission Clears Final Crew Safety Test</div>
+          <div class="ya-card-meta">
+            <span>The Hindu</span>
+            <span class="ya-card-meta-dot"></span>
+            <span>3 min read</span>
+          </div>
+        </div>
+
+        <div class="component-label">Buttons</div>
+        <div class="component-row">
+          <button class="ya-btn">Continue Reading</button>
+          <button class="ya-btn ya-btn-outline">Bookmark</button>
+          <button class="ya-btn ya-btn-accent">Subscribe</button>
+        </div>
+
+        <div class="ya-nav">
+          <div class="ya-nav-item active">
+            <svg class="ya-nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+            <span class="ya-nav-label">Today</span>
+          </div>
+          <div class="ya-nav-item">
+            <svg class="ya-nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+            <span class="ya-nav-label">Explore</span>
+          </div>
+          <div class="ya-nav-item">
+            <svg class="ya-nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+            <span class="ya-nav-label">Profile</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Dark -->
+    <div class="phone-frame ya-dark">
+      <div class="dark-toggle" title="Dark mode variant">&#9790;</div>
+      <div class="phone-screen">
+        <div class="ya-header">
+          <span class="ya-header-title">the drop</span>
+          <span class="ya-header-date">March 17, 2026</span>
+        </div>
+        <div class="ya-tabs">
+          <div class="ya-tab active">Today</div>
+          <div class="ya-tab">World</div>
+          <div class="ya-tab">Power</div>
+          <div class="ya-tab">Money</div>
+          <div class="ya-tab">Tech</div>
+        </div>
+
+        <div class="component-label" style="color:#525252;">Dark Mode</div>
+        <div class="ya-featured">
+          <img class="ya-featured-img" src="https://images.unsplash.com/photo-1611974789855-9c2a0a7236a3?w=400&h=220&fit=crop" alt="">
+          <div class="ya-card-pill" style="color:#D4AF37;">Money</div>
+          <div class="ya-featured-title">RBI Holds Rates Steady as Inflation Eases to 18-Month Low</div>
+          <div class="ya-featured-summary">The Reserve Bank maintained its key lending rate for the eighth consecutive meeting.</div>
+          <div class="ya-card-meta" style="margin-top:10px;color:#525252;">
+            <span>Reuters</span>
+            <span class="ya-card-meta-dot" style="background:#404040;"></span>
+            <span>5 min read</span>
+          </div>
+        </div>
+
+        <div class="ya-card">
+          <div class="ya-card-pill" style="color:#D4AF37;">World</div>
+          <div class="ya-card-title">UN Climate Summit Reaches Historic Agreement on Carbon Markets</div>
+          <div class="ya-card-summary">Negotiators finalized rules for international carbon trading.</div>
+          <div class="ya-card-meta"><span>AP News</span></div>
+        </div>
+
+        <div class="ya-nav">
+          <div class="ya-nav-item active">
+            <svg class="ya-nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+            <span class="ya-nav-label">Today</span>
+          </div>
+          <div class="ya-nav-item">
+            <svg class="ya-nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+            <span class="ya-nav-label">Explore</span>
+          </div>
+          <div class="ya-nav-item">
+            <svg class="ya-nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+            <span class="ya-nav-label">Profile</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+
+<!-- ========================================
+     COMPARISON TABLE
+     ======================================== -->
+<div class="comparison">
+  <h2>Design Token Comparison</h2>
+  <table>
+    <thead>
+      <tr>
+        <th>Token</th>
+        <th>Kids (8-10)</th>
+        <th>Tweens (11-13)</th>
+        <th>Teens (14-16)</th>
+        <th>Young Adults (17-20)</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><strong>Style</strong></td>
+        <td>Claymorphism</td>
+        <td>Soft Flat</td>
+        <td>Vibrant Block</td>
+        <td>Refined Minimal</td>
+      </tr>
+      <tr>
+        <td><strong>Display Font</strong></td>
+        <td>Baloo 2</td>
+        <td>Fredoka</td>
+        <td>Plus Jakarta Sans</td>
+        <td>Newsreader (serif)</td>
+      </tr>
+      <tr>
+        <td><strong>Body Font</strong></td>
+        <td>Nunito</td>
+        <td>Outfit</td>
+        <td>Inter</td>
+        <td>Inter</td>
+      </tr>
+      <tr>
+        <td><strong>Primary</strong></td>
+        <td><span class="swatch" style="background:#4F46E5;"></span>#4F46E5</td>
+        <td><span class="swatch" style="background:#2563EB;"></span>#2563EB</td>
+        <td><span class="swatch" style="background:#E11D48;"></span>#E11D48</td>
+        <td><span class="swatch" style="background:#171717;"></span>#171717</td>
+      </tr>
+      <tr>
+        <td><strong>Accent</strong></td>
+        <td><span class="swatch" style="background:#F97316;"></span>#F97316</td>
+        <td><span class="swatch" style="background:#F43F5E;"></span>#F43F5E</td>
+        <td><span class="swatch" style="background:#2563EB;"></span>#2563EB</td>
+        <td><span class="swatch" style="background:#D4AF37;"></span>#D4AF37</td>
+      </tr>
+      <tr>
+        <td><strong>Background</strong></td>
+        <td><span class="swatch" style="background:#EEF2FF;"></span>#EEF2FF</td>
+        <td><span class="swatch" style="background:#F8FAFC;"></span>#F8FAFC</td>
+        <td><span class="swatch" style="background:#FAFAFA;"></span>#FAFAFA</td>
+        <td><span class="swatch" style="background:#FFFFFF; border: 1px solid #ddd;"></span>#FFFFFF</td>
+      </tr>
+      <tr>
+        <td><strong>Card Radius</strong></td>
+        <td>24px</td>
+        <td>18px</td>
+        <td>14px</td>
+        <td>8px</td>
+      </tr>
+      <tr>
+        <td><strong>Border Width</strong></td>
+        <td>3px</td>
+        <td>1.5px</td>
+        <td>1px</td>
+        <td>1px</td>
+      </tr>
+      <tr>
+        <td><strong>Shadow Style</strong></td>
+        <td>Offset (clay)</td>
+        <td>Subtle blur</td>
+        <td>Minimal</td>
+        <td>None</td>
+      </tr>
+      <tr>
+        <td><strong>Body Size</strong></td>
+        <td>17px</td>
+        <td>16px</td>
+        <td>15px</td>
+        <td>15px</td>
+      </tr>
+      <tr>
+        <td><strong>Touch Target</strong></td>
+        <td>52px</td>
+        <td>48px</td>
+        <td>44px</td>
+        <td>44px</td>
+      </tr>
+      <tr>
+        <td><strong>Dark Mode</strong></td>
+        <td>No</td>
+        <td>No</td>
+        <td>Yes</td>
+        <td>Yes (default)</td>
+      </tr>
+      <tr>
+        <td><strong>Animation</strong></td>
+        <td>High (bouncy)</td>
+        <td>Medium</td>
+        <td>Subtle</td>
+        <td>Minimal</td>
+      </tr>
+    </tbody>
+  </table>
+</div>
+
+<footer style="text-align:center; padding:40px 24px; color:#94A3B8; font-size:13px;">
+  The Drop Design System Showcase &mdash; Generated by UI/UX Pro Max
+</footer>
+
+</body>
+</html>

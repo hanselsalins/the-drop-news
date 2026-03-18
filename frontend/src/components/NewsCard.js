@@ -2,6 +2,8 @@ import { useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { useTheme } from '../contexts/ThemeContext';
 import { getCategoryColor, CATEGORY_EMOJI, CATEGORY_LABELS, getCardStyle } from '../lib/bandUtils';
+import { useReducedMotion } from '../hooks/useReducedMotion';
+import { medium } from '../lib/haptic';
 
 const CATEGORY_GRADIENTS = {
   world: 'linear-gradient(135deg, #60A5FA, #2563EB)',
@@ -21,14 +23,40 @@ const CATEGORY_GRADIENTS = {
 export const NewsCard = ({ article }) => {
   const navigate = useNavigate();
   const { band } = useTheme();
+  const prefersReducedMotion = useReducedMotion();
   const rw = article.rewrite || {};
   const title = rw.title || article.original_title || 'Untitled';
   const catColor = getCategoryColor(article.category, band);
   const gradient = CATEGORY_GRADIENTS[article.category] || CATEGORY_GRADIENTS.world;
   const emoji = CATEGORY_EMOJI[article.category] || '📰';
   const cardStyle = getCardStyle(band, catColor);
+  const imageUrl = article.image_url;
 
   const isDark = band === 'sharp-aware' || band === 'editorial';
+
+  // Band 2: squishy tactile press effect
+  const getWhileTap = () => {
+    if (prefersReducedMotion) return undefined;
+    if (band === 'cool-connected') return { scale: 0.95, scaleY: 0.92 };
+    return { scale: 0.98 };
+  };
+
+  const getTransition = () => {
+    if (band === 'cool-connected') return { type: 'spring', stiffness: 400, damping: 15 };
+    return undefined;
+  };
+
+  const handleClick = () => {
+    medium();
+    navigate(`/article/${article.id}`);
+  };
+
+  const handleKeyDown = (e) => {
+    if (e.key === 'Enter' || e.key === ' ') {
+      e.preventDefault();
+      handleClick();
+    }
+  };
 
   // Band 3 (sharp-aware): no emoji in UI chrome, category as ALL CAPS dot separator
   const renderCategoryLabel = () => {
@@ -86,12 +114,15 @@ export const NewsCard = ({ article }) => {
   };
 
   return (
-    <motion.div
+    <motion.article
       data-testid={`news-card-${article.id}`}
-      onClick={() => navigate(`/article/${article.id}`)}
+      onClick={handleClick}
+      onKeyDown={handleKeyDown}
       role="button"
       tabIndex={0}
-      whileTap={{ scale: 0.98 }}
+      aria-label={title}
+      whileTap={getWhileTap()}
+      transition={getTransition()}
       className="w-full overflow-hidden cursor-pointer flex"
       style={cardStyle}
     >
@@ -125,19 +156,28 @@ export const NewsCard = ({ article }) => {
         </div>
       </div>
 
-      {/* Right emoji thumbnail — hidden for sharp-aware (no emoji in chrome) */}
+      {/* Right thumbnail — hidden for sharp-aware (no emoji in chrome) */}
       {band !== 'sharp-aware' && (
         <div
-          className="flex items-center justify-center shrink-0"
+          className="flex items-center justify-center shrink-0 relative overflow-hidden"
           style={{
             width: 90,
             background: gradient,
             borderRadius: `0 ${cardStyle.borderRadius}px ${cardStyle.borderRadius}px 0`,
           }}
         >
-          <span style={{ fontSize: 40 }}>{emoji}</span>
+          <span aria-hidden="true" style={{ fontSize: 40, position: 'absolute', inset: 0, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>{emoji}</span>
+          {imageUrl && (
+            <img
+              src={imageUrl}
+              alt=""
+              loading="lazy"
+              onError={(e) => { e.target.style.display = 'none'; }}
+              style={{ position: 'absolute', inset: 0, objectFit: 'cover', width: '100%', height: '100%' }}
+            />
+          )}
         </div>
       )}
-    </motion.div>
+    </motion.article>
   );
 };

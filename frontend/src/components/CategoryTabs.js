@@ -1,9 +1,17 @@
 import { useTheme } from '../contexts/ThemeContext';
 import { getCategoryColor } from '../lib/bandUtils';
+import { motion } from 'framer-motion';
+import { light } from '../lib/haptic';
 
 export const CategoryTabs = ({ categories, activeCategory, setActiveCategory }) => {
   const { band } = useTheme();
   const isDark = band === 'sharp-aware' || band === 'editorial';
+  const isBand2 = band === 'cool-connected';
+
+  const handleTabClick = (catId) => {
+    light();
+    setActiveCategory(catId);
+  };
 
   return (
     <div
@@ -25,7 +33,7 @@ export const CategoryTabs = ({ categories, activeCategory, setActiveCategory }) 
               <button
                 key={cat.id}
                 data-testid={`category-tab-${cat.id}`}
-                onClick={() => setActiveCategory(cat.id)}
+                onClick={() => handleTabClick(cat.id)}
                 className="shrink-0 px-3 py-2 text-[11px] font-semibold tracking-[0.08em] uppercase whitespace-nowrap transition-all duration-200"
                 style={{
                   fontFamily: 'var(--drop-font-heading)',
@@ -46,7 +54,7 @@ export const CategoryTabs = ({ categories, activeCategory, setActiveCategory }) 
               <button
                 key={cat.id}
                 data-testid={`category-tab-${cat.id}`}
-                onClick={() => setActiveCategory(cat.id)}
+                onClick={() => handleTabClick(cat.id)}
                 className="shrink-0 px-3 py-2 text-[11px] font-medium tracking-wide uppercase whitespace-nowrap transition-all duration-200"
                 style={{
                   fontFamily: 'var(--drop-font-heading)',
@@ -61,20 +69,43 @@ export const CategoryTabs = ({ categories, activeCategory, setActiveCategory }) 
             );
           }
 
-          // Bands 1 & 2: pill badges
+          // Bands 1 & 2: pill badges — Band 2 gets squishy motion
+          if (isBand2) {
+            return (
+              <motion.button
+                key={cat.id}
+                data-testid={`category-tab-${cat.id}`}
+                onClick={() => handleTabClick(cat.id)}
+                whileTap={{ scale: 0.93, scaleY: 0.9 }}
+                transition={{ type: 'spring', stiffness: 400, damping: 15 }}
+                className="shrink-0 px-4 py-2 text-xs font-semibold tracking-wide uppercase whitespace-nowrap transition-colors duration-200"
+                style={{
+                  fontFamily: 'var(--drop-font-body)',
+                  borderRadius: 20,
+                  background: isActive ? color : `${color}12`,
+                  color: isActive ? '#FFFFFF' : color,
+                  fontWeight: isActive ? 700 : 600,
+                }}
+              >
+                {cat.name}
+              </motion.button>
+            );
+          }
+
+          // Band 1: pill badges (no motion tap)
           return (
             <button
               key={cat.id}
               data-testid={`category-tab-${cat.id}`}
-              onClick={() => setActiveCategory(cat.id)}
+              onClick={() => handleTabClick(cat.id)}
               className="shrink-0 px-4 py-2 text-xs font-semibold tracking-wide uppercase whitespace-nowrap transition-all duration-200"
               style={{
-                fontFamily: band === 'big-bold-bright' ? 'var(--drop-font-heading)' : 'var(--drop-font-body)',
-                borderRadius: band === 'big-bold-bright' ? 999 : 20,
+                fontFamily: 'var(--drop-font-heading)',
+                borderRadius: 999,
                 background: isActive ? color : `${color}12`,
                 color: isActive ? '#FFFFFF' : color,
                 fontWeight: isActive ? 700 : 600,
-                border: band === 'big-bold-bright' && !isActive ? `2px solid ${color}40` : 'none',
+                border: !isActive ? `2px solid ${color}40` : 'none',
               }}
             >
               {cat.name}

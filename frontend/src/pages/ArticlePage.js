@@ -5,7 +5,9 @@ import { BottomNav } from '../components/BottomNav';
 import { ReactionBar } from '../components/ReactionBar';
 import { ProfileButton } from '../components/ProfileButton';
 import { ProfilePanel } from '../components/ProfilePanel';
+import { PullQuote } from '../components/PullQuote';
 import { getCategoryColor, CATEGORY_EMOJI, CATEGORY_LABELS } from '../lib/bandUtils';
+import { useReducedMotion } from '../hooks/useReducedMotion';
 import { motion } from 'framer-motion';
 import { ChevronLeft, ExternalLink, Share2, Clock } from 'lucide-react';
 import axios from 'axios';
@@ -17,6 +19,7 @@ export default function ArticlePage() {
   const { id } = useParams();
   const navigate = useNavigate();
   const { ageGroup, band, token } = useTheme();
+  const prefersReducedMotion = useReducedMotion();
   const [article, setArticle] = useState(null);
   const [loading, setLoading] = useState(true);
   const [profileOpen, setProfileOpen] = useState(false);
@@ -45,33 +48,61 @@ export default function ArticlePage() {
     markArticleRead(article.id);
   }, [article]);
 
-  // Reading progress bar for band 4
+  // Reading progress bar — all bands
   useEffect(() => {
-    if (band !== 'editorial') return;
     const handleScroll = () => {
       const h = document.documentElement.scrollHeight - window.innerHeight;
       setReadProgress(h > 0 ? (window.scrollY / h) * 100 : 0);
     };
     window.addEventListener('scroll', handleScroll);
     return () => window.removeEventListener('scroll', handleScroll);
-  }, [band]);
+  }, []);
 
   const handleShare = async () => {
+    const shareUrl = window.location.href;
+    const shareTitle = article?.rewrite?.title || article?.original_title || 'Check this out on The Drop';
     if (navigator.share) {
       try {
-        await navigator.share({
-          title: article.rewrite?.title || article.original_title,
-          url: window.location.href,
-        });
+        await navigator.share({ title: shareTitle, url: shareUrl });
+        return;
       } catch (e) {}
+    }
+    // Fallback: copy to clipboard
+    try {
+      await navigator.clipboard.writeText(shareUrl);
+    } catch {
+      // WhatsApp fallback
+      window.open(`https://wa.me/?text=${encodeURIComponent(shareTitle + ' ' + shareUrl)}`, '_blank');
     }
   };
 
+  // Progress bar config per band
+  const progressConfig = {
+    'big-bold-bright': { height: 6, bg: 'rgba(255,75,75,0.1)', fill: 'linear-gradient(90deg, #FF4B4B, #FFD93D)', rounded: true },
+    'cool-connected': { height: 4, bg: 'rgba(30,144,255,0.1)', fill: '#1E90FF', rounded: true },
+    'sharp-aware': { height: 2, bg: 'rgba(92,78,250,0.1)', fill: '#5C4EFA', rounded: false },
+    'editorial': { height: 2, bg: 'rgba(0,212,255,0.1)', fill: '#00D4FF', rounded: false },
+  };
+  const progress = progressConfig[band] || progressConfig['editorial'];
+
   if (loading) {
     return (
-      <div className="min-h-screen flex items-center justify-center" style={{ background: 'var(--drop-bg)' }}>
-        <div className="w-8 h-8 rounded-full border-2 border-t-transparent animate-spin"
-          style={{ borderColor: 'var(--drop-accent, #3B82F6)', borderTopColor: 'transparent' }} />
+      <div className="min-h-screen" style={{ background: 'var(--drop-bg)' }}>
+        {/* Skeleton loading */}
+        <div className="w-full flex items-center justify-center" style={{ minHeight: 200, background: 'var(--drop-surface)' }}>
+          <div className="skeleton-shimmer" style={{ width: 80, height: 80, borderRadius: '50%' }} />
+        </div>
+        <div className="px-5 pt-5 space-y-4">
+          <div className="skeleton-shimmer" style={{ width: 80, height: 10, borderRadius: 5 }} />
+          <div className="skeleton-shimmer" style={{ width: '100%', height: 24, borderRadius: 6 }} />
+          <div className="skeleton-shimmer" style={{ width: '80%', height: 24, borderRadius: 6 }} />
+          <div className="skeleton-shimmer" style={{ width: 120, height: 10, borderRadius: 5 }} />
+          <div className="space-y-3 mt-6">
+            {Array.from({ length: 6 }).map((_, i) => (
+              <div key={i} className="skeleton-shimmer" style={{ width: i === 5 ? '60%' : '100%', height: 12, borderRadius: 4 }} />
+            ))}
+          </div>
+        </div>
       </div>
     );
   }
@@ -93,32 +124,43 @@ export default function ArticlePage() {
   const catColor = getCategoryColor(article.category, band);
   const emoji = CATEGORY_EMOJI[article.category] || '📰';
 
+  // Extract pull quote for editorial band
+  const bodyParagraphs = body.split('\n').filter(Boolean);
+  let pullQuoteText = null;
+  if (band === 'editorial' && bodyParagraphs.length >= 4) {
+    const candidates = bodyParagraphs.slice(1, 3).join(' ').split(/[.!?]+/).filter(s => s.trim().length > 30);
+    if (candidates.length > 0) {
+      pullQuoteText = candidates.sort((a, b) => b.length - a.length)[0].trim();
+    }
+  }
+
   return (
     <div data-testid="article-page" className="min-h-screen pb-28" style={{ background: 'var(--drop-bg)' }}>
-      {/* Reading progress bar — band 4 only */}
-      {band === 'editorial' && (
-        <div className="fixed top-0 left-0 right-0 z-50" style={{ height: 2, background: 'rgba(0,212,255,0.1)' }}>
-          <div style={{ width: `${readProgress}%`, height: '100%', background: '#00D4FF', transition: 'width 0.1s' }} />
-        </div>
-      )}
+      {/* Reading progress bar — all bands */}
+      <div className="fixed top-0 left-0 right-0 z-50" style={{ height: progress.height, background: progress.bg }}>
+        <div style={{
+          width: `${readProgress}%`,
+          height: '100%',
+          background: progress.fill,
+          borderRadius: progress.rounded ? '0 4px 4px 0' : 0,
+          transition: 'width 0.1s',
+        }} />
+      </div>
 
       {/* Hero area */}
       <div
         className="relative w-full flex items-center justify-center"
         style={{
-          background: isDark
-            ? `linear-gradient(135deg, ${catColor}22, ${catColor}44)`
-            : `linear-gradient(135deg, ${catColor}22, ${catColor}44)`,
+          background: `linear-gradient(135deg, ${catColor}22, ${catColor}44)`,
           minHeight: 200,
         }}
       >
-        {/* No emoji for band 3 */}
-        {band !== 'sharp-aware' && <span style={{ fontSize: 80 }}>{emoji}</span>}
+        {band !== 'sharp-aware' && <span aria-hidden="true" style={{ fontSize: 80 }}>{emoji}</span>}
         {band === 'sharp-aware' && (
           <div style={{ width: 60, height: 3, background: catColor, borderRadius: 2 }} />
         )}
 
-        <button data-testid="back-btn" onClick={() => navigate(-1)}
+        <button data-testid="back-btn" aria-label="Go back" onClick={() => navigate(-1)}
           className="absolute top-4 left-4 p-2.5 z-10"
           style={{
             background: 'var(--drop-surface)',
@@ -134,9 +176,12 @@ export default function ArticlePage() {
       </div>
 
       {/* Content */}
-      <motion.div initial={{ y: 20, opacity: 0 }} animate={{ y: 0, opacity: 1 }} transition={{ duration: 0.4 }}
-        className="px-5 pt-5">
-
+      <motion.div
+        initial={prefersReducedMotion ? undefined : { y: 20, opacity: 0 }}
+        animate={prefersReducedMotion ? undefined : { y: 0, opacity: 1 }}
+        transition={prefersReducedMotion ? undefined : { duration: 0.4 }}
+        className="px-5 pt-5"
+      >
         {/* Category */}
         <div className="flex items-center gap-1.5 mb-3">
           {band !== 'sharp-aware' && (
@@ -191,19 +236,22 @@ export default function ArticlePage() {
         )}
 
         {/* Body */}
-        <div className="space-y-4"
+        <div className={`space-y-4 ${band === 'editorial' ? 'article-body' : ''}`}
           style={{
             fontFamily: 'var(--drop-font-body)',
             color: band === 'editorial' ? 'var(--drop-text-body, #B0BEC5)' : 'var(--drop-text)',
             fontSize: band === 'big-bold-bright' ? '1.25rem' : 'var(--drop-text-body, 1rem)',
             lineHeight: 'var(--drop-line-height, 1.75)',
           }}>
-          {body.split('\n').filter(Boolean).map((p, i) => (
-            <p key={i}>{p}</p>
+          {bodyParagraphs.map((p, i) => (
+            <div key={i}>
+              <p>{p}</p>
+              {i === 1 && pullQuoteText && <PullQuote text={pullQuoteText} />}
+            </div>
           ))}
         </div>
 
-        {/* Wonder Question — band 1 gets special purple box */}
+        {/* Wonder Question */}
         {wonderQuestion && (
           <div data-testid="wonder-question" className="mt-8 p-5" style={{
             background: band === 'big-bold-bright' ? '#A259FF' : isDark ? 'var(--drop-surface)' : `${catColor}08`,
@@ -211,7 +259,7 @@ export default function ArticlePage() {
             borderRadius: band === 'big-bold-bright' ? 20 : 'var(--drop-radius-card, 18px)',
           }}>
             <div className="flex items-center gap-2 mb-2">
-              <span className="text-xl">❓</span>
+              <span className="text-xl" aria-hidden="true">❓</span>
               <p className="text-xs font-bold tracking-wider uppercase"
                 style={{
                   fontFamily: 'var(--drop-font-body)',
@@ -233,9 +281,10 @@ export default function ArticlePage() {
         {/* Reaction Bar */}
         <ReactionBar articleId={article.id} categoryColor={catColor} />
 
-        {/* Share Button */}
+        {/* Share Buttons */}
         <button
           data-testid="share-btn"
+          aria-label="Share this story"
           onClick={handleShare}
           className="flex items-center justify-center gap-2 w-full mt-5 py-3 text-sm font-bold transition-all duration-200"
           style={{
@@ -248,6 +297,25 @@ export default function ArticlePage() {
         >
           <Share2 size={16} />
           Share this story
+        </button>
+
+        {/* WhatsApp share */}
+        <button
+          onClick={() => {
+            const shareUrl = window.location.href;
+            const shareTitle = article.rewrite?.title || article.original_title;
+            window.open(`https://wa.me/?text=${encodeURIComponent(shareTitle + ' ' + shareUrl)}`, '_blank');
+          }}
+          className="flex items-center justify-center gap-2 w-full mt-2 py-3 text-sm font-bold transition-all duration-200"
+          style={{
+            fontFamily: 'var(--drop-font-body)',
+            background: '#25D366',
+            color: '#FFFFFF',
+            border: 'none',
+            borderRadius: 'var(--drop-radius-btn, 16px)',
+          }}
+        >
+          Share on WhatsApp
         </button>
 
         {/* Source Link */}

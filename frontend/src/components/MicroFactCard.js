@@ -1,8 +1,11 @@
 import { motion } from 'framer-motion';
+import { Lightbulb } from 'lucide-react';
 import { useTheme } from '../contexts/ThemeContext';
+import { useReducedMotion } from '../hooks/useReducedMotion';
 
 export const MicroFactCard = ({ fact }) => {
   const { band } = useTheme();
+  const prefersReducedMotion = useReducedMotion();
   const isDark = band === 'sharp-aware' || band === 'editorial';
   const isBand1 = band === 'big-bold-bright';
 
@@ -11,8 +14,8 @@ export const MicroFactCard = ({ fact }) => {
   return (
     <motion.div
       data-testid="micro-fact-card"
-      initial={{ opacity: 0, scale: 0.96 }}
-      animate={{ opacity: 1, scale: 1 }}
+      initial={prefersReducedMotion ? undefined : { opacity: 0, scale: 0.96 }}
+      animate={prefersReducedMotion ? undefined : { opacity: 1, scale: 1 }}
       className="p-4 relative overflow-hidden"
       style={{
         background: isDark ? 'var(--drop-surface)' : (isBand1 ? '#F0FFF4' : '#F0FDF4'),
@@ -23,7 +26,7 @@ export const MicroFactCard = ({ fact }) => {
       }}
     >
       <div className="flex items-center gap-2 mb-2">
-        {band !== 'sharp-aware' && <span style={{ fontSize: 18 }}>💡</span>}
+        {band !== 'sharp-aware' && <Lightbulb size={18} color={accentColor} aria-hidden="true" />}
         <span
           className="text-[10px] font-bold tracking-wider uppercase"
           style={{

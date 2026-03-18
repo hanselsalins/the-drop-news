@@ -1,5 +1,6 @@
 import { motion } from 'framer-motion';
 import { useTheme } from '../contexts/ThemeContext';
+import { useReducedMotion } from '../hooks/useReducedMotion';
 
 const BAND_GRADIENTS = {
   'big-bold-bright': ['#FF4B4B', '#FFD93D'],
@@ -10,6 +11,7 @@ const BAND_GRADIENTS = {
 
 export const ProgressDots = ({ articleIds, readArticleIds }) => {
   const { band } = useTheme();
+  const prefersReducedMotion = useReducedMotion();
   const total = 5;
   const dots = Array.from({ length: total }, (_, i) => {
     const articleId = articleIds[i];
@@ -26,9 +28,9 @@ export const ProgressDots = ({ articleIds, readArticleIds }) => {
         {dots.map((filled, i) => (
           <motion.div
             key={i}
-            initial={{ scale: 0.8, opacity: 0 }}
-            animate={{ scale: 1, opacity: 1 }}
-            transition={{ delay: i * 0.06, duration: 0.3 }}
+            initial={prefersReducedMotion ? undefined : { scale: 0.8, opacity: 0 }}
+            animate={prefersReducedMotion ? undefined : { scale: 1, opacity: 1 }}
+            transition={prefersReducedMotion ? undefined : { delay: i * 0.06, duration: 0.3 }}
             style={{
               width: 10,
               height: 10,
@@ -43,9 +45,9 @@ export const ProgressDots = ({ articleIds, readArticleIds }) => {
 
       {allRead && (
         <motion.div
-          initial={{ opacity: 0, y: 8 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.5, delay: 0.2 }}
+          initial={prefersReducedMotion ? undefined : { opacity: 0, y: 8 }}
+          animate={prefersReducedMotion ? undefined : { opacity: 1, y: 0 }}
+          transition={prefersReducedMotion ? undefined : { duration: 0.5, delay: 0.2 }}
           className="text-center px-4"
         >
           <p

@@ -18,9 +18,10 @@ const AGE_TO_BAND = {
   '17-20': 'editorial',
 };
 
-function applyBand(ageGroup) {
+function applyBand(ageGroup, darkMode = false) {
   const band = AGE_TO_BAND[ageGroup] || 'cool-connected';
   document.documentElement.setAttribute('data-band', band);
+  document.documentElement.setAttribute('data-theme', darkMode ? 'dark' : 'light');
   return band;
 }
 
@@ -33,11 +34,21 @@ export function ThemeProvider({ children }) {
   });
   const [loading, setLoading] = useState(true);
   const [linkedProfiles, setLinkedProfiles] = useState([]);
+  const [darkMode, setDarkMode] = useState(() => localStorage.getItem('darkMode') === 'true');
 
   const ageGroup = user?.age_group || null;
   const band = ageGroup ? AGE_TO_BAND[ageGroup] || 'cool-connected' : null;
   const themeMode = ageGroup && (ageGroup === '8-10' || ageGroup === '11-13') ? 'kids' : 'teens';
   const isAuthenticated = !!token && !!user;
+
+  const toggleDarkMode = useCallback(() => {
+    setDarkMode(prev => {
+      const next = !prev;
+      localStorage.setItem('darkMode', String(next));
+      if (ageGroup) applyBand(ageGroup, next);
+      return next;
+    });
+  }, [ageGroup]);
 
   const setToken = useCallback((newToken) => {
     setTokenState(newToken);
@@ -62,7 +73,7 @@ export function ThemeProvider({ children }) {
     if (userData) {
       localStorage.setItem('user', JSON.stringify(userData));
       if (userData.age_group) {
-        applyBand(userData.age_group);
+        applyBand(userData.age_group, darkMode);
       }
     } else {
       localStorage.removeItem('user');
@@ -106,12 +117,12 @@ export function ThemeProvider({ children }) {
     }
   }, [parentToken, token]);
 
-  // Apply band on mount from saved user
+  // Apply band + dark mode on mount from saved user
   useEffect(() => {
     if (ageGroup) {
-      applyBand(ageGroup);
+      applyBand(ageGroup, darkMode);
     }
-  }, [ageGroup]);
+  }, [ageGroup, darkMode]);
 
   // Verify token on mount
   useEffect(() => {
@@ -146,6 +157,8 @@ export function ThemeProvider({ children }) {
       ageGroup,
       band,
       themeMode,
+      darkMode,
+      toggleDarkMode,
       isAuthenticated,
       loading,
       logout,

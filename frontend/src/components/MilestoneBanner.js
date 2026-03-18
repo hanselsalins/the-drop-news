@@ -1,6 +1,7 @@
 import { motion, AnimatePresence } from 'framer-motion';
 import { Trophy, X } from 'lucide-react';
 import { useTheme } from '../contexts/ThemeContext';
+import { useReducedMotion } from '../hooks/useReducedMotion';
 
 const BAND_GRADIENTS = {
   'big-bold-bright': 'linear-gradient(135deg, #FF4B4B, #FFD93D)',
@@ -11,6 +12,7 @@ const BAND_GRADIENTS = {
 
 export const MilestoneBanner = ({ milestone, onDismiss }) => {
   const { band } = useTheme();
+  const prefersReducedMotion = useReducedMotion();
   if (!milestone) return null;
 
   const gradient = BAND_GRADIENTS[band] || BAND_GRADIENTS['cool-connected'];
@@ -19,10 +21,11 @@ export const MilestoneBanner = ({ milestone, onDismiss }) => {
     <AnimatePresence>
       <motion.div
         data-testid="milestone-banner"
-        initial={{ y: -100, opacity: 0 }}
-        animate={{ y: 0, opacity: 1 }}
-        exit={{ y: -100, opacity: 0 }}
-        transition={{ type: 'spring', stiffness: 300, damping: 25 }}
+        role="alert"
+        initial={prefersReducedMotion ? { opacity: 0 } : { y: -100, opacity: 0 }}
+        animate={prefersReducedMotion ? { opacity: 1 } : { y: 0, opacity: 1 }}
+        exit={prefersReducedMotion ? { opacity: 0 } : { y: -100, opacity: 0 }}
+        transition={prefersReducedMotion ? { duration: 0 } : { type: 'spring', stiffness: 300, damping: 25 }}
         className="fixed top-0 left-0 right-0 z-[100] px-4 pt-4"
         style={{ maxWidth: '430px', margin: '0 auto' }}
       >
@@ -50,6 +53,7 @@ export const MilestoneBanner = ({ milestone, onDismiss }) => {
           </div>
           <button
             data-testid="milestone-dismiss"
+            aria-label="Dismiss milestone"
             onClick={onDismiss}
             className="p-1 rounded-full shrink-0"
             style={{ background: 'rgba(255,255,255,0.2)' }}
