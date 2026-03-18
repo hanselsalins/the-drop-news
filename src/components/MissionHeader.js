@@ -16,8 +16,9 @@ const CATEGORY_COLORS = {
   power: '#EF4444',
 };
 
+// Design System B: Band 1 uses warm indigo + saffron gradients
 const CATEGORY_GRADIENTS = {
-  world: ['#3B82F6', '#60A5FA', '#93C5FD'],
+  world: ['#4F46E5', '#6366F1', '#818CF8'],
   science: ['#10B981', '#34D399', '#6EE7B7'],
   sports: ['#F97316', '#FB923C', '#FDBA74'],
   tech: ['#8B5CF6', '#A78BFA', '#C4B5FD'],
@@ -82,7 +83,7 @@ function ConfettiBurst({ color, active }) {
 // Big celebration confetti
 function CelebrationConfetti({ active }) {
   if (!active) return null;
-  const colors = ['#3B82F6', '#8B5CF6', '#EC4899', '#F59E0B', '#10B981', '#F97316'];
+  const colors = ['#4F46E5', '#8B5CF6', '#EC4899', '#F59E0B', '#10B981', '#F97316'];
   const particles = Array.from({ length: 40 }, (_, i) => ({
     x: (Math.random() - 0.5) * 300,
     y: -(80 + Math.random() * 120),
@@ -132,7 +133,6 @@ function ProgressRing({ filled, color, index, justFilled }) {
       style={{ width: size, height: size }}
     >
       <svg width={size} height={size} style={{ transform: 'rotate(-90deg)' }}>
-        {/* Background ring */}
         <circle
           cx={size / 2}
           cy={size / 2}
@@ -141,7 +141,6 @@ function ProgressRing({ filled, color, index, justFilled }) {
           stroke="rgba(255,255,255,0.3)"
           strokeWidth={stroke}
         />
-        {/* Filled ring */}
         <motion.circle
           cx={size / 2}
           cy={size / 2}
@@ -156,7 +155,6 @@ function ProgressRing({ filled, color, index, justFilled }) {
           transition={{ duration: 0.6, ease: [0.16, 1, 0.3, 1], delay: justFilled ? 0 : 0.1 }}
         />
       </svg>
-      {/* Center content */}
       <div className="absolute inset-0 flex items-center justify-center">
         <AnimatePresence>
           {filled ? (
@@ -172,14 +170,13 @@ function ProgressRing({ filled, color, index, justFilled }) {
           ) : (
             <motion.span
               key="num"
-              style={{ fontFamily: 'Fredoka, sans-serif', fontSize: 20, fontWeight: 700, color: 'rgba(255,255,255,0.5)' }}
+              style={{ fontFamily: "'Baloo 2', cursive", fontSize: 20, fontWeight: 700, color: 'rgba(255,255,255,0.5)' }}
             >
               {index + 1}
             </motion.span>
           )}
         </AnimatePresence>
       </div>
-      {/* Confetti burst on fill */}
       <ConfettiBurst color={color} active={justFilled} />
     </motion.div>
   );
@@ -192,7 +189,7 @@ export function MissionHeader({ articles, readArticleIds, streak, topCategory })
 
   const category = (topCategory || 'world').toLowerCase();
   const gradientColors = CATEGORY_GRADIENTS[category] || CATEGORY_GRADIENTS.world;
-  const categoryColor = CATEGORY_COLORS[category] || '#3B82F6';
+  const categoryColor = CATEGORY_COLORS[category] || '#4F46E5';
   const emoji = CATEGORY_EMOJIS[category] || '📰';
 
   const total = 5;
@@ -201,10 +198,8 @@ export function MissionHeader({ articles, readArticleIds, streak, topCategory })
   const readCount = readStatus.filter(Boolean).length;
   const allComplete = readCount === total && articleIds.length === total;
 
-  // Detect newly read article for confetti burst
   useEffect(() => {
     if (readCount > prevReadCount && prevReadCount > 0) {
-      // Find the newly filled index
       const newIndex = readStatus.findIndex((filled, i) => {
         return filled && i === readCount - 1;
       });
@@ -216,7 +211,6 @@ export function MissionHeader({ articles, readArticleIds, streak, topCategory })
     setPrevReadCount(readCount);
   }, [readCount]);
 
-  // Celebration trigger
   useEffect(() => {
     if (allComplete && !celebrationDone) {
       setCelebrationDone(true);
@@ -230,9 +224,9 @@ export function MissionHeader({ articles, readArticleIds, streak, topCategory })
       transition={{ duration: 0.5, ease: [0.16, 1, 0.3, 1] }}
       className="relative mx-4 mt-4 overflow-hidden"
       style={{
-        borderRadius: 24,
+        borderRadius: 28,
         background: `linear-gradient(145deg, ${gradientColors[0]}, ${gradientColors[1]} 60%, ${gradientColors[2]})`,
-        boxShadow: `0 8px 32px -4px ${categoryColor}40, 0 4px 16px -2px ${categoryColor}30, inset 0 1px 0 rgba(255,255,255,0.2)`,
+        boxShadow: `6px 6px 0px 0px ${categoryColor}40, 0 12px 32px -4px ${categoryColor}30, inset 0 1px 0 rgba(255,255,255,0.2)`,
         padding: '24px 20px',
       }}
     >
@@ -240,17 +234,15 @@ export function MissionHeader({ articles, readArticleIds, streak, topCategory })
       <div
         className="absolute inset-0 pointer-events-none"
         style={{
-          borderRadius: 24,
+          borderRadius: 28,
           background: 'linear-gradient(180deg, rgba(255,255,255,0.15) 0%, rgba(255,255,255,0) 50%)',
         }}
       />
 
-      {/* Celebration confetti */}
       <CelebrationConfetti active={allComplete && celebrationDone} />
 
       {/* Top row: emoji + streak */}
       <div className="relative flex items-center justify-between mb-3">
-        {/* Animated emoji */}
         <motion.div
           initial={{ scale: 0, rotate: -180 }}
           animate={{ scale: 1, rotate: 0 }}
@@ -260,7 +252,6 @@ export function MissionHeader({ articles, readArticleIds, streak, topCategory })
           {emoji}
         </motion.div>
 
-        {/* Streak badge */}
         <motion.div
           initial={{ scale: 0 }}
           animate={{ scale: 1 }}
@@ -275,7 +266,7 @@ export function MissionHeader({ articles, readArticleIds, streak, topCategory })
           <span style={{ fontSize: 28 }}>🔥</span>
           <span
             style={{
-              fontFamily: 'Fredoka, sans-serif',
+              fontFamily: "'Baloo 2', cursive",
               fontSize: 24,
               fontWeight: 700,
               color: '#FFFFFF',
@@ -301,7 +292,7 @@ export function MissionHeader({ articles, readArticleIds, streak, topCategory })
               animate={{ scale: 1, opacity: 1 }}
               transition={{ type: 'spring', stiffness: 200, damping: 12 }}
               style={{
-                fontFamily: 'Fredoka, sans-serif',
+                fontFamily: "'Baloo 2', cursive",
                 fontSize: 24,
                 fontWeight: 700,
                 color: '#FFFFFF',
@@ -314,7 +305,7 @@ export function MissionHeader({ articles, readArticleIds, streak, topCategory })
             <motion.p
               key="challenge"
               style={{
-                fontFamily: 'Fredoka, sans-serif',
+                fontFamily: "'Baloo 2', cursive",
                 fontSize: 22,
                 fontWeight: 700,
                 color: '#FFFFFF',
@@ -343,11 +334,10 @@ export function MissionHeader({ articles, readArticleIds, streak, topCategory })
         })}
       </div>
 
-      {/* Pulsing rings when all complete */}
       {allComplete && (
         <motion.div
           className="absolute inset-0 pointer-events-none"
-          style={{ borderRadius: 24, border: '3px solid rgba(255,255,255,0.4)' }}
+          style={{ borderRadius: 28, border: '3px solid rgba(255,255,255,0.4)' }}
           animate={{ opacity: [0.4, 0.8, 0.4] }}
           transition={{ duration: 2, repeat: Infinity }}
         />

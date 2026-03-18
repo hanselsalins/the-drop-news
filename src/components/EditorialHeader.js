@@ -19,10 +19,11 @@ export function EditorialHeader({ articles, topCategory, onProfileOpen }) {
       <div className="flex items-center justify-between" style={{ padding: '14px 20px 0' }}>
         <span
           style={{
-            fontFamily: 'var(--drop-font-heading)',
-            fontSize: 13,
-            fontWeight: 400,
-            letterSpacing: 1,
+            fontFamily: 'var(--drop-font-body)',
+            fontSize: 12,
+            fontWeight: 500,
+            letterSpacing: '0.1em',
+            textTransform: 'uppercase',
             color: 'var(--drop-text-muted)',
           }}
         >
@@ -31,23 +32,24 @@ export function EditorialHeader({ articles, topCategory, onProfileOpen }) {
         <ProfileButton onClick={onProfileOpen} size={34} />
       </div>
 
-      {/* Hero headline */}
+      {/* Hero headline — serif italic for Band 4 */}
       <div style={{ padding: '24px 20px 20px' }}>
         <h1
           style={{
             fontFamily: 'var(--drop-font-heading)',
-            fontSize: 26,
-            fontWeight: 800,
+            fontSize: 28,
+            fontWeight: 700,
+            fontStyle: 'italic',
             color: 'var(--drop-text)',
             lineHeight: 1.3,
             margin: 0,
-            letterSpacing: 'var(--drop-letter-space-heading, normal)',
+            letterSpacing: 'var(--drop-letter-space-heading, -0.02em)',
           }}
         >
           {headline}
         </h1>
 
-        {/* Accent line */}
+        {/* Gold accent line */}
         <div
           style={{
             width: 40,
@@ -63,6 +65,9 @@ export function EditorialHeader({ articles, topCategory, onProfileOpen }) {
           style={{
             fontFamily: 'var(--drop-font-body)',
             fontSize: 12,
+            fontWeight: 500,
+            letterSpacing: '0.1em',
+            textTransform: 'uppercase',
             color: 'var(--drop-text-muted)',
             marginTop: 12,
           }}

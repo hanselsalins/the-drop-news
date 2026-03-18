@@ -14,136 +14,130 @@ code {
 }
 
 /* ═══════════════════════════════════════════════════
-   BAND 1 — Ages 8-10 — "Big Bold Bright"
+   DESIGN SYSTEM B
+   BAND 1 — Ages 8-10 — "Big Bold Bright" (Claymorphism)
    ═══════════════════════════════════════════════════ */
 [data-band="big-bold-bright"] {
-  --drop-primary: #FF4B4B;
-  --drop-secondary: #FFD93D;
-  --drop-accent: #06C48B;
-  --drop-bg: #FFF8F0;
+  --drop-primary: #4F46E5;
+  --drop-secondary: #F59E0B;
+  --drop-accent: #10B981;
+  --drop-accent2: #EC4899;
+  --drop-bg: #F5F3FF;
   --drop-surface: #FFFFFF;
-  --drop-text: #1A1035;
-  --drop-text-muted: #6B4E3D;
-  --drop-border: #FFD5B8;
-  --drop-font-heading: 'Fredoka', cursive;
-  --drop-font-body: 'Outfit', sans-serif;
+  --drop-surface-alt: #EDE9FE;
+  --drop-text: #1E1B4B;
+  --drop-text-muted: #6D5FBB;
+  --drop-border: #C4B5FD;
+  --drop-error: #EF4444;
+  --drop-success: #10B981;
+  --drop-font-heading: 'Baloo 2', 'Fredoka', cursive;
+  --drop-font-body: 'Nunito', 'Outfit', sans-serif;
   --drop-text-body: 1.25rem;
-  --drop-line-height: 1.75;
-  --drop-radius-card: 28px;
+  --drop-line-height: 1.8;
+  --drop-radius-card: 32px;
   --drop-radius-btn: 999px;
-  --drop-shadow-card: 6px 6px 0px 0px #FFB3A0, 0 12px 32px rgba(0,0,0,0.08);
-  --drop-shadow-btn: 4px 4px 0px 0px #CC2E2E;
+  --drop-shadow-card: 6px 6px 0px 0px #C4B5FD, 0 12px 32px rgba(0,0,0,0.06);
+  --drop-shadow-btn: 4px 4px 0px 0px #3730A3;
+  --drop-shadow-btn-hover: 2px 2px 0px 0px #3730A3;
   --drop-min-touch: 56px;
-  --drop-cat-world: #3B82F6;
-  --drop-cat-power: #EF4444;
-  --drop-cat-money: #F59E0B;
-  --drop-cat-tech: #8B5CF6;
-  --drop-cat-sports: #F97316;
-  --drop-cat-entertainment: #EC4899;
-  --drop-cat-environment: #10B981;
-  --drop-cat-science: #10B981;
-  --drop-header-bg: linear-gradient(135deg, #FF4B4B 0%, #FFD93D 100%);
+  --drop-header-bg: linear-gradient(135deg, #4F46E5 0%, #F59E0B 100%);
 }
 
 /* ═══════════════════════════════════════════════════
-   BAND 2 — Ages 11-13 — "Cool & Connected"
+   BAND 2 — Ages 11-13 — "Cool & Connected" (Soft Flat)
    ═══════════════════════════════════════════════════ */
 [data-band="cool-connected"] {
-  --drop-primary: #0A1628;
-  --drop-accent: #1E90FF;
-  --drop-accent2: #00D4AA;
-  --drop-bg: #F4F6F9;
+  --drop-primary: #2563EB;
+  --drop-secondary: #0EA5E9;
+  --drop-accent: #8B5CF6;
+  --drop-accent2: #F59E0B;
+  --drop-bg: #F0F9FF;
   --drop-surface: #FFFFFF;
-  --drop-text: #0A1628;
-  --drop-text-muted: #4A5568;
-  --drop-border: #D1DCE8;
-  --drop-font-heading: 'Baloo 2', cursive;
-  --drop-font-body: 'Nunito', sans-serif;
+  --drop-surface-alt: #E0F2FE;
+  --drop-text: #0C2340;
+  --drop-text-muted: #475569;
+  --drop-border: #BAE6FD;
+  --drop-error: #EF4444;
+  --drop-success: #10B981;
+  --drop-font-heading: 'Fredoka', 'Baloo 2', cursive;
+  --drop-font-body: 'Outfit', 'Nunito', sans-serif;
   --drop-text-body: 1.0625rem;
-  --drop-line-height: 1.6;
-  --drop-radius-card: 22px;
+  --drop-line-height: 1.65;
+  --drop-radius-card: 20px;
   --drop-radius-btn: 999px;
-  --drop-shadow-card: 0 2px 16px rgba(10,22,40,0.08);
-  --drop-shadow-btn: 0 4px 16px rgba(30,144,255,0.3);
+  --drop-shadow-card: 0 2px 12px rgba(37,99,235,0.10), 0 1px 3px rgba(0,0,0,0.05);
+  --drop-shadow-btn: 0 4px 14px rgba(37,99,235,0.30);
+  --drop-shadow-card-hover: 0 8px 28px rgba(37,99,235,0.14);
   --drop-min-touch: 48px;
-  --drop-cat-world: #3B82F6;
-  --drop-cat-power: #EF4444;
-  --drop-cat-money: #F59E0B;
-  --drop-cat-tech: #8B5CF6;
-  --drop-cat-sports: #F97316;
-  --drop-cat-entertainment: #EC4899;
-  --drop-cat-environment: #10B981;
-  --drop-cat-science: #10B981;
-  --drop-header-bg: linear-gradient(135deg, #1E90FF 0%, #00D4AA 100%);
+  --drop-header-bg: linear-gradient(135deg, #2563EB 0%, #8B5CF6 100%);
 }
 
 /* ═══════════════════════════════════════════════════
-   BAND 3 — Ages 14-16 — "Sharp & Aware"
+   BAND 3 — Ages 14-16 — "Sharp & Aware" (Vibrant Block)
    ═══════════════════════════════════════════════════ */
 [data-band="sharp-aware"] {
-  --drop-primary: #5C4EFA;
-  --drop-accent: #22D3EE;
-  --drop-accent2: #F472B6;
-  --drop-bg: #1E1B4B;
-  --drop-surface: #2D2A6E;
-  --drop-surface-hover: #352F80;
-  --drop-text: #F0F0FF;
-  --drop-text-muted: #A89EC9;
-  --drop-border: rgba(255,255,255,0.12);
-  --drop-font-heading: 'Syne', sans-serif;
-  --drop-font-body: 'Outfit', sans-serif;
+  --drop-primary: #F43F5E;
+  --drop-secondary: #FB7185;
+  --drop-accent: #6366F1;
+  --drop-accent2: #FBBF24;
+  --drop-bg: #0F0F13;
+  --drop-bg-card: #1A1A22;
+  --drop-bg-elevated: #252530;
+  --drop-surface: #1A1A22;
+  --drop-surface-hover: #252530;
+  --drop-text: #F8F8FC;
+  --drop-text-muted: #9CA3AF;
+  --drop-border: rgba(244,63,94,0.18);
+  --drop-border-solid: #2E2E3C;
+  --drop-error: #EF4444;
+  --drop-success: #34D399;
+  --drop-font-heading: 'Plus Jakarta Sans', 'DM Sans', sans-serif;
+  --drop-font-body: 'Inter', 'Outfit', sans-serif;
   --drop-text-body: 1rem;
-  --drop-letter-space-heading: -0.04em;
+  --drop-letter-space-heading: -0.03em;
   --drop-line-height: 1.6;
-  --drop-radius-card: 8px;
+  --drop-radius-card: 10px;
   --drop-radius-btn: 6px;
-  --drop-shadow-card: 0 2px 8px rgba(0,0,0,0.2);
-  --drop-shadow-btn: none;
+  --drop-shadow-card: 0 4px 20px rgba(0,0,0,0.5);
+  --drop-shadow-card-hover: 0 12px 40px rgba(244,63,94,0.2), inset 0 1px 0 rgba(255,255,255,0.06);
+  --drop-shadow-btn: 0 4px 24px rgba(244,63,94,0.35);
   --drop-min-touch: 44px;
-  --drop-cat-world: #3B82F6;
-  --drop-cat-power: #EF4444;
-  --drop-cat-money: #F59E0B;
-  --drop-cat-tech: #8B5CF6;
-  --drop-cat-sports: #F97316;
-  --drop-cat-entertainment: #EC4899;
-  --drop-cat-environment: #10B981;
-  --drop-cat-science: #10B981;
-  --drop-header-bg: linear-gradient(160deg, #1E1B4B 0%, #2D2A6E 55%, #1A184A 100%);
+  --drop-header-bg: #0F0F13;
 }
 
 /* ═══════════════════════════════════════════════════
-   BAND 4 — Ages 17-20 — "Cyber Editorial"
+   BAND 4 — Ages 17-20 — "Editorial" (Refined Minimalism)
    ═══════════════════════════════════════════════════ */
 [data-band="editorial"] {
-  --drop-primary: #FFFFFF;
-  --drop-accent: #00D4FF;
-  --drop-accent2: #FF2D78;
-  --drop-accent3: #39FF85;
-  --drop-bg: #1A1A2E;
-  --drop-surface: #16213E;
-  --drop-text: #FFFFFF;
-  --drop-text-body: #B0BEC5;
-  --drop-text-muted: #B0BEC5;
-  --drop-border: rgba(0,212,255,0.12);
-  --drop-font-heading: 'Urbanist', sans-serif;
-  --drop-font-body: 'Outfit', sans-serif;
+  --drop-primary: #F5E6C8;
+  --drop-secondary: #D4B896;
+  --drop-accent: #C9A84C;
+  --drop-accent2: #E8D5A3;
+  --drop-bg: #111118;
+  --drop-bg-elevated: #1A1A24;
+  --drop-bg-raised: #222230;
+  --drop-surface: #1A1A24;
+  --drop-text: #F5E6C8;
+  --drop-text-body: #C8C8D8;
+  --drop-text-muted: #666680;
+  --drop-border: rgba(201,168,76,0.15);
+  --drop-border-solid: #2A2A38;
+  --drop-error: #EF4444;
+  --drop-success: #6EE7B7;
+  --drop-font-heading: 'Newsreader', 'Georgia', serif;
+  --drop-font-body: 'Inter', 'DM Sans', sans-serif;
   --drop-text-body-size: 1.0625rem;
-  --drop-letter-space-heading: -0.04em;
-  --drop-line-height: 1.6;
-  --drop-radius-card: 14px;
-  --drop-radius-btn: 6px;
-  --drop-shadow-card: 0 2px 12px rgba(0,0,0,0.3);
+  --drop-letter-space-heading: -0.02em;
+  --drop-letter-space-label: 0.1em;
+  --drop-line-height: 1.75;
+  --drop-radius-card: 12px;
+  --drop-radius-btn: 999px;
+  --drop-shadow-card: 0 4px 24px rgba(0,0,0,0.5);
+  --drop-shadow-card-hover: 0 12px 48px rgba(0,0,0,0.7), 0 0 0 1px rgba(201,168,76,0.12);
+  --drop-shadow-gold-glow: 0 4px 32px rgba(201,168,76,0.15);
   --drop-shadow-btn: none;
   --drop-min-touch: 44px;
-  --drop-cat-world: #00D4FF;
-  --drop-cat-science: #39FF85;
-  --drop-cat-power: #FF2D78;
-  --drop-cat-tech: #A78BFA;
-  --drop-cat-sports: #FF9500;
-  --drop-cat-money: #00D4AA;
-  --drop-cat-entertainment: #EC4899;
-  --drop-cat-environment: #10B981;
-  --drop-header-bg: #1A1A2E;
+  --drop-header-bg: #111118;
 }
 
 /* ═══════════════════════════════════════════════════
@@ -174,13 +168,20 @@ code {
   }
 }
 
-/* Band 3 gradient background override */
+/* Band 3 dark background */
 [data-band="sharp-aware"] body,
 [data-band="sharp-aware"] [data-testid="feed-page"],
 [data-band="sharp-aware"] [data-testid="article-page"],
 [data-band="sharp-aware"] [data-testid="profile-page"] {
-  background: linear-gradient(160deg, #1E1B4B 0%, #2D2A6E 55%, #1A184A 100%) !important;
-  background-attachment: fixed !important;
+  background: #0F0F13 !important;
+}
+
+/* Band 4 dark background */
+[data-band="editorial"] body,
+[data-band="editorial"] [data-testid="feed-page"],
+[data-band="editorial"] [data-testid="article-page"],
+[data-band="editorial"] [data-testid="profile-page"] {
+  background: #111118 !important;
 }
 
 @layer base {
@@ -243,17 +244,18 @@ code {
    EDITORIAL DROP CAP + PULL QUOTE (Band 4)
    ═══════════════════════════════════════════════════ */
 [data-band="editorial"] .article-body p:first-of-type::first-letter {
-  font-family: 'Urbanist', sans-serif;
+  font-family: 'Newsreader', 'Georgia', serif;
   font-size: 3.5em;
   float: left;
   line-height: 0.8;
   margin-right: 8px;
   margin-top: 4px;
   color: var(--drop-accent);
-  font-weight: 800;
+  font-weight: 700;
+  font-style: italic;
 }
 .pull-quote {
-  border-left: 3px solid var(--drop-accent, #00D4FF);
+  border-left: 3px solid var(--drop-accent, #C9A84C);
   padding: 16px 20px;
   margin: 24px 0;
   font-style: italic;
@@ -264,7 +266,7 @@ code {
 }
 
 /* ═══════════════════════════════════════════════════
-   MEMPHIS DECORATIONS (Band 1)
+   CLAYMORPHISM DECORATIONS (Band 1)
    ═══════════════════════════════════════════════════ */
 [data-band="big-bold-bright"] [data-testid="feed-page"] {
   position: relative;
@@ -277,9 +279,9 @@ code {
   right: -15px;
   width: 50px;
   height: 50px;
-  background: #FFD93D;
+  background: #F59E0B;
   clip-path: polygon(50% 0%, 100% 100%, 0% 100%);
-  opacity: 0.12;
+  opacity: 0.1;
   z-index: 0;
   pointer-events: none;
 }
@@ -291,30 +293,30 @@ code {
   width: 36px;
   height: 36px;
   border-radius: 50%;
-  background: repeating-linear-gradient(45deg, #FF4B4B 0px, #FF4B4B 3px, transparent 3px, transparent 7px);
-  opacity: 0.1;
+  background: repeating-linear-gradient(45deg, #4F46E5 0px, #4F46E5 3px, transparent 3px, transparent 7px);
+  opacity: 0.08;
   z-index: 0;
   pointer-events: none;
 }
 
 /* ═══════════════════════════════════════════════════
-   DARK MODE — Bands 1 & 2
+   DARK MODE — Bands 1 & 2 (System B)
    ═══════════════════════════════════════════════════ */
 [data-band="big-bold-bright"][data-theme="dark"] {
-  --drop-bg: #1A1035;
-  --drop-surface: #2A1F4A;
-  --drop-text: #FFF8F0;
-  --drop-text-muted: #B89E8D;
-  --drop-border: rgba(255,213,184,0.15);
-  --drop-shadow-card: 4px 4px 0px 0px rgba(255,179,160,0.3), 0 8px 24px rgba(0,0,0,0.3);
-  --drop-shadow-btn: 2px 2px 0px 0px #991B1B;
+  --drop-bg: #1E1B4B;
+  --drop-surface: #2D2660;
+  --drop-text: #F5F3FF;
+  --drop-text-muted: #A89DD0;
+  --drop-border: rgba(196,181,253,0.15);
+  --drop-shadow-card: 4px 4px 0px 0px rgba(196,181,253,0.3), 0 8px 24px rgba(0,0,0,0.3);
+  --drop-shadow-btn: 2px 2px 0px 0px #312E81;
 }
 [data-band="cool-connected"][data-theme="dark"] {
-  --drop-bg: #0A1628;
-  --drop-surface: #132238;
-  --drop-text: #F4F6F9;
-  --drop-text-muted: #8B9BB5;
-  --drop-border: rgba(209,220,232,0.12);
+  --drop-bg: #0C2340;
+  --drop-surface: #132D4A;
+  --drop-text: #F0F9FF;
+  --drop-text-muted: #7DA1C4;
+  --drop-border: rgba(186,230,253,0.12);
   --drop-shadow-card: 0 2px 12px rgba(0,0,0,0.3);
 }
 
