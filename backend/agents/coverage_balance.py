@@ -137,10 +137,7 @@ class CoverageBalanceAgent(BaseAgent):
         }
 
         await db.agent_config.update_one(
-            {
-                "agent_name":  self.name,
-                "report_type": "coverage_balance",
-            },
+            {"agent_name": self.name},
             {"$set": report},
             upsert=True,
         )
