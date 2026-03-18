@@ -20,11 +20,12 @@ const RANK_COLORS = {
   'No Cap Legend': '#FFD60A',
 };
 
+// Design System B age badges
 const AGE_BADGES = {
-  '8-10': { label: 'Junior Reader', emoji: '', color: '#FFD60A' },
-  '11-13': { label: 'News Scout', emoji: '', color: '#3A86FF' },
-  '14-16': { label: 'Drop Regular', emoji: '', color: '#CCFF00' },
-  '17-20': { label: 'Sharp Mind', emoji: '', color: '#FF006E' },
+  '8-10': { label: 'Junior Reader', emoji: '', color: '#4F46E5' },
+  '11-13': { label: 'News Scout', emoji: '', color: '#2563EB' },
+  '14-16': { label: 'Drop Regular', emoji: '', color: '#F43F5E' },
+  '17-20': { label: 'Sharp Mind', emoji: '', color: '#C9A84C' },
 };
 
 const CATEGORY_ICONS = {
