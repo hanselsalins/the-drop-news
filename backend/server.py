@@ -104,8 +104,10 @@ def calculate_age_group(dob_str: str) -> str:
             return "11-13"
         elif age <= 16:
             return "14-16"
-        else:
+        elif age <= 19:
             return "17-20"
+        else:
+            return "20+"
     except Exception:
         return "14-16"
 
@@ -116,14 +118,16 @@ def create_token(user_id: str) -> str:
 
 
 def age_group_from_age(age: int) -> str:
-    if age <= 10:
-        return "8-10"
-    elif age <= 13:
-        return "11-13"
-    elif age <= 16:
-        return "14-16"
-    else:
+    if age >= 20:
+        return "20+"
+    elif age >= 17:
         return "17-20"
+    elif age >= 14:
+        return "14-16"
+    elif age >= 11:
+        return "11-13"
+    else:
+        return "8-10"
 
 
 def generate_invite_code() -> str:
@@ -335,7 +339,29 @@ SOURCE_LOGOS = {
 DEFAULT_AGE_GROUP_PROMPTS = {
     "8-10": {
         "label": "Kid Mode",
-        "prompt": """You are a friendly news helper for young kids aged 8-10. Your job is to take a real news story and explain it in a way that a curious 9-year-old would understand and enjoy.
+        "prompt": """You are a friendly storyteller who explains the news to 8-10 year old children in India and around the world. You speak like a favourite teacher — warm, excited, and clear. You never use big words. You always explain things using things children know: school, home, food, games, family, cricket, Bollywood. You make every story feel relevant to a child's life.
+
+RULES:
+- Use very simple words. If a word is hard, explain it immediately in brackets. Example: 'The government (the people who run the country) made a new rule.'
+- Write in short sentences. Maximum 8 words per sentence.
+- Maximum 150 words for the full article.
+- Start with one sentence that tells the child WHY this matters to them or their world.
+- Use at least one fun comparison or analogy to something kids know (school, food, games, family, cricket, Bollywood).
+- Use 2-3 relevant emojis naturally within the text, where they add meaning - not just as decoration at the end.
+- End with one simple 'wonder question' — a curious question a 9-year-old would genuinely ask. Keep it under 10 words.
+- Never use scary language. If the topic involves conflict or danger, describe it calmly and focus on what people are doing to help.
+- Tone: warm, enthusiastic, like a favourite teacher telling a story.
+- INDIA NOTE: If the article is from India or relevant to India, use Indian examples — say rupees not dollars, cricket not baseball. Many readers speak English as a second language — keep vocabulary as simple as possible.
+
+OUTPUT FORMAT:
+Headline: [Simple, fun headline - max 8 words]
+Summary: [1 sentence - what happened, in the simplest terms - under 15 words]
+Story: [Full rewritten article - exactly 3 paragraphs of 2-3 short sentences each, separated by blank lines]
+Wonder Question: [1 curious question for the child - under 10 words]"""
+    },
+    "11-13": {
+        "label": "Tween Mode",
+        "prompt": """You are a friendly news helper for young kids aged 8-10 (adapted for Indian readers). Your job is to take a real news story and explain it in a way that a curious 9-year-old would understand and enjoy.
 
 RULES:
 - Use very simple words. If a word is hard, explain it immediately in brackets. Example: 'The government (the people who run the country) made a new rule.'
@@ -347,6 +373,7 @@ RULES:
 - End with one simple 'wonder question' - a curious question that makes the child think.
 - Never use scary language. If the topic involves conflict or danger, describe it calmly and focus on what people are doing to help.
 - Tone: warm, excited, like a favourite teacher explaining something.
+- INDIA NOTE: If the article is from India or the reader's country is IN, use Indian context and examples. Many Indian readers speak English as a second language — keep vocabulary as simple as possible.
 
 OUTPUT FORMAT:
 Headline: [Simple, fun headline - max 8 words]
@@ -354,8 +381,8 @@ Summary: [1 sentence - what happened, in the simplest terms]
 Story: [Full rewritten article - max 150 words]
 Wonder Question: [1 curious question for the child]"""
     },
-    "11-13": {
-        "label": "Tween Mode",
+    "14-16": {
+        "label": "Teen Mode",
         "prompt": """You are a news writer for middle schoolers aged 11-13. Your job is to take a real news story and make it genuinely interesting and easy to understand for a 12-year-old who doesn't usually read the news.
 
 RULES:
@@ -368,6 +395,7 @@ RULES:
 - End with a 'wonder question' that encourages critical thinking or reflection.
 - Avoid overly sensational or alarmist language. Focus on clear, factual reporting.
 - Tone: Engaging, informative, slightly informal, relatable.
+- INDIA NOTE: If the article is from India or the reader's country is IN, use Indian context and examples. Many Indian readers speak English as a second language — keep vocabulary as simple as possible.
 
 OUTPUT FORMAT:
 Headline: [Catchy and informative headline - max 10 words]
@@ -375,8 +403,8 @@ Summary: [1-2 sentences summarizing the main point]
 Story: [Rewritten article - max 200 words]
 Wonder Question: [A thought-provoking question for the reader]"""
     },
-    "14-16": {
-        "label": "Teen Mode",
+    "17-20": {
+        "label": "Young Adult",
         "prompt": """You are a news writer for teenagers aged 14-16. Your job is to take a real news story and make it compelling, informative, and relevant to their interests and understanding of the world.
 
 RULES:
@@ -389,6 +417,7 @@ RULES:
 - End with a 'wonder question' that prompts deeper thought.
 - Maintain a balanced and objective tone, while still being engaging.
 - Tone: Knowledgeable, engaging, relevant, slightly more mature.
+- INDIA NOTE: If the article is from India or the reader's country is IN, use Indian context and examples. Many Indian readers speak English as a second language — keep vocabulary as simple as possible.
 
 OUTPUT FORMAT:
 Headline: [Intriguing headline that captures attention - max 12 words]
@@ -396,8 +425,8 @@ Summary: [2-3 sentences providing context and key information]
 Story: [Rewritten article - max 300 words]
 Wonder Question: [A question that encourages critical thinking or speculation]"""
     },
-    "17-20": {
-        "label": "Young Adult",
+    "20+": {
+        "label": "Adult",
         "prompt": """You are a news writer for young adults aged 17-20. Your job is to take a real news story and present it in a way that is insightful, comprehensive, and encourages critical engagement with current events.
 
 RULES:
@@ -410,6 +439,7 @@ RULES:
 - End with a 'wonder question' that challenges assumptions or explores implications.
 - Maintain an objective and analytical tone.
 - Tone: Insightful, analytical, sophisticated, authoritative.
+- INDIA NOTE: If the article is from India or the reader's country is IN, use Indian context and examples. Many Indian readers speak English as a second language — keep vocabulary as simple as possible.
 
 OUTPUT FORMAT:
 Headline: [Sophisticated and informative headline - max 15 words]
@@ -712,10 +742,11 @@ async def rewrite_with_claude(system_prompt: str, user_prompt: str) -> str:
 
 # ===== AI REWRITING =====
 _AGE_SYSTEM_PROMPTS = {
-    "8-10":  "You are a children's news writer who makes complex news simple and fun for 8-10 year olds.",
-    "11-13": "You are a youth news writer who makes complex news clear and engaging for 11-13 year olds.",
-    "14-16": "You are a news writer who makes complex news accessible and informative for 14-16 year olds.",
-    "17-20": "You are a news writer who makes complex news clear and informative for 17-20 year olds.",
+    "8-10":  "You are a friendly storyteller who explains the news to 8-10 year old children in India and around the world. You speak like a favourite teacher — warm, excited, and clear. You never use big words. You always explain things using things children know: school, home, food, games, family, cricket, Bollywood. You make every story feel relevant to a child's life.",
+    "11-13": "You are a children's news writer who makes complex news simple and fun for 8-10 year olds (adapted for Indian readers who may read English as a second language).",
+    "14-16": "You are a youth news writer who makes complex news clear and engaging for 11-13 year olds.",
+    "17-20": "You are a news writer who makes complex news accessible and informative for 14-16 year olds.",
+    "20+":   "You are a news writer who makes complex news clear and informative for young adults aged 17-20.",
 }
 
 _PARAGRAPH_FORMATTING = (
@@ -724,30 +755,58 @@ _PARAGRAPH_FORMATTING = (
     r"Separate paragraphs with a blank line (\n\n). Never write one big block of text."
 )
 
+_INDIA_NOTE = (
+    "INDIA NOTE: If the article is from India or the reader's country is IN, use Indian context and examples. "
+    "Many Indian readers speak English as a second language — keep vocabulary as simple as possible."
+)
+
 _AGE_USER_INSTRUCTIONS = {
     "8-10": (
+        "Rewrite this news article for a child aged 8-10 years old. Follow these rules strictly:\n\n"
+        "SENTENCES: Maximum 8 words per sentence. No exceptions.\n"
+        "WORDS: Only use words a 9-year-old uses every day. If you must use a harder word, explain it "
+        "immediately in simple words in brackets.\n"
+        "PARAGRAPHS: Maximum 3 sentences per paragraph. Leave a blank line between paragraphs.\n"
+        "ANALOGIES: Replace every abstract concept with something from a child's world. Use school, home, "
+        "food, games, family, cricket, or Bollywood as reference points.\n"
+        "STRUCTURE: Start with something the child can relate to personally. Then explain what happened. "
+        "Then explain why it matters to them or their family.\n"
+        "TONE: Warm, enthusiastic, like a favourite teacher telling a story. Never scary. Never boring.\n"
+        "SECOND LANGUAGE NOTE: Many readers speak English as a second language. Use the simplest possible words always.\n"
+        "WONDER QUESTION: End with one simple wonder question that a curious 9-year-old would genuinely ask. Keep it under 10 words.\n"
+        "LENGTH: Write exactly 3 paragraphs. Each paragraph has 2-3 short sentences.\n\n"
+        + _INDIA_NOTE + "\n\n"
+        "Return valid JSON with keys: title, summary, body, wonder_question, reading_time, country_relevance, impact_flags. "
+        r"The body must contain the 3 paragraphs separated by blank lines (\n\n). "
+        "The title must be under 8 words. The summary must be 1 sentence under 15 words."
+    ),
+    "11-13": (
         "Rewrite this news article for a 8-10 year old child. Use very simple words (maximum 2 syllables "
         "where possible). Keep sentences short — maximum 12 words each. Explain any difficult concepts like "
         "you would to a young child. Make it engaging and fun to read. "
         "The body field must contain at least 150 words of actual story content written in simple paragraphs. "
-        + _PARAGRAPH_FORMATTING
-    ),
-    "11-13": (
-        "Rewrite this news article for an 11-13 year old. Use clear simple language. Explain what happened, "
-        "why it matters, and any background context they need. "
-        "The body field must contain at least 150 words written in 3-4 engaging paragraphs. "
+        + _INDIA_NOTE + " "
         + _PARAGRAPH_FORMATTING
     ),
     "14-16": (
-        "Rewrite this news article for a 14-16 year old. Use plain English, explain any technical terms, "
-        "and give background context. Cover the full story. "
-        "The body field must contain at least 200 words written in 4-5 clear paragraphs. "
+        "Rewrite this news article for an 11-13 year old. Use clear simple language. Explain what happened, "
+        "why it matters, and any background context they need. "
+        "The body field must contain at least 150 words written in 3-4 engaging paragraphs. "
+        + _INDIA_NOTE + " "
         + _PARAGRAPH_FORMATTING
     ),
     "17-20": (
-        "Rewrite this news article for a 17-20 year old. Write clearly and informatively like a good "
+        "Rewrite this news article for a 14-16 year old. Use plain English, explain any technical terms, "
+        "and give background context. Cover the full story. "
+        "The body field must contain at least 200 words written in 4-5 clear paragraphs. "
+        + _INDIA_NOTE + " "
+        + _PARAGRAPH_FORMATTING
+    ),
+    "20+": (
+        "Rewrite this news article for a young adult aged 17-20. Write clearly and informatively like a good "
         "newspaper but accessible to a young adult. Cover the full story with context. "
         "The body field must contain at least 200 words written in 4-5 paragraphs. "
+        + _INDIA_NOTE + " "
         + _PARAGRAPH_FORMATTING
     ),
 }
@@ -757,9 +816,9 @@ async def rewrite_article_for_age_group(title: str, content: str, age_group: str
                                          source_country: str = "US") -> dict:
     safety = await get_safety_wrapper()
 
-    system_prompt = _AGE_SYSTEM_PROMPTS.get(age_group, _AGE_SYSTEM_PROMPTS["17-20"]) + "\n" + safety
+    system_prompt = _AGE_SYSTEM_PROMPTS.get(age_group, _AGE_SYSTEM_PROMPTS["20+"]) + "\n" + safety
     logger.info(f"[rewrite] age_group={age_group} system_prompt[:100]={system_prompt[:100]!r}")
-    age_instruction = _AGE_USER_INSTRUCTIONS.get(age_group, _AGE_USER_INSTRUCTIONS["17-20"])
+    age_instruction = _AGE_USER_INSTRUCTIONS.get(age_group, _AGE_USER_INSTRUCTIONS["20+"])
     logger.info(f"[rewrite] age_group={age_group} age_instruction[:150]={age_instruction[:150]!r}")
 
     confidence_instruction = ""
@@ -837,10 +896,11 @@ async def generate_micro_facts(age_group: str):
     titles_context = "\n".join([f"- [{a.get('category','general')}] {a['original_title']}" for a in articles[:8]])
 
     prompt_intro = {
-        "8-10": "You write fun facts for kids aged 8-10. Use very simple words, max 20 words per fact. Make it exciting!",
-        "11-13": "You write interesting facts for tweens aged 11-13. Keep it cool and relatable, max 25 words per fact.",
-        "14-16": "You write engaging facts for teens aged 14-16. Be informative and slightly edgy, max 30 words per fact.",
-        "17-20": "You write insightful facts for young adults aged 17-20. Be sophisticated, max 35 words per fact.",
+        "8-10":  "You write fun facts for kids aged 8-10. Use very simple words, max 20 words per fact. Make it exciting!",
+        "11-13": "You write fun facts for kids aged 8-10 (Indian readers, English may be second language). Use very simple words, max 20 words per fact. Make it exciting!",
+        "14-16": "You write interesting facts for tweens aged 11-13. Keep it cool and relatable, max 25 words per fact.",
+        "17-20": "You write engaging facts for teens aged 14-16. Be informative and slightly edgy, max 30 words per fact.",
+        "20+":   "You write insightful facts for young adults aged 17-20. Be sophisticated, max 35 words per fact.",
     }
 
     msg = f"""Generate 6 surprising "Did You Know?" micro-facts loosely related to today's news topics.
@@ -1243,13 +1303,13 @@ async def rewrite_pending_articles(age_group: str):
                 isinstance(rewrites.get(ag), dict)
                 and rewrites[ag].get("rewrite_status") == "complete"
                 and len(rewrites[ag].get("body", "")) >= 100
-                for ag in ("8-10", "11-13", "14-16", "17-20")
+                for ag in ("8-10", "11-13", "14-16", "17-20", "20+")
             )
             if all_valid:
                 await db.articles.update_one({"id": article["id"]}, {"$set": {"rewrite_status": "rewritten"}})
             else:
                 missing = [
-                    ag for ag in ("8-10", "11-13", "14-16", "17-20")
+                    ag for ag in ("8-10", "11-13", "14-16", "17-20", "20+")
                     if not (isinstance(rewrites.get(ag), dict)
                             and rewrites[ag].get("rewrite_status") == "complete"
                             and len(rewrites[ag].get("body", "")) >= 100)
@@ -2607,7 +2667,7 @@ async def trigger_crawl(background_tasks: BackgroundTasks, country_code: str = N
         count = await crawl_rss_feeds(country_code=country_code)
         logger.info(f"Background crawl done: {count} articles for country={country_code or 'ALL'}")
         await select_articles_for_display()
-        for ag in ["8-10", "11-13", "14-16", "17-20"]:
+        for ag in ["8-10", "11-13", "14-16", "17-20", "20+"]:
             await rewrite_pending_articles(ag)
         await generate_micro_facts("14-16")
     background_tasks.add_task(crawl_and_rewrite)
@@ -2619,7 +2679,7 @@ async def trigger_country_crawl(country_code: str, background_tasks: BackgroundT
         count = await crawl_rss_feeds(country_code=country_code)
         logger.info(f"Background crawl done: {count} articles for {country_code}")
         await select_articles_for_display()
-        for ag in ["8-10", "11-13", "14-16", "17-20"]:
+        for ag in ["8-10", "11-13", "14-16", "17-20", "20+"]:
             await rewrite_pending_articles(ag)
     background_tasks.add_task(crawl_and_rewrite)
     return {"message": f"Crawl started for {country_code}. Processing in background."}
@@ -2627,7 +2687,7 @@ async def trigger_country_crawl(country_code: str, background_tasks: BackgroundT
 @api_router.post("/rewrite")
 async def trigger_rewrite(background_tasks: BackgroundTasks):
     async def _rewrite_all():
-        for ag in ["8-10", "11-13", "14-16", "17-20"]:
+        for ag in ["8-10", "11-13", "14-16", "17-20", "20+"]:
             await rewrite_pending_articles(ag)
     background_tasks.add_task(_rewrite_all)
     return {"message": "Rewrites started for all age groups (8-10, 11-13, 14-16, 17-20) in background"}
@@ -2829,7 +2889,7 @@ async def job_cleanup_old_articles():
 async def job_rewrite_pending():
     logger.info("[Scheduler] job_rewrite_pending: processing all age groups")
     try:
-        for ag in ["8-10", "11-13", "14-16", "17-20"]:
+        for ag in ["8-10", "11-13", "14-16", "17-20", "20+"]:
             await rewrite_pending_articles(ag)
     except Exception as e:
         logger.error(f"[Scheduler] job_rewrite_pending failed: {e}")
@@ -2934,7 +2994,7 @@ async def _initial_crawl():
         for cc in ["US", "GB", "IN", "AU", "AE"]:
             await crawl_rss_feeds(country_code=cc)
         await select_articles_for_display()
-        for ag in ["8-10", "11-13", "14-16", "17-20"]:
+        for ag in ["8-10", "11-13", "14-16", "17-20", "20+"]:
             await rewrite_pending_articles(ag)
         await generate_micro_facts("8-10")
         await generate_micro_facts("14-16")
