@@ -1370,7 +1370,7 @@ def _make_child_doc(child_id: str, child_name: str, child_age: int, child_gender
     approx_dob = f"{date.today().year - child_age}-06-15"
     return {
         "id": child_id, "full_name": child_name.strip(),
-        "email": "",  # children have no email — login is via parent account + switch-profile
+        "email": f"_child_{child_id}@no-email.internal",  # children have no real email — unique placeholder to satisfy index
         "password_hash": "",
         "dob": approx_dob, "age": child_age, "gender": child_gender,
         "city": child_city.strip(), "country": child_country_code.strip(),
