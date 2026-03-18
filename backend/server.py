@@ -73,6 +73,16 @@ _FIELD_LABELS: dict[str, str] = {
     "child_city": "Child's city",
 }
 
+@app.exception_handler(Exception)
+async def unhandled_exception_handler(request: Request, exc: Exception):
+    import traceback as _tb
+    logger.error(f"Unhandled exception: {exc}\n{_tb.format_exc()}")
+    return JSONResponse(
+        status_code=500,
+        content={"detail": f"Internal server error: {type(exc).__name__}: {exc}"},
+        headers={"Access-Control-Allow-Origin": "*"},
+    )
+
 @app.exception_handler(RequestValidationError)
 async def validation_exception_handler(request: Request, exc: RequestValidationError):
     errors: dict[str, str] = {}
