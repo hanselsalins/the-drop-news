@@ -1,0 +1,52 @@
+/* The Drop - No Cap News */
+
+.App {
+  min-height: 100vh;
+  background: #F8FAFC;
+}
+
+@media (min-width: 768px) {
+  .App {
+    max-width: 430px;
+    margin: 0 auto;
+    min-height: 100vh;
+    position: relative;
+    box-shadow: 0 0 80px rgba(59, 130, 246, 0.06);
+  }
+}
+
+::-webkit-scrollbar {
+  width: 0px;
+  height: 0px;
+}
+
+.scrollbar-hide::-webkit-scrollbar {
+  display: none;
+}
+.scrollbar-hide {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+
+.line-clamp-2 {
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.line-clamp-3 {
+  display: -webkit-box;
+  -webkit-line-clamp: 3;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+img {
+  opacity: 1;
+}
+
+::selection {
+  background: #3B82F6;
+  color: #fff;
+}

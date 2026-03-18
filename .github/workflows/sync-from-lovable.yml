@@ -22,15 +22,21 @@ jobs:
         run: |
           git clone --depth 1 https://github.com/hanselsalins/the-drop-news.git /tmp/the-drop-news
 
-      - name: Sync frontend files
+      - name: Sync frontend files to root
         run: |
           rsync -av --delete \
             --exclude='.git' \
             --exclude='node_modules' \
             --exclude='dist' \
             --exclude='.env' \
+            --exclude='backend' \
+            --exclude='design-system' \
+            --exclude='docs' \
+            --exclude='.github' \
+            --exclude='.claude' \
+            --exclude='.workspace' \
             /tmp/the-drop-news/ \
-            frontend/
+            ./
 
       - name: Check for changes
         id: diff
@@ -44,7 +50,7 @@ jobs:
         run: |
           git config user.name  "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
-          git add frontend/
+          git add -A
           LOVABLE_SHA=$(git -C /tmp/the-drop-news rev-parse --short HEAD)
           git commit -m "sync: pull Lovable frontend changes (the-drop-news@${LOVABLE_SHA})"
           git push https://x-access-token:${{ secrets.GITHUB_TOKEN }}@github.com/hanselsalins/the-drop.git main

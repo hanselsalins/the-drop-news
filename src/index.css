@@ -1,0 +1,328 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+body {
+  margin: 0;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  overscroll-behavior: none;
+}
+
+code {
+  font-family: 'JetBrains Mono', monospace;
+}
+
+/* ═══════════════════════════════════════════════════
+   BAND 1 — Ages 8-10 — "Big Bold Bright"
+   ═══════════════════════════════════════════════════ */
+[data-band="big-bold-bright"] {
+  --drop-primary: #FF4B4B;
+  --drop-secondary: #FFD93D;
+  --drop-accent: #06C48B;
+  --drop-bg: #FFF8F0;
+  --drop-surface: #FFFFFF;
+  --drop-text: #1A1035;
+  --drop-text-muted: #6B4E3D;
+  --drop-border: #FFD5B8;
+  --drop-font-heading: 'Fredoka', cursive;
+  --drop-font-body: 'Outfit', sans-serif;
+  --drop-text-body: 1.25rem;
+  --drop-line-height: 1.75;
+  --drop-radius-card: 28px;
+  --drop-radius-btn: 999px;
+  --drop-shadow-card: 6px 6px 0px 0px #FFB3A0, 0 12px 32px rgba(0,0,0,0.08);
+  --drop-shadow-btn: 4px 4px 0px 0px #CC2E2E;
+  --drop-min-touch: 56px;
+  --drop-cat-world: #3B82F6;
+  --drop-cat-power: #EF4444;
+  --drop-cat-money: #F59E0B;
+  --drop-cat-tech: #8B5CF6;
+  --drop-cat-sports: #F97316;
+  --drop-cat-entertainment: #EC4899;
+  --drop-cat-environment: #10B981;
+  --drop-cat-science: #10B981;
+  --drop-header-bg: linear-gradient(135deg, #FF4B4B 0%, #FFD93D 100%);
+}
+
+/* ═══════════════════════════════════════════════════
+   BAND 2 — Ages 11-13 — "Cool & Connected"
+   ═══════════════════════════════════════════════════ */
+[data-band="cool-connected"] {
+  --drop-primary: #0A1628;
+  --drop-accent: #1E90FF;
+  --drop-accent2: #00D4AA;
+  --drop-bg: #F4F6F9;
+  --drop-surface: #FFFFFF;
+  --drop-text: #0A1628;
+  --drop-text-muted: #4A5568;
+  --drop-border: #D1DCE8;
+  --drop-font-heading: 'Baloo 2', cursive;
+  --drop-font-body: 'Nunito', sans-serif;
+  --drop-text-body: 1.0625rem;
+  --drop-line-height: 1.6;
+  --drop-radius-card: 22px;
+  --drop-radius-btn: 999px;
+  --drop-shadow-card: 0 2px 16px rgba(10,22,40,0.08);
+  --drop-shadow-btn: 0 4px 16px rgba(30,144,255,0.3);
+  --drop-min-touch: 48px;
+  --drop-cat-world: #3B82F6;
+  --drop-cat-power: #EF4444;
+  --drop-cat-money: #F59E0B;
+  --drop-cat-tech: #8B5CF6;
+  --drop-cat-sports: #F97316;
+  --drop-cat-entertainment: #EC4899;
+  --drop-cat-environment: #10B981;
+  --drop-cat-science: #10B981;
+  --drop-header-bg: linear-gradient(135deg, #1E90FF 0%, #00D4AA 100%);
+}
+
+/* ═══════════════════════════════════════════════════
+   BAND 3 — Ages 14-16 — "Sharp & Aware"
+   ═══════════════════════════════════════════════════ */
+[data-band="sharp-aware"] {
+  --drop-primary: #5C4EFA;
+  --drop-accent: #22D3EE;
+  --drop-accent2: #F472B6;
+  --drop-bg: #1E1B4B;
+  --drop-surface: #2D2A6E;
+  --drop-surface-hover: #352F80;
+  --drop-text: #F0F0FF;
+  --drop-text-muted: #A89EC9;
+  --drop-border: rgba(255,255,255,0.12);
+  --drop-font-heading: 'Syne', sans-serif;
+  --drop-font-body: 'Outfit', sans-serif;
+  --drop-text-body: 1rem;
+  --drop-letter-space-heading: -0.04em;
+  --drop-line-height: 1.6;
+  --drop-radius-card: 8px;
+  --drop-radius-btn: 6px;
+  --drop-shadow-card: 0 2px 8px rgba(0,0,0,0.2);
+  --drop-shadow-btn: none;
+  --drop-min-touch: 44px;
+  --drop-cat-world: #3B82F6;
+  --drop-cat-power: #EF4444;
+  --drop-cat-money: #F59E0B;
+  --drop-cat-tech: #8B5CF6;
+  --drop-cat-sports: #F97316;
+  --drop-cat-entertainment: #EC4899;
+  --drop-cat-environment: #10B981;
+  --drop-cat-science: #10B981;
+  --drop-header-bg: linear-gradient(160deg, #1E1B4B 0%, #2D2A6E 55%, #1A184A 100%);
+}
+
+/* ═══════════════════════════════════════════════════
+   BAND 4 — Ages 17-20 — "Cyber Editorial"
+   ═══════════════════════════════════════════════════ */
+[data-band="editorial"] {
+  --drop-primary: #FFFFFF;
+  --drop-accent: #00D4FF;
+  --drop-accent2: #FF2D78;
+  --drop-accent3: #39FF85;
+  --drop-bg: #1A1A2E;
+  --drop-surface: #16213E;
+  --drop-text: #FFFFFF;
+  --drop-text-body: #B0BEC5;
+  --drop-text-muted: #B0BEC5;
+  --drop-border: rgba(0,212,255,0.12);
+  --drop-font-heading: 'Urbanist', sans-serif;
+  --drop-font-body: 'Outfit', sans-serif;
+  --drop-text-body-size: 1.0625rem;
+  --drop-letter-space-heading: -0.04em;
+  --drop-line-height: 1.6;
+  --drop-radius-card: 14px;
+  --drop-radius-btn: 6px;
+  --drop-shadow-card: 0 2px 12px rgba(0,0,0,0.3);
+  --drop-shadow-btn: none;
+  --drop-min-touch: 44px;
+  --drop-cat-world: #00D4FF;
+  --drop-cat-science: #39FF85;
+  --drop-cat-power: #FF2D78;
+  --drop-cat-tech: #A78BFA;
+  --drop-cat-sports: #FF9500;
+  --drop-cat-money: #00D4AA;
+  --drop-cat-entertainment: #EC4899;
+  --drop-cat-environment: #10B981;
+  --drop-header-bg: #1A1A2E;
+}
+
+/* ═══════════════════════════════════════════════════
+   Default / Fallback (shadcn compatibility)
+   ═══════════════════════════════════════════════════ */
+@layer base {
+  :root {
+    --background: 210 40% 98%;
+    --foreground: 222 47% 11%;
+    --card: 0 0% 100%;
+    --card-foreground: 222 47% 11%;
+    --popover: 0 0% 100%;
+    --popover-foreground: 222 47% 11%;
+    --primary: 217 91% 60%;
+    --primary-foreground: 0 0% 100%;
+    --secondary: 210 40% 96%;
+    --secondary-foreground: 222 47% 11%;
+    --muted: 210 40% 96%;
+    --muted-foreground: 215 16% 47%;
+    --accent: 210 40% 96%;
+    --accent-foreground: 222 47% 11%;
+    --destructive: 0 84% 60%;
+    --destructive-foreground: 0 0% 98%;
+    --border: 214 32% 91%;
+    --input: 214 32% 91%;
+    --ring: 217 91% 60%;
+    --radius: 1.125rem;
+  }
+}
+
+/* Band 3 gradient background override */
+[data-band="sharp-aware"] body,
+[data-band="sharp-aware"] [data-testid="feed-page"],
+[data-band="sharp-aware"] [data-testid="article-page"],
+[data-band="sharp-aware"] [data-testid="profile-page"] {
+  background: linear-gradient(160deg, #1E1B4B 0%, #2D2A6E 55%, #1A184A 100%) !important;
+  background-attachment: fixed !important;
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+  body {
+    font-family: 'Outfit', -apple-system, BlinkMacSystemFont, sans-serif;
+    background: var(--drop-bg, hsl(var(--background)));
+    color: var(--drop-text, hsl(var(--foreground)));
+  }
+}
+
+@layer base {
+  [data-debug-wrapper="true"] {
+    display: contents !important;
+  }
+
+  [data-debug-wrapper="true"] > * {
+    margin-left: inherit;
+    margin-right: inherit;
+    margin-top: inherit;
+    margin-bottom: inherit;
+    padding-left: inherit;
+    padding-right: inherit;
+    padding-top: inherit;
+    padding-bottom: inherit;
+    column-gap: inherit;
+    row-gap: inherit;
+    gap: inherit;
+    border-left-width: inherit;
+    border-right-width: inherit;
+    border-top-width: inherit;
+    border-bottom-width: inherit;
+    border-left-style: inherit;
+    border-right-style: inherit;
+    border-top-style: inherit;
+    border-bottom-style: inherit;
+    border-left-color: inherit;
+    border-right-color: inherit;
+    border-top-color: inherit;
+    border-bottom-color: inherit;
+  }
+}
+
+/* ═══════════════════════════════════════════════════
+   SKELETON LOADING SHIMMER
+   ═══════════════════════════════════════════════════ */
+@keyframes shimmer {
+  0% { background-position: -200px 0; }
+  100% { background-position: calc(200px + 100%) 0; }
+}
+.skeleton-shimmer {
+  background: linear-gradient(90deg, var(--drop-border, #e2e8f0) 25%, transparent 50%, var(--drop-border, #e2e8f0) 75%);
+  background-size: 200px 100%;
+  animation: shimmer 1.5s infinite;
+}
+
+/* ═══════════════════════════════════════════════════
+   EDITORIAL DROP CAP + PULL QUOTE (Band 4)
+   ═══════════════════════════════════════════════════ */
+[data-band="editorial"] .article-body p:first-of-type::first-letter {
+  font-family: 'Urbanist', sans-serif;
+  font-size: 3.5em;
+  float: left;
+  line-height: 0.8;
+  margin-right: 8px;
+  margin-top: 4px;
+  color: var(--drop-accent);
+  font-weight: 800;
+}
+.pull-quote {
+  border-left: 3px solid var(--drop-accent, #00D4FF);
+  padding: 16px 20px;
+  margin: 24px 0;
+  font-style: italic;
+  font-size: 1.125rem;
+  color: var(--drop-text);
+  font-family: var(--drop-font-heading);
+  font-weight: 600;
+}
+
+/* ═══════════════════════════════════════════════════
+   MEMPHIS DECORATIONS (Band 1)
+   ═══════════════════════════════════════════════════ */
+[data-band="big-bold-bright"] [data-testid="feed-page"] {
+  position: relative;
+  overflow: hidden;
+}
+[data-band="big-bold-bright"] [data-testid="feed-page"]::before {
+  content: '';
+  position: fixed;
+  top: 140px;
+  right: -15px;
+  width: 50px;
+  height: 50px;
+  background: #FFD93D;
+  clip-path: polygon(50% 0%, 100% 100%, 0% 100%);
+  opacity: 0.12;
+  z-index: 0;
+  pointer-events: none;
+}
+[data-band="big-bold-bright"] [data-testid="feed-page"]::after {
+  content: '';
+  position: fixed;
+  bottom: 140px;
+  left: -8px;
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  background: repeating-linear-gradient(45deg, #FF4B4B 0px, #FF4B4B 3px, transparent 3px, transparent 7px);
+  opacity: 0.1;
+  z-index: 0;
+  pointer-events: none;
+}
+
+/* ═══════════════════════════════════════════════════
+   DARK MODE — Bands 1 & 2
+   ═══════════════════════════════════════════════════ */
+[data-band="big-bold-bright"][data-theme="dark"] {
+  --drop-bg: #1A1035;
+  --drop-surface: #2A1F4A;
+  --drop-text: #FFF8F0;
+  --drop-text-muted: #B89E8D;
+  --drop-border: rgba(255,213,184,0.15);
+  --drop-shadow-card: 4px 4px 0px 0px rgba(255,179,160,0.3), 0 8px 24px rgba(0,0,0,0.3);
+  --drop-shadow-btn: 2px 2px 0px 0px #991B1B;
+}
+[data-band="cool-connected"][data-theme="dark"] {
+  --drop-bg: #0A1628;
+  --drop-surface: #132238;
+  --drop-text: #F4F6F9;
+  --drop-text-muted: #8B9BB5;
+  --drop-border: rgba(209,220,232,0.12);
+  --drop-shadow-card: 0 2px 12px rgba(0,0,0,0.3);
+}
+
+/* ═══════════════════════════════════════════════════
+   REDUCED MOTION
+   ═══════════════════════════════════════════════════ */
+@media (prefers-reduced-motion: reduce) {
+  .skeleton-shimmer {
+    animation: none;
+  }
+}
