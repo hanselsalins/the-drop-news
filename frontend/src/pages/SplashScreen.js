@@ -28,7 +28,7 @@ export default function SplashScreen() {
       data-testid="splash-screen"
       className="fixed inset-0 flex flex-col items-center justify-center overflow-hidden"
       style={{
-        background: 'linear-gradient(135deg, #3B82F6, #8B5CF6, #EC4899)',
+        background: 'linear-gradient(145deg, #4F46E5, #8B5CF6 50%, #EC4899)',
       }}
     >
       {/* Letter-by-letter drop animation */}
@@ -46,9 +46,9 @@ export default function SplashScreen() {
               damping: 15,
             }}
             style={{
-              fontFamily: 'Fredoka, sans-serif',
+              fontFamily: "'Baloo 2', 'Fredoka', cursive",
               fontSize: 52,
-              fontWeight: 900,
+              fontWeight: 800,
               color: '#FFFFFF',
               lineHeight: 1,
               display: letter === ' ' ? 'inline-block' : undefined,
@@ -69,7 +69,7 @@ export default function SplashScreen() {
             transition={{ duration: 0.6 }}
             className="relative z-10 mt-4"
             style={{
-              fontFamily: 'Outfit, sans-serif',
+              fontFamily: "'Outfit', sans-serif",
               fontSize: 16,
               color: 'rgba(255,255,255,0.8)',
             }}
