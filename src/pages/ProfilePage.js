@@ -63,11 +63,12 @@ export default function ProfilePage() {
   const card = 'var(--drop-surface)';
   const sub = 'var(--drop-text-muted)';
   const border = 'var(--drop-border)';
-  const accent = band === 'big-bold-bright' ? '#FF4B4B'
-    : band === 'cool-connected' ? '#1E90FF'
-    : band === 'sharp-aware' ? '#5C4EFA'
-    : band === 'editorial' ? '#00D4FF'
-    : '#3A86FF';
+  // Design System B accent colors per band
+  const accent = band === 'big-bold-bright' ? '#4F46E5'
+    : band === 'cool-connected' ? '#2563EB'
+    : band === 'sharp-aware' ? '#F43F5E'
+    : band === 'editorial' ? '#C9A84C'
+    : '#4F46E5';
   const headers = token ? { Authorization: `Bearer ${token}` } : {};
 
   useEffect(() => {
