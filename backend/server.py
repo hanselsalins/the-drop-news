@@ -140,6 +140,11 @@ def age_group_from_age(age: int) -> str:
         return "8-10"
 
 
+def ui_band_from_age_group(age_group: str) -> str:
+    """Map age_group to UI design band. 20+ shares the 17-20 visual theme."""
+    return "17-20" if age_group == "20+" else age_group
+
+
 def generate_invite_code() -> str:
     return ''.join(random.choices(string.ascii_lowercase + string.digits, k=8))
 
@@ -1559,6 +1564,7 @@ async def switch_profile(req: SwitchProfileRequest, user=Depends(get_current_use
         raise HTTPException(status_code=404, detail="Profile not found")
     token = create_token(req.target_user_id)
     user_resp = {k: v for k, v in target.items() if k != "password_hash"}
+    user_resp["ui_band"] = ui_band_from_age_group(target.get("age_group", "14-16"))
     return {"token": token, "user": user_resp}
 
 
@@ -1677,11 +1683,14 @@ async def login(req: LoginRequest):
     # child or self — return JWT as normal
     token = create_token(user["id"])
     user_resp = {k: v for k, v in user.items() if k != "password_hash" and k != "_id"}
+    user_resp["ui_band"] = ui_band_from_age_group(user.get("age_group", "14-16"))
     return {"token": token, "user": user_resp}
 
 @api_router.get("/auth/me")
 async def get_me(user=Depends(get_current_user)):
-    return user
+    resp = {k: v for k, v in user.items() if k not in ("password_hash", "_id")}
+    resp["ui_band"] = ui_band_from_age_group(user.get("age_group", "14-16"))
+    return resp
 
 @api_router.put("/auth/me")
 async def update_me(req: UserUpdate, user=Depends(get_current_user)):
