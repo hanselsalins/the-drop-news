@@ -8,10 +8,11 @@ export const BottomNav = ({ active = 'home' }) => {
   const { band } = useTheme();
 
   const isDark = band === 'sharp-aware' || band === 'editorial';
-  const accentColor = band === 'big-bold-bright' ? '#FF4B4B'
-    : band === 'cool-connected' ? '#1E90FF'
-    : band === 'sharp-aware' ? '#5C4EFA'
-    : band === 'editorial' ? '#00D4FF'
+  // Design System B accent colors per band
+  const accentColor = band === 'big-bold-bright' ? '#4F46E5'
+    : band === 'cool-connected' ? '#2563EB'
+    : band === 'sharp-aware' ? '#F43F5E'
+    : band === 'editorial' ? '#C9A84C'
     : '#3B82F6';
 
   const items = [
@@ -27,8 +28,8 @@ export const BottomNav = ({ active = 'home' }) => {
       aria-label="Main navigation"
       className="fixed bottom-0 left-0 right-0 z-50"
       style={{
-        background: isDark ? 'var(--drop-surface)' : 'var(--drop-surface)',
-        borderTop: `1.5px solid var(--drop-border)`,
+        background: 'var(--drop-surface)',
+        borderTop: `1px solid var(--drop-border)`,
       }}
     >
       <div className="max-w-md mx-auto flex items-center justify-around px-2 pt-2.5 pb-5">

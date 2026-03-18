@@ -39,12 +39,20 @@ export function BriefingHeader({ articles, readArticleIds, streak, topCategory }
     animate(dragX, 0, { duration: 0.2, ease: 'easeOut' });
   };
 
+  // Band 3 System B: dark elevated surfaces
+  const pillBg = band === 'sharp-aware'
+    ? 'var(--drop-bg-elevated, #252530)'
+    : '#F1F5F9';
+  const trackBg = band === 'sharp-aware'
+    ? 'rgba(255,255,255,0.06)'
+    : '#F1F5F9';
+
   return (
     <div className="px-4 pt-4" ref={containerRef}>
       <div
         className="relative overflow-hidden"
         style={{
-          borderRadius: 'var(--drop-radius-card, 8px)',
+          borderRadius: 'var(--drop-radius-card, 10px)',
           background: 'var(--drop-surface)',
           borderLeft: `3px solid ${borderColor}`,
           boxShadow: 'var(--drop-shadow-card)',
@@ -64,7 +72,7 @@ export function BriefingHeader({ articles, readArticleIds, streak, topCategory }
                 fontFamily: 'var(--drop-font-heading)',
                 fontSize: 11,
                 fontWeight: 700,
-                letterSpacing: 2,
+                letterSpacing: '0.06em',
                 textTransform: 'uppercase',
                 color: borderColor,
                 marginBottom: 10,
@@ -94,7 +102,7 @@ export function BriefingHeader({ articles, readArticleIds, streak, topCategory }
                   fontSize: 12,
                   fontWeight: 500,
                   color: 'var(--drop-text-muted)',
-                  background: band === 'sharp-aware' ? 'var(--drop-surface-hover, rgba(255,255,255,0.06))' : '#F1F5F9',
+                  background: pillBg,
                   borderRadius: 20,
                 }}
               >
@@ -107,7 +115,7 @@ export function BriefingHeader({ articles, readArticleIds, streak, topCategory }
                   fontSize: 12,
                   fontWeight: 500,
                   color: 'var(--drop-text-muted)',
-                  background: band === 'sharp-aware' ? 'var(--drop-surface-hover, rgba(255,255,255,0.06))' : '#F1F5F9',
+                  background: pillBg,
                   borderRadius: 20,
                 }}
               >
@@ -115,7 +123,7 @@ export function BriefingHeader({ articles, readArticleIds, streak, topCategory }
               </span>
             </div>
 
-            <div style={{ height: 3, background: band === 'sharp-aware' ? 'rgba(255,255,255,0.1)' : '#F1F5F9', borderRadius: 2, overflow: 'hidden' }}>
+            <div style={{ height: 3, background: trackBg, borderRadius: 2, overflow: 'hidden' }}>
               <motion.div
                 initial={{ width: 0 }}
                 animate={{ width: `${progress}%` }}

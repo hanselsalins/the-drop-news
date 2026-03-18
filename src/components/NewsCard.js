@@ -34,14 +34,16 @@ export const NewsCard = ({ article }) => {
 
   const isDark = band === 'sharp-aware' || band === 'editorial';
 
-  // Band 2: squishy tactile press effect
+  // Band 1: bouncy clay press, Band 2: squishy spring
   const getWhileTap = () => {
     if (prefersReducedMotion) return undefined;
+    if (band === 'big-bold-bright') return { scale: 0.95, y: 2 };
     if (band === 'cool-connected') return { scale: 0.95, scaleY: 0.92 };
     return { scale: 0.98 };
   };
 
   const getTransition = () => {
+    if (band === 'big-bold-bright') return { type: 'spring', stiffness: 300, damping: 12 };
     if (band === 'cool-connected') return { type: 'spring', stiffness: 400, damping: 15 };
     return undefined;
   };
@@ -58,26 +60,44 @@ export const NewsCard = ({ article }) => {
     }
   };
 
-  // Band 3 (sharp-aware): no emoji in UI chrome, category as ALL CAPS dot separator
+  // Band 3 (sharp-aware): no emoji in UI chrome, category as uppercase + coloured dot
+  // Band 4 (editorial): uppercase + coloured dot, Inter 500, 0.1em tracking
   const renderCategoryLabel = () => {
     if (band === 'sharp-aware') {
       return (
-        <span
-          className="text-[10px] font-semibold tracking-[0.08em] uppercase"
-          style={{ fontFamily: 'var(--drop-font-heading)', color: catColor, letterSpacing: '0.08em' }}
-        >
-          {CATEGORY_LABELS[article.category] || article.category}
-        </span>
+        <>
+          <span
+            className="inline-block shrink-0"
+            style={{ width: 6, height: 6, borderRadius: '50%', background: catColor }}
+          />
+          <span
+            className="text-[10px] font-semibold tracking-[0.06em] uppercase"
+            style={{ fontFamily: 'var(--drop-font-heading)', color: catColor }}
+          >
+            {CATEGORY_LABELS[article.category] || article.category}
+          </span>
+        </>
       );
     }
     if (band === 'editorial') {
       return (
-        <span
-          className="text-[10px] font-semibold tracking-[0.08em] uppercase"
-          style={{ fontFamily: 'var(--drop-font-heading)', color: catColor, letterSpacing: '0.08em' }}
-        >
-          {CATEGORY_LABELS[article.category] || article.category}
-        </span>
+        <>
+          <span
+            className="inline-block shrink-0"
+            style={{ width: 5, height: 5, borderRadius: '50%', background: catColor }}
+          />
+          <span
+            className="text-[10px] font-medium"
+            style={{
+              fontFamily: 'var(--drop-font-body)',
+              color: catColor,
+              letterSpacing: '0.1em',
+              textTransform: 'uppercase',
+            }}
+          >
+            {CATEGORY_LABELS[article.category] || article.category}
+          </span>
+        </>
       );
     }
     return (
@@ -96,12 +116,11 @@ export const NewsCard = ({ article }) => {
     );
   };
 
-  // Band 1: reading time as "⏱ X minutes"
   const renderReadingTime = () => {
     if (!rw?.reading_time) return null;
     if (band === 'big-bold-bright') {
       return (
-        <span style={{ fontFamily: 'var(--drop-font-body)', color: 'var(--drop-text-muted)', fontSize: 12 }}>
+        <span style={{ fontFamily: 'var(--drop-font-body)', color: 'var(--drop-text-muted)', fontSize: 12, fontWeight: 600 }}>
           ⏱ {rw.reading_time}
         </span>
       );
@@ -139,9 +158,11 @@ export const NewsCard = ({ article }) => {
           style={{
             fontFamily: 'var(--drop-font-heading)',
             color: 'var(--drop-text)',
-            fontSize: band === 'big-bold-bright' ? 16 : 14,
+            fontSize: band === 'big-bold-bright' ? 16 : band === 'editorial' ? 15 : 14,
             lineHeight: 1.35,
-            fontWeight: 700,
+            fontWeight: band === 'editorial' ? 600 : 700,
+            fontStyle: band === 'editorial' ? 'normal' : undefined,
+            letterSpacing: band === 'sharp-aware' ? '-0.03em' : band === 'editorial' ? '-0.02em' : undefined,
           }}
         >
           {title}

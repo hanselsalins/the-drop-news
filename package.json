@@ -5,9 +5,12 @@
   "dependencies": {
     "@fontsource/baloo-2": "^5.2.7",
     "@fontsource/fredoka": "^5.2.10",
+    "@fontsource/inter": "^5.2.8",
     "@fontsource/jetbrains-mono": "^5.2.8",
+    "@fontsource/newsreader": "^5.2.10",
     "@fontsource/nunito": "^5.2.7",
     "@fontsource/outfit": "^5.2.8",
+    "@fontsource/plus-jakarta-sans": "^5.2.8",
     "@fontsource/syne": "^5.2.7",
     "@fontsource/urbanist": "^5.2.7",
     "@hookform/resolvers": "^5.0.1",
