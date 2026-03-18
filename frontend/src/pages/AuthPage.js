@@ -932,8 +932,8 @@ function LoginForm({ setPhase, setToken, setParentToken, setUserData, navigate, 
           if (loginRes.data.parent_token) setParentToken(loginRes.data.parent_token);
           navigate('/feed');
         } else {
-          // Last resort: use profile data directly without token
           console.log('[Login] Using profile data directly');
+          setToken('session_' + profile.id);
           setUserData(profile);
           navigate('/feed');
         }
