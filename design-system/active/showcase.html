@@ -1,0 +1,763 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>The Drop — Design System · All Age Bands</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@400;600;700;800&family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600;0,9..40,700&family=Nunito:wght@400;600;700;800&family=Fredoka:wght@400;500;600;700&family=Outfit:wght@300;400;500;600;700&family=Syne:wght@400;600;700;800&family=Urbanist:wght@300;400;500;600;700;800&display=swap" rel="stylesheet" />
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth}
+body{background:#0C0C0E;color:#E8E8F0;font-family:'Outfit',sans-serif}
+
+/* ── Shell ── */
+.page-header{padding:64px 48px 48px;text-align:center;background:#0C0C0E;border-bottom:1px solid #1E1E26}
+.page-title{font-family:'Syne',sans-serif;font-size:clamp(2rem,5vw,3.5rem);font-weight:800;letter-spacing:-0.04em;color:#F0F0F8}
+.page-subtitle{margin-top:10px;font-size:0.875rem;color:#6B6B80;letter-spacing:0.06em;text-transform:uppercase}
+.band-nav{display:flex;justify-content:center;gap:8px;margin-top:32px;flex-wrap:wrap}
+.band-nav a{padding:8px 20px;border-radius:999px;font-size:0.875rem;font-weight:600;text-decoration:none;transition:all 200ms;border:1px solid #2E2E38;color:#9090A8}
+.band-nav a:hover{border-color:#6060A0;color:#D0D0F0}
+
+/* ── Band wrapper ── */
+.band-section{padding:80px 32px}
+.band-label{text-align:center;margin-bottom:56px}
+.band-tag{display:inline-block;padding:4px 14px;border-radius:999px;font-size:0.75rem;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;margin-bottom:12px}
+.band-name{font-size:clamp(1.75rem,4vw,2.75rem);font-weight:800;letter-spacing:-0.03em}
+.band-desc{margin-top:10px;font-size:1rem;opacity:0.6}
+.design-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:24px;max-width:1280px;margin:0 auto}
+.token-card{border-radius:16px;padding:28px;border:1px solid rgba(255,255,255,0.06);background:#141418}
+.token-card-title{font-family:'Syne',sans-serif;font-size:0.7rem;font-weight:700;letter-spacing:0.12em;text-transform:uppercase;margin-bottom:20px}
+
+/* ── Swatches ── */
+.swatches{display:flex;flex-wrap:wrap;gap:10px}
+.swatch{display:flex;flex-direction:column;align-items:center;gap:6px}
+.swatch-dot{width:44px;height:44px;border-radius:12px;border:1px solid rgba(255,255,255,0.1);transition:transform 200ms;cursor:pointer}
+.swatch-dot:hover{transform:scale(1.12)}
+.sw-lbl{font-family:'JetBrains Mono',monospace;font-size:0.58rem;text-align:center}
+
+/* ── Motion rows ── */
+.msr{display:flex;align-items:center;justify-content:space-between;padding:10px 14px;border-radius:6px;margin-bottom:6px;transition:background 200ms}
+.msn{font-size:0.8rem}
+.msv{font-family:'JetBrains Mono',monospace;font-size:0.67rem}
+
+/* ── Misc ── */
+.band-divider{border:none;height:1px;background:linear-gradient(90deg,transparent,#2E2E3E 20%,#2E2E3E 80%,transparent);margin:0 48px}
+.btn-row{display:flex;flex-wrap:wrap;gap:12px;align-items:center}
+.fsl{font-size:0.7rem;letter-spacing:0.1em;text-transform:uppercase;margin-bottom:4px}
+.type-row{display:flex;flex-direction:column;gap:16px}
+.comp-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:14px}
+.radius-row{display:flex;align-items:flex-end;gap:14px;flex-wrap:wrap}
+.rbox{width:52px;height:52px}
+.rlbl{font-size:0.6rem;text-align:center;margin-top:6px;opacity:0.5}
+.sp-row{display:flex;align-items:flex-end;gap:12px;flex-wrap:wrap;margin-bottom:20px}
+.splbl{font-size:0.55rem;text-align:center;margin-top:4px}
+
+/* reading bar */
+.rbar{height:2px;background:rgba(255,255,255,0.12);border-radius:1px;margin-top:12px;overflow:hidden}
+.rbar-fill{height:100%;width:45%;background:#22D3EE;border-radius:1px;animation:rprog 2s ease-in-out infinite alternate}
+@keyframes rprog{from{width:20%}to{width:70%}}
+
+/* live dot */
+.live-dot{width:6px;height:6px;border-radius:50%;animation:lpulse 1.2s ease-in-out infinite}
+@keyframes lpulse{0%,100%{opacity:1;transform:scale(1)}50%{opacity:0.35;transform:scale(0.65)}}
+
+@keyframes fadeUp{from{opacity:0;transform:translateY(28px)}to{opacity:1;transform:translateY(0)}}
+
+@media(max-width:768px){
+  .page-header{padding:40px 24px 32px}
+  .band-section{padding:56px 20px}
+  .design-grid{grid-template-columns:1fr}
+}
+
+
+/* ═══════════════════════════════════════════
+   BAND 1 · 8–10 · BIG BOLD BRIGHT
+   Heading: Fredoka · Body: Outfit (updated)
+═══════════════════════════════════════════ */
+#band-8-10{background:#FFF8F0;color:#1A1035}
+#band-8-10 .token-card{background:#FFF;border-color:#FFD5B8}
+#band-8-10 .token-card-title{color:#FF4B4B}
+#band-8-10 .band-tag{background:#FF4B4B;color:#FFF}
+#band-8-10 .band-name{font-family:'Fredoka',cursive;color:#1A1035}
+#band-8-10 .band-desc{color:#6B4E3D}
+#band-8-10 .fsl{color:#C47B60}
+#band-8-10 .msr{background:#FFF0E6}
+#band-8-10 .msr:hover{background:#FFE8D8}
+#band-8-10 .msn{color:#6B4E3D}
+#band-8-10 .msv{color:#FF6B35}
+#band-8-10 .sw-lbl{color:#C08060}
+
+.btn-8-10{display:inline-flex;align-items:center;gap:8px;padding:14px 28px;border-radius:999px;font-family:'Fredoka',cursive;font-weight:600;font-size:1.125rem;cursor:pointer;text-decoration:none;border:3px solid #1A1035;transition:all 150ms cubic-bezier(0.34,1.56,0.64,1)}
+.btn-8-10-p{background:#FF4B4B;color:#FFF;box-shadow:4px 4px 0 0 #CC2E2E}
+.btn-8-10-p:hover{transform:translateY(-2px);box-shadow:6px 6px 0 0 #CC2E2E}
+.btn-8-10-p:active{transform:translateY(2px) scale(0.97);box-shadow:1px 1px 0 0 #CC2E2E}
+.btn-8-10-s{background:#FFD93D;color:#1A1035;box-shadow:4px 4px 0 0 #B89A00}
+.btn-8-10-s:hover{transform:translateY(-2px);box-shadow:6px 6px 0 0 #B89A00}
+
+.card-8-10{background:#FFF;border-radius:28px;border:3px solid #FFD5B8;box-shadow:6px 6px 0 0 #FFB3A0,0 12px 32px rgba(0,0,0,0.06);overflow:hidden;cursor:pointer;transition:transform 250ms cubic-bezier(0.16,1,0.3,1)}
+.card-8-10:hover{transform:translateY(-6px)}
+.card-8-10-img{height:110px;display:flex;align-items:center;justify-content:center;font-size:2.75rem}
+.card-8-10-body{padding:18px}
+.card-8-10-badge{display:inline-block;padding:4px 12px;border-radius:999px;background:#A259FF;color:#FFF;font-family:'Fredoka',cursive;font-weight:600;font-size:0.8rem;letter-spacing:0.04em;text-transform:uppercase;margin-bottom:10px}
+.card-8-10-title{font-family:'Fredoka',cursive;font-weight:600;font-size:1.125rem;color:#1A1035;line-height:1.4;margin-bottom:8px}
+/* BODY FONT: Outfit (updated from Nunito) */
+.card-8-10-meta{font-family:'Outfit',sans-serif;font-size:0.875rem;color:#9B7B6A}
+
+
+/* ═══════════════════════════════════════════
+   BAND 2 · 11–13 · COOL & CONNECTED
+   Heading: Baloo 2 · Body: Nunito
+   BG: #F4F6F9 light mode (swapped from dark)
+   Text: #0A1628 dark on white
+═══════════════════════════════════════════ */
+#band-11-13{background:#F4F6F9;color:#0A1628}
+#band-11-13 .token-card{background:#FFF;border-color:#D1DCE8}
+#band-11-13 .token-card-title{color:#1E90FF}
+#band-11-13 .band-tag{background:#0A1628;color:#F4F6F9;letter-spacing:0.08em}
+#band-11-13 .band-name{font-family:'Baloo 2',cursive;color:#0A1628}
+#band-11-13 .band-desc{color:#4A5568}
+#band-11-13 .fsl{color:#7A8FAA}
+#band-11-13 .msr{background:#EEF2F7}
+#band-11-13 .msr:hover{background:#E4EBF4}
+#band-11-13 .msn{color:#4A5568}
+#band-11-13 .msv{color:#1E90FF}
+#band-11-13 .sw-lbl{color:#8090A8}
+
+.btn-11-13{display:inline-flex;align-items:center;gap:8px;padding:13px 26px;border-radius:999px;font-family:'Baloo 2',cursive;font-weight:700;font-size:1.0625rem;cursor:pointer;text-decoration:none;transition:all 220ms cubic-bezier(0.175,0.885,0.32,1.275)}
+.btn-11-13-p{background:#0A1628;color:#FFF;border:none;box-shadow:0 4px 16px rgba(30,144,255,0.25)}
+.btn-11-13-p:hover{background:#0D2B4E;transform:translateY(-2px) scale(1.01);box-shadow:0 8px 28px rgba(30,144,255,0.35)}
+.btn-11-13-s{background:transparent;color:#0A1628;border:1.5px solid #D1DCE8}
+.btn-11-13-s:hover{border-color:#1E90FF;color:#1E90FF;transform:translateY(-2px)}
+
+.card-11-13{background:#FFF;border-radius:22px;border:1px solid #D1DCE8;box-shadow:0 2px 16px rgba(10,22,40,0.07),0 1px 4px rgba(10,22,40,0.04);overflow:hidden;cursor:pointer;transition:all 220ms cubic-bezier(0.25,0.46,0.45,0.94)}
+.card-11-13:hover{transform:translateY(-4px);box-shadow:0 10px 36px rgba(10,22,40,0.11),0 2px 8px rgba(30,144,255,0.1);border-color:#BAD0E8}
+.card-11-13-img{height:110px;display:flex;align-items:center;justify-content:center;font-size:2.5rem;background:#EEF2F7}
+.card-11-13-body{padding:18px}
+.card-11-13-badge{display:inline-flex;align-items:center;gap:5px;padding:3px 10px;border-radius:999px;background:rgba(30,144,255,0.1);border:1px solid rgba(30,144,255,0.25);color:#1E90FF;font-family:'Nunito',sans-serif;font-size:0.7rem;font-weight:700;text-transform:uppercase;letter-spacing:0.06em;margin-bottom:10px}
+.card-11-13-title{font-family:'Baloo 2',cursive;font-weight:700;font-size:1.1rem;color:#0A1628;line-height:1.45;margin-bottom:8px}
+/* BODY FONT: Nunito */
+.card-11-13-meta{font-family:'Nunito',sans-serif;font-size:0.8rem;color:#7A8FAA}
+
+
+/* ═══════════════════════════════════════════
+   BAND 3 · 14–16 · SHARP & AWARE
+   Heading: Syne · Body: Outfit
+   BG: #1E1B4B dark indigo (swapped from light)
+   Text: #F0F0FF near-white
+═══════════════════════════════════════════ */
+#band-14-16{background:linear-gradient(160deg,#1E1B4B 0%,#2D2A6E 55%,#1A184A 100%);color:#F0F0FF}
+#band-14-16 .token-card{background:#2D2A6E;border-color:rgba(255,255,255,0.12)}
+#band-14-16 .token-card-title{color:#A78BFA}
+#band-14-16 .band-tag{background:#5C4EFA;color:#FFF;letter-spacing:0.1em}
+#band-14-16 .band-name{font-family:'Syne',sans-serif;color:#F0F0FF;letter-spacing:-0.04em}
+#band-14-16 .band-desc{color:#A89EC9}
+#band-14-16 .fsl{color:#7868B0}
+#band-14-16 .msr{background:rgba(255,255,255,0.05)}
+#band-14-16 .msr:hover{background:rgba(255,255,255,0.09)}
+#band-14-16 .msn{color:#B0A8D8}
+#band-14-16 .msv{color:#A78BFA}
+#band-14-16 .sw-lbl{color:#7868B0}
+
+.btn-14-16{display:inline-flex;align-items:center;gap:8px;padding:12px 24px;border-radius:8px;font-family:'Syne',sans-serif;font-weight:600;font-size:0.875rem;cursor:pointer;text-decoration:none;text-transform:uppercase;letter-spacing:0.06em;transition:all 200ms cubic-bezier(0.4,0,0.2,1)}
+.btn-14-16-p{background:#5C4EFA;color:#FFF;border:1px solid #5C4EFA}
+.btn-14-16-p:hover{background:#6B5FFB;box-shadow:0 4px 24px rgba(92,78,250,0.45);border-color:#A78BFA}
+.btn-14-16-s{background:transparent;color:#F0F0FF;border:1.5px solid rgba(255,255,255,0.2)}
+.btn-14-16-s:hover{background:rgba(255,255,255,0.08);border-color:rgba(255,255,255,0.35)}
+
+.card-14-16{background:#2D2A6E;border-radius:8px;border:1px solid rgba(255,255,255,0.12);box-shadow:0 4px 24px rgba(30,27,75,0.5);overflow:hidden;cursor:pointer;position:relative;transition:all 200ms cubic-bezier(0.4,0,0.2,1)}
+.card-14-16::before{content:'';position:absolute;left:0;top:0;bottom:0;width:3px;background:#A78BFA;transform:scaleY(0);transform-origin:bottom;transition:transform 200ms cubic-bezier(0.4,0,0.2,1)}
+.card-14-16:hover::before{transform:scaleY(1)}
+.card-14-16:hover{background:#352F80;box-shadow:0 12px 40px rgba(92,78,250,0.3),inset 0 1px 0 rgba(255,255,255,0.08);border-color:rgba(255,255,255,0.2)}
+.card-14-16-img{height:100px;display:flex;align-items:center;justify-content:center;font-size:2.25rem;background:rgba(92,78,250,0.2)}
+.card-14-16-body{padding:18px}
+.card-14-16-badge{display:inline-block;font-family:'Syne',sans-serif;font-size:0.65rem;font-weight:700;text-transform:uppercase;letter-spacing:0.1em;color:#A78BFA;margin-bottom:10px;padding-bottom:2px;border-bottom:1px solid #A78BFA}
+.card-14-16-title{font-family:'Syne',sans-serif;font-weight:700;font-size:1.0625rem;color:#F0F0FF;line-height:1.35;letter-spacing:-0.02em;margin-bottom:8px}
+.card-14-16-meta{font-family:'Outfit',sans-serif;font-size:0.8rem;color:#A89EC9}
+
+
+/* ═══════════════════════════════════════════
+   BAND 4 · 17–20 · CYBER EDITORIAL
+   bg: #1A1A2E · surface: #16213E
+   accent: #00D4FF · magenta: #FF2D78
+   Headline font: Urbanist
+═══════════════════════════════════════════ */
+#band-17-20{background:#1A1A2E;color:#FFFFFF}
+#band-17-20 .token-card{background:#16213E;border-color:#253048}
+#band-17-20 .token-card-title{color:#00D4FF}
+#band-17-20 .band-tag{background:transparent;border:1.5px solid #00D4FF;color:#00D4FF;letter-spacing:0.1em}
+#band-17-20 .band-name{font-family:'Urbanist',sans-serif;color:#FFFFFF;font-weight:800;letter-spacing:-0.04em}
+#band-17-20 .band-desc{color:#546E7A}
+#band-17-20 .fsl{color:#2A3A50}
+#band-17-20 .msr{background:#16213E;border:1px solid #253048}
+#band-17-20 .msr:hover{background:#1E2E50}
+#band-17-20 .msn{color:#B0BEC5}
+#band-17-20 .msv{color:#00D4FF}
+#band-17-20 .sw-lbl{color:#354A60}
+
+.btn-17-20{display:inline-flex;align-items:center;gap:8px;padding:12px 24px;border-radius:999px;font-family:'Urbanist',sans-serif;font-weight:700;font-size:0.875rem;cursor:pointer;text-decoration:none;text-transform:uppercase;letter-spacing:0.07em;transition:all 250ms cubic-bezier(0.25,0.46,0.45,0.94)}
+.btn-17-20-p{background:#00D4FF;color:#1A1A2E;border:none}
+.btn-17-20-p:hover{background:#33DDFF;box-shadow:0 4px 32px rgba(0,212,255,0.35);transform:translateY(-2px)}
+.btn-17-20-s{background:transparent;color:#FFFFFF;border:1.5px solid #253048}
+.btn-17-20-s:hover{border-color:#00D4FF;color:#00D4FF;transform:translateY(-2px)}
+
+.card-17-20{background:#16213E;border-radius:14px;border:1px solid rgba(0,212,255,0.12);box-shadow:0 4px 24px rgba(0,0,0,0.4);overflow:hidden;cursor:pointer;transition:all 250ms cubic-bezier(0.25,0.46,0.45,0.94)}
+.card-17-20:hover{transform:translateY(-5px);box-shadow:0 12px 48px rgba(0,0,0,0.6),0 0 0 1px rgba(0,212,255,0.18);border-color:rgba(0,212,255,0.22)}
+.card-17-20-accent{height:2px}
+.card-17-20-img{height:110px;display:flex;align-items:center;justify-content:center;font-size:2.5rem;background:#0F3460}
+.card-17-20-body{padding:20px}
+.card-17-20-badge{display:inline-flex;align-items:center;gap:6px;font-family:'Urbanist',sans-serif;font-size:0.65rem;font-weight:700;text-transform:uppercase;letter-spacing:0.09em;color:#00D4FF;margin-bottom:10px}
+.card-17-20-bdot{width:6px;height:6px;border-radius:50%;background:currentColor;flex-shrink:0}
+.card-17-20-title{font-family:'Urbanist',sans-serif;font-weight:800;font-size:1.0625rem;color:#FFFFFF;line-height:1.35;letter-spacing:-0.03em;margin-bottom:10px}
+.card-17-20-meta{font-family:'Outfit',sans-serif;font-size:0.8rem;color:#546E7A}
+
+.live-badge{display:inline-flex;align-items:center;gap:6px;padding:3px 9px;border-radius:999px;background:#39FF85;color:#1A1A2E;font-family:'Urbanist',sans-serif;font-weight:700;font-size:0.6rem;letter-spacing:0.08em;text-transform:uppercase}
+.break-badge{display:inline-flex;align-items:center;gap:6px;padding:3px 9px;border-radius:999px;background:#FF2D78;color:#FFF;font-family:'Urbanist',sans-serif;font-weight:700;font-size:0.6rem;letter-spacing:0.08em;text-transform:uppercase}
+
+/* cat accent colours */
+.ca-world   {background:#00D4FF}
+.ca-science {background:#39FF85}
+.ca-politics{background:#FF2D78}
+.ca-tech    {background:#A78BFA}
+.ca-sport   {background:#FF9500}
+.ca-money   {background:#00D4AA}
+
+</style>
+</head>
+<body>
+
+<!-- HEADER -->
+<header class="page-header">
+  <div class="page-title">The Drop · Design System</div>
+  <div class="page-subtitle">Four Age Bands · Youth News App · India · 2026</div>
+  <nav class="band-nav">
+    <a href="#band-8-10">8–10 · Big Bold Bright</a>
+    <a href="#band-11-13">11–13 · Cool &amp; Connected</a>
+    <a href="#band-14-16">14–16 · Sharp &amp; Aware</a>
+    <a href="#band-17-20">17–20 · Cyber Editorial</a>
+  </nav>
+</header>
+
+
+<!-- ═══════════════════════════════════════════
+     BAND 1 · 8–10 · BIG BOLD BRIGHT
+     Heading: Fredoka · Body: Outfit ← updated
+═══════════════════════════════════════════ -->
+<section id="band-8-10" class="band-section">
+  <div class="band-label">
+    <span class="band-tag">Ages 8–10</span>
+    <div class="band-name">Big Bold Bright</div>
+    <div class="band-desc">Claymorphism · <strong>Fredoka</strong> headings + <strong>Outfit</strong> body · Holi palette · Clay shadows · 56px targets</div>
+  </div>
+  <div class="design-grid">
+
+    <div class="token-card">
+      <div class="token-card-title">Colour Tokens</div>
+      <div class="swatches">
+        <div class="swatch"><div class="swatch-dot" style="background:#FF4B4B"></div><div class="sw-lbl">#FF4B4B<br>primary</div></div>
+        <div class="swatch"><div class="swatch-dot" style="background:#FFD93D"></div><div class="sw-lbl">#FFD93D<br>secondary</div></div>
+        <div class="swatch"><div class="swatch-dot" style="background:#06C48B"></div><div class="sw-lbl">#06C48B<br>accent</div></div>
+        <div class="swatch"><div class="swatch-dot" style="background:#A259FF"></div><div class="sw-lbl">#A259FF<br>wonder</div></div>
+        <div class="swatch"><div class="swatch-dot" style="background:#FFF8F0;border:2px solid #FFD5B8"></div><div class="sw-lbl">#FFF8F0<br>bg</div></div>
+        <div class="swatch"><div class="swatch-dot" style="background:#1A1035"></div><div class="sw-lbl">#1A1035<br>text</div></div>
+        <div class="swatch"><div class="swatch-dot" style="background:#FFB3A0"></div><div class="sw-lbl">#FFB3A0<br>shadow</div></div>
+        <div class="swatch"><div class="swatch-dot" style="background:#FF6B3D"></div><div class="sw-lbl">#FF6B3D<br>cta</div></div>
+      </div>
+    </div>
+
+    <div class="token-card">
+      <div class="token-card-title">Typography · Fredoka + Outfit</div>
+      <div class="type-row">
+        <div>
+          <div class="fsl">Heading — Fredoka 600</div>
+          <div style="font-family:'Fredoka',cursive;font-weight:600;font-size:clamp(1.75rem,4vw,2.5rem);color:#1A1035;letter-spacing:-0.01em">The Drop 🌟</div>
+        </div>
+        <div>
+          <div class="fsl">Body — Outfit 600 <span style="background:#FF4B4B;color:#FFF;font-size:0.55rem;padding:1px 5px;border-radius:3px;letter-spacing:0.05em;margin-left:4px">UPDATED</span></div>
+          <div style="font-family:'Outfit',sans-serif;font-weight:600;font-size:1.125rem;color:#3A2A20;line-height:1.75">Scientists found a new animal 🐾 that lives deep in the ocean. It glows in the dark!</div>
+        </div>
+        <div>
+          <div class="fsl">Badge — Fredoka 600 Uppercase</div>
+          <div style="font-family:'Fredoka',cursive;font-weight:600;font-size:0.8rem;color:#FF4B4B;letter-spacing:0.06em;text-transform:uppercase">⏱ Science · 2 minutes</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="token-card">
+      <div class="token-card-title">Buttons</div>
+      <div class="btn-row">
+        <a class="btn-8-10 btn-8-10-p">Read Story</a>
+        <a class="btn-8-10 btn-8-10-s">Next</a>
+      </div>
+      <div style="margin-top:18px"><div class="fsl">3px border · clay offset · pill · Fredoka 600 · bounce press</div></div>
+    </div>
+
+    <div class="token-card">
+      <div class="token-card-title">Spacing & Radius</div>
+      <div class="sp-row">
+        <div><div style="width:8px;height:8px;background:#FFD93D;border-radius:2px"></div><div class="splbl" style="color:#C08060">xs 8</div></div>
+        <div><div style="width:12px;height:12px;background:#06C48B;border-radius:2px"></div><div class="splbl" style="color:#C08060">sm 12</div></div>
+        <div><div style="width:20px;height:20px;background:#FF4B4B;border-radius:2px"></div><div class="splbl" style="color:#C08060">md 20</div></div>
+        <div><div style="width:32px;height:32px;background:#A259FF;border-radius:2px"></div><div class="splbl" style="color:#C08060">lg 32</div></div>
+        <div><div style="width:52px;height:52px;background:#FFD93D;border-radius:2px;opacity:0.6"></div><div class="splbl" style="color:#C08060">xl 52</div></div>
+      </div>
+      <div class="radius-row">
+        <div><div class="rbox" style="background:#FFE0D0;border-radius:12px;border:2px solid #FFB3A0"></div><div class="rlbl" style="color:#C08060">12px</div></div>
+        <div><div class="rbox" style="background:#FFE0D0;border-radius:20px;border:2px solid #FFB3A0"></div><div class="rlbl" style="color:#C08060">20px</div></div>
+        <div><div class="rbox" style="background:#FFE0D0;border-radius:28px;border:2px solid #FFB3A0"></div><div class="rlbl" style="color:#C08060">28px</div></div>
+        <div><div class="rbox" style="background:#FFE0D0;border-radius:999px;border:2px solid #FFB3A0"></div><div class="rlbl" style="color:#C08060">pill</div></div>
+      </div>
+    </div>
+
+    <div class="token-card">
+      <div class="token-card-title">Motion</div>
+      <div class="msr"><span class="msn">Button press</span><span class="msv">scale(0.95) 150ms bounce</span></div>
+      <div class="msr"><span class="msn">Card hover</span><span class="msv">translateY(-6px) 250ms ease-out</span></div>
+      <div class="msr"><span class="msn">Page entry</span><span class="msv">fadeUp 24px 400ms staggered</span></div>
+      <div class="msr"><span class="msn">Reduced motion</span><span class="msv">opacity-only · no transform</span></div>
+    </div>
+
+    <div class="token-card">
+      <div class="token-card-title">Article Card</div>
+      <div class="comp-grid">
+        <div class="card-8-10">
+          <div class="card-8-10-img" style="background:#FFF0E6">🌏</div>
+          <div class="card-8-10-body">
+            <div class="card-8-10-badge">World</div>
+            <div class="card-8-10-title">A Giant Iceberg Is Floating Toward a Small Island!</div>
+            <div class="card-8-10-meta">⏱ 2 minutes · Science</div>
+          </div>
+        </div>
+        <div class="card-8-10">
+          <div class="card-8-10-img" style="background:#F0FFF8">🚀</div>
+          <div class="card-8-10-body">
+            <div class="card-8-10-badge" style="background:#06C48B">Space</div>
+            <div class="card-8-10-title">India Launches Its Biggest Rocket Yet!</div>
+            <div class="card-8-10-meta">⏱ 3 minutes · Tech</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</section>
+<hr class="band-divider" />
+
+
+<!-- ═══════════════════════════════════════════
+     BAND 2 · 11–13 · COOL & CONNECTED
+     Heading: Baloo 2 · Body: Nunito
+     BG: #F4F6F9 light mode ← swapped
+     Text: #0A1628 dark on white
+═══════════════════════════════════════════ -->
+<section id="band-11-13" class="band-section">
+  <div class="band-label">
+    <span class="band-tag">Ages 11–13</span>
+    <div class="band-name">Cool &amp; Connected</div>
+    <div class="band-desc">Social-native · <strong>Baloo 2</strong> headings + <strong>Nunito</strong> body · Light base · White cards + navy/blue accents · Spring motion</div>
+  </div>
+  <div class="design-grid">
+
+    <div class="token-card">
+      <div class="token-card-title">Colour Tokens <span style="background:#1E90FF;color:#FFF;font-size:0.5rem;padding:1px 5px;border-radius:3px;letter-spacing:0.05em;margin-left:4px;font-weight:700">SWAPPED</span></div>
+      <div class="swatches">
+        <div class="swatch"><div class="swatch-dot" style="background:#0A1628"></div><div class="sw-lbl">#0A1628<br>primary</div></div>
+        <div class="swatch"><div class="swatch-dot" style="background:#0D2B4E"></div><div class="sw-lbl">#0D2B4E<br>secondary</div></div>
+        <div class="swatch"><div class="swatch-dot" style="background:#1E90FF"></div><div class="sw-lbl">#1E90FF<br>accent</div></div>
+        <div class="swatch"><div class="swatch-dot" style="background:#00D4AA"></div><div class="sw-lbl">#00D4AA<br>teal</div></div>
+        <div class="swatch"><div class="swatch-dot" style="background:#F4F6F9;border:1px solid #D1DCE8"></div><div class="sw-lbl">#F4F6F9<br>bg ★</div></div>
+        <div class="swatch"><div class="swatch-dot" style="background:#FFF;border:1px solid #D1DCE8"></div><div class="sw-lbl">#FFFFFF<br>surface ★</div></div>
+        <div class="swatch"><div class="swatch-dot" style="background:#00D4AA"></div><div class="sw-lbl">#00D4AA<br>success</div></div>
+        <div class="swatch"><div class="swatch-dot" style="background:#E53E3E"></div><div class="sw-lbl">#E53E3E<br>error</div></div>
+      </div>
+    </div>
+
+    <div class="token-card">
+      <div class="token-card-title">Typography · Baloo 2 + Nunito</div>
+      <div class="type-row">
+        <div>
+          <div class="fsl">Heading — Baloo 2 700</div>
+          <div style="font-family:'Baloo 2',cursive;font-weight:700;font-size:clamp(1.75rem,4vw,2.5rem);color:#0A1628;letter-spacing:-0.02em">The Drop</div>
+        </div>
+        <div>
+          <div class="fsl">Body — Nunito 400</div>
+          <div style="font-family:'Nunito',sans-serif;font-weight:400;font-size:1.0625rem;color:#0A1628;line-height:1.65">India just set a world record in solar energy. Here's why it matters for your future.</div>
+        </div>
+        <div>
+          <div class="fsl">Badge — Nunito 700 Uppercase</div>
+          <div style="font-family:'Nunito',sans-serif;font-weight:700;font-size:0.7rem;color:#1E90FF;letter-spacing:0.08em;text-transform:uppercase">Technology · 4 min</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="token-card">
+      <div class="token-card-title">Buttons</div>
+      <div class="btn-row">
+        <a class="btn-11-13 btn-11-13-p">Read Now</a>
+        <a class="btn-11-13 btn-11-13-s">Explore</a>
+      </div>
+      <div style="margin-top:18px"><div class="fsl">Navy fill · pill · Baloo 2 Bold · spring bounce hover</div></div>
+    </div>
+
+    <div class="token-card">
+      <div class="token-card-title">Spacing & Radius</div>
+      <div class="sp-row">
+        <div><div style="width:6px;height:6px;background:#1E90FF;border-radius:2px"></div><div class="splbl" style="color:#8090A8">xs 6</div></div>
+        <div><div style="width:10px;height:10px;background:#1E90FF;border-radius:2px;opacity:0.8"></div><div class="splbl" style="color:#8090A8">sm 10</div></div>
+        <div><div style="width:16px;height:16px;background:#0A1628;border-radius:2px;opacity:0.7"></div><div class="splbl" style="color:#8090A8">md 16</div></div>
+        <div><div style="width:28px;height:28px;background:#0A1628;border-radius:2px;opacity:0.5"></div><div class="splbl" style="color:#8090A8">lg 28</div></div>
+        <div><div style="width:48px;height:48px;background:#D1DCE8;border-radius:2px;"></div><div class="splbl" style="color:#8090A8">xl 48</div></div>
+      </div>
+      <div class="radius-row">
+        <div><div class="rbox" style="background:#EEF2F7;border-radius:8px;border:1px solid #D1DCE8"></div><div class="rlbl" style="color:#8090A8">8px</div></div>
+        <div><div class="rbox" style="background:#EEF2F7;border-radius:14px;border:1px solid #D1DCE8"></div><div class="rlbl" style="color:#8090A8">14px</div></div>
+        <div><div class="rbox" style="background:#EEF2F7;border-radius:22px;border:1px solid #D1DCE8"></div><div class="rlbl" style="color:#8090A8">22px</div></div>
+        <div><div class="rbox" style="background:#EEF2F7;border-radius:999px;border:1px solid #1E90FF;opacity:0.7"></div><div class="rlbl" style="color:#8090A8">pill</div></div>
+      </div>
+    </div>
+
+    <div class="token-card">
+      <div class="token-card-title">Motion</div>
+      <div class="msr"><span class="msn">Card swipe</span><span class="msv">translateX + fade 220ms smooth</span></div>
+      <div class="msr"><span class="msn">Like reaction</span><span class="msv">scale(1.4) rotate(12°) 300ms spring</span></div>
+      <div class="msr"><span class="msn">Badge pulse</span><span class="msv">glow breathe 2s infinite</span></div>
+      <div class="msr"><span class="msn">Card hover</span><span class="msv">translateY(-4px) + shadow 220ms</span></div>
+    </div>
+
+    <div class="token-card">
+      <div class="token-card-title">Article Card</div>
+      <div class="comp-grid">
+        <div class="card-11-13">
+          <div class="card-11-13-img">⚡</div>
+          <div class="card-11-13-body">
+            <div class="card-11-13-badge">Technology</div>
+            <div class="card-11-13-title">India Now Has the World's Cheapest 5G Plans</div>
+            <div class="card-11-13-meta">3 min · just now</div>
+          </div>
+        </div>
+        <div class="card-11-13">
+          <div class="card-11-13-img" style="background:#F0FFF8">🏆</div>
+          <div class="card-11-13-body">
+            <div class="card-11-13-badge" style="background:rgba(0,212,170,0.1);border-color:rgba(0,212,170,0.3);color:#00D4AA">Sport</div>
+            <div class="card-11-13-title">India's U-17 Team Reaches World Cup Semis</div>
+            <div class="card-11-13-meta">2 min · 1h ago</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</section>
+<hr class="band-divider" />
+
+
+<!-- ═══════════════════════════════════════════
+     BAND 3 · 14–16 · SHARP & AWARE
+     Heading: Syne · Body: Outfit
+     BG: #1E1B4B dark indigo ← swapped
+     Text: #F0F0FF near-white
+═══════════════════════════════════════════ -->
+<section id="band-14-16" class="band-section">
+  <div class="band-label">
+    <span class="band-tag">Ages 14–16</span>
+    <div class="band-name">Sharp &amp; Aware</div>
+    <div class="band-desc">Exaggerated Minimalism · Syne + Outfit · Dark indigo base · Indigo/violet palette · Tight tracking · Sharp corners</div>
+  </div>
+  <div class="design-grid">
+
+    <div class="token-card">
+      <div class="token-card-title">Colour Tokens <span style="background:#5C4EFA;color:#FFF;font-size:0.5rem;padding:1px 5px;border-radius:3px;letter-spacing:0.05em;margin-left:4px;font-weight:700">SWAPPED</span></div>
+      <div class="swatches">
+        <div class="swatch"><div class="swatch-dot" style="background:#5C4EFA"></div><div class="sw-lbl">#5C4EFA<br>primary</div></div>
+        <div class="swatch"><div class="swatch-dot" style="background:#A78BFA"></div><div class="sw-lbl">#A78BFA<br>secondary</div></div>
+        <div class="swatch"><div class="swatch-dot" style="background:#22D3EE"></div><div class="sw-lbl">#22D3EE<br>accent</div></div>
+        <div class="swatch"><div class="swatch-dot" style="background:#F472B6"></div><div class="sw-lbl">#F472B6<br>breaking</div></div>
+        <div class="swatch"><div class="swatch-dot" style="background:#1E1B4B;border:1px solid #352F80"></div><div class="sw-lbl">#1E1B4B<br>bg ★</div></div>
+        <div class="swatch"><div class="swatch-dot" style="background:#2D2A6E;border:1px solid rgba(255,255,255,0.15)"></div><div class="sw-lbl">#2D2A6E<br>surface ★</div></div>
+        <div class="swatch"><div class="swatch-dot" style="background:#34D399"></div><div class="sw-lbl">#34D399<br>success</div></div>
+        <div class="swatch"><div class="swatch-dot" style="background:#FF4D6D"></div><div class="sw-lbl">#FF4D6D<br>error</div></div>
+      </div>
+    </div>
+
+    <div class="token-card">
+      <div class="token-card-title">Typography · Syne + Outfit</div>
+      <div class="type-row">
+        <div>
+          <div class="fsl">Heading — Syne 800</div>
+          <div style="font-family:'Syne',sans-serif;font-weight:800;font-size:clamp(1.75rem,4vw,2.5rem);color:#F0F0FF;letter-spacing:-0.04em">The Drop</div>
+        </div>
+        <div>
+          <div class="fsl">Body — Outfit 400</div>
+          <div style="font-family:'Outfit',sans-serif;font-weight:400;font-size:1rem;color:#F0F0FF;line-height:1.55">Parliament passed the Digital India Act 2025. Here's what changes for every student with a smartphone.</div>
+        </div>
+        <div>
+          <div class="fsl">Category — Syne 700 Uppercase</div>
+          <div style="font-family:'Syne',sans-serif;font-weight:700;font-size:0.65rem;color:#A78BFA;letter-spacing:0.1em;text-transform:uppercase;border-bottom:1px solid #A78BFA;display:inline-block;padding-bottom:2px">Technology</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="token-card">
+      <div class="token-card-title">Buttons</div>
+      <div class="btn-row">
+        <a class="btn-14-16 btn-14-16-p">Read Story</a>
+        <a class="btn-14-16 btn-14-16-s">Explore</a>
+      </div>
+      <div style="margin-top:18px"><div class="fsl">Indigo fill · rectangular · Syne SemiBold · UPPERCASE · 8px radius</div></div>
+    </div>
+
+    <div class="token-card">
+      <div class="token-card-title">Spacing & Radius</div>
+      <div class="sp-row">
+        <div><div style="width:4px;height:4px;background:#A78BFA;border-radius:1px"></div><div class="splbl" style="color:#7868B0">xs 4</div></div>
+        <div><div style="width:8px;height:8px;background:#A78BFA;border-radius:1px;opacity:0.8"></div><div class="splbl" style="color:#7868B0">sm 8</div></div>
+        <div><div style="width:16px;height:16px;background:#5C4EFA;border-radius:1px;opacity:0.7"></div><div class="splbl" style="color:#7868B0">md 16</div></div>
+        <div><div style="width:32px;height:32px;background:#5C4EFA;border-radius:1px;opacity:0.5"></div><div class="splbl" style="color:#7868B0">lg 32</div></div>
+        <div><div style="width:64px;height:64px;background:#2D2A6E;border-radius:1px;border:1px solid rgba(255,255,255,0.12)"></div><div class="splbl" style="color:#7868B0">xl 64</div></div>
+      </div>
+      <div class="radius-row">
+        <div><div class="rbox" style="background:rgba(92,78,250,0.2);border-radius:4px;border:1px solid rgba(255,255,255,0.12)"></div><div class="rlbl" style="color:#7868B0">4px</div></div>
+        <div><div class="rbox" style="background:rgba(92,78,250,0.2);border-radius:8px;border:1px solid rgba(255,255,255,0.12)"></div><div class="rlbl" style="color:#7868B0">8px</div></div>
+        <div><div class="rbox" style="background:rgba(92,78,250,0.2);border-radius:12px;border:1px solid rgba(255,255,255,0.12)"></div><div class="rlbl" style="color:#7868B0">12px max</div></div>
+        <div style="display:flex;align-items:center;height:52px"><div style="font-family:'Outfit';font-size:0.65rem;color:#7868B0;font-style:italic">No pills<br>on cards</div></div>
+      </div>
+    </div>
+
+    <div class="token-card">
+      <div class="token-card-title">Motion</div>
+      <div class="msr"><span class="msn">Card accent bar</span><span class="msv">scaleY(0→1) 200ms material</span></div>
+      <div class="msr"><span class="msn">Hero text reveal</span><span class="msv">clip-path L→R 600ms on load</span></div>
+      <div class="msr"><span class="msn">Category underline</span><span class="msv">scaleX(0→1) 200ms hover</span></div>
+      <div class="msr"><span class="msn">Philosophy</span><span class="msv">cubic-bezier(0.4,0,0.2,1) only</span></div>
+    </div>
+
+    <div class="token-card">
+      <div class="token-card-title">Article Card</div>
+      <div class="comp-grid">
+        <div class="card-14-16">
+          <div class="card-14-16-img">📊</div>
+          <div class="card-14-16-body">
+            <div class="card-14-16-badge">Economy</div>
+            <div class="card-14-16-title">India's GDP Growth Beats All BRICS Forecasts</div>
+            <div class="card-14-16-meta">5 min · 2h ago</div>
+            <div class="rbar"><div class="rbar-fill"></div></div>
+          </div>
+        </div>
+        <div class="card-14-16">
+          <div class="card-14-16-img" style="background:rgba(244,114,182,0.15)">🔴</div>
+          <div class="card-14-16-body">
+            <div class="card-14-16-badge" style="color:#F472B6;border-color:#F472B6">Breaking</div>
+            <div class="card-14-16-title">Supreme Court Ruling Changes Exam Age Limits</div>
+            <div class="card-14-16-meta">3 min · 30m ago</div>
+            <div class="rbar"><div class="rbar-fill" style="width:18%;animation:none"></div></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</section>
+<hr class="band-divider" />
+
+
+<!-- ═══════════════════════════════════════════
+     BAND 4 · 17–20 · CYBER EDITORIAL
+     bg: #1A1A2E · surface: #16213E
+     accent: #00D4FF · magenta: #FF2D78
+     Headline: Urbanist ← confirmed
+═══════════════════════════════════════════ -->
+<section id="band-17-20" class="band-section">
+  <div class="band-label">
+    <span class="band-tag">Ages 17–20</span>
+    <div class="band-name">Cyber Editorial</div>
+    <div class="band-desc">The Verge × Wired × Dark-mode Magazine · <strong>Urbanist</strong> headings + <strong>Outfit</strong> body · <span style="color:#00D4FF">Electric cyan</span> + <span style="color:#FF2D78">Hot magenta</span> · Deep charcoal · Editorial but electric</div>
+  </div>
+  <div class="design-grid">
+
+    <div class="token-card">
+      <div class="token-card-title">Colour Tokens</div>
+      <div class="swatches">
+        <div class="swatch"><div class="swatch-dot" style="background:#00D4FF"></div><div class="sw-lbl">#00D4FF<br>cyan CTA</div></div>
+        <div class="swatch"><div class="swatch-dot" style="background:#FF2D78"></div><div class="sw-lbl">#FF2D78<br>magenta</div></div>
+        <div class="swatch"><div class="swatch-dot" style="background:#39FF85"></div><div class="sw-lbl">#39FF85<br>live/trend</div></div>
+        <div class="swatch"><div class="swatch-dot" style="background:#A78BFA"></div><div class="sw-lbl">#A78BFA<br>violet tech</div></div>
+        <div class="swatch"><div class="swatch-dot" style="background:#1A1A2E;border:1px solid #253048"></div><div class="sw-lbl">#1A1A2E<br>bg</div></div>
+        <div class="swatch"><div class="swatch-dot" style="background:#16213E;border:1px solid #253048"></div><div class="sw-lbl">#16213E<br>surface</div></div>
+        <div class="swatch"><div class="swatch-dot" style="background:#0F3460"></div><div class="sw-lbl">#0F3460<br>raised</div></div>
+        <div class="swatch"><div class="swatch-dot" style="background:#FFFFFF;border:1px solid #253048"></div><div class="sw-lbl">#FFFFFF<br>headline</div></div>
+      </div>
+    </div>
+
+    <div class="token-card">
+      <div class="token-card-title">Typography · Urbanist + Outfit</div>
+      <div class="type-row">
+        <div>
+          <div class="fsl">Hero — Urbanist 800</div>
+          <div style="font-family:'Urbanist',sans-serif;font-weight:800;font-size:clamp(1.75rem,4vw,2.75rem);color:#FFFFFF;letter-spacing:-0.04em;line-height:1.1">What the New Data Bill<br><span style="color:#00D4FF">Means For You</span></div>
+        </div>
+        <div>
+          <div class="fsl">Body — Outfit 400</div>
+          <div style="font-family:'Outfit',sans-serif;font-weight:400;font-size:1.0625rem;color:#B0BEC5;line-height:1.65">India's digital economy grows at 15% annually. Understanding data rights before you turn 20 is a real advantage.</div>
+        </div>
+        <div>
+          <div class="fsl">Category label — Urbanist 700 + dot</div>
+          <div style="display:inline-flex;align-items:center;gap:6px;font-family:'Urbanist',sans-serif;font-weight:700;font-size:0.65rem;color:#00D4FF;letter-spacing:0.09em;text-transform:uppercase">
+            <span style="width:6px;height:6px;border-radius:50%;background:#00D4FF;flex-shrink:0;display:inline-block"></span>Technology
+          </div>
+        </div>
+        <div>
+          <div class="fsl">Breaking — Urbanist 700 + magenta dot</div>
+          <div style="display:inline-flex;align-items:center;gap:6px;font-family:'Urbanist',sans-serif;font-weight:700;font-size:0.65rem;color:#FF2D78;letter-spacing:0.09em;text-transform:uppercase">
+            <span style="width:6px;height:6px;border-radius:50%;background:#FF2D78;flex-shrink:0;display:inline-block"></span>Breaking News
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="token-card">
+      <div class="token-card-title">Buttons & Badges</div>
+      <div class="btn-row">
+        <a class="btn-17-20 btn-17-20-p">Read Story</a>
+        <a class="btn-17-20 btn-17-20-s">Explore</a>
+      </div>
+      <div style="margin-top:14px;display:flex;gap:8px;flex-wrap:wrap;align-items:center">
+        <span class="live-badge"><span class="live-dot" style="background:#1A1A2E"></span>Live</span>
+        <span class="break-badge">Breaking</span>
+      </div>
+      <div style="margin-top:16px"><div class="fsl">Cyan pill primary · ghost outlined · Syne 700 · smooth hover glow · no bounce</div></div>
+    </div>
+
+    <div class="token-card">
+      <div class="token-card-title">Category Accent Map</div>
+      <div style="display:flex;flex-direction:column;gap:9px;margin-top:4px">
+        <div style="display:flex;align-items:center;gap:10px"><div style="width:32px;height:2px;background:#00D4FF;border-radius:1px"></div><span style="font-family:'Syne',sans-serif;font-size:0.75rem;color:#FFFFFF;letter-spacing:0.06em;text-transform:uppercase">World</span><span style="font-family:'JetBrains Mono',monospace;font-size:0.6rem;color:#354A60;margin-left:auto">#00D4FF</span></div>
+        <div style="display:flex;align-items:center;gap:10px"><div style="width:32px;height:2px;background:#39FF85;border-radius:1px"></div><span style="font-family:'Syne',sans-serif;font-size:0.75rem;color:#FFFFFF;letter-spacing:0.06em;text-transform:uppercase">Science</span><span style="font-family:'JetBrains Mono',monospace;font-size:0.6rem;color:#354A60;margin-left:auto">#39FF85</span></div>
+        <div style="display:flex;align-items:center;gap:10px"><div style="width:32px;height:2px;background:#FF2D78;border-radius:1px"></div><span style="font-family:'Syne',sans-serif;font-size:0.75rem;color:#FFFFFF;letter-spacing:0.06em;text-transform:uppercase">Politics</span><span style="font-family:'JetBrains Mono',monospace;font-size:0.6rem;color:#354A60;margin-left:auto">#FF2D78</span></div>
+        <div style="display:flex;align-items:center;gap:10px"><div style="width:32px;height:2px;background:#A78BFA;border-radius:1px"></div><span style="font-family:'Syne',sans-serif;font-size:0.75rem;color:#FFFFFF;letter-spacing:0.06em;text-transform:uppercase">Tech</span><span style="font-family:'JetBrains Mono',monospace;font-size:0.6rem;color:#354A60;margin-left:auto">#A78BFA</span></div>
+        <div style="display:flex;align-items:center;gap:10px"><div style="width:32px;height:2px;background:#FF9500;border-radius:1px"></div><span style="font-family:'Syne',sans-serif;font-size:0.75rem;color:#FFFFFF;letter-spacing:0.06em;text-transform:uppercase">Sport</span><span style="font-family:'JetBrains Mono',monospace;font-size:0.6rem;color:#354A60;margin-left:auto">#FF9500</span></div>
+        <div style="display:flex;align-items:center;gap:10px"><div style="width:32px;height:2px;background:#00D4AA;border-radius:1px"></div><span style="font-family:'Syne',sans-serif;font-size:0.75rem;color:#FFFFFF;letter-spacing:0.06em;text-transform:uppercase">Money</span><span style="font-family:'JetBrains Mono',monospace;font-size:0.6rem;color:#354A60;margin-left:auto">#00D4AA</span></div>
+      </div>
+    </div>
+
+    <div class="token-card">
+      <div class="token-card-title">Motion</div>
+      <div class="msr"><span class="msn">Card hover</span><span class="msv">translateY(-5px) + 1px cyan glow 250ms</span></div>
+      <div class="msr"><span class="msn">Image load</span><span class="msv">opacity 0→1 + scale(1.02→1) 400ms</span></div>
+      <div class="msr"><span class="msn">Border fade</span><span class="msv">opacity 0→1 on hover 200ms</span></div>
+      <div class="msr"><span class="msn">Page entry</span><span class="msv">fadeUp 20px 400ms staggered</span></div>
+      <div class="msr"><span class="msn">Philosophy</span><span class="msv">smooth fade/slide · zero bounce</span></div>
+    </div>
+
+    <div class="token-card">
+      <div class="token-card-title">Article Cards</div>
+      <div class="comp-grid">
+        <div class="card-17-20">
+          <div class="card-17-20-accent ca-world"></div>
+          <div class="card-17-20-img">🌐</div>
+          <div class="card-17-20-body">
+            <div class="card-17-20-badge" style="color:#00D4FF"><span class="card-17-20-bdot" style="background:#00D4FF"></span>World</div>
+            <div class="card-17-20-title">What the New Data Protection Bill Means For Indian Students</div>
+            <div class="card-17-20-meta">By Arjun Nair · 7 min · 2h ago</div>
+          </div>
+        </div>
+        <div class="card-17-20">
+          <div class="card-17-20-accent ca-politics"></div>
+          <div class="card-17-20-img">🔥</div>
+          <div class="card-17-20-body">
+            <div class="card-17-20-badge" style="color:#FF2D78"><span class="card-17-20-bdot" style="background:#FF2D78"></span>Politics <span class="break-badge" style="font-size:0.55rem;padding:1px 6px;margin-left:4px">Breaking</span></div>
+            <div class="card-17-20-title">Youth Voter Turnout Hits Record High in Five States</div>
+            <div class="card-17-20-meta">By Meera Srinivasan · 5 min · 1h ago</div>
+          </div>
+        </div>
+        <div class="card-17-20">
+          <div class="card-17-20-accent ca-science"></div>
+          <div class="card-17-20-img">🧬</div>
+          <div class="card-17-20-body">
+            <div class="card-17-20-badge" style="color:#39FF85"><span class="card-17-20-bdot" style="background:#39FF85"></span>Science <span class="live-badge" style="font-size:0.55rem;padding:1px 6px;margin-left:4px"><span class="live-dot" style="background:#1A1A2E;width:4px;height:4px"></span>Live</span></div>
+            <div class="card-17-20-title">IIT Bombay's AI Model Diagnoses Rare Diseases in Real Time</div>
+            <div class="card-17-20-meta">By Kavya Iyer · 6 min · just now</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="token-card">
+      <div class="token-card-title">Spacing & Radius</div>
+      <div class="sp-row">
+        <div><div style="width:4px;height:4px;background:#00D4FF;border-radius:2px"></div><div class="splbl" style="color:#354A60">xs 4</div></div>
+        <div><div style="width:8px;height:8px;background:#00D4FF;border-radius:2px;opacity:0.8"></div><div class="splbl" style="color:#354A60">sm 8</div></div>
+        <div><div style="width:16px;height:16px;background:#253048;border-radius:2px"></div><div class="splbl" style="color:#354A60">md 16</div></div>
+        <div><div style="width:32px;height:32px;background:#16213E;border-radius:2px;border:1px solid #253048"></div><div class="splbl" style="color:#354A60">lg 32</div></div>
+        <div><div style="width:64px;height:64px;background:#1A1A2E;border-radius:2px;border:1px solid #253048"></div><div class="splbl" style="color:#354A60">xl 64</div></div>
+      </div>
+      <div class="radius-row">
+        <div><div class="rbox" style="background:#16213E;border-radius:8px;border:1px solid rgba(0,212,255,0.15)"></div><div class="rlbl">8px</div></div>
+        <div><div class="rbox" style="background:#16213E;border-radius:14px;border:1px solid rgba(0,212,255,0.15)"></div><div class="rlbl">14px</div></div>
+        <div><div class="rbox" style="background:#16213E;border-radius:20px;border:1px solid rgba(0,212,255,0.15)"></div><div class="rlbl">20px</div></div>
+        <div><div class="rbox" style="background:#16213E;border-radius:999px;border:1px solid #00D4FF;opacity:0.5"></div><div class="rlbl">pill (btns)</div></div>
+      </div>
+    </div>
+
+    <!-- ── FONT CONFIRMED ────────────────────────── -->
+    <div class="token-card" style="grid-column:1/-1">
+      <div class="token-card-title">Headline Font · Confirmed <span style="background:rgba(0,212,255,0.12);color:#00D4FF;border:1px solid rgba(0,212,255,0.25);font-size:0.5rem;padding:2px 7px;border-radius:3px;letter-spacing:0.06em;margin-left:6px">URBANIST</span></div>
+      <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:20px;margin-top:4px">
+        <div style="padding:20px 22px;background:#1A1A2E;border-radius:12px;border:1px solid rgba(0,212,255,0.2)">
+          <div style="font-size:0.55rem;letter-spacing:0.12em;text-transform:uppercase;color:#546E7A;margin-bottom:12px">Hero headline · Urbanist 800</div>
+          <div style="font-family:'Urbanist',sans-serif;font-weight:800;font-size:clamp(1.6rem,3.5vw,2.4rem);color:#FFFFFF;letter-spacing:-0.04em;line-height:1.1;margin-bottom:10px">
+            India's New Data Bill<br><span style="color:#00D4FF">Explained</span>
+          </div>
+          <div style="font-family:'Urbanist',sans-serif;font-weight:700;font-size:0.65rem;color:#546E7A;letter-spacing:0.08em;text-transform:uppercase;margin-bottom:14px">
+            <span style="width:5px;height:5px;border-radius:50%;background:#00D4FF;display:inline-block;margin-right:5px;vertical-align:middle"></span>Technology · 7 min · 2h ago
+          </div>
+          <div style="font-family:'Outfit',sans-serif;font-weight:400;font-size:0.9rem;color:#B0BEC5;line-height:1.6">Understanding data rights before you turn 20 is a real advantage in India's growing digital economy.</div>
+        </div>
+        <div style="padding:20px 22px;background:#1A1A2E;border-radius:12px;border:1px solid #253048;display:flex;flex-direction:column;gap:14px">
+          <div>
+            <div style="font-size:0.55rem;letter-spacing:0.12em;text-transform:uppercase;color:#546E7A;margin-bottom:8px">Weight range · Urbanist</div>
+            <div style="font-family:'Urbanist',sans-serif;font-weight:300;font-size:1.1rem;color:#B0BEC5">Light 300 — intro text</div>
+            <div style="font-family:'Urbanist',sans-serif;font-weight:400;font-size:1.1rem;color:#B0BEC5">Regular 400 — body alt</div>
+            <div style="font-family:'Urbanist',sans-serif;font-weight:600;font-size:1.1rem;color:#FFFFFF">SemiBold 600 — subheads</div>
+            <div style="font-family:'Urbanist',sans-serif;font-weight:700;font-size:1.1rem;color:#FFFFFF">Bold 700 — categories</div>
+            <div style="font-family:'Urbanist',sans-serif;font-weight:800;font-size:1.1rem;color:#00D4FF">ExtraBold 800 — headlines</div>
+          </div>
+          <div>
+            <div style="font-size:0.55rem;letter-spacing:0.12em;text-transform:uppercase;color:#546E7A;margin-bottom:6px">Install</div>
+            <code style="font-family:'JetBrains Mono',monospace;font-size:0.7rem;color:#A78BFA;background:#16213E;padding:6px 10px;border-radius:6px;display:block">@fontsource/urbanist</code>
+          </div>
+        </div>
+      </div>
+    </div>
+    <!-- ── END FONT CONFIRMED ─────────────────────── -->
+
+  </div>
+</section>
+
+
+<footer style="text-align:center;padding:48px 32px;border-top:1px solid #1E1E26;background:#0C0C0E">
+  <div style="font-family:'Syne',sans-serif;font-size:0.7rem;letter-spacing:0.12em;text-transform:uppercase;color:#3A3A4E">The Drop · Design System · 2026</div>
+  <div style="margin-top:8px;font-family:'Outfit',sans-serif;font-size:0.8rem;color:#2E2E3E">Four age bands · One app · Every young Indian reader</div>
+</footer>
+
+<script>
+const obs = new IntersectionObserver(entries => {
+  entries.forEach(e => {
+    if (e.isIntersecting) { e.target.style.opacity='1'; e.target.style.transform='translateY(0)'; }
+  });
+}, { threshold: 0.04 });
+
+document.querySelectorAll('.band-section').forEach(el => {
+  el.style.opacity='0'; el.style.transform='translateY(32px)';
+  el.style.transition='opacity 600ms ease,transform 600ms ease';
+  obs.observe(el);
+});
+
+if (window.matchMedia('(prefers-reduced-motion:reduce)').matches) {
+  document.querySelectorAll('.band-section').forEach(el => {
+    el.style.opacity='1'; el.style.transform='none'; el.style.transition='none';
+  });
+}
+</script>
+</body>
+</html>

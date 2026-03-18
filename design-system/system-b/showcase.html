@@ -1,0 +1,496 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>The Drop — Design System B · All Age Bands</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@400;600;700;800&family=Nunito:wght@400;600;700;800&family=Fredoka:wght@400;500;600;700&family=Outfit:wght@300;400;500;600;700&family=Plus+Jakarta+Sans:ital,wght@0,400;0,600;0,700;0,800;1,700&family=Inter:wght@300;400;500;600;700&family=Newsreader:ital,wght@0,400;0,600;0,700;1,400;1,600;1,700&display=swap" rel="stylesheet" />
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth}
+body{background:#0C0C0E;color:#E8E8F0;font-family:'Inter',sans-serif}
+
+.page-header{padding:64px 48px 48px;text-align:center;background:#0C0C0E;border-bottom:1px solid #1E1E26}
+.page-title{font-family:'Newsreader',serif;font-style:italic;font-size:clamp(2rem,5vw,3.5rem);font-weight:700;letter-spacing:-0.02em;color:#F5E6C8}
+.page-subtitle{margin-top:10px;font-size:0.875rem;color:#6B6B80;letter-spacing:0.08em;text-transform:uppercase}
+.sys-badge{display:inline-block;margin-top:16px;padding:4px 16px;border-radius:999px;background:rgba(201,168,76,0.12);border:1px solid rgba(201,168,76,0.3);font-size:0.75rem;color:#C9A84C;letter-spacing:0.1em;text-transform:uppercase;font-weight:600}
+.band-nav{display:flex;justify-content:center;gap:8px;margin-top:32px;flex-wrap:wrap}
+.band-nav a{padding:8px 20px;border-radius:999px;font-size:0.875rem;font-weight:600;text-decoration:none;transition:all 200ms;border:1px solid #2E2E38;color:#9090A8}
+.band-nav a:hover{border-color:#C9A84C;color:#F5E6C8}
+
+.band-section{padding:80px 32px}
+.band-label{text-align:center;margin-bottom:56px}
+.band-tag{display:inline-block;padding:4px 14px;border-radius:999px;font-size:0.75rem;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;margin-bottom:12px}
+.band-name{font-size:clamp(1.75rem,4vw,2.75rem);font-weight:800;letter-spacing:-0.03em}
+.band-desc{margin-top:10px;font-size:1rem;opacity:0.6}
+.design-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:24px;max-width:1280px;margin:0 auto}
+.token-card{border-radius:16px;padding:28px;border:1px solid rgba(255,255,255,0.06);background:#141418}
+.token-card-title{font-size:0.7rem;font-weight:700;letter-spacing:0.12em;text-transform:uppercase;margin-bottom:20px;color:#9090A8}
+
+.swatches{display:flex;flex-wrap:wrap;gap:10px}
+.swatch{display:flex;flex-direction:column;align-items:center;gap:6px}
+.swatch-dot{width:44px;height:44px;border-radius:12px;border:1px solid rgba(255,255,255,0.1);transition:transform 200ms;cursor:pointer}
+.swatch-dot:hover{transform:scale(1.12)}
+.sw-lbl{font-family:monospace;font-size:0.58rem;text-align:center;opacity:0.6}
+
+.btn-row{display:flex;flex-wrap:wrap;gap:12px;align-items:center}
+.type-row{display:flex;flex-direction:column;gap:16px}
+.radius-row{display:flex;align-items:flex-end;gap:14px;flex-wrap:wrap}
+.rbox{width:52px;height:52px}
+.rlbl{font-size:0.6rem;text-align:center;margin-top:6px;opacity:0.5}
+.band-divider{border:none;height:1px;background:linear-gradient(90deg,transparent,#2E2E3E 20%,#2E2E3E 80%,transparent);margin:0 48px}
+
+.rbar{height:2px;background:rgba(255,255,255,0.1);border-radius:1px;margin-top:12px;overflow:hidden}
+.rbar-fill{height:100%;width:45%;border-radius:1px;animation:rprog 2s ease-in-out infinite alternate}
+@keyframes rprog{from{width:20%}to{width:70%}}
+.live-dot{width:6px;height:6px;border-radius:50%;animation:lpulse 1.2s ease-in-out infinite;display:inline-block;margin-right:4px}
+@keyframes lpulse{0%,100%{opacity:1;transform:scale(1)}50%{opacity:0.35;transform:scale(0.65)}}
+@media(max-width:768px){.page-header{padding:40px 24px 32px}.band-section{padding:56px 20px}.design-grid{grid-template-columns:1fr}}
+
+
+/* ═══════════════════════════════
+   BAND 1 · 8–10 · KIDS
+   Heading: Baloo 2 · Body: Nunito
+   Claymorphism · Warm Indigo
+═══════════════════════════════ */
+#band-8-10{background:#F5F3FF;color:#1E1B4B}
+#band-8-10 .token-card{background:#FFF;border-color:#C4B5FD;color:#1E1B4B}
+#band-8-10 .token-card-title{color:#6D5FBB}
+#band-8-10 .band-name{font-family:'Baloo 2',cursive;color:#4F46E5}
+#band-8-10 .band-tag{background:#4F46E5;color:#FFF}
+#band-8-10 .band-desc{color:#6D5FBB}
+#band-8-10 .sw-lbl{color:#6D5FBB}
+
+.b1-hero{font-family:'Baloo 2',cursive;font-size:clamp(2.5rem,8vw,4.5rem);font-weight:800;color:#4F46E5;line-height:1.1}
+.b1-h2{font-family:'Baloo 2',cursive;font-size:1.75rem;font-weight:700;color:#1E1B4B}
+.b1-body{font-family:'Nunito',sans-serif;font-size:1.25rem;line-height:1.8;color:#3D3580}
+
+.b1-btn-primary{font-family:'Baloo 2',cursive;font-weight:700;font-size:1rem;padding:14px 28px;border-radius:999px;background:#4F46E5;color:#FFF;border:3px solid #3730A3;box-shadow:4px 4px 0 #3730A3;cursor:pointer;transition:all 150ms cubic-bezier(0.34,1.56,0.64,1)}
+.b1-btn-primary:hover{transform:scale(0.97) translateY(2px);box-shadow:2px 2px 0 #3730A3}
+.b1-btn-secondary{font-family:'Baloo 2',cursive;font-weight:700;font-size:1rem;padding:14px 28px;border-radius:999px;background:#FFF;color:#4F46E5;border:3px solid #4F46E5;box-shadow:4px 4px 0 #C4B5FD;cursor:pointer;transition:all 150ms}
+.b1-card{background:#FFF;border-radius:32px;padding:24px;box-shadow:6px 6px 0 #C4B5FD, 0 12px 32px rgba(79,70,229,0.08);border:2px solid #C4B5FD}
+.b1-card-top{height:4px;border-radius:999px;background:#4F46E5;margin-bottom:16px}
+.b1-badge{display:inline-block;padding:4px 12px;border-radius:999px;background:#F59E0B;color:#FFF;font-family:'Baloo 2',cursive;font-weight:700;font-size:0.75rem;letter-spacing:0.06em;text-transform:uppercase}
+.b1-wonder{background:#EC4899;color:#FFF;border-radius:24px;padding:20px;font-family:'Nunito',sans-serif;font-weight:700;font-size:1.0625rem;line-height:1.5}
+
+
+/* ═══════════════════════════════
+   BAND 2 · 11–13 · TWEENS
+   Heading: Fredoka · Body: Outfit
+   Soft Flat · Blue/Clean
+═══════════════════════════════ */
+#band-11-13{background:#F0F9FF;color:#0C2340}
+#band-11-13 .token-card{background:#FFF;border-color:#BAE6FD;color:#0C2340}
+#band-11-13 .token-card-title{color:#475569}
+#band-11-13 .band-name{font-family:'Fredoka',cursive;color:#2563EB}
+#band-11-13 .band-tag{background:#2563EB;color:#FFF}
+#band-11-13 .band-desc{color:#475569}
+#band-11-13 .sw-lbl{color:#475569}
+
+.b2-hero{font-family:'Fredoka',cursive;font-size:clamp(2rem,7vw,4rem);font-weight:700;color:#2563EB;line-height:1.1}
+.b2-h2{font-family:'Fredoka',cursive;font-size:1.625rem;font-weight:600;color:#0C2340}
+.b2-body{font-family:'Outfit',sans-serif;font-size:1.0625rem;line-height:1.65;color:#334155}
+
+.b2-btn-primary{font-family:'Fredoka',cursive;font-weight:600;font-size:1rem;padding:12px 28px;border-radius:999px;background:#2563EB;color:#FFF;border:none;box-shadow:0 4px 14px rgba(37,99,235,0.3);cursor:pointer;transition:all 220ms}
+.b2-btn-primary:hover{box-shadow:0 8px 20px rgba(37,99,235,0.4);transform:translateY(-1px)}
+.b2-btn-secondary{font-family:'Fredoka',cursive;font-weight:600;font-size:1rem;padding:12px 28px;border-radius:999px;background:#FFF;color:#2563EB;border:2px solid #BAE6FD;cursor:pointer;transition:all 220ms}
+.b2-card{background:#FFF;border-radius:20px;padding:20px;box-shadow:0 2px 12px rgba(37,99,235,0.10);border:1px solid #BAE6FD}
+.b2-card-top{height:3px;border-radius:999px;background:#2563EB;margin-bottom:16px}
+.b2-badge{display:inline-block;padding:4px 12px;border-radius:999px;background:#2563EB;color:#FFF;font-family:'Fredoka',cursive;font-weight:600;font-size:0.8rem;text-transform:uppercase}
+.b2-wonder{background:#E0F2FE;color:#0C2340;border-radius:14px;padding:18px;border-left:3px solid #2563EB;font-family:'Outfit',sans-serif;font-size:1.0625rem;line-height:1.6}
+
+
+/* ═══════════════════════════════
+   BAND 3 · 14–16 · TEENS
+   Heading: Plus Jakarta Sans · Body: Inter
+   Vibrant Block · Rose/Black Dark
+═══════════════════════════════ */
+#band-14-16{background:#0F0F13;color:#F8F8FC}
+#band-14-16 .token-card{background:#1A1A22;border-color:#2E2E3C;color:#F8F8FC}
+#band-14-16 .token-card-title{color:#9CA3AF}
+#band-14-16 .band-name{font-family:'Plus Jakarta Sans',sans-serif;color:#F43F5E}
+#band-14-16 .band-tag{background:#F43F5E;color:#FFF}
+#band-14-16 .band-desc{color:#9CA3AF}
+
+.b3-hero{font-family:'Plus Jakarta Sans',sans-serif;font-size:clamp(2.75rem,9vw,6rem);font-weight:800;color:#F8F8FC;line-height:1.0;letter-spacing:-0.03em}
+.b3-h2{font-family:'Plus Jakarta Sans',sans-serif;font-size:1.625rem;font-weight:700;color:#F8F8FC;letter-spacing:-0.02em}
+.b3-body{font-family:'Inter',sans-serif;font-size:1rem;line-height:1.6;color:#C4C4D4}
+.b3-label{font-family:'Plus Jakarta Sans',sans-serif;font-weight:600;font-size:0.7rem;letter-spacing:0.06em;text-transform:uppercase;color:#9CA3AF}
+
+.b3-btn-primary{font-family:'Plus Jakarta Sans',sans-serif;font-weight:700;font-size:0.9rem;padding:12px 28px;border-radius:8px;background:#F43F5E;color:#FFF;border:none;letter-spacing:0.04em;text-transform:uppercase;cursor:pointer;transition:all 200ms;box-shadow:0 4px 20px rgba(244,63,94,0.3)}
+.b3-btn-primary:hover{box-shadow:0 8px 28px rgba(244,63,94,0.45);transform:translateY(-1px)}
+.b3-btn-secondary{font-family:'Plus Jakarta Sans',sans-serif;font-weight:700;font-size:0.9rem;padding:12px 28px;border-radius:8px;background:transparent;color:#F43F5E;border:1.5px solid #F43F5E;letter-spacing:0.04em;text-transform:uppercase;cursor:pointer;transition:all 200ms}
+.b3-card{background:#1A1A22;border-radius:10px;padding:20px;border:1px solid #2E2E3C;transition:all 200ms}
+.b3-card:hover{background:#252530;border-color:rgba(244,63,94,0.3);box-shadow:0 12px 40px rgba(244,63,94,0.15)}
+.b3-card-accent{width:3px;height:100%;background:#F43F5E;border-radius:999px;position:absolute;left:0;top:0}
+.b3-badge{display:inline-flex;align-items:center;gap:6px;padding:3px 10px;border-radius:4px;background:#F43F5E;color:#FFF;font-family:'Plus Jakarta Sans',sans-serif;font-weight:700;font-size:0.7rem;letter-spacing:0.06em;text-transform:uppercase}
+.b3-wonder{background:#1A1A22;color:#F8F8FC;border-radius:10px;padding:20px;border:1.5px solid #F43F5E;border-left:3px solid #F43F5E;font-family:'Inter',sans-serif;font-size:1rem;line-height:1.6}
+
+
+/* ═══════════════════════════════
+   BAND 4 · 17–20 · YOUNG ADULTS
+   Heading: Newsreader serif · Body: Inter
+   Refined Minimalism · Gold/Black
+═══════════════════════════════ */
+#band-17-20{background:#111118;color:#F5E6C8}
+#band-17-20 .token-card{background:#1A1A24;border-color:rgba(201,168,76,0.2);color:#C8C8D8}
+#band-17-20 .token-card-title{color:#666680}
+#band-17-20 .band-name{font-family:'Newsreader',serif;font-style:italic;color:#F5E6C8}
+#band-17-20 .band-tag{background:rgba(201,168,76,0.15);color:#C9A84C;border:1px solid rgba(201,168,76,0.3)}
+#band-17-20 .band-desc{color:#666680}
+
+.b4-hero{font-family:'Newsreader',serif;font-style:italic;font-size:clamp(2.5rem,7vw,5.5rem);font-weight:700;color:#F5E6C8;line-height:1.1;letter-spacing:-0.02em}
+.b4-h2{font-family:'Newsreader',serif;font-size:1.75rem;font-weight:600;color:#F5E6C8;letter-spacing:-0.01em}
+.b4-body{font-family:'Inter',sans-serif;font-size:1.0625rem;line-height:1.75;color:#C8C8D8}
+.b4-label{font-family:'Inter',sans-serif;font-weight:500;font-size:0.7rem;letter-spacing:0.1em;text-transform:uppercase;color:#666680}
+
+.b4-btn-primary{font-family:'Inter',sans-serif;font-weight:600;font-size:0.9rem;padding:12px 28px;border-radius:999px;background:#C9A84C;color:#111118;border:none;cursor:pointer;transition:all 250ms;box-shadow:0 4px 24px rgba(201,168,76,0.2)}
+.b4-btn-primary:hover{background:#E8D5A3;box-shadow:0 8px 32px rgba(201,168,76,0.3);transform:translateY(-1px)}
+.b4-btn-secondary{font-family:'Inter',sans-serif;font-weight:600;font-size:0.9rem;padding:12px 28px;border-radius:999px;background:transparent;color:#C9A84C;border:1px solid rgba(201,168,76,0.4);cursor:pointer;transition:all 250ms}
+.b4-card{background:#1A1A24;border-radius:12px;padding:24px;border:1px solid rgba(201,168,76,0.15);transition:all 250ms}
+.b4-card:hover{border-color:rgba(201,168,76,0.25);box-shadow:0 12px 48px rgba(0,0,0,0.6),0 0 0 1px rgba(201,168,76,0.12);transform:translateY(-4px)}
+.b4-card-top{height:2px;background:#C9A84C;margin-bottom:20px;border-radius:1px}
+.b4-badge-live{display:inline-flex;align-items:center;padding:3px 10px;border-radius:999px;background:rgba(110,231,183,0.12);border:1px solid rgba(110,231,183,0.3);font-family:'Inter',sans-serif;font-weight:600;font-size:0.7rem;color:#6EE7B7;letter-spacing:0.06em;text-transform:uppercase}
+.b4-badge-breaking{display:inline-flex;align-items:center;padding:3px 10px;border-radius:999px;background:rgba(201,168,76,0.12);border:1px solid rgba(201,168,76,0.3);font-family:'Inter',sans-serif;font-weight:600;font-size:0.7rem;color:#C9A84C;letter-spacing:0.06em;text-transform:uppercase}
+.b4-wonder{background:#1A1A24;border-radius:10px;padding:24px;border-top:1px solid #C9A84C;font-family:'Newsreader',serif;font-style:italic;font-size:1.25rem;color:#F5E6C8;line-height:1.6}
+.b4-rbar-fill{background:#C9A84C}
+</style>
+</head>
+<body>
+
+<header class="page-header">
+  <p class="page-title">The Drop · Design System B</p>
+  <p class="page-subtitle">Baloo 2 · Fredoka · Plus Jakarta Sans · Newsreader · India · Ages 8–20</p>
+  <span class="sys-badge">System B — Refined Minimalism</span>
+  <nav class="band-nav">
+    <a href="#band-8-10">8–10 Kids</a>
+    <a href="#band-11-13">11–13 Tweens</a>
+    <a href="#band-14-16">14–16 Teens</a>
+    <a href="#band-17-20">17–20 Young Adults</a>
+  </nav>
+</header>
+
+
+<!-- ═══════════════ BAND 1 · 8–10 · KIDS ═══════════════ -->
+<section class="band-section" id="band-8-10">
+  <div class="band-label">
+    <span class="band-tag">Band 1</span>
+    <h2 class="band-name">Ages 8–10 · Kids</h2>
+    <p class="band-desc">Claymorphism · Baloo 2 + Nunito · Warm Indigo Palette</p>
+  </div>
+
+  <div class="design-grid">
+    <!-- Colours -->
+    <div class="token-card">
+      <div class="token-card-title">Colour Tokens</div>
+      <div class="swatches">
+        <div class="swatch"><div class="swatch-dot" style="background:#4F46E5"></div><span class="sw-lbl">primary</span></div>
+        <div class="swatch"><div class="swatch-dot" style="background:#F59E0B"></div><span class="sw-lbl">secondary</span></div>
+        <div class="swatch"><div class="swatch-dot" style="background:#10B981"></div><span class="sw-lbl">accent</span></div>
+        <div class="swatch"><div class="swatch-dot" style="background:#EC4899"></div><span class="sw-lbl">accent2</span></div>
+        <div class="swatch"><div class="swatch-dot" style="background:#F5F3FF;border:2px solid #C4B5FD"></div><span class="sw-lbl">bg</span></div>
+        <div class="swatch"><div class="swatch-dot" style="background:#1E1B4B"></div><span class="sw-lbl">text</span></div>
+        <div class="swatch"><div class="swatch-dot" style="background:#C4B5FD"></div><span class="sw-lbl">border</span></div>
+      </div>
+    </div>
+
+    <!-- Typography -->
+    <div class="token-card">
+      <div class="token-card-title">Typography · Baloo 2 + Nunito</div>
+      <div class="type-row">
+        <div class="b1-hero" style="font-size:2.5rem">Today's Big News!</div>
+        <div class="b1-h2">What happened today?</div>
+        <div class="b1-body">This is the body text for young readers. It's big, clear, and easy to read. Every word matters.</div>
+        <span class="b1-badge">🌍 World</span>
+      </div>
+    </div>
+
+    <!-- Buttons -->
+    <div class="token-card">
+      <div class="token-card-title">Buttons</div>
+      <div class="btn-row">
+        <button class="b1-btn-primary">Read Story 📖</button>
+        <button class="b1-btn-secondary">Maybe Later</button>
+      </div>
+    </div>
+
+    <!-- Card -->
+    <div class="token-card">
+      <div class="token-card-title">Article Card · Claymorphism</div>
+      <div class="b1-card">
+        <div class="b1-card-top"></div>
+        <div style="margin-bottom:8px"><span class="b1-badge">🌍 World</span></div>
+        <div class="b1-h2" style="font-size:1.25rem;margin-bottom:8px">Big things are happening!</div>
+        <div class="b1-body" style="font-size:1rem;margin-bottom:12px">Scientists found something amazing in the ocean. Here's what it means for all of us.</div>
+        <div style="font-size:0.8rem;color:#6D5FBB;font-family:'Nunito',sans-serif">⏱ 3 minutes · Age 8–10</div>
+      </div>
+    </div>
+
+    <!-- Wonder Question -->
+    <div class="token-card">
+      <div class="token-card-title">Wonder Question</div>
+      <div class="b1-wonder">
+        🤔 If you could explore the bottom of the ocean, what do you think you'd find?
+      </div>
+    </div>
+
+    <!-- Radius -->
+    <div class="token-card">
+      <div class="token-card-title">Radius · Claymorphism</div>
+      <div class="radius-row">
+        <div><div class="rbox" style="background:#4F46E5;border-radius:14px"></div><div class="rlbl">sm 14px</div></div>
+        <div><div class="rbox" style="background:#4F46E5;border-radius:22px"></div><div class="rlbl">md 22px</div></div>
+        <div><div class="rbox" style="background:#4F46E5;border-radius:32px"></div><div class="rlbl">lg 32px</div></div>
+        <div><div class="rbox" style="background:#4F46E5;border-radius:999px;width:52px"></div><div class="rlbl">full</div></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<hr class="band-divider" />
+
+
+<!-- ═══════════════ BAND 2 · 11–13 · TWEENS ═══════════════ -->
+<section class="band-section" id="band-11-13">
+  <div class="band-label">
+    <span class="band-tag">Band 2</span>
+    <h2 class="band-name">Ages 11–13 · Tweens</h2>
+    <p class="band-desc">Soft Flat · Fredoka + Outfit · Blue / Clean Light</p>
+  </div>
+
+  <div class="design-grid">
+    <!-- Colours -->
+    <div class="token-card">
+      <div class="token-card-title">Colour Tokens</div>
+      <div class="swatches">
+        <div class="swatch"><div class="swatch-dot" style="background:#2563EB"></div><span class="sw-lbl">primary</span></div>
+        <div class="swatch"><div class="swatch-dot" style="background:#0EA5E9"></div><span class="sw-lbl">secondary</span></div>
+        <div class="swatch"><div class="swatch-dot" style="background:#8B5CF6"></div><span class="sw-lbl">accent</span></div>
+        <div class="swatch"><div class="swatch-dot" style="background:#F59E0B"></div><span class="sw-lbl">amber</span></div>
+        <div class="swatch"><div class="swatch-dot" style="background:#F0F9FF;border:2px solid #BAE6FD"></div><span class="sw-lbl">bg</span></div>
+        <div class="swatch"><div class="swatch-dot" style="background:#0C2340"></div><span class="sw-lbl">text</span></div>
+        <div class="swatch"><div class="swatch-dot" style="background:#BAE6FD"></div><span class="sw-lbl">border</span></div>
+      </div>
+    </div>
+
+    <!-- Typography -->
+    <div class="token-card">
+      <div class="token-card-title">Typography · Fredoka + Outfit</div>
+      <div class="type-row">
+        <div class="b2-hero" style="font-size:2rem">Today's News Drop 🔥</div>
+        <div class="b2-h2">What's happening?</div>
+        <div class="b2-body">Body text is clean and easy to read. Get the full story without the boring stuff.</div>
+        <span class="b2-badge">World</span>
+      </div>
+    </div>
+
+    <!-- Buttons -->
+    <div class="token-card">
+      <div class="token-card-title">Buttons</div>
+      <div class="btn-row">
+        <button class="b2-btn-primary">Read More</button>
+        <button class="b2-btn-secondary">Save It</button>
+      </div>
+    </div>
+
+    <!-- Card -->
+    <div class="token-card">
+      <div class="token-card-title">Article Card · Soft Flat</div>
+      <div class="b2-card">
+        <div class="b2-card-top"></div>
+        <div style="margin-bottom:8px"><span class="b2-badge">Tech</span></div>
+        <div class="b2-h2" style="font-size:1.125rem;margin-bottom:8px">AI is changing school forever</div>
+        <div class="b2-body" style="font-size:0.9375rem;margin-bottom:10px">Find out what teachers and students think about using AI in the classroom.</div>
+        <div style="font-size:0.8rem;color:#475569;font-family:'Outfit',sans-serif">4 min read · Ages 11–13</div>
+      </div>
+    </div>
+
+    <!-- Wonder Question -->
+    <div class="token-card">
+      <div class="token-card-title">Wonder Question</div>
+      <div class="b2-wonder">
+        💭 Would you trust an AI to mark your homework? Why or why not?
+      </div>
+    </div>
+
+    <!-- Radius -->
+    <div class="token-card">
+      <div class="token-card-title">Radius · Soft Flat</div>
+      <div class="radius-row">
+        <div><div class="rbox" style="background:#2563EB;border-radius:8px"></div><div class="rlbl">sm 8px</div></div>
+        <div><div class="rbox" style="background:#2563EB;border-radius:14px"></div><div class="rlbl">md 14px</div></div>
+        <div><div class="rbox" style="background:#2563EB;border-radius:20px"></div><div class="rlbl">lg 20px</div></div>
+        <div><div class="rbox" style="background:#2563EB;border-radius:999px;width:52px"></div><div class="rlbl">full</div></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<hr class="band-divider" />
+
+
+<!-- ═══════════════ BAND 3 · 14–16 · TEENS ═══════════════ -->
+<section class="band-section" id="band-14-16">
+  <div class="band-label">
+    <span class="band-tag">Band 3</span>
+    <h2 class="band-name">Ages 14–16 · Teens</h2>
+    <p class="band-desc">Vibrant Block · Plus Jakarta Sans + Inter · Rose/Black Dark Mode</p>
+  </div>
+
+  <div class="design-grid">
+    <!-- Colours -->
+    <div class="token-card">
+      <div class="token-card-title">Colour Tokens</div>
+      <div class="swatches">
+        <div class="swatch"><div class="swatch-dot" style="background:#F43F5E"></div><span class="sw-lbl">primary</span></div>
+        <div class="swatch"><div class="swatch-dot" style="background:#FB7185"></div><span class="sw-lbl">secondary</span></div>
+        <div class="swatch"><div class="swatch-dot" style="background:#6366F1"></div><span class="sw-lbl">accent</span></div>
+        <div class="swatch"><div class="swatch-dot" style="background:#FBBF24"></div><span class="sw-lbl">amber</span></div>
+        <div class="swatch"><div class="swatch-dot" style="background:#0F0F13"></div><span class="sw-lbl">bg</span></div>
+        <div class="swatch"><div class="swatch-dot" style="background:#1A1A22"></div><span class="sw-lbl">surface</span></div>
+        <div class="swatch"><div class="swatch-dot" style="background:#F8F8FC"></div><span class="sw-lbl">text</span></div>
+      </div>
+    </div>
+
+    <!-- Typography -->
+    <div class="token-card">
+      <div class="token-card-title">Typography · Plus Jakarta Sans + Inter</div>
+      <div class="type-row">
+        <div class="b3-hero" style="font-size:2.5rem">THIS IS THE NEWS.</div>
+        <div class="b3-h2">What you need to know</div>
+        <div class="b3-body">Body text is sharp and clear. No filler. Just the story, told straight.</div>
+        <div><span class="b3-label">Breaking</span></div>
+      </div>
+    </div>
+
+    <!-- Buttons -->
+    <div class="token-card">
+      <div class="token-card-title">Buttons</div>
+      <div class="btn-row">
+        <button class="b3-btn-primary">Read Now</button>
+        <button class="b3-btn-secondary">Save</button>
+      </div>
+    </div>
+
+    <!-- Card -->
+    <div class="token-card">
+      <div class="token-card-title">Article Card · Vibrant Block</div>
+      <div class="b3-card" style="position:relative">
+        <div class="b3-label" style="margin-bottom:10px">Politics</div>
+        <div class="b3-h2" style="font-size:1.125rem;margin-bottom:8px">Youth voters are changing the game</div>
+        <div class="b3-body" style="font-size:0.9375rem;margin-bottom:10px">How Gen Z turned out in record numbers and what it means for the next election.</div>
+        <div style="display:flex;align-items:center;gap:10px">
+          <span class="b3-badge">Breaking</span>
+          <span style="font-family:'Inter',sans-serif;font-size:0.75rem;color:#9CA3AF">5 min read</span>
+        </div>
+        <div class="rbar" style="margin-top:14px"><div class="rbar-fill" style="background:#F43F5E"></div></div>
+      </div>
+    </div>
+
+    <!-- Wonder Question -->
+    <div class="token-card">
+      <div class="token-card-title">Wonder Question</div>
+      <div class="b3-wonder">
+        If you could vote tomorrow, what's the one issue that would decide your vote?
+      </div>
+    </div>
+
+    <!-- Radius -->
+    <div class="token-card">
+      <div class="token-card-title">Radius · Vibrant Block</div>
+      <div class="radius-row">
+        <div><div class="rbox" style="background:#F43F5E;border-radius:6px"></div><div class="rlbl">sm 6px</div></div>
+        <div><div class="rbox" style="background:#F43F5E;border-radius:10px"></div><div class="rlbl">md 10px</div></div>
+        <div><div class="rbox" style="background:#F43F5E;border-radius:16px"></div><div class="rlbl">lg 16px</div></div>
+        <div><div class="rbox" style="background:#F43F5E;border-radius:999px;width:52px"></div><div class="rlbl">full</div></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<hr class="band-divider" />
+
+
+<!-- ═══════════════ BAND 4 · 17–20 · YOUNG ADULTS ═══════════════ -->
+<section class="band-section" id="band-17-20">
+  <div class="band-label">
+    <span class="band-tag">Band 4</span>
+    <h2 class="band-name"><em>Ages 17–20 · Young Adults</em></h2>
+    <p class="band-desc">Refined Minimalism · Newsreader Serif + Inter · Gold / Near-Black</p>
+  </div>
+
+  <div class="design-grid">
+    <!-- Colours -->
+    <div class="token-card">
+      <div class="token-card-title">Colour Tokens</div>
+      <div class="swatches">
+        <div class="swatch"><div class="swatch-dot" style="background:#F5E6C8"></div><span class="sw-lbl">headline</span></div>
+        <div class="swatch"><div class="swatch-dot" style="background:#C9A84C"></div><span class="sw-lbl">gold</span></div>
+        <div class="swatch"><div class="swatch-dot" style="background:#E8D5A3"></div><span class="sw-lbl">gold lt</span></div>
+        <div class="swatch"><div class="swatch-dot" style="background:#111118"></div><span class="sw-lbl">bg</span></div>
+        <div class="swatch"><div class="swatch-dot" style="background:#1A1A24"></div><span class="sw-lbl">surface</span></div>
+        <div class="swatch"><div class="swatch-dot" style="background:#C8C8D8"></div><span class="sw-lbl">body</span></div>
+        <div class="swatch"><div class="swatch-dot" style="background:#666680"></div><span class="sw-lbl">muted</span></div>
+      </div>
+    </div>
+
+    <!-- Typography -->
+    <div class="token-card">
+      <div class="token-card-title">Typography · Newsreader + Inter</div>
+      <div class="type-row">
+        <div class="b4-hero" style="font-size:2.25rem"><em>The world, explained.</em></div>
+        <div class="b4-h2">Inside the story</div>
+        <div class="b4-body">Body text is precise and readable. Long-form journalism deserves a typeface that respects the reader's attention.</div>
+        <div class="b4-label">Analysis · 6 min read</div>
+      </div>
+    </div>
+
+    <!-- Buttons -->
+    <div class="token-card">
+      <div class="token-card-title">Buttons</div>
+      <div class="btn-row">
+        <button class="b4-btn-primary">Read Story</button>
+        <button class="b4-btn-secondary">Bookmark</button>
+      </div>
+    </div>
+
+    <!-- Card -->
+    <div class="token-card">
+      <div class="token-card-title">Article Card · Refined Minimalism</div>
+      <div class="b4-card">
+        <div class="b4-card-top"></div>
+        <div style="display:flex;align-items:center;gap:8px;margin-bottom:12px">
+          <span class="b4-badge-live"><span class="live-dot" style="background:#6EE7B7"></span>Live</span>
+          <span class="b4-label">World · Economy</span>
+        </div>
+        <div class="b4-h2" style="font-size:1.25rem;margin-bottom:10px"><em>The global trade shift nobody saw coming</em></div>
+        <div class="b4-body" style="font-size:0.9375rem;margin-bottom:12px">A quiet but consequential realignment is underway. Here is what it means for India.</div>
+        <div class="rbar"><div class="rbar-fill b4-rbar-fill"></div></div>
+      </div>
+    </div>
+
+    <!-- Wonder Question -->
+    <div class="token-card">
+      <div class="token-card-title">Wonder Question</div>
+      <div class="b4-wonder">
+        <em>If global trade routes shift east, which country gains the most — and which loses the most?</em>
+      </div>
+    </div>
+
+    <!-- Radius -->
+    <div class="token-card">
+      <div class="token-card-title">Radius · Refined Minimalism</div>
+      <div class="radius-row">
+        <div><div class="rbox" style="background:#C9A84C;border-radius:6px"></div><div class="rlbl">sm 6px</div></div>
+        <div><div class="rbox" style="background:#C9A84C;border-radius:12px"></div><div class="rlbl">md 12px</div></div>
+        <div><div class="rbox" style="background:#C9A84C;border-radius:18px"></div><div class="rlbl">lg 18px</div></div>
+        <div><div class="rbox" style="background:#C9A84C;border-radius:999px;width:52px"></div><div class="rlbl">full</div></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+</body>
+</html>
