@@ -384,14 +384,15 @@ function PathASignup({ setPhase, setToken, setParentToken, setUserData, navigate
         parent_name: `${parentForm.first_name} ${parentForm.last_name}`.trim(),
         parent_email: parentForm.email,
         parent_password: parentForm.password,
+        parent_relation: parentForm.relation || 'guardian',
         children: children.map(c => ({
           child_name: `${c.first_name} ${c.last_name}`.trim(),
-          child_username: c.username || undefined,
+          child_username: c.username || '',
           child_age: parseInt(c.age),
           child_gender: c.gender,
           child_country_code: c.country_code,
-          child_city: c.city || undefined,
-          child_school: c.school || undefined,
+          child_city: c.city || '',
+          child_school: c.school || '',
         })),
       };
       console.log('[PathA] POST /api/auth/register-child payload:', JSON.stringify(payload));
