@@ -96,37 +96,54 @@ export const ProfileSwitcherModal = ({ open, onClose, onPanelClose }) => {
   ];
 
   const handleSwitch = async (profile) => {
-    if (profile.id === user?.id) return;
+    console.log('[Switch] handleSwitch called for:', profile.id, profile.full_name);
+    console.log('[Switch] Current user:', user?.id, '| Same?', profile.id === user?.id);
+    if (profile.id === user?.id) {
+      console.log('[Switch] Skipping — same profile');
+      return;
+    }
     setSwitching(profile.id);
     try {
-      // Use parent token for switching if available
       const switchToken = parentToken || token;
-      console.log('[Switch] POST /api/auth/switch-profile target:', profile.id);
+      console.log('[Switch] Using token type:', parentToken ? 'parent_token' : 'user_token');
+      console.log('[Switch] POST', `${BACKEND_URL}/api/auth/switch-profile`, '{ target_user_id:', profile.id, '}');
       const res = await axios.post(`${BACKEND_URL}/api/auth/switch-profile`,
         { target_user_id: profile.id },
         { headers: { Authorization: `Bearer ${switchToken}` } }
       );
-      console.log('[Switch] Response:', JSON.stringify(res.data));
+      console.log('[Switch] Response status:', res.status);
+      console.log('[Switch] Response body:', JSON.stringify(res.data));
+
       if (res.data.token) {
         setToken(res.data.token);
         localStorage.setItem('token', res.data.token);
-        if (res.data.user) {
-          setUserData(res.data.user);
-        } else {
+        console.log('[Switch] Token updated in localStorage ✓');
+
+        let newUser = res.data.user;
+        if (!newUser) {
+          console.log('[Switch] No user in response, fetching /api/auth/me...');
           const meRes = await axios.get(`${BACKEND_URL}/api/auth/me`, {
             headers: { Authorization: `Bearer ${res.data.token}` },
           });
-          setUserData(meRes.data);
+          newUser = meRes.data;
         }
+        console.log('[Switch] Setting user data:', newUser?.id, newUser?.full_name, 'age_group:', newUser?.age_group);
+        setUserData(newUser);
         fetchLinkedProfiles(parentToken || res.data.token);
       } else if (res.data.user) {
+        console.log('[Switch] No token in response, but got user:', res.data.user?.id);
         setUserData(res.data.user);
+      } else {
+        console.warn('[Switch] Response has neither token nor user:', res.data);
       }
+
+      console.log('[Switch] Closing modal and navigating to /feed');
       onClose();
-      onPanelClose();
+      if (onPanelClose) onPanelClose();
       navigate('/feed');
     } catch (e) {
-      console.error('[Switch] FAILED:', e.response?.status, JSON.stringify(e.response?.data));
+      console.error('[Switch] FAILED:', e.response?.status, e.response?.data, e.message);
+      console.error('[Switch] Full error:', e);
     }
     setSwitching(null);
   };
@@ -184,15 +201,18 @@ export const ProfileSwitcherModal = ({ open, onClose, onPanelClose }) => {
                 const profBand = AGE_TO_BAND[profile.age_group];
                 const profGradient = GRADIENTS[profBand] || fallbackGradient;
                 const isSwitching = switching === profile.id;
-                const isOnlyProfile = sorted.length <= 1;
+                
 
                 return (
                   <motion.button
                     key={profile.id}
                     whileHover={{ scale: 1.01 }}
                     whileTap={{ scale: 0.98 }}
-                    onClick={() => handleSwitch(profile)}
-                    disabled={isActive || isSwitching || isOnlyProfile}
+                    onClick={() => {
+                      console.log('[Switch] Button clicked for:', profile.id, profile.full_name, '| isActive:', isActive, '| isSwitching:', isSwitching);
+                      handleSwitch(profile);
+                    }}
+                    disabled={isActive || isSwitching}
                     className="w-full flex items-center gap-4 p-4 rounded-2xl transition-all"
                     style={{
                       background: isActive
@@ -201,8 +221,8 @@ export const ProfileSwitcherModal = ({ open, onClose, onPanelClose }) => {
                       border: isActive
                         ? (isDark ? '1.5px solid rgba(92,78,250,0.3)' : '1.5px solid #93C5FD')
                         : '1.5px solid var(--drop-border)',
-                      opacity: (isSwitching || (isOnlyProfile && !isActive)) ? 0.5 : 1,
-                      cursor: isActive || isOnlyProfile ? 'default' : 'pointer',
+                      opacity: isSwitching ? 0.5 : 1,
+                      cursor: isActive ? 'default' : 'pointer',
                     }}
                   >
                     <div className="flex-shrink-0" style={{ width: 52, height: 52, borderRadius: '50%', padding: 2.5, background: profGradient }}>
@@ -237,7 +257,7 @@ export const ProfileSwitcherModal = ({ open, onClose, onPanelClose }) => {
                       <span className="flex-shrink-0 text-xs font-semibold px-3 py-1.5 rounded-full"
                         style={{
                           background: isDark ? 'rgba(255,255,255,0.08)' : '#F1F5F9',
-                          color: isOnlyProfile ? '#CBD5E1' : 'var(--drop-text-muted)',
+                          color: 'var(--drop-text-muted)',
                           fontFamily: 'var(--drop-font-body)',
                         }}>
                         {isSwitching ? '...' : 'Switch'}
