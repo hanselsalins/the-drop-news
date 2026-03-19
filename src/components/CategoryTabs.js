@@ -5,7 +5,7 @@ import { light } from '../lib/haptic';
 
 export const CategoryTabs = ({ categories, activeCategory, setActiveCategory }) => {
   const { band } = useTheme();
-  const isDark = band === 'sharp-aware' || band === 'editorial';
+  const isBand1 = band === 'big-bold-bright';
   const isBand2 = band === 'cool-connected';
 
   const handleTabClick = (catId) => {
@@ -18,7 +18,7 @@ export const CategoryTabs = ({ categories, activeCategory, setActiveCategory }) 
       className="w-full overflow-x-auto scrollbar-hide"
       style={{
         background: 'var(--drop-surface)',
-        borderBottom: `1px solid var(--drop-border)`,
+        borderBottom: '1px solid var(--drop-border)',
         WebkitOverflowScrolling: 'touch',
       }}
     >
@@ -37,7 +37,7 @@ export const CategoryTabs = ({ categories, activeCategory, setActiveCategory }) 
                 className="shrink-0 px-3 py-2 text-[11px] font-semibold tracking-[0.06em] uppercase whitespace-nowrap transition-all duration-200"
                 style={{
                   fontFamily: 'var(--drop-font-heading)',
-                  borderRadius: 6,
+                  borderRadius: 'var(--drop-radius-btn)',
                   background: isActive ? 'var(--drop-bg-elevated, #252530)' : 'transparent',
                   color: isActive ? 'var(--drop-text)' : 'var(--drop-text-muted)',
                   border: isActive ? '1px solid var(--drop-border-solid, #2E2E3C)' : '1px solid transparent',
@@ -63,7 +63,7 @@ export const CategoryTabs = ({ categories, activeCategory, setActiveCategory }) 
                   borderRadius: 0,
                   background: 'transparent',
                   color: isActive ? 'var(--drop-text)' : 'var(--drop-text-muted)',
-                  borderBottom: isActive ? `2px solid var(--drop-accent)` : '2px solid transparent',
+                  borderBottom: isActive ? '2px solid var(--drop-accent)' : '2px solid transparent',
                 }}
               >
                 {cat.name}
@@ -83,9 +83,9 @@ export const CategoryTabs = ({ categories, activeCategory, setActiveCategory }) 
                 className="shrink-0 px-4 py-2 text-xs font-semibold tracking-wide uppercase whitespace-nowrap transition-colors duration-200"
                 style={{
                   fontFamily: 'var(--drop-font-body)',
-                  borderRadius: 20,
-                  background: isActive ? color : `${color}12`,
-                  color: isActive ? '#FFFFFF' : color,
+                  borderRadius: 'var(--drop-radius-btn)',
+                  background: isActive ? 'var(--drop-primary)' : 'color-mix(in srgb, var(--drop-primary) 8%, transparent)',
+                  color: isActive ? '#FFFFFF' : 'var(--drop-primary)',
                   fontWeight: isActive ? 700 : 600,
                 }}
               >
@@ -103,12 +103,12 @@ export const CategoryTabs = ({ categories, activeCategory, setActiveCategory }) 
               className="shrink-0 px-4 py-2 text-xs font-bold tracking-wide uppercase whitespace-nowrap transition-all duration-200"
               style={{
                 fontFamily: 'var(--drop-font-heading)',
-                borderRadius: 999,
-                background: isActive ? color : `${color}12`,
-                color: isActive ? '#FFFFFF' : color,
+                borderRadius: 'var(--drop-radius-btn)',
+                background: isActive ? 'var(--drop-primary)' : 'color-mix(in srgb, var(--drop-primary) 8%, transparent)',
+                color: isActive ? '#FFFFFF' : 'var(--drop-primary)',
                 fontWeight: 700,
-                border: !isActive ? `2px solid ${color}40` : 'none',
-                boxShadow: isActive ? `3px 3px 0px 0px ${color}40` : 'none',
+                border: !isActive ? '2px solid color-mix(in srgb, var(--drop-primary) 25%, transparent)' : 'none',
+                boxShadow: isActive ? '3px 3px 0px 0px color-mix(in srgb, var(--drop-primary) 25%, transparent)' : 'none',
               }}
             >
               {cat.name}

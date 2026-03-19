@@ -161,19 +161,6 @@ export default function FeedPage() {
     day: 'numeric',
   });
 
-  const headerGradient = isBand1
-    ? 'linear-gradient(135deg, #FF4B4B 0%, #FFD93D 100%)'
-    : isBand2
-    ? 'linear-gradient(135deg, #1E90FF 0%, #00D4AA 100%)'
-    : isBand3
-    ? 'var(--drop-header-bg)'
-    : 'var(--drop-header-bg)';
-
-  const headerFont = isBand1 ? 'Fredoka, cursive'
-    : isBand2 ? 'Baloo 2, cursive'
-    : isBand3 ? 'Syne, sans-serif'
-    : 'Urbanist, sans-serif';
-
   const handlePullRefresh = async () => {
     if (isRefreshing) return;
     setIsRefreshing(true);
@@ -183,94 +170,10 @@ export default function FeedPage() {
     setIsRefreshing(false);
   };
 
-  return (
-    <div data-testid="feed-page" className="min-h-screen pb-28" style={{ background: 'var(--drop-bg)', position: 'relative', overflow: 'hidden' }}>
-      {/* Streak celebration */}
-      <StreakCelebration streakCount={streak.current_streak} onComplete={() => setShowCelebration(false)} />
-
-      <MilestoneBanner
-        milestone={milestone}
-        onDismiss={() => acknowledgeMilestone(milestone?.notification_id)}
-        isKids={isKids}
-      />
-
-      {/* ═══ BAND 1: Big Bold Bright header ═══ */}
-      {isBand1 && (
-        <>
-          <div style={{ background: headerGradient, padding: '12px 20px' }}>
-            <div className="flex items-center justify-between">
-              <div>
-                <h1 style={{ fontFamily: headerFont, fontSize: 28, fontWeight: 700, color: '#FFFFFF', lineHeight: 1.2, margin: 0 }}>
-                  The Drop
-                </h1>
-                <p style={{ fontFamily: 'var(--drop-font-body)', fontSize: 12, color: 'rgba(255,255,255,0.8)', marginTop: 2 }}>
-                  {today}
-                </p>
-              </div>
-              <ProfileButton onClick={() => setProfileOpen(true)} size={34} />
-            </div>
-          </div>
-          {loading && categories.length === 0 ? <SkeletonTabs /> : (
-            <CategoryTabs categories={categories} activeCategory={activeCategory} setActiveCategory={setActiveCategory} />
-          )}
-          {activeCategory === 'today' && !loading && articles.length > 0 && (
-            <MissionHeader articles={articles} readArticleIds={readIds} streak={streak} topCategory={topCategory} />
-          )}
-        </>
-      )}
-
-      {/* ═══ BAND 2: Cool & Connected header ═══ */}
-      {isBand2 && (
-        <>
-          <div style={{ background: headerGradient, padding: '12px 20px' }}>
-            <div className="flex items-center justify-between">
-              <div>
-                <h1 style={{ fontFamily: headerFont, fontSize: 26, fontWeight: 700, color: '#FFFFFF', lineHeight: 1.2, margin: 0 }}>
-                  The Drop
-                </h1>
-                <p style={{ fontFamily: 'var(--drop-font-body)', fontSize: 12, color: 'rgba(255,255,255,0.8)', marginTop: 2 }}>
-                  {today}
-                </p>
-              </div>
-              <ProfileButton onClick={() => setProfileOpen(true)} size={34} />
-            </div>
-          </div>
-          {loading && categories.length === 0 ? <SkeletonTabs /> : (
-            <CategoryTabs categories={categories} activeCategory={activeCategory} setActiveCategory={setActiveCategory} />
-          )}
-          {activeCategory === 'today' && !loading && articles.length > 0 && (
-            <MissionHeader articles={articles} readArticleIds={readIds} streak={streak} topCategory={topCategory} />
-          )}
-        </>
-      )}
-
-      {/* ═══ BAND 3: Sharp & Aware header ═══ */}
-      {isBand3 && (
-        <>
-          <div style={{ background: 'var(--drop-header-bg)', padding: '14px 20px 18px' }}>
-            <div className="flex items-center justify-between">
-              <div>
-                <h1 style={{ fontFamily: headerFont, fontSize: 22, fontWeight: 800, color: 'var(--drop-text)', lineHeight: 1.2, margin: 0, letterSpacing: '-0.04em', textTransform: 'uppercase' }}>
-                  The Drop
-                </h1>
-                <p style={{ fontFamily: 'var(--drop-font-body)', fontSize: 12, color: 'var(--drop-text-muted)', marginTop: 2 }}>
-                  {today}
-                </p>
-              </div>
-              <ProfileButton onClick={() => setProfileOpen(true)} size={34} />
-            </div>
-          </div>
-          {loading && categories.length === 0 ? <SkeletonTabs /> : (
-            <CategoryTabs categories={categories} activeCategory={activeCategory} setActiveCategory={setActiveCategory} />
-          )}
-          {activeCategory === 'today' && !loading && articles.length > 0 && (
-            <BriefingHeader articles={articles} readArticleIds={readIds} streak={streak} topCategory={topCategory} />
-          )}
-        </>
-      )}
-
-      {/* ═══ BAND 4: Cyber Editorial header ═══ */}
-      {isBand4 && (
+  // Unified header renderer using CSS tokens
+  const renderHeader = () => {
+    if (isBand4) {
+      return (
         <>
           {!loading && articles.length > 0 && activeCategory === 'today' ? (
             <EditorialHeader articles={articles} topCategory={topCategory} onProfileOpen={() => setProfileOpen(true)} />
@@ -286,23 +189,74 @@ export default function FeedPage() {
             <CategoryTabs categories={categories} activeCategory={activeCategory} setActiveCategory={setActiveCategory} />
           )}
         </>
-      )}
+      );
+    }
 
-      {/* ═══ Fallback (no band set) ═══ */}
-      {!band && (
-        <>
-          <div style={{ background: 'linear-gradient(135deg, #3B82F6 0%, #8B5CF6 60%, #EC4899 100%)', padding: '14px 20px 18px' }}>
-            <div className="flex items-center justify-between">
-              <div>
-                <h1 style={{ fontFamily: 'Fredoka, sans-serif', fontSize: 28, fontWeight: 900, color: '#FFFFFF', lineHeight: 1.2, margin: 0 }}>The Drop</h1>
-                <p style={{ fontFamily: 'Outfit, sans-serif', fontSize: 12, color: 'rgba(255,255,255,0.75)', marginTop: 2 }}>{today}</p>
-              </div>
-              <ProfileButton onClick={() => setProfileOpen(true)} size={34} />
+    return (
+      <>
+        <div style={{ background: 'var(--drop-header-bg)', padding: isBand3 ? '14px 20px 18px' : '12px 20px' }}>
+          <div className="flex items-center justify-between">
+            <div>
+              <h1 style={{
+                fontFamily: 'var(--drop-font-heading)',
+                fontSize: isBand1 ? 28 : isBand2 ? 26 : 22,
+                fontWeight: isBand3 ? 800 : 700,
+                color: isBand3 ? 'var(--drop-text)' : '#FFFFFF',
+                lineHeight: 1.2,
+                margin: 0,
+                letterSpacing: isBand3 ? '-0.04em' : undefined,
+                textTransform: isBand3 ? 'uppercase' : undefined,
+              }}>
+                The Drop
+              </h1>
+              <p style={{ fontFamily: 'var(--drop-font-body)', fontSize: 12, color: isBand3 ? 'var(--drop-text-muted)' : 'rgba(255,255,255,0.8)', marginTop: 2 }}>
+                {today}
+              </p>
             </div>
+            <ProfileButton onClick={() => setProfileOpen(true)} size={34} />
           </div>
+        </div>
+        {loading && categories.length === 0 ? <SkeletonTabs /> : (
           <CategoryTabs categories={categories} activeCategory={activeCategory} setActiveCategory={setActiveCategory} />
-        </>
-      )}
+        )}
+        {activeCategory === 'today' && !loading && articles.length > 0 && (
+          isBand3 ? (
+            <BriefingHeader articles={articles} readArticleIds={readIds} streak={streak} topCategory={topCategory} />
+          ) : (
+            <MissionHeader articles={articles} readArticleIds={readIds} streak={streak} topCategory={topCategory} />
+          )
+        )}
+      </>
+    );
+  };
+
+  // Fallback header when no band is set
+  const renderFallbackHeader = () => (
+    <>
+      <div style={{ background: 'linear-gradient(135deg, #3B82F6 0%, #8B5CF6 60%, #EC4899 100%)', padding: '14px 20px 18px' }}>
+        <div className="flex items-center justify-between">
+          <div>
+            <h1 style={{ fontFamily: "'Fredoka', sans-serif", fontSize: 28, fontWeight: 900, color: '#FFFFFF', lineHeight: 1.2, margin: 0 }}>The Drop</h1>
+            <p style={{ fontFamily: "'Outfit', sans-serif", fontSize: 12, color: 'rgba(255,255,255,0.75)', marginTop: 2 }}>{today}</p>
+          </div>
+          <ProfileButton onClick={() => setProfileOpen(true)} size={34} />
+        </div>
+      </div>
+      <CategoryTabs categories={categories} activeCategory={activeCategory} setActiveCategory={setActiveCategory} />
+    </>
+  );
+
+  return (
+    <div data-testid="feed-page" className="min-h-screen pb-28" style={{ background: 'var(--drop-bg)', position: 'relative', overflow: 'hidden' }}>
+      <StreakCelebration streakCount={streak.current_streak} onComplete={() => setShowCelebration(false)} />
+
+      <MilestoneBanner
+        milestone={milestone}
+        onDismiss={() => acknowledgeMilestone(milestone?.notification_id)}
+        isKids={isKids}
+      />
+
+      {band ? renderHeader() : renderFallbackHeader()}
 
       {/* Pull-to-refresh indicator */}
       {(pullDistance > 10 || isRefreshing) && (
@@ -311,7 +265,7 @@ export default function FeedPage() {
             size={20}
             className={isRefreshing ? 'animate-spin' : ''}
             style={{
-              color: 'var(--drop-accent, #3B82F6)',
+              color: 'var(--drop-primary)',
               transform: isRefreshing ? undefined : `rotate(${Math.min(pullDistance * 2, 360)}deg)`,
               transition: isRefreshing ? 'none' : 'transform 0.1s',
             }}

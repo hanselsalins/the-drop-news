@@ -6,10 +6,7 @@ import { useReducedMotion } from '../hooks/useReducedMotion';
 export const MicroFactCard = ({ fact }) => {
   const { band } = useTheme();
   const prefersReducedMotion = useReducedMotion();
-  const isDark = band === 'sharp-aware' || band === 'editorial';
   const isBand1 = band === 'big-bold-bright';
-
-  const accentColor = '#10B981';
 
   return (
     <motion.div
@@ -18,20 +15,20 @@ export const MicroFactCard = ({ fact }) => {
       animate={prefersReducedMotion ? undefined : { opacity: 1, scale: 1 }}
       className="p-4 relative overflow-hidden"
       style={{
-        background: isDark ? 'var(--drop-surface)' : (isBand1 ? '#F0FFF4' : '#F0FDF4'),
-        border: isDark ? `1px solid var(--drop-border)` : '1.5px solid #BBF7D0',
-        borderLeft: `${isBand1 ? 5 : 3}px solid ${accentColor}`,
-        borderRadius: 'var(--drop-radius-card, 18px)',
-        boxShadow: isBand1 ? '4px 4px 0px 0px #A7F3D0' : 'var(--drop-shadow-card)',
+        background: 'var(--drop-surface)',
+        border: '1px solid var(--drop-border)',
+        borderLeft: `${isBand1 ? 5 : 3}px solid var(--drop-accent)`,
+        borderRadius: 'var(--drop-radius-card)',
+        boxShadow: isBand1 ? 'var(--drop-shadow-card)' : 'var(--drop-shadow-card)',
       }}
     >
       <div className="flex items-center gap-2 mb-2">
-        {band !== 'sharp-aware' && <Lightbulb size={18} color={accentColor} aria-hidden="true" />}
+        {band !== 'sharp-aware' && <Lightbulb size={18} style={{ color: 'var(--drop-accent)' }} aria-hidden="true" />}
         <span
           className="text-[10px] font-bold tracking-wider uppercase"
           style={{
             fontFamily: band === 'sharp-aware' ? 'var(--drop-font-heading)' : 'var(--drop-font-body)',
-            color: accentColor,
+            color: 'var(--drop-accent)',
             letterSpacing: band === 'sharp-aware' ? '0.08em' : undefined,
           }}
         >
@@ -42,7 +39,7 @@ export const MicroFactCard = ({ fact }) => {
         className="text-xs leading-relaxed"
         style={{
           fontFamily: 'var(--drop-font-body)',
-          color: isDark ? 'var(--drop-text)' : '#065F46',
+          color: 'var(--drop-text)',
           fontSize: isBand1 ? 14 : 12,
           fontStyle: band === 'sharp-aware' ? 'normal' : 'italic',
         }}

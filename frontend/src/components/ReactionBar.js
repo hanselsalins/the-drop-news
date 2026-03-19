@@ -15,13 +15,12 @@ const REACTIONS = [
   { id: 'inspiring', emoji: '💪', label: 'Inspiring' },
 ];
 
-export const ReactionBar = ({ articleId, categoryColor = '#3B82F6' }) => {
+export const ReactionBar = ({ articleId }) => {
   const { token, band } = useTheme();
   const prefersReducedMotion = useReducedMotion();
   const [counts, setCounts] = useState({});
   const [userReaction, setUserReaction] = useState(null);
   const [animating, setAnimating] = useState(null);
-  const isDark = band === 'sharp-aware' || band === 'editorial';
 
   useEffect(() => {
     const fetchReactions = async () => {
@@ -67,7 +66,6 @@ export const ReactionBar = ({ articleId, categoryColor = '#3B82F6' }) => {
     setTimeout(() => setAnimating(null), 300);
   };
 
-  // Band 2: squishy tactile press
   const getWhileTap = () => {
     if (prefersReducedMotion) return undefined;
     if (band === 'cool-connected') return { scale: 1.1, scaleY: 0.9 };
@@ -84,9 +82,9 @@ export const ReactionBar = ({ articleId, categoryColor = '#3B82F6' }) => {
       data-testid="reaction-bar"
       className="mt-8 p-5"
       style={{
-        background: isDark ? 'var(--drop-surface)' : 'var(--drop-surface)',
-        border: `1px solid var(--drop-border)`,
-        borderRadius: 'var(--drop-radius-card, 18px)',
+        background: 'var(--drop-surface)',
+        border: '1px solid var(--drop-border)',
+        borderRadius: 'var(--drop-radius-card)',
       }}
     >
       <p className="text-[11px] font-semibold tracking-wider uppercase mb-4"
@@ -107,8 +105,8 @@ export const ReactionBar = ({ articleId, categoryColor = '#3B82F6' }) => {
               transition={getTapTransition()}
               className="flex flex-col items-center gap-1.5 px-2 py-2 transition-all duration-200"
               style={{
-                background: isActive ? `${categoryColor}15` : 'transparent',
-                border: isActive ? `1.5px solid ${categoryColor}33` : '1.5px solid transparent',
+                background: isActive ? 'color-mix(in srgb, var(--drop-primary) 10%, transparent)' : 'transparent',
+                border: isActive ? '1.5px solid color-mix(in srgb, var(--drop-primary) 20%, transparent)' : '1.5px solid transparent',
                 borderRadius: 'var(--drop-radius-card, 14px)',
               }}
             >
@@ -125,7 +123,7 @@ export const ReactionBar = ({ articleId, categoryColor = '#3B82F6' }) => {
                 {r.emoji}
               </motion.span>
               <span className="text-[10px] font-bold"
-                style={{ fontFamily: 'var(--drop-font-body)', color: isActive ? categoryColor : 'var(--drop-text-muted)' }}>
+                style={{ fontFamily: 'var(--drop-font-body)', color: isActive ? 'var(--drop-primary)' : 'var(--drop-text-muted)' }}>
                 {count > 0 ? count : ''}
               </span>
               <span className="text-[9px]"
