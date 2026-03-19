@@ -96,54 +96,35 @@ export const ProfileSwitcherModal = ({ open, onClose, onPanelClose }) => {
   ];
 
   const handleSwitch = async (profile) => {
-    console.log('[Switch] handleSwitch called for:', profile.id, profile.full_name);
-    console.log('[Switch] Current user:', user?.id, '| Same?', profile.id === user?.id);
-    if (profile.id === user?.id) {
-      console.log('[Switch] Skipping — same profile');
-      return;
-    }
+    if (profile.id === user?.id) return;
     setSwitching(profile.id);
+
+    const authToken = localStorage.getItem('token');
+    console.log('[Switch] target_user_id:', profile.id);
+    console.log('[Switch] Authorization token from localStorage:', authToken ? `${authToken.slice(0, 20)}...` : 'MISSING');
+
     try {
-      const switchToken = parentToken || token;
-      console.log('[Switch] Using token type:', parentToken ? 'parent_token' : 'user_token');
-      console.log('[Switch] POST', `${BACKEND_URL}/api/auth/switch-profile`, '{ target_user_id:', profile.id, '}');
-      const res = await axios.post(`${BACKEND_URL}/api/auth/switch-profile`,
+      const res = await axios.post(
+        `${BACKEND_URL}/api/auth/switch-profile`,
         { target_user_id: profile.id },
-        { headers: { Authorization: `Bearer ${switchToken}` } }
+        { headers: { Authorization: `Bearer ${authToken}` } }
       );
-      console.log('[Switch] Response status:', res.status);
-      console.log('[Switch] Response body:', JSON.stringify(res.data));
+      console.log('[Switch] Full API response:', JSON.stringify(res.data));
 
-      if (res.data.token) {
-        setToken(res.data.token);
+      if (res.data.token && res.data.user) {
         localStorage.setItem('token', res.data.token);
-        console.log('[Switch] Token updated in localStorage ✓');
-
-        let newUser = res.data.user;
-        if (!newUser) {
-          console.log('[Switch] No user in response, fetching /api/auth/me...');
-          const meRes = await axios.get(`${BACKEND_URL}/api/auth/me`, {
-            headers: { Authorization: `Bearer ${res.data.token}` },
-          });
-          newUser = meRes.data;
-        }
-        console.log('[Switch] Setting user data:', newUser?.id, newUser?.full_name, 'age_group:', newUser?.age_group);
-        setUserData(newUser);
-        fetchLinkedProfiles(parentToken || res.data.token);
-      } else if (res.data.user) {
-        console.log('[Switch] No token in response, but got user:', res.data.user?.id);
+        setToken(res.data.token);
         setUserData(res.data.user);
-      } else {
-        console.warn('[Switch] Response has neither token nor user:', res.data);
-      }
+        console.log('[Switch] Switched to:', res.data.user.full_name, '| age_group:', res.data.user.age_group);
 
-      console.log('[Switch] Closing modal and navigating to /feed');
-      onClose();
-      if (onPanelClose) onPanelClose();
-      navigate('/feed');
+        onClose();
+        if (onPanelClose) onPanelClose();
+        navigate('/feed');
+      } else {
+        console.error('[Switch] Unexpected response shape — missing token or user:', res.data);
+      }
     } catch (e) {
       console.error('[Switch] FAILED:', e.response?.status, e.response?.data, e.message);
-      console.error('[Switch] Full error:', e);
     }
     setSwitching(null);
   };
