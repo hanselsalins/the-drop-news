@@ -201,7 +201,7 @@ export const ProfileSwitcherModal = ({ open, onClose, onPanelClose }) => {
                 const profBand = AGE_TO_BAND[profile.age_group];
                 const profGradient = GRADIENTS[profBand] || fallbackGradient;
                 const isSwitching = switching === profile.id;
-                const isOnlyProfile = sorted.length <= 1;
+                
 
                 return (
                   <motion.button
