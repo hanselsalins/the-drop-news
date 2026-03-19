@@ -208,8 +208,11 @@ export const ProfileSwitcherModal = ({ open, onClose, onPanelClose }) => {
                     key={profile.id}
                     whileHover={{ scale: 1.01 }}
                     whileTap={{ scale: 0.98 }}
-                    onClick={() => handleSwitch(profile)}
-                    disabled={isActive || isSwitching || isOnlyProfile}
+                    onClick={() => {
+                      console.log('[Switch] Button clicked for:', profile.id, profile.full_name, '| isActive:', isActive, '| isSwitching:', isSwitching);
+                      handleSwitch(profile);
+                    }}
+                    disabled={isActive || isSwitching}
                     className="w-full flex items-center gap-4 p-4 rounded-2xl transition-all"
                     style={{
                       background: isActive
