@@ -7,14 +7,6 @@ export const BottomNav = ({ active = 'home' }) => {
   const navigate = useNavigate();
   const { band } = useTheme();
 
-  const isDark = band === 'sharp-aware' || band === 'editorial';
-  // Design System B accent colors per band
-  const accentColor = band === 'big-bold-bright' ? '#4F46E5'
-    : band === 'cool-connected' ? '#2563EB'
-    : band === 'sharp-aware' ? '#F43F5E'
-    : band === 'editorial' ? '#C9A84C'
-    : '#3B82F6';
-
   const items = [
     { id: 'home', icon: Home, label: 'Feed', path: '/feed' },
     { id: 'explore', icon: Compass, label: 'Explore', path: '/feed' },
@@ -29,7 +21,7 @@ export const BottomNav = ({ active = 'home' }) => {
       className="fixed bottom-0 left-0 right-0 z-50"
       style={{
         background: 'var(--drop-surface)',
-        borderTop: `1px solid var(--drop-border)`,
+        borderTop: '1px solid var(--drop-border)',
       }}
     >
       <div className="max-w-md mx-auto flex items-center justify-around px-2 pt-2.5 pb-5">
@@ -47,7 +39,7 @@ export const BottomNav = ({ active = 'home' }) => {
               <div
                 className="flex items-center justify-center"
                 style={{
-                  background: isActive ? `${accentColor}18` : 'transparent',
+                  background: isActive ? 'color-mix(in srgb, var(--drop-primary) 10%, transparent)' : 'transparent',
                   borderRadius: 12,
                   padding: 6,
                 }}
@@ -55,14 +47,14 @@ export const BottomNav = ({ active = 'home' }) => {
                 <Icon
                   size={22}
                   strokeWidth={isActive ? 2.5 : 1.5}
-                  style={{ color: isStreak ? '#F59E0B' : (isActive ? accentColor : 'var(--drop-text-muted)') }}
+                  style={{ color: isStreak ? 'var(--drop-accent2, #F59E0B)' : (isActive ? 'var(--drop-primary)' : 'var(--drop-text-muted)') }}
                 />
               </div>
               <span
                 className="text-[10px]"
                 style={{
                   fontFamily: 'var(--drop-font-body)',
-                  color: isActive ? accentColor : 'var(--drop-text-muted)',
+                  color: isActive ? 'var(--drop-primary)' : 'var(--drop-text-muted)',
                   fontWeight: isActive ? 700 : 400,
                 }}
               >
