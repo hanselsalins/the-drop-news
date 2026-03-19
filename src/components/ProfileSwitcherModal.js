@@ -221,8 +221,8 @@ export const ProfileSwitcherModal = ({ open, onClose, onPanelClose }) => {
                       border: isActive
                         ? (isDark ? '1.5px solid rgba(92,78,250,0.3)' : '1.5px solid #93C5FD')
                         : '1.5px solid var(--drop-border)',
-                      opacity: (isSwitching || (isOnlyProfile && !isActive)) ? 0.5 : 1,
-                      cursor: isActive || isOnlyProfile ? 'default' : 'pointer',
+                      opacity: isSwitching ? 0.5 : 1,
+                      cursor: isActive ? 'default' : 'pointer',
                     }}
                   >
                     <div className="flex-shrink-0" style={{ width: 52, height: 52, borderRadius: '50%', padding: 2.5, background: profGradient }}>
