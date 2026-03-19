@@ -1670,7 +1670,8 @@ async def login(req: LoginRequest):
         raise HTTPException(status_code=401, detail="Invalid email or password")
 
     if user.get("account_type") == "parent":
-        # Parent accounts have no app profile — return child profiles for picker
+        # Parent accounts — return a parent JWT so frontend can call switch-profile
+        parent_token = create_token(user["id"])
         child_ids = user.get("linked_profiles", [])
         profiles = []
         if child_ids:
@@ -1678,7 +1679,7 @@ async def login(req: LoginRequest):
                 {"id": {"$in": child_ids}, "account_type": "child"},
                 {"_id": 0, "password_hash": 0},
             ).to_list(20)
-        return {"account_type": "parent", "profiles": profiles}
+        return {"account_type": "parent", "token": parent_token, "profiles": profiles}
 
     # child or self — return JWT as normal
     token = create_token(user["id"])
