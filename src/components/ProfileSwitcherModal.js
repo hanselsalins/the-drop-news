@@ -257,7 +257,7 @@ export const ProfileSwitcherModal = ({ open, onClose, onPanelClose }) => {
                       <span className="flex-shrink-0 text-xs font-semibold px-3 py-1.5 rounded-full"
                         style={{
                           background: isDark ? 'rgba(255,255,255,0.08)' : '#F1F5F9',
-                          color: isOnlyProfile ? '#CBD5E1' : 'var(--drop-text-muted)',
+                          color: 'var(--drop-text-muted)',
                           fontFamily: 'var(--drop-font-body)',
                         }}>
                         {isSwitching ? '...' : 'Switch'}
