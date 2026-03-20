@@ -4,8 +4,8 @@ export function PullQuote({ text }) {
   return (
     <blockquote className="pull-quote">
       <p style={{
-        fontFamily: 'var(--drop-font-heading)',
-        color: 'var(--drop-text)',
+        fontFamily: "'Inter', sans-serif",
+        color: '#507AF9',
         margin: 0,
       }}>
         {text}

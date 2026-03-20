@@ -7,26 +7,26 @@ import axios from 'axios';
 
 const BACKEND_URL = import.meta.env.VITE_BACKEND_URL;
 
-// ━━━ Design System B — Auth palette (pre-band, indigo base) ━━━
+// ━━━ Auth palette — matches The Drop design system ━━━
 const AUTH = {
-  primary: '#4F46E5',
-  primaryLight: '#6366F1',
-  gradient: 'linear-gradient(145deg, #4F46E5, #8B5CF6)',
-  gradientDisabled: '#C4B5FD',
-  text: '#1E1B4B',
-  textMuted: '#6D5FBB',
-  textLight: '#9B8EC4',
-  bg: '#FEFCFF',
-  surface: '#F5F3FF',
-  surfaceAlt: '#EDE9FE',
-  border: '#C4B5FD',
-  borderLight: '#DDD6FE',
-  inputBg: '#F5F3FF',
-  error: '#DC2626',
-  errorBg: '#FEF2F2',
-  errorBorder: '#FECACA',
-  fontHeading: "'Fredoka', 'Baloo 2', cursive",
-  fontBody: "'Outfit', 'Nunito', sans-serif",
+  primary: '#507AF9',
+  primaryLight: '#74C9EB',
+  gradient: 'linear-gradient(145deg, #507AF9, #74C9EB)',
+  gradientDisabled: '#828693',
+  text: '#151924',
+  textMuted: '#404551',
+  textLight: '#828693',
+  bg: '#EFEFEB',
+  surface: '#FFFFFF',
+  surfaceAlt: '#F5F5F5',
+  border: '#E5E5E5',
+  borderLight: '#E5E5E5',
+  inputBg: '#FFFFFF',
+  error: '#FF6E6E',
+  errorBg: '#FFF0F0',
+  errorBorder: '#FFD0D0',
+  fontHeading: "'Inter', sans-serif",
+  fontBody: "'Inter', sans-serif",
 };
 
 const inputStyle = {
@@ -865,15 +865,17 @@ function LoginForm({ setPhase, setToken, setParentToken, setUserData, navigate, 
       console.log('[Login] POST /api/auth/login');
       const res = await axios.post(`${BACKEND_URL}/api/auth/login`, { email, password });
       console.log('[Login] Response:', JSON.stringify(res.data));
-      const { token, user, linked_profiles, account_type, profiles: responseProfiles } = res.data;
+      const { token, user, linked_profiles, account_type, profiles: responseProfiles, parent_token: respParentToken } = res.data;
 
       if (account_type === 'parent' || user?.account_type === 'parent') {
         console.log('[Login] Parent account detected, showing profile picker');
-        setLoginToken(token);
+        const parentJwt = respParentToken || token;
+        console.log('[Login] Parent JWT available:', !!parentJwt);
+        setLoginToken(parentJwt);
         setLoginUser(user);
         const profs = responseProfiles || linked_profiles || [];
         setProfiles(profs);
-        if (token) setParentToken(token);
+        if (parentJwt) setParentToken(parentJwt);
       } else {
         setToken(token);
         setUserData(user);
