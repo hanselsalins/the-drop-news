@@ -1,57 +1,30 @@
-import { useTheme } from '../contexts/ThemeContext';
-
-const BAND_CONFIG = {
-  'big-bold-bright': { radius: 28, barHeight: 16, bars: 3, showThumb: true, border: '3px solid var(--drop-border)' },
-  'cool-connected': { radius: 22, barHeight: 12, bars: 3, showThumb: true, border: '1.5px solid var(--drop-border)' },
-  'sharp-aware': { radius: 8, barHeight: 10, bars: 3, showThumb: false, border: '1px solid var(--drop-border)' },
-  'editorial': { radius: 14, barHeight: 10, bars: 3, showThumb: true, border: '1px solid var(--drop-border)' },
-};
-
 export function SkeletonCard() {
-  const { band } = useTheme();
-  const config = BAND_CONFIG[band] || BAND_CONFIG['editorial'];
-
   return (
     <div
       className="w-full overflow-hidden flex"
       style={{
-        background: 'var(--drop-surface)',
-        borderRadius: config.radius,
-        border: config.border,
-        boxShadow: 'var(--drop-shadow-card, none)',
-        minHeight: 100,
+        height: 134,
+        background: '#FFFFFF',
+        borderRadius: 12,
+        boxShadow: '0 2px 8px rgba(0,0,0,0.06)',
+        padding: 0,
       }}
     >
-      {/* Text area */}
-      <div className="flex-1 flex flex-col justify-center gap-2" style={{ padding: '13px 12px 13px 14px' }}>
-        {/* Category shimmer */}
-        <div className="skeleton-shimmer" style={{ width: 60, height: 8, borderRadius: 4 }} />
-        {/* Title bars */}
-        {Array.from({ length: config.bars }).map((_, i) => (
-          <div
-            key={i}
-            className="skeleton-shimmer"
-            style={{
-              width: i === config.bars - 1 ? '60%' : '100%',
-              height: config.barHeight,
-              borderRadius: config.barHeight / 2,
-            }}
-          />
-        ))}
-        {/* Source shimmer */}
-        <div className="skeleton-shimmer" style={{ width: 80, height: 8, borderRadius: 4, marginTop: 4 }} />
+      {/* Left image placeholder */}
+      <div className="shrink-0 flex items-center justify-center" style={{ padding: 12 }}>
+        <div
+          className="skeleton-shimmer"
+          style={{ width: 110, height: 110, borderRadius: 8, flexShrink: 0 }}
+        />
       </div>
 
-      {/* Thumbnail shimmer */}
-      {config.showThumb && (
-        <div
-          className="skeleton-shimmer shrink-0"
-          style={{
-            width: 90,
-            borderRadius: `0 ${config.radius}px ${config.radius}px 0`,
-          }}
-        />
-      )}
+      {/* Right text column */}
+      <div className="flex-1 flex flex-col justify-center min-w-0" style={{ padding: '12px 12px 12px 0' }}>
+        <div className="skeleton-shimmer" style={{ width: 60, height: 8, borderRadius: 4 }} />
+        <div className="skeleton-shimmer" style={{ width: '100%', height: 12, borderRadius: 6, marginTop: 8 }} />
+        <div className="skeleton-shimmer" style={{ width: '80%', height: 12, borderRadius: 6, marginTop: 6 }} />
+        <div className="skeleton-shimmer" style={{ width: '50%', height: 10, borderRadius: 5, marginTop: 8 }} />
+      </div>
     </div>
   );
 }
