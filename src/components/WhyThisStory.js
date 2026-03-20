@@ -1,22 +1,19 @@
 import { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Info, X } from 'lucide-react';
-import { useTheme } from '../contexts/ThemeContext';
 
 export const WhyThisStory = ({ reason }) => {
-  const { band } = useTheme();
   const [open, setOpen] = useState(false);
-  const isDark = band === 'sharp-aware' || band === 'editorial';
 
   return (
     <div className="relative inline-block">
       <button
         data-testid="why-this-story-btn"
         onClick={(e) => { e.stopPropagation(); setOpen(!open); }}
-        className="p-1.5 rounded-full"
-        style={{ background: isDark ? 'rgba(255,255,255,0.06)' : 'rgba(0,0,0,0.04)' }}
+        className="p-1.5 rounded-full cursor-pointer"
+        style={{ background: 'rgba(255,255,255,0.06)' }}
       >
-        <Info size={13} style={{ color: 'var(--drop-text-muted)' }} />
+        <Info size={13} style={{ color: '#828693' }} />
       </button>
 
       <AnimatePresence>
@@ -29,25 +26,37 @@ export const WhyThisStory = ({ reason }) => {
             onClick={(e) => e.stopPropagation()}
             className="absolute bottom-full left-0 mb-2 p-4 z-50 w-60"
             style={{
-              background: isDark ? 'var(--drop-surface)' : '#FFFFFF',
-              border: `1px solid var(--drop-border)`,
-              borderRadius: 'var(--drop-radius-card, 16px)',
-              boxShadow: isDark ? '0 8px 30px rgba(0,0,0,0.4)' : '0 8px 30px rgba(0,0,0,0.12)',
+              background: '#1B202F',
+              border: '1px solid rgba(255,255,255,0.06)',
+              borderRadius: 14,
+              boxShadow: '0 8px 30px rgba(0,0,0,0.4)',
             }}
           >
             <div className="flex items-start justify-between gap-2">
               <div>
-                <p className="text-[10px] font-semibold tracking-wider uppercase mb-1.5"
-                  style={{ fontFamily: 'var(--drop-font-body)', color: 'var(--drop-text-muted)' }}>
+                <p style={{
+                  fontFamily: "'Inter', sans-serif",
+                  fontSize: 10,
+                  fontWeight: 600,
+                  letterSpacing: '0.06em',
+                  textTransform: 'uppercase',
+                  color: '#828693',
+                  marginBottom: 6,
+                }}>
                   WHY THIS STORY?
                 </p>
-                <p className="text-xs leading-relaxed"
-                  style={{ fontFamily: 'var(--drop-font-body)', color: 'var(--drop-text-muted)' }}>
+                <p style={{
+                  fontFamily: "'Inter', sans-serif",
+                  fontSize: 12,
+                  fontWeight: 400,
+                  color: '#D4D4D4',
+                  lineHeight: '16px',
+                }}>
                   {reason}
                 </p>
               </div>
-              <button onClick={(e) => { e.stopPropagation(); setOpen(false); }} className="shrink-0 mt-0.5">
-                <X size={12} style={{ color: 'var(--drop-text-muted)' }} />
+              <button onClick={(e) => { e.stopPropagation(); setOpen(false); }} className="shrink-0 mt-0.5 cursor-pointer" style={{ background: 'none', border: 'none' }}>
+                <X size={12} style={{ color: '#828693' }} />
               </button>
             </div>
           </motion.div>
