@@ -16,7 +16,7 @@ const REACTIONS = [
 ];
 
 export const ReactionBar = ({ articleId }) => {
-  const { token, band } = useTheme();
+  const { token } = useTheme();
   const prefersReducedMotion = useReducedMotion();
   const [counts, setCounts] = useState({});
   const [userReaction, setUserReaction] = useState(null);
@@ -66,29 +66,24 @@ export const ReactionBar = ({ articleId }) => {
     setTimeout(() => setAnimating(null), 300);
   };
 
-  const getWhileTap = () => {
-    if (prefersReducedMotion) return undefined;
-    if (band === 'cool-connected') return { scale: 1.1, scaleY: 0.9 };
-    return { scale: 1.15 };
-  };
-
-  const getTapTransition = () => {
-    if (band === 'cool-connected') return { type: 'spring', stiffness: 400, damping: 15 };
-    return undefined;
-  };
-
   return (
     <div
       data-testid="reaction-bar"
-      className="mt-8 p-5"
+      className="mt-6 p-4"
       style={{
-        background: 'var(--drop-surface)',
-        border: '1px solid var(--drop-border)',
-        borderRadius: 'var(--drop-radius-card)',
+        background: '#F5F5F5',
+        borderRadius: 14,
       }}
     >
-      <p className="text-[11px] font-semibold tracking-wider uppercase mb-4"
-        style={{ fontFamily: 'var(--drop-font-body)', color: 'var(--drop-text-muted)' }}>
+      <p style={{
+        fontFamily: "'Inter', sans-serif",
+        fontSize: 11,
+        fontWeight: 600,
+        letterSpacing: '0.06em',
+        textTransform: 'uppercase',
+        color: '#A2A2A2',
+        marginBottom: 12,
+      }}>
         HOW DID THIS MAKE YOU FEEL?
       </p>
       <div className="flex items-center justify-between">
@@ -101,17 +96,16 @@ export const ReactionBar = ({ articleId }) => {
               data-testid={`reaction-${r.id}`}
               aria-label={r.label}
               onClick={() => handleReact(r.id)}
-              whileTap={getWhileTap()}
-              transition={getTapTransition()}
-              className="flex flex-col items-center gap-1.5 px-2 py-2 transition-all duration-200"
+              whileTap={prefersReducedMotion ? undefined : { scale: 1.15 }}
+              className="flex flex-col items-center gap-1 px-2 py-2 cursor-pointer transition-all duration-200"
               style={{
-                background: isActive ? 'color-mix(in srgb, var(--drop-primary) 10%, transparent)' : 'transparent',
-                border: isActive ? '1.5px solid color-mix(in srgb, var(--drop-primary) 20%, transparent)' : '1.5px solid transparent',
-                borderRadius: 'var(--drop-radius-card, 14px)',
+                background: isActive ? 'rgba(80,122,249,0.1)' : 'transparent',
+                border: isActive ? '1.5px solid rgba(80,122,249,0.2)' : '1.5px solid transparent',
+                borderRadius: 12,
               }}
             >
               <motion.span
-                className="text-3xl"
+                className="text-2xl"
                 aria-hidden="true"
                 animate={!prefersReducedMotion && animating === r.id ? { scale: [1, 1.5, 1] } : {}}
                 transition={{ duration: 0.3 }}
@@ -122,12 +116,19 @@ export const ReactionBar = ({ articleId }) => {
               >
                 {r.emoji}
               </motion.span>
-              <span className="text-[10px] font-bold"
-                style={{ fontFamily: 'var(--drop-font-body)', color: isActive ? 'var(--drop-primary)' : 'var(--drop-text-muted)' }}>
+              <span style={{
+                fontFamily: "'Inter', sans-serif",
+                fontSize: 10,
+                fontWeight: 700,
+                color: isActive ? '#507AF9' : '#A2A2A2',
+              }}>
                 {count > 0 ? count : ''}
               </span>
-              <span className="text-[9px]"
-                style={{ fontFamily: 'var(--drop-font-body)', color: 'var(--drop-text-muted)' }}>
+              <span style={{
+                fontFamily: "'Inter', sans-serif",
+                fontSize: 9,
+                color: '#A2A2A2',
+              }}>
                 {r.label}
               </span>
             </motion.button>
