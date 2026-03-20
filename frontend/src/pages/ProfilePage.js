@@ -13,19 +13,18 @@ import axios from 'axios';
 const BACKEND_URL = import.meta.env.VITE_BACKEND_URL;
 
 const RANK_COLORS = {
-  'Curious': '#888',
-  'Informed': '#3A86FF',
-  'Switched On': '#CCFF00',
-  'Sharp': '#FF006E',
+  'Curious': 'var(--muted)',
+  'Informed': 'var(--accent-blue)',
+  'Switched On': 'var(--accent-light-blue)',
+  'Sharp': 'var(--danger)',
   'No Cap Legend': '#FFD60A',
 };
 
-// Design System B age badges
 const AGE_BADGES = {
-  '8-10': { label: 'Junior Reader', emoji: '', color: '#4F46E5' },
-  '11-13': { label: 'News Scout', emoji: '', color: '#2563EB' },
-  '14-16': { label: 'Drop Regular', emoji: '', color: '#F43F5E' },
-  '17-20': { label: 'Sharp Mind', emoji: '', color: '#C9A84C' },
+  '8-10': { label: 'Junior Reader', color: 'var(--accent-blue)' },
+  '11-13': { label: 'News Scout', color: 'var(--accent-blue)' },
+  '14-16': { label: 'Drop Regular', color: 'var(--danger)' },
+  '17-20': { label: 'Sharp Mind', color: 'var(--accent-light-blue)' },
 };
 
 const CATEGORY_ICONS = {
@@ -36,7 +35,6 @@ const CATEGORY_ICONS = {
 export default function ProfilePage() {
   const navigate = useNavigate();
   const { user, setUserData, token, ageGroup, band, logout } = useTheme();
-  const isDark = band === 'sharp-aware' || band === 'editorial';
   const [stats, setStats] = useState(null);
   const [countries, setCountries] = useState([]);
   const [showCountryPicker, setShowCountryPicker] = useState(false);
@@ -57,18 +55,7 @@ export default function ProfilePage() {
   const { permission, requestPermission } = useNotifications();
   const [profilePanelOpen, setProfilePanelOpen] = useState(false);
 
-  // Band-aware colors
-  const bg = 'var(--drop-bg)';
-  const text = 'var(--drop-text)';
-  const card = 'var(--drop-surface)';
-  const sub = 'var(--drop-text-muted)';
-  const border = 'var(--drop-border)';
-  // Design System B accent colors per band
-  const accent = band === 'big-bold-bright' ? '#4F46E5'
-    : band === 'cool-connected' ? '#2563EB'
-    : band === 'sharp-aware' ? '#F43F5E'
-    : band === 'editorial' ? '#C9A84C'
-    : '#4F46E5';
+  const accent = 'var(--accent-blue)';
   const headers = token ? { Authorization: `Bearer ${token}` } : {};
 
   useEffect(() => {
@@ -173,10 +160,8 @@ export default function ProfilePage() {
     return 24;
   };
 
-  const inputFieldBg = isDark ? 'rgba(255,255,255,0.04)' : '#f5f5f5';
-
   return (
-    <div data-testid="profile-page" className="min-h-screen pb-24" style={{ background: bg }}>
+    <div data-testid="profile-page" className="min-h-screen pb-24" style={{ background: 'var(--bg-dark)' }}>
       <div className="px-5 pt-6 max-w-lg mx-auto relative">
         <div className="absolute top-6 right-5 z-10">
           <ProfileButton onClick={() => setProfilePanelOpen(true)} size={34} />
@@ -184,33 +169,33 @@ export default function ProfilePage() {
 
         {/* ━━━ IDENTITY HEADER ━━━ */}
         <motion.div initial={{ y: 20, opacity: 0 }} animate={{ y: 0, opacity: 1 }}
-          className="relative p-5 rounded-2xl mb-4"
-          style={{ background: card, border: `1px solid ${border}`, borderRadius: 'var(--drop-radius-card, 16px)' }}>
+          className="relative p-5 mb-4"
+          style={{ background: 'var(--card-dark)', border: '1px solid rgba(255,255,255,0.06)', borderRadius: 14 }}>
 
           <button data-testid="logout-btn" onClick={handleLogout}
             className="absolute top-4 right-4 p-2 rounded-xl transition-colors"
-            style={{ background: 'rgba(255,42,109,0.08)' }}>
-            <LogOut size={16} color="#FF2A6D" />
+            style={{ background: 'rgba(255,106,110,0.08)' }}>
+            <LogOut size={16} color="var(--danger)" />
           </button>
 
           <div className="flex items-start gap-4">
             <div className="w-20 h-20 rounded-full overflow-hidden flex-shrink-0"
-              style={{ borderColor: accent, borderWidth: '3px', borderStyle: 'solid' }}>
+              style={{ borderColor: 'var(--accent-blue)', borderWidth: '3px', borderStyle: 'solid' }}>
               {user?.avatar_url ? (
                 <img src={user.avatar_url} alt="Avatar" className="w-full h-full object-cover" data-testid="profile-avatar" />
               ) : (
                 <div className="w-full h-full flex items-center justify-center text-2xl font-bold"
-                  style={{ background: `linear-gradient(135deg, ${accent}, #7209B7)`, color: '#fff', fontFamily: 'var(--drop-font-heading)' }}>
+                  style={{ background: 'var(--accent-blue)', color: 'var(--white)', fontFamily: "'Inter', sans-serif" }}>
                   {user?.full_name?.charAt(0)?.toUpperCase() || 'U'}
                 </div>
               )}
             </div>
 
             <div className="flex-1 min-w-0 pt-1">
-              <h1 className="text-xl font-bold truncate" style={{ fontFamily: 'var(--drop-font-heading)', color: text }}>
+              <h1 className="text-xl font-bold truncate" style={{ fontFamily: "'Inter', sans-serif", color: 'var(--white)' }}>
                 {user?.full_name}
                 {user?.username && (
-                  <span className="text-sm font-normal opacity-40 ml-2" style={{ fontFamily: 'JetBrains Mono, monospace' }}>
+                  <span className="text-sm font-normal ml-2" style={{ fontFamily: "'JetBrains Mono', monospace", color: 'var(--muted)' }}>
                     @{user.username}
                   </span>
                 )}
@@ -218,20 +203,20 @@ export default function ProfilePage() {
 
               <div className="flex items-center gap-1.5 mt-1">
                 {userCountry && <span className="text-sm">{userCountry.flag_emoji}</span>}
-                <span className="text-xs" style={{ fontFamily: 'var(--drop-font-body)', color: sub }}>
+                <span className="text-xs" style={{ fontFamily: "'Inter', sans-serif", color: 'var(--muted-label)' }}>
                   {user?.city ? `${user.city}, ` : ''}{user?.country || ''}
                 </span>
               </div>
 
               <div className="flex items-center gap-2 mt-2 flex-wrap">
                 {stats?.member_since && (
-                  <span className="text-[10px] opacity-40" style={{ fontFamily: 'JetBrains Mono, monospace', color: text }}>
+                  <span className="text-[10px]" style={{ fontFamily: "'JetBrains Mono', monospace", color: 'var(--muted)' }}>
                     <Calendar size={10} className="inline mr-1" />
                     Member since {formatMemberSince(stats.member_since)}
                   </span>
                 )}
                 <span data-testid="age-badge" className="text-[10px] font-bold tracking-wider uppercase px-2 py-0.5 rounded-full"
-                  style={{ fontFamily: 'JetBrains Mono, monospace', background: badge.color, color: '#050505' }}>
+                  style={{ fontFamily: "'JetBrains Mono', monospace", background: 'var(--accent-blue)', color: 'var(--bg-dark)' }}>
                   {badge.label}
                 </span>
               </div>
@@ -246,28 +231,26 @@ export default function ProfilePage() {
               data-testid="knowledge-score-card"
               className="p-5 text-center relative overflow-hidden"
               style={{
-                borderRadius: 'var(--drop-radius-card, 16px)',
-                background: isDark
-                  ? `linear-gradient(135deg, var(--drop-surface) 0%, var(--drop-bg) 100%)`
-                  : `linear-gradient(135deg, ${accent}, #7209B7)`,
-                border: `1px solid ${border}`,
+                borderRadius: 14,
+                background: 'linear-gradient(135deg, var(--card-dark) 0%, var(--bg-deeper) 100%)',
+                border: '1px solid rgba(255,255,255,0.06)',
               }}>
               <div className="absolute top-0 right-0 w-32 h-32 rounded-full opacity-10 blur-2xl"
-                style={{ background: RANK_COLORS[stats.knowledge_score.rank_label] || accent }} />
-              <p className="text-xs font-bold tracking-[0.2em] uppercase mb-2 opacity-50"
-                style={{ fontFamily: 'JetBrains Mono, monospace', color: isDark ? text : '#fff' }}>
+                style={{ background: 'var(--accent-blue)' }} />
+              <p className="text-xs font-bold tracking-[0.2em] uppercase mb-2"
+                style={{ fontFamily: "'JetBrains Mono', monospace", color: 'var(--muted)' }}>
                 KNOWLEDGE SCORE
               </p>
               <p data-testid="knowledge-score-value" className="text-5xl font-bold mb-1"
-                style={{ fontFamily: 'var(--drop-font-heading)', color: RANK_COLORS[stats.knowledge_score.rank_label] || accent }}>
+                style={{ fontFamily: "'Inter', sans-serif", color: 'var(--accent-blue)' }}>
                 {stats.knowledge_score.score}
               </p>
               <span data-testid="knowledge-rank-label" className="inline-block px-3 py-1 rounded-full text-xs font-bold tracking-wider uppercase"
                 style={{
-                  fontFamily: 'JetBrains Mono, monospace',
-                  background: `${RANK_COLORS[stats.knowledge_score.rank_label] || accent}20`,
-                  color: RANK_COLORS[stats.knowledge_score.rank_label] || accent,
-                  border: `1px solid ${RANK_COLORS[stats.knowledge_score.rank_label] || accent}30`,
+                  fontFamily: "'JetBrains Mono', monospace",
+                  background: 'rgba(80,122,249,0.12)',
+                  color: 'var(--accent-blue)',
+                  border: '1px solid rgba(80,122,249,0.2)',
                 }}>
                 {stats.knowledge_score.rank_label}
               </span>
@@ -276,30 +259,30 @@ export default function ProfilePage() {
             <div className="grid grid-cols-2 gap-3">
               <motion.div initial={{ y: 15, opacity: 0 }} animate={{ y: 0, opacity: 1 }} transition={{ delay: 0.1 }}
                 data-testid="streak-card" className="p-4"
-                style={{ borderRadius: 'var(--drop-radius-card, 12px)', background: card, border: `1px solid ${border}` }}>
+                style={{ borderRadius: 14, background: 'var(--card-dark)', border: '1px solid rgba(255,255,255,0.06)' }}>
                 <div className="flex items-center justify-center mb-2">
                   <Flame size={getFlameSize(stats.streak.current)} color="#FF6B35" fill={stats.streak.current > 0 ? '#FF6B35' : 'none'} />
                 </div>
                 <p data-testid="streak-current" className="text-2xl font-bold text-center"
-                  style={{ fontFamily: 'var(--drop-font-heading)', color: text }}>{stats.streak.current}</p>
-                <p className="text-[10px] text-center uppercase tracking-wider opacity-40"
-                  style={{ fontFamily: 'JetBrains Mono, monospace', color: text }}>day streak</p>
-                <p className="text-[10px] text-center mt-1.5 opacity-30"
-                  style={{ fontFamily: 'var(--drop-font-body)', color: text }}>Best: {stats.streak.longest}</p>
+                  style={{ fontFamily: "'Inter', sans-serif", color: 'var(--white)' }}>{stats.streak.current}</p>
+                <p className="text-[10px] text-center uppercase tracking-wider"
+                  style={{ fontFamily: "'JetBrains Mono', monospace", color: 'var(--muted)' }}>day streak</p>
+                <p className="text-[10px] text-center mt-1.5"
+                  style={{ fontFamily: "'Inter', sans-serif", color: 'var(--muted-label)' }}>Best: {stats.streak.longest}</p>
               </motion.div>
 
               <motion.div initial={{ y: 15, opacity: 0 }} animate={{ y: 0, opacity: 1 }} transition={{ delay: 0.12 }}
                 data-testid="stories-read-card" className="p-4"
-                style={{ borderRadius: 'var(--drop-radius-card, 12px)', background: card, border: `1px solid ${border}` }}>
+                style={{ borderRadius: 14, background: 'var(--card-dark)', border: '1px solid rgba(255,255,255,0.06)' }}>
                 <div className="flex items-center justify-center mb-2">
-                  <BookOpen size={24} color={accent} />
+                  <BookOpen size={24} color="var(--accent-light-blue)" />
                 </div>
                 <p data-testid="stories-read-total" className="text-2xl font-bold text-center"
-                  style={{ fontFamily: 'var(--drop-font-heading)', color: text }}>{stats.stories_read.total}</p>
-                <p className="text-[10px] text-center uppercase tracking-wider opacity-40"
-                  style={{ fontFamily: 'JetBrains Mono, monospace', color: text }}>stories read</p>
-                <p className="text-[10px] text-center mt-1.5 opacity-30"
-                  style={{ fontFamily: 'var(--drop-font-body)', color: text }}>
+                  style={{ fontFamily: "'Inter', sans-serif", color: 'var(--white)' }}>{stats.stories_read.total}</p>
+                <p className="text-[10px] text-center uppercase tracking-wider"
+                  style={{ fontFamily: "'JetBrains Mono', monospace", color: 'var(--muted)' }}>stories read</p>
+                <p className="text-[10px] text-center mt-1.5"
+                  style={{ fontFamily: "'Inter', sans-serif", color: 'var(--muted-label)' }}>
                   This week: {stats.stories_read.this_week} / Month: {stats.stories_read.this_month}
                 </p>
               </motion.div>
@@ -308,39 +291,39 @@ export default function ProfilePage() {
             <div className="grid grid-cols-2 gap-3">
               <motion.div initial={{ y: 15, opacity: 0 }} animate={{ y: 0, opacity: 1 }} transition={{ delay: 0.15 }}
                 data-testid="favourite-topic-card" className="p-4"
-                style={{ borderRadius: 'var(--drop-radius-card, 12px)', background: card, border: `1px solid ${border}` }}>
+                style={{ borderRadius: 14, background: 'var(--card-dark)', border: '1px solid rgba(255,255,255,0.06)' }}>
                 <div className="flex items-center justify-center mb-2"><Trophy size={24} color="#FFD60A" /></div>
                 <p className="text-sm font-bold text-center capitalize"
-                  style={{ fontFamily: 'var(--drop-font-heading)', color: text }}>{stats.favourite_category}</p>
-                <p className="text-[10px] text-center uppercase tracking-wider opacity-40"
-                  style={{ fontFamily: 'JetBrains Mono, monospace', color: text }}>top topic</p>
+                  style={{ fontFamily: "'Inter', sans-serif", color: 'var(--white)' }}>{stats.favourite_category}</p>
+                <p className="text-[10px] text-center uppercase tracking-wider"
+                  style={{ fontFamily: "'JetBrains Mono', monospace", color: 'var(--muted)' }}>top topic</p>
               </motion.div>
 
               <motion.div initial={{ y: 15, opacity: 0 }} animate={{ y: 0, opacity: 1 }} transition={{ delay: 0.17 }}
                 data-testid="reactions-card" className="p-4"
-                style={{ borderRadius: 'var(--drop-radius-card, 12px)', background: card, border: `1px solid ${border}` }}>
+                style={{ borderRadius: 14, background: 'var(--card-dark)', border: '1px solid rgba(255,255,255,0.06)' }}>
                 <div className="flex items-center justify-center mb-2">
                   <span className="text-2xl">{stats.reactions.most_used || '---'}</span>
                 </div>
                 <p data-testid="reactions-total" className="text-2xl font-bold text-center"
-                  style={{ fontFamily: 'var(--drop-font-heading)', color: text }}>{stats.reactions.total}</p>
-                <p className="text-[10px] text-center uppercase tracking-wider opacity-40"
-                  style={{ fontFamily: 'JetBrains Mono, monospace', color: text }}>reactions</p>
-                <p className="text-[10px] text-center mt-1.5 opacity-30"
-                  style={{ fontFamily: 'var(--drop-font-body)', color: text }}>This month: {stats.reactions.this_month}</p>
+                  style={{ fontFamily: "'Inter', sans-serif", color: 'var(--white)' }}>{stats.reactions.total}</p>
+                <p className="text-[10px] text-center uppercase tracking-wider"
+                  style={{ fontFamily: "'JetBrains Mono', monospace", color: 'var(--muted)' }}>reactions</p>
+                <p className="text-[10px] text-center mt-1.5"
+                  style={{ fontFamily: "'Inter', sans-serif", color: 'var(--muted-label)' }}>This month: {stats.reactions.this_month}</p>
               </motion.div>
             </div>
 
             <motion.div initial={{ y: 15, opacity: 0 }} animate={{ y: 0, opacity: 1 }} transition={{ delay: 0.2 }}
               data-testid="countries-card" className="p-4 flex items-center gap-4"
-              style={{ borderRadius: 'var(--drop-radius-card, 12px)', background: card, border: `1px solid ${border}` }}>
-              <Globe size={28} color={accent} />
+              style={{ borderRadius: 14, background: 'var(--card-dark)', border: '1px solid rgba(255,255,255,0.06)' }}>
+              <Globe size={28} color="var(--accent-light-blue)" />
               <div>
-                <p className="text-lg font-bold" style={{ fontFamily: 'var(--drop-font-heading)', color: text }}>
-                  {stats.countries_covered} <span className="text-sm font-normal opacity-40">countries</span>
+                <p className="text-lg font-bold" style={{ fontFamily: "'Inter', sans-serif", color: 'var(--white)' }}>
+                  {stats.countries_covered} <span className="text-sm font-normal" style={{ color: 'var(--muted)' }}>countries</span>
                 </p>
-                <p className="text-[10px] uppercase tracking-wider opacity-40"
-                  style={{ fontFamily: 'JetBrains Mono, monospace', color: text }}>in your feed this week</p>
+                <p className="text-[10px] uppercase tracking-wider"
+                  style={{ fontFamily: "'JetBrains Mono', monospace", color: 'var(--muted)' }}>in your feed this week</p>
               </div>
             </motion.div>
           </div>
@@ -349,25 +332,25 @@ export default function ProfilePage() {
         {/* ━━━ SETTINGS ━━━ */}
         <div className="space-y-3 mb-4">
           <motion.div initial={{ y: 15, opacity: 0 }} animate={{ y: 0, opacity: 1 }} transition={{ delay: 0.25 }}
-            className="p-4 relative" style={{ borderRadius: 'var(--drop-radius-card, 12px)', background: card, border: `1px solid ${border}` }}>
-            <p className="text-[10px] font-bold tracking-wider uppercase mb-2 opacity-40"
-              style={{ fontFamily: 'JetBrains Mono, monospace', color: text }}>NEWS COUNTRY</p>
+            className="p-4 relative" style={{ borderRadius: 14, background: 'var(--card-dark)', border: '1px solid rgba(255,255,255,0.06)' }}>
+            <p className="text-[10px] font-bold tracking-wider uppercase mb-2"
+              style={{ fontFamily: "'JetBrains Mono', monospace", color: 'var(--muted)' }}>NEWS COUNTRY</p>
             <button data-testid="country-selector-btn" onClick={() => setShowCountryPicker(!showCountryPicker)}
               className="w-full flex items-center justify-between px-3 py-2.5 rounded-lg"
-              style={{ background: inputFieldBg, border: `1px solid ${border}` }}>
-              <span className="text-sm font-medium" style={{ fontFamily: 'var(--drop-font-body)', color: text }}>
+              style={{ background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.06)' }}>
+              <span className="text-sm font-medium" style={{ fontFamily: "'Inter', sans-serif", color: 'var(--white)' }}>
                 {userCountry ? `${userCountry.flag_emoji} ${userCountry.country_name}` : (user?.country || 'Select')}
               </span>
-              <ChevronDown size={14} style={{ color: sub }} />
+              <ChevronDown size={14} style={{ color: 'var(--muted)' }} />
             </button>
             {showCountryPicker && (
               <div className="absolute left-0 right-0 mt-1 mx-4 rounded-xl overflow-hidden z-20 max-h-52 overflow-y-auto"
-                style={{ background: card, border: `1px solid ${border}`, boxShadow: '0 8px 32px rgba(0,0,0,0.3)' }}>
+                style={{ background: 'var(--card-dark)', border: '1px solid rgba(255,255,255,0.06)', boxShadow: '0 8px 32px rgba(0,0,0,0.5)' }}>
                 {countries.map(c => (
                   <button key={c.country_code} data-testid={`country-option-${c.country_code}`}
                     onClick={() => handleCountrySelect(c)}
                     className="w-full text-left px-4 py-2.5 text-sm flex items-center gap-2 transition-colors"
-                    style={{ fontFamily: 'var(--drop-font-body)', color: c.country_name === user?.country ? accent : text }}>
+                    style={{ fontFamily: "'Inter', sans-serif", color: c.country_name === user?.country ? 'var(--accent-blue)' : 'var(--body-light)' }}>
                     <span>{c.flag_emoji}</span><span>{c.country_name}</span>
                   </button>
                 ))}
@@ -376,52 +359,52 @@ export default function ProfilePage() {
           </motion.div>
 
           <motion.div initial={{ y: 15, opacity: 0 }} animate={{ y: 0, opacity: 1 }} transition={{ delay: 0.27 }}
-            className="p-4" style={{ borderRadius: 'var(--drop-radius-card, 12px)', background: card, border: `1px solid ${border}` }}>
+            className="p-4" style={{ borderRadius: 14, background: 'var(--card-dark)', border: '1px solid rgba(255,255,255,0.06)' }}>
             <div className="flex items-center justify-between mb-2">
-              <p className="text-[10px] font-bold tracking-wider uppercase opacity-40"
-                style={{ fontFamily: 'JetBrains Mono, monospace', color: text }}>CITY</p>
+              <p className="text-[10px] font-bold tracking-wider uppercase"
+                style={{ fontFamily: "'JetBrains Mono', monospace", color: 'var(--muted)' }}>CITY</p>
               {!editingCity ? (
                 <button data-testid="edit-city-btn" onClick={() => { setEditingCity(true); setEditCity(user?.city || ''); }}
-                  className="p-1.5 rounded-lg" style={{ background: `${accent}15` }}>
-                  <Edit3 size={12} color={accent} />
+                  className="p-1.5 rounded-lg" style={{ background: 'rgba(80,122,249,0.1)' }}>
+                  <Edit3 size={12} color="var(--accent-blue)" />
                 </button>
               ) : (
                 <button data-testid="save-city-btn" onClick={handleSaveCity} disabled={saving}
-                  className="p-1.5 rounded-lg" style={{ background: `${accent}15` }}>
-                  <Check size={12} color={accent} />
+                  className="p-1.5 rounded-lg" style={{ background: 'rgba(80,122,249,0.1)' }}>
+                  <Check size={12} color="var(--accent-blue)" />
                 </button>
               )}
             </div>
             {editingCity ? (
               <input data-testid="edit-city-input" value={editCity} onChange={e => setEditCity(e.target.value)}
                 className="w-full px-3 py-2 rounded-lg text-sm outline-none"
-                style={{ fontFamily: 'var(--drop-font-body)', background: inputFieldBg, border: `1px solid ${border}`, color: text }} />
+                style={{ fontFamily: "'Inter', sans-serif", background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.06)', color: 'var(--white)' }} />
             ) : (
-              <p className="text-sm font-medium" style={{ fontFamily: 'var(--drop-font-body)', color: text }}>
+              <p className="text-sm font-medium" style={{ fontFamily: "'Inter', sans-serif", color: 'var(--white)' }}>
                 {user?.city || 'Not set'}
               </p>
             )}
           </motion.div>
 
           <motion.div initial={{ y: 15, opacity: 0 }} animate={{ y: 0, opacity: 1 }} transition={{ delay: 0.3 }}>
-            <NotificationSettings isKids={!isDark} permission={permission} onRequestPermission={requestPermission} />
+            <NotificationSettings permission={permission} onRequestPermission={requestPermission} />
           </motion.div>
         </div>
 
         {/* ━━━ SOCIAL ━━━ */}
         <motion.div initial={{ y: 15, opacity: 0 }} animate={{ y: 0, opacity: 1 }} transition={{ delay: 0.35 }} className="mb-4">
           <div className="flex items-center justify-between mb-3">
-            <h2 className="text-lg font-bold" style={{ fontFamily: 'var(--drop-font-heading)', color: text }}>Friends</h2>
+            <h2 className="text-lg font-bold" style={{ fontFamily: "'Inter', sans-serif", color: 'var(--white)' }}>Friends</h2>
             <div className="flex gap-2">
               <button data-testid="invite-link-btn" onClick={handleCopyInvite}
                 className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-[10px] font-bold uppercase tracking-wider"
-                style={{ fontFamily: 'JetBrains Mono, monospace', background: `${accent}15`, color: accent }}>
+                style={{ fontFamily: "'JetBrains Mono', monospace", background: 'rgba(80,122,249,0.1)', color: 'var(--accent-blue)' }}>
                 {copiedLink ? <Check size={12} /> : <Link size={12} />}
                 {copiedLink ? 'Copied!' : 'Invite'}
               </button>
               <button data-testid="add-friend-btn" onClick={() => setShowAddFriend(!showAddFriend)}
-                className="p-2 rounded-xl" style={{ background: `${accent}15` }}>
-                {showAddFriend ? <X size={14} color={accent} /> : <UserPlus size={14} color={accent} />}
+                className="p-2 rounded-xl" style={{ background: 'rgba(80,122,249,0.1)' }}>
+                {showAddFriend ? <X size={14} color="var(--accent-blue)" /> : <UserPlus size={14} color="var(--accent-blue)" />}
               </button>
             </div>
           </div>
@@ -429,36 +412,36 @@ export default function ProfilePage() {
           <AnimatePresence>
             {showAddFriend && (
               <motion.div initial={{ height: 0, opacity: 0 }} animate={{ height: 'auto', opacity: 1 }} exit={{ height: 0, opacity: 0 }} className="mb-3 overflow-hidden">
-                <div className="p-4" style={{ borderRadius: 'var(--drop-radius-card, 12px)', background: card, border: `1px solid ${border}` }}>
+                <div className="p-4" style={{ borderRadius: 14, background: 'var(--card-dark)', border: '1px solid rgba(255,255,255,0.06)' }}>
                   <div className="relative mb-3">
-                    <Search size={14} className="absolute left-3 top-1/2 -translate-y-1/2 opacity-30" style={{ color: text }} />
+                    <Search size={14} className="absolute left-3 top-1/2 -translate-y-1/2" style={{ color: 'var(--muted)' }} />
                     <input data-testid="friend-search-input" placeholder="Find @username" value={searchQuery}
                       onChange={e => handleSearchFriends(e.target.value)}
                       className="w-full pl-9 pr-4 py-2.5 rounded-lg text-sm outline-none"
-                      style={{ fontFamily: 'JetBrains Mono, monospace', background: inputFieldBg, border: `1px solid ${border}`, color: text }} />
+                      style={{ fontFamily: "'JetBrains Mono', monospace", background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.06)', color: 'var(--white)' }} />
                   </div>
-                  {searching && <p className="text-xs opacity-30 text-center py-2" style={{ color: text }}>Searching...</p>}
+                  {searching && <p className="text-xs text-center py-2" style={{ color: 'var(--muted)' }}>Searching...</p>}
                   {searchResults.map(r => (
-                    <div key={r.id} className="flex items-center gap-3 py-2.5 border-t" style={{ borderColor: border }}>
+                    <div key={r.id} className="flex items-center gap-3 py-2.5 border-t" style={{ borderColor: 'rgba(255,255,255,0.06)' }}>
                       <img src={r.avatar_url} alt="" className="w-9 h-9 rounded-full" />
                       <div className="flex-1 min-w-0">
-                        <p className="text-sm font-medium truncate" style={{ fontFamily: 'var(--drop-font-body)', color: text }}>{r.full_name}</p>
-                        <p className="text-[10px] opacity-40" style={{ fontFamily: 'JetBrains Mono, monospace', color: text }}>@{r.username} · {r.knowledge_score} pts</p>
+                        <p className="text-sm font-medium truncate" style={{ fontFamily: "'Inter', sans-serif", color: 'var(--white)' }}>{r.full_name}</p>
+                        <p className="text-[10px]" style={{ fontFamily: "'JetBrains Mono', monospace", color: 'var(--muted)' }}>@{r.username} · {r.knowledge_score} pts</p>
                       </div>
                       <button data-testid={`add-friend-${r.username}`} onClick={() => handleSendRequest(r.username)}
                         className="px-3 py-1.5 rounded-lg text-[10px] font-bold uppercase"
-                        style={{ fontFamily: 'JetBrains Mono, monospace', background: accent, color: '#050505' }}>Add</button>
+                        style={{ fontFamily: "'JetBrains Mono', monospace", background: 'var(--accent-blue)', color: 'var(--bg-dark)' }}>Add</button>
                     </div>
                   ))}
                   {searchQuery.length >= 2 && !searching && searchResults.length === 0 && (
-                    <p className="text-xs opacity-30 text-center py-2" style={{ color: text }}>No users found</p>
+                    <p className="text-xs text-center py-2" style={{ color: 'var(--muted)' }}>No users found</p>
                   )}
                 </div>
               </motion.div>
             )}
           </AnimatePresence>
 
-          <div className="flex gap-1 p-1 rounded-xl mb-3" style={{ background: isDark ? 'rgba(255,255,255,0.04)' : '#e8e8e8' }}>
+          <div className="flex gap-1 p-1 rounded-xl mb-3" style={{ background: 'rgba(255,255,255,0.04)' }}>
             {[
               { id: 'friends', label: 'Friends', count: friends.length },
               { id: 'leaderboard', label: 'Board' },
@@ -468,14 +451,14 @@ export default function ProfilePage() {
                 onClick={() => setSocialTab(tab.id)}
                 className="flex-1 py-2 rounded-lg text-[10px] font-bold uppercase tracking-wider transition-colors flex items-center justify-center gap-1"
                 style={{
-                  fontFamily: 'JetBrains Mono, monospace',
-                  background: socialTab === tab.id ? (isDark ? 'rgba(255,255,255,0.08)' : '#fff') : 'transparent',
-                  color: socialTab === tab.id ? accent : sub,
+                  fontFamily: "'JetBrains Mono', monospace",
+                  background: socialTab === tab.id ? 'rgba(255,255,255,0.08)' : 'transparent',
+                  color: socialTab === tab.id ? 'var(--accent-blue)' : 'var(--muted)',
                 }}>
                 {tab.label}
                 {tab.count > 0 && (
                   <span className="w-4 h-4 rounded-full text-[8px] flex items-center justify-center"
-                    style={{ background: tab.id === 'requests' ? '#FF2A6D' : accent, color: '#050505' }}>
+                    style={{ background: tab.id === 'requests' ? 'var(--danger)' : 'var(--accent-blue)', color: 'var(--bg-dark)' }}>
                     {tab.count}
                   </span>
                 )}
@@ -484,26 +467,26 @@ export default function ProfilePage() {
           </div>
 
           {socialTab === 'friends' && (
-            <div className="space-y-1" style={{ background: card, borderRadius: 'var(--drop-radius-card, 12px)', border: `1px solid ${border}` }}>
+            <div className="space-y-1" style={{ background: 'var(--card-dark)', borderRadius: 14, border: '1px solid rgba(255,255,255,0.06)' }}>
               {friends.length === 0 ? (
-                <p className="text-xs opacity-30 text-center py-6" style={{ fontFamily: 'var(--drop-font-body)', color: text }}>
+                <p className="text-xs text-center py-6" style={{ fontFamily: "'Inter', sans-serif", color: 'var(--muted)' }}>
                   No friends yet. Search or share your invite link!
                 </p>
               ) : (
                 friends.slice(0, 20).map((f, i) => (
                   <div key={f.id} data-testid={`friend-${f.username}`}
                     className="flex items-center gap-3 px-4 py-3"
-                    style={{ borderTop: i > 0 ? `1px solid ${border}` : 'none' }}>
+                    style={{ borderTop: i > 0 ? '1px solid rgba(255,255,255,0.06)' : 'none' }}>
                     <img src={f.avatar_url} alt="" className="w-9 h-9 rounded-full" />
                     <div className="flex-1 min-w-0">
-                      <p className="text-sm font-medium truncate" style={{ fontFamily: 'var(--drop-font-body)', color: text }}>
-                        {f.full_name} <span className="text-[10px] opacity-40" style={{ fontFamily: 'JetBrains Mono, monospace' }}>@{f.username}</span>
+                      <p className="text-sm font-medium truncate" style={{ fontFamily: "'Inter', sans-serif", color: 'var(--white)' }}>
+                        {f.full_name} <span className="text-[10px]" style={{ fontFamily: "'JetBrains Mono', monospace", color: 'var(--muted)' }}>@{f.username}</span>
                       </p>
                       <div className="flex items-center gap-2">
                         <span className="text-[10px] flex items-center gap-0.5" style={{ color: '#FF6B35' }}>
                           <Flame size={10} /> {f.current_streak}
                         </span>
-                        <span className="text-[10px] opacity-40" style={{ fontFamily: 'JetBrains Mono, monospace', color: text }}>
+                        <span className="text-[10px]" style={{ fontFamily: "'JetBrains Mono', monospace", color: 'var(--muted)' }}>
                           {f.knowledge_score} pts · {getRankLabel(f.knowledge_score)}
                         </span>
                       </div>
@@ -515,10 +498,10 @@ export default function ProfilePage() {
           )}
 
           {socialTab === 'leaderboard' && leaderboard && (
-            <div style={{ background: card, borderRadius: 'var(--drop-radius-card, 12px)', border: `1px solid ${border}` }}>
+            <div style={{ background: 'var(--card-dark)', borderRadius: 14, border: '1px solid rgba(255,255,255,0.06)' }}>
               {prevWinner && (
-                <div className="px-4 py-3 text-center" style={{ borderBottom: `1px solid ${border}` }}>
-                  <span className="text-[10px] opacity-40" style={{ fontFamily: 'JetBrains Mono, monospace', color: text }}>
+                <div className="px-4 py-3 text-center" style={{ borderBottom: '1px solid rgba(255,255,255,0.06)' }}>
+                  <span className="text-[10px]" style={{ fontFamily: "'JetBrains Mono', monospace", color: 'var(--muted)' }}>
                     Last month's No Cap Legend: <Crown size={10} className="inline" style={{ color: '#FFD60A' }} /> @{prevWinner.username}
                   </span>
                 </div>
@@ -526,18 +509,18 @@ export default function ProfilePage() {
               {leaderboard.map((e, i) => (
                 <div key={e.id} data-testid={`leaderboard-${e.rank}`}
                   className="flex items-center gap-3 px-4 py-3"
-                  style={{ borderTop: i > 0 ? `1px solid ${border}` : 'none', background: e.is_self ? `${accent}08` : 'transparent' }}>
+                  style={{ borderTop: i > 0 ? '1px solid rgba(255,255,255,0.06)' : 'none', background: e.is_self ? 'rgba(80,122,249,0.04)' : 'transparent' }}>
                   <span className="w-6 text-center text-sm font-bold"
-                    style={{ fontFamily: 'var(--drop-font-heading)', color: e.rank <= 3 ? '#FFD60A' : sub }}>{e.rank}</span>
+                    style={{ fontFamily: "'Inter', sans-serif", color: e.rank <= 3 ? '#FFD60A' : 'var(--muted)' }}>{e.rank}</span>
                   <img src={e.avatar_url} alt="" className="w-8 h-8 rounded-full" />
                   <div className="flex-1 min-w-0">
-                    <p className="text-sm font-medium truncate" style={{ fontFamily: 'var(--drop-font-body)', color: text }}>
-                      {e.full_name} {e.is_self && <span className="text-[9px] opacity-40">(you)</span>}
+                    <p className="text-sm font-medium truncate" style={{ fontFamily: "'Inter', sans-serif", color: 'var(--white)' }}>
+                      {e.full_name} {e.is_self && <span className="text-[9px]" style={{ color: 'var(--muted)' }}>(you)</span>}
                     </p>
-                    <span className="text-[10px] opacity-40" style={{ fontFamily: 'JetBrains Mono, monospace', color: text }}>{e.rank_label}</span>
+                    <span className="text-[10px]" style={{ fontFamily: "'JetBrains Mono', monospace", color: 'var(--muted)' }}>{e.rank_label}</span>
                   </div>
                   <div className="text-right">
-                    <p className="text-sm font-bold" style={{ fontFamily: 'var(--drop-font-heading)', color: RANK_COLORS[e.rank_label] || accent }}>{e.knowledge_score}</p>
+                    <p className="text-sm font-bold" style={{ fontFamily: "'Inter', sans-serif", color: 'var(--accent-blue)' }}>{e.knowledge_score}</p>
                     <span className="text-[9px] flex items-center gap-0.5 justify-end" style={{ color: '#FF6B35' }}>
                       <Flame size={9} /> {e.current_streak}
                     </span>
@@ -548,28 +531,28 @@ export default function ProfilePage() {
           )}
 
           {socialTab === 'requests' && (
-            <div style={{ background: card, borderRadius: 'var(--drop-radius-card, 12px)', border: `1px solid ${border}` }}>
+            <div style={{ background: 'var(--card-dark)', borderRadius: 14, border: '1px solid rgba(255,255,255,0.06)' }}>
               {friendRequests.length === 0 ? (
-                <p className="text-xs opacity-30 text-center py-6" style={{ fontFamily: 'var(--drop-font-body)', color: text }}>
+                <p className="text-xs text-center py-6" style={{ fontFamily: "'Inter', sans-serif", color: 'var(--muted)' }}>
                   No pending requests
                 </p>
               ) : (
                 friendRequests.map((r, i) => (
                   <div key={r.friendship_id} data-testid={`request-${r.sender.username}`}
                     className="flex items-center gap-3 px-4 py-3"
-                    style={{ borderTop: i > 0 ? `1px solid ${border}` : 'none' }}>
+                    style={{ borderTop: i > 0 ? '1px solid rgba(255,255,255,0.06)' : 'none' }}>
                     <img src={r.sender.avatar_url} alt="" className="w-9 h-9 rounded-full" />
                     <div className="flex-1 min-w-0">
-                      <p className="text-sm font-medium truncate" style={{ fontFamily: 'var(--drop-font-body)', color: text }}>{r.sender.full_name}</p>
-                      <p className="text-[10px] opacity-40" style={{ fontFamily: 'JetBrains Mono, monospace', color: text }}>@{r.sender.username}</p>
+                      <p className="text-sm font-medium truncate" style={{ fontFamily: "'Inter', sans-serif", color: 'var(--white)' }}>{r.sender.full_name}</p>
+                      <p className="text-[10px]" style={{ fontFamily: "'JetBrains Mono', monospace", color: 'var(--muted)' }}>@{r.sender.username}</p>
                     </div>
                     <div className="flex gap-1.5">
                       <button data-testid={`accept-${r.sender.username}`} onClick={() => handleAcceptRequest(r.friendship_id)}
                         className="px-3 py-1.5 rounded-lg text-[10px] font-bold uppercase"
-                        style={{ fontFamily: 'JetBrains Mono, monospace', background: accent, color: '#050505' }}>Accept</button>
+                        style={{ fontFamily: "'JetBrains Mono', monospace", background: 'var(--accent-blue)', color: 'var(--bg-dark)' }}>Accept</button>
                       <button data-testid={`decline-${r.sender.username}`} onClick={() => handleDeclineRequest(r.friendship_id)}
                         className="px-3 py-1.5 rounded-lg text-[10px] font-bold uppercase"
-                        style={{ fontFamily: 'JetBrains Mono, monospace', background: 'rgba(255,42,109,0.1)', color: '#FF2A6D' }}>Decline</button>
+                        style={{ fontFamily: "'JetBrains Mono', monospace", background: 'rgba(255,106,110,0.1)', color: 'var(--danger)' }}>Decline</button>
                     </div>
                   </div>
                 ))

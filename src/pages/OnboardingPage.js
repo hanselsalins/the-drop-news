@@ -22,19 +22,19 @@ const groupStyles = {
     icon: '🎯',
   },
   '14-16': {
-    bg: 'linear-gradient(135deg, #7209B7 0%, #CCFF00 100%)',
+    bg: 'linear-gradient(135deg, var(--accent-blue) 0%, #7209B7 100%)',
     label: 'Teen Mode',
     sub: 'Ages 14-16',
     desc: 'No cap, just facts with the right vibe.',
     icon: '🔥',
   },
   '17-20': {
-    bg: 'linear-gradient(135deg, #050505 0%, #333 100%)',
+    bg: 'linear-gradient(135deg, var(--bg-deeper) 0%, var(--card-dark) 100%)',
     label: 'Young Adult',
     sub: 'Ages 17-20',
     desc: 'Deep dives, real context, think critically.',
     icon: '💫',
-    border: '1px solid rgba(204, 255, 0, 0.3)',
+    border: '1px solid var(--accent-blue)',
   },
 };
 
@@ -66,7 +66,7 @@ export default function OnboardingPage() {
     <div
       data-testid="onboarding-page"
       className="min-h-screen flex flex-col px-5 py-8"
-      style={{ background: '#050505' }}
+      style={{ background: 'var(--bg-dark)' }}
     >
       <motion.div
         initial={{ y: -20, opacity: 0 }}
@@ -76,13 +76,13 @@ export default function OnboardingPage() {
       >
         <h1
           className="text-4xl md:text-5xl font-bold tracking-tight"
-          style={{ fontFamily: 'Syne, sans-serif', color: '#FAFAFA' }}
+          style={{ fontFamily: "'Inter', sans-serif", color: 'var(--white)' }}
         >
           Pick your vibe
         </h1>
         <p
-          className="mt-2 text-base opacity-60"
-          style={{ fontFamily: 'Outfit, sans-serif', color: '#FAFAFA' }}
+          className="mt-2 text-base"
+          style={{ fontFamily: "'Inter', sans-serif", color: 'var(--body-light)' }}
         >
           We'll serve your news the way you like it.
         </p>
@@ -110,7 +110,7 @@ export default function OnboardingPage() {
               <motion.div
                 layoutId="selector"
                 className="absolute inset-0 rounded-2xl"
-                style={{ border: '3px solid #CCFF00' }}
+                style={{ border: '3px solid var(--accent-blue)' }}
                 transition={{ type: 'spring', stiffness: 400, damping: 30 }}
               />
             )}
@@ -118,19 +118,19 @@ export default function OnboardingPage() {
               <div>
                 <span
                   className="text-xs font-bold tracking-widest uppercase opacity-80"
-                  style={{ fontFamily: 'JetBrains Mono, monospace', color: id === '17-20' ? '#CCFF00' : '#fff' }}
+                  style={{ fontFamily: "'Inter', sans-serif", color: 'var(--white)' }}
                 >
                   {style.sub}
                 </span>
                 <h3
                   className="text-2xl font-bold mt-1"
-                  style={{ fontFamily: 'Syne, sans-serif', color: id === '17-20' ? '#FAFAFA' : '#fff' }}
+                  style={{ fontFamily: "'Inter', sans-serif", color: 'var(--white)' }}
                 >
                   {style.label}
                 </h3>
                 <p
                   className="text-sm mt-1 opacity-80"
-                  style={{ fontFamily: 'Outfit, sans-serif', color: id === '17-20' ? '#ccc' : '#fff' }}
+                  style={{ fontFamily: "'Inter', sans-serif", color: 'var(--body-light)' }}
                 >
                   {style.desc}
                 </p>

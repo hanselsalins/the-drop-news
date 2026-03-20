@@ -28,9 +28,13 @@ export default function SplashScreen() {
       data-testid="splash-screen"
       className="fixed inset-0 flex flex-col items-center justify-center overflow-hidden"
       style={{
-        background: 'linear-gradient(145deg, #4F46E5, #8B5CF6 50%, #EC4899)',
+        background: 'var(--bg-deeper)',
       }}
     >
+      {/* Accent glow */}
+      <div className="absolute top-1/3 left-1/2 -translate-x-1/2 -translate-y-1/2 w-64 h-64 rounded-full opacity-30 blur-3xl"
+        style={{ background: 'var(--accent-blue)' }} />
+
       {/* Letter-by-letter drop animation */}
       <div className="relative z-10 flex items-baseline justify-center">
         {LETTERS.map((letter, i) => (
@@ -46,10 +50,10 @@ export default function SplashScreen() {
               damping: 15,
             }}
             style={{
-              fontFamily: "'Baloo 2', 'Fredoka', cursive",
+              fontFamily: "'Inter', sans-serif",
               fontSize: 52,
-              fontWeight: 800,
-              color: '#FFFFFF',
+              fontWeight: 700,
+              color: 'var(--white)',
               lineHeight: 1,
               display: letter === ' ' ? 'inline-block' : undefined,
               width: letter === ' ' ? '0.3em' : undefined,
@@ -69,9 +73,9 @@ export default function SplashScreen() {
             transition={{ duration: 0.6 }}
             className="relative z-10 mt-4"
             style={{
-              fontFamily: "'Outfit', sans-serif",
+              fontFamily: "'Inter', sans-serif",
               fontSize: 16,
-              color: 'rgba(255,255,255,0.8)',
+              color: 'var(--body-light)',
             }}
           >
             News that hits different
@@ -85,7 +89,7 @@ export default function SplashScreen() {
         animate={{ opacity: [0.3, 1, 0.3] }}
         transition={{ duration: 1.8, repeat: Infinity }}
       >
-        <div className="w-3 h-3 rounded-full" style={{ background: 'rgba(255,255,255,0.6)' }} />
+        <div className="w-3 h-3 rounded-full" style={{ background: 'var(--accent-blue)' }} />
       </motion.div>
     </div>
   );
