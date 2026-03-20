@@ -865,15 +865,17 @@ function LoginForm({ setPhase, setToken, setParentToken, setUserData, navigate, 
       console.log('[Login] POST /api/auth/login');
       const res = await axios.post(`${BACKEND_URL}/api/auth/login`, { email, password });
       console.log('[Login] Response:', JSON.stringify(res.data));
-      const { token, user, linked_profiles, account_type, profiles: responseProfiles } = res.data;
+      const { token, user, linked_profiles, account_type, profiles: responseProfiles, parent_token: respParentToken } = res.data;
 
       if (account_type === 'parent' || user?.account_type === 'parent') {
         console.log('[Login] Parent account detected, showing profile picker');
-        setLoginToken(token);
+        const parentJwt = respParentToken || token;
+        console.log('[Login] Parent JWT available:', !!parentJwt);
+        setLoginToken(parentJwt);
         setLoginUser(user);
         const profs = responseProfiles || linked_profiles || [];
         setProfiles(profs);
-        if (token) setParentToken(token);
+        if (parentJwt) setParentToken(parentJwt);
       } else {
         setToken(token);
         setUserData(user);
