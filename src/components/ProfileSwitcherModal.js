@@ -99,9 +99,11 @@ export const ProfileSwitcherModal = ({ open, onClose, onPanelClose }) => {
     if (profile.id === user?.id) return;
     setSwitching(profile.id);
 
-    const authToken = localStorage.getItem('token');
+    // Use parent_token for switch-profile (parent has linked_profiles permission)
+    const authToken = localStorage.getItem('parent_token') || localStorage.getItem('token');
     console.log('[Switch] target_user_id:', profile.id);
-    console.log('[Switch] Authorization token from localStorage:', authToken ? `${authToken.slice(0, 20)}...` : 'MISSING');
+    console.log('[Switch] Using token type:', localStorage.getItem('parent_token') ? 'parent_token' : 'token');
+    console.log('[Switch] Authorization token:', authToken ? `${authToken.slice(0, 20)}...` : 'MISSING');
 
     try {
       const res = await axios.post(
