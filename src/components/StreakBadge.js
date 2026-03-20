@@ -1,20 +1,21 @@
 import { Trophy, Flame } from 'lucide-react';
-import { useTheme } from '../contexts/ThemeContext';
 
 export const StreakBadge = ({ currentStreak, longestStreak, readToday, variant = 'compact' }) => {
-  const { band } = useTheme();
-
   if (variant === 'compact') {
     return (
       <div
         data-testid="streak-badge"
         aria-label={`Reading streak: ${currentStreak} days`}
         className="flex items-center gap-1.5 px-3 py-1.5 rounded-full"
-        style={{ background: 'rgba(255,255,255,0.2)' }}
+        style={{ background: '#1B202F' }}
       >
-        <Flame size={14} style={{ color: 'var(--drop-accent2, #F59E0B)' }} />
-        <span className="text-xs font-bold"
-          style={{ fontFamily: 'var(--drop-font-body)', color: '#FFFFFF' }}>
+        <Flame size={14} style={{ color: '#507AF9' }} />
+        <span style={{
+          fontFamily: "'Inter', sans-serif",
+          fontSize: 12,
+          fontWeight: 700,
+          color: '#FFFFFF',
+        }}>
           {currentStreak > 0 ? currentStreak : 'Start!'}
         </span>
       </div>
@@ -27,39 +28,58 @@ export const StreakBadge = ({ currentStreak, longestStreak, readToday, variant =
       aria-label={`Reading streak: ${currentStreak} days, best: ${longestStreak} days`}
       className="p-5"
       style={{
-        borderRadius: 'var(--drop-radius-card)',
-        background: 'var(--drop-surface)',
-        border: '1px solid var(--drop-border)',
+        borderRadius: 14,
+        background: '#1B202F',
       }}
     >
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-3">
           <div className="w-12 h-12 flex items-center justify-center"
-            style={{ background: 'color-mix(in srgb, var(--drop-primary) 10%, transparent)', borderRadius: 14 }}>
-            <Flame size={24} style={{ color: 'var(--drop-primary)' }} />
+            style={{ background: 'rgba(80,122,249,0.1)', borderRadius: 12 }}>
+            <Flame size={24} style={{ color: '#507AF9' }} />
           </div>
           <div>
-            <p className="text-[10px] font-semibold tracking-wider uppercase"
-              style={{ fontFamily: 'var(--drop-font-body)', color: 'var(--drop-text-muted)' }}>
+            <p style={{
+              fontFamily: "'Inter', sans-serif",
+              fontSize: 11,
+              fontWeight: 600,
+              letterSpacing: '0.06em',
+              textTransform: 'uppercase',
+              color: '#828693',
+            }}>
               READING STREAK
             </p>
-            <p className="text-2xl font-bold" style={{ fontFamily: 'var(--drop-font-heading)', color: 'var(--drop-primary)' }}>
+            <p style={{
+              fontFamily: "'Inter', sans-serif",
+              fontSize: 22,
+              fontWeight: 700,
+              color: '#507AF9',
+            }}>
               {currentStreak} day{currentStreak !== 1 ? 's' : ''}
             </p>
           </div>
         </div>
         <div className="flex items-center gap-1.5 px-3 py-1.5"
-          style={{ background: 'color-mix(in srgb, var(--drop-accent, #8B5CF6) 10%, transparent)', borderRadius: 12 }}>
-          <Trophy size={12} style={{ color: 'var(--drop-accent)' }} />
-          <span className="text-[10px] font-bold"
-            style={{ fontFamily: 'var(--drop-font-body)', color: 'var(--drop-accent)' }}>
+          style={{ background: 'rgba(116,201,235,0.1)', borderRadius: 10 }}>
+          <Trophy size={12} style={{ color: '#74C9EB' }} />
+          <span style={{
+            fontFamily: "'Inter', sans-serif",
+            fontSize: 11,
+            fontWeight: 600,
+            color: '#74C9EB',
+          }}>
             Best: {longestStreak}
           </span>
         </div>
       </div>
       {!readToday && currentStreak > 0 && (
-        <p className="text-xs mt-3"
-          style={{ fontFamily: 'var(--drop-font-body)', color: 'var(--drop-text-muted)' }}>
+        <p style={{
+          fontFamily: "'Inter', sans-serif",
+          fontSize: 12,
+          fontWeight: 400,
+          color: '#828693',
+          marginTop: 12,
+        }}>
           Read a story today to keep your streak going!
         </p>
       )}
