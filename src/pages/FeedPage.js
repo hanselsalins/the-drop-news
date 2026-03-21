@@ -206,7 +206,7 @@ export default function FeedPage() {
             fontFamily: "'Inter', sans-serif",
             fontSize: 13,
             fontWeight: 400,
-            color: '#828693',
+             color: 'var(--muted)',
             flex: 1,
           }}>
             Find Breaking News
