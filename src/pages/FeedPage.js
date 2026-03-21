@@ -184,7 +184,7 @@ export default function FeedPage() {
           fontFamily: "'Inter', sans-serif",
           fontSize: 22,
           fontWeight: 600,
-          color: '#FFFFFF',
+           color: 'var(--white)',
           margin: '0 0 16px 0',
         }}>
           Today's News
