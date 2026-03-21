@@ -307,7 +307,7 @@ export default function FeedPage() {
                 fontFamily: "'Inter', sans-serif",
                 fontSize: 15,
                 fontWeight: 400,
-                color: '#828693',
+                color: 'var(--muted)',
               }}>
                 No articles yet. Pull down to refresh!
               </p>
