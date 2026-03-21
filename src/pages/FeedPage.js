@@ -173,7 +173,7 @@ export default function FeedPage() {
           fontFamily: "'Inter', sans-serif",
           fontSize: 15,
           fontWeight: 400,
-          color: '#D4D4D4',
+           color: 'var(--body-light)',
           marginBottom: 4,
         }}>
           {greeting}! {user?.full_name?.split(' ')[0] || ''} 👋
