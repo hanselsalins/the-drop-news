@@ -211,7 +211,7 @@ export default function FeedPage() {
           }}>
             Find Breaking News
           </span>
-          <Search size={18} style={{ color: '#828693' }} />
+          <Search size={18} style={{ color: 'var(--muted)' }} />
         </div>
       </div>
 
