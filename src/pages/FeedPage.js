@@ -156,7 +156,7 @@ export default function FeedPage() {
       <div style={{ padding: '16px 16px 0' }}>
         {/* Top row: hamburger | app name | avatar */}
         <div className="flex items-center justify-between mb-4">
-          <Menu size={24} style={{ color: '#FFFFFF' }} />
+          <Menu size={24} style={{ color: 'var(--white)' }} />
           <span style={{
             fontFamily: "'Inter', sans-serif",
             fontSize: 18,
