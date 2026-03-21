@@ -144,7 +144,7 @@ export default function FeedPage() {
   })();
 
   return (
-    <div data-testid="feed-page" className="min-h-screen pb-28" style={{ background: '#151924' }}>
+    <div data-testid="feed-page" className="min-h-screen pb-28" style={{ background: 'var(--bg-dark)' }}>
       <StreakCelebration streakCount={streak.current_streak} onComplete={() => setShowCelebration(false)} />
 
       <MilestoneBanner
@@ -156,12 +156,12 @@ export default function FeedPage() {
       <div style={{ padding: '16px 16px 0' }}>
         {/* Top row: hamburger | app name | avatar */}
         <div className="flex items-center justify-between mb-4">
-          <Menu size={24} style={{ color: '#FFFFFF' }} />
+          <Menu size={24} style={{ color: 'var(--white)' }} />
           <span style={{
             fontFamily: "'Inter', sans-serif",
             fontSize: 18,
             fontWeight: 600,
-            color: '#FFFFFF',
+             color: 'var(--white)',
           }}>
             The Drop
           </span>
@@ -173,7 +173,7 @@ export default function FeedPage() {
           fontFamily: "'Inter', sans-serif",
           fontSize: 15,
           fontWeight: 400,
-          color: '#D4D4D4',
+           color: 'var(--body-light)',
           marginBottom: 4,
         }}>
           {greeting}! {user?.full_name?.split(' ')[0] || ''} 👋
@@ -184,7 +184,7 @@ export default function FeedPage() {
           fontFamily: "'Inter', sans-serif",
           fontSize: 22,
           fontWeight: 600,
-          color: '#FFFFFF',
+           color: 'var(--white)',
           margin: '0 0 16px 0',
         }}>
           Today's News
@@ -196,7 +196,7 @@ export default function FeedPage() {
           style={{
             width: '100%',
             height: 46,
-            background: '#1B202F',
+            background: 'var(--card-dark)',
             borderRadius: 12,
             padding: '0 14px',
             marginBottom: 8,
@@ -206,12 +206,12 @@ export default function FeedPage() {
             fontFamily: "'Inter', sans-serif",
             fontSize: 13,
             fontWeight: 400,
-            color: '#828693',
+             color: 'var(--muted)',
             flex: 1,
           }}>
             Find Breaking News
           </span>
-          <Search size={18} style={{ color: '#828693' }} />
+          <Search size={18} style={{ color: 'var(--muted)' }} />
         </div>
       </div>
 
@@ -250,7 +250,7 @@ export default function FeedPage() {
             size={20}
             className={isRefreshing ? 'animate-spin' : ''}
             style={{
-              color: '#507AF9',
+              color: 'var(--accent-blue)',
               transform: isRefreshing ? undefined : `rotate(${Math.min(pullDistance * 2, 360)}deg)`,
               transition: isRefreshing ? 'none' : 'transform 0.1s',
             }}
@@ -267,7 +267,7 @@ export default function FeedPage() {
               fontFamily: "'Inter', sans-serif",
               fontSize: 15,
               fontWeight: 700,
-              color: '#FFFFFF',
+              color: 'var(--white)',
             }}>
               Latest News
             </span>
@@ -275,7 +275,7 @@ export default function FeedPage() {
               fontFamily: "'Inter', sans-serif",
               fontSize: 15,
               fontWeight: 400,
-              color: '#D4D4D4',
+              color: 'var(--body-light)',
               cursor: 'pointer',
             }}>
               View All
@@ -307,7 +307,7 @@ export default function FeedPage() {
                 fontFamily: "'Inter', sans-serif",
                 fontSize: 15,
                 fontWeight: 400,
-                color: '#828693',
+                color: 'var(--muted)',
               }}>
                 No articles yet. Pull down to refresh!
               </p>
