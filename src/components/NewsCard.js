@@ -11,9 +11,7 @@ export const NewsCard = ({ article }) => {
   const rw = article.rewrite || {};
   const title = rw.title || article.original_title || 'Untitled';
   const imageUrl = article.image_url;
-  const timeAgo = article.published_at
-    ? getTimeAgo(article.published_at)
-    : '';
+  const timeAgo = article.published_at ? getTimeAgo(article.published_at) : '';
 
   const handleClick = () => {
     medium();
@@ -31,7 +29,7 @@ export const NewsCard = ({ article }) => {
       className="w-full cursor-pointer flex"
       style={{
         height: 113,
-        background: '#1B202F',
+        background: 'var(--card-dark)',
         borderRadius: 14,
         overflow: 'hidden',
       }}
@@ -42,7 +40,7 @@ export const NewsCard = ({ article }) => {
           width: 100,
           height: 89,
           borderRadius: 10,
-          background: '#252A3A',
+          background: 'var(--bg-deeper)',
           overflow: 'hidden',
           flexShrink: 0,
         }}>
@@ -66,9 +64,9 @@ export const NewsCard = ({ article }) => {
             style={{
               fontSize: 11,
               fontWeight: 400,
-              color: '#FFFFFF',
+              color: 'var(--white)',
               fontFamily: "'Inter', sans-serif",
-              background: '#151924',
+              background: 'var(--bg-dark)',
               borderRadius: 6,
               padding: '2px 6px',
             }}
@@ -76,7 +74,7 @@ export const NewsCard = ({ article }) => {
             {CATEGORY_LABELS[article.category] || article.category}
           </span>
           {timeAgo && (
-            <span style={{ fontSize: 11, fontWeight: 400, color: '#A2A2A2', fontFamily: "'Inter', sans-serif" }}>
+            <span style={{ fontSize: 11, fontWeight: 400, color: 'var(--muted)', fontFamily: "'Inter', sans-serif" }}>
               {timeAgo}
             </span>
           )}
@@ -87,7 +85,7 @@ export const NewsCard = ({ article }) => {
           style={{
             fontSize: 13,
             fontWeight: 700,
-            color: '#FFFFFF',
+            color: 'var(--white)',
             fontFamily: "'Inter', sans-serif",
             lineHeight: 1.4,
             display: '-webkit-box',
@@ -131,7 +129,7 @@ export const HeroNewsCard = ({ article }) => {
       style={{
         width: 252,
         height: 272,
-        background: '#1B202F',
+        background: 'var(--card-dark)',
         borderRadius: 18,
       }}
     >
@@ -146,12 +144,12 @@ export const HeroNewsCard = ({ article }) => {
             style={{ width: '100%', height: '100%', objectFit: 'cover' }}
           />
         ) : (
-          <div style={{ width: '100%', height: '100%', background: '#252A3A' }} />
+          <div style={{ width: '100%', height: '100%', background: 'var(--bg-deeper)' }} />
         )}
         {/* Gradient scrim */}
         <div
           className="absolute inset-0"
-          style={{ background: 'linear-gradient(to bottom, transparent 40%, #161A25 100%)' }}
+          style={{ background: 'linear-gradient(to bottom, transparent 40%, var(--scrim-start) 100%)' }}
         />
       </div>
 
@@ -162,7 +160,7 @@ export const HeroNewsCard = ({ article }) => {
           fontWeight: 400,
           color: '#FFFFFF',
           fontFamily: "'Inter', sans-serif",
-          background: '#151924',
+          background: 'var(--bg-dark)',
           borderRadius: 6,
           padding: '4px 8px',
         }}>
@@ -192,7 +190,7 @@ export const HeroNewsCard = ({ article }) => {
           <span style={{
             fontSize: 11,
             fontWeight: 400,
-            color: '#A2A2A2',
+            color: 'var(--muted)',
             fontFamily: "'Inter', sans-serif",
             marginTop: 4,
             display: 'block',
