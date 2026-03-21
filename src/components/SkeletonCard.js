@@ -4,7 +4,7 @@ export function SkeletonCard() {
       className="w-full overflow-hidden flex"
       style={{
         height: 113,
-        background: '#1B202F',
+        background: 'var(--card-dark)',
         borderRadius: 14,
       }}
     >
@@ -24,7 +24,7 @@ export function HeroSkeletonCard() {
   return (
     <div
       className="shrink-0 overflow-hidden relative"
-      style={{ width: 252, height: 272, background: '#1B202F', borderRadius: 18 }}
+      style={{ width: 252, height: 272, background: 'var(--card-dark)', borderRadius: 18 }}
     >
       <div className="skeleton-shimmer absolute inset-0" />
       <div className="absolute bottom-4 left-4 right-4">

@@ -20,42 +20,42 @@ export const BottomNav = ({ active = 'home' }) => {
       aria-label="Main navigation"
       className="fixed bottom-0 left-0 right-0 z-50"
       style={{
-        background: 'var(--drop-surface)',
-        borderTop: '1px solid var(--drop-border)',
+        height: 84,
+        background: 'var(--bg-deeper)',
       }}
     >
-      <div className="max-w-md mx-auto flex items-center justify-around px-2 pt-2.5 pb-5">
+      <div className="max-w-md mx-auto flex items-center justify-around h-full px-2">
         {items.map(({ id, icon: Icon, label, path }) => {
           const isActive = active === id;
-          const isStreak = id === 'streak';
           return (
             <button
               key={id}
               data-testid={`nav-${id}`}
               aria-label={label}
               onClick={() => { light(); navigate(path); }}
-              className="flex flex-col items-center gap-1 py-1 px-3 transition-all duration-200"
+              className="flex flex-col items-center gap-1 transition-all duration-200"
+              style={{ minWidth: 56 }}
             >
               <div
                 className="flex items-center justify-center"
                 style={{
-                  background: isActive ? 'color-mix(in srgb, var(--drop-primary) 10%, transparent)' : 'transparent',
+                  background: isActive ? 'var(--card-dark)' : 'transparent',
                   borderRadius: 12,
-                  padding: 6,
+                  padding: '8px 20px',
                 }}
               >
                 <Icon
                   size={22}
                   strokeWidth={isActive ? 2.5 : 1.5}
-                  style={{ color: isStreak ? 'var(--drop-accent2, #F59E0B)' : (isActive ? 'var(--drop-primary)' : 'var(--drop-text-muted)') }}
+                  style={{ color: isActive ? 'var(--accent-blue)' : 'var(--muted)' }}
                 />
               </div>
               <span
-                className="text-[10px]"
                 style={{
-                  fontFamily: 'var(--drop-font-body)',
-                  color: isActive ? 'var(--drop-primary)' : 'var(--drop-text-muted)',
-                  fontWeight: isActive ? 700 : 400,
+                  fontFamily: "'Inter', sans-serif",
+                  fontSize: 11,
+                  fontWeight: isActive ? 600 : 500,
+                  color: isActive ? 'var(--accent-blue)' : 'var(--muted)',
                 }}
               >
                 {label}

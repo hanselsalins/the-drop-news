@@ -39,8 +39,8 @@ export const CategoryTabs = ({ categories, activeCategory, setActiveCategory }) 
                 fontWeight: 600,
                 padding: '6px 14px',
                 borderRadius: 8,
-                background: isActive ? '#507AF9' : '#1B202F',
-                color: '#FFFFFF',
+                background: isActive ? 'var(--accent-blue)' : 'var(--card-dark)',
+                color: isActive ? '#FFFFFF' : 'var(--body-light)',
                 border: 'none',
               }}
             >
