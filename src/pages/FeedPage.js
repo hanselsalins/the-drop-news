@@ -196,7 +196,7 @@ export default function FeedPage() {
           style={{
             width: '100%',
             height: 46,
-            background: '#1B202F',
+            background: 'var(--card-dark)',
             borderRadius: 12,
             padding: '0 14px',
             marginBottom: 8,
