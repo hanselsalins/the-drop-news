@@ -34,7 +34,10 @@ export function ThemeProvider({ children }) {
   });
   const [loading, setLoading] = useState(true);
   const [linkedProfiles, setLinkedProfiles] = useState([]);
-  const [darkMode, setDarkMode] = useState(() => localStorage.getItem('darkMode') === 'true');
+  const [darkMode, setDarkMode] = useState(() => {
+    const saved = localStorage.getItem('darkMode');
+    return saved === null ? false : saved === 'true';
+  });
 
   const ageGroup = user?.age_group || null;
   const band = ageGroup ? AGE_TO_BAND[ageGroup] || 'cool-connected' : null;

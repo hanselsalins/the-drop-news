@@ -48,6 +48,28 @@
   --drop-line-height: 1.5;
 }
 
+/* ═══════════════════════════════════════════════════
+   LIGHT MODE OVERRIDES
+   ═══════════════════════════════════════════════════ */
+[data-theme="light"] {
+  --bg-dark: #EFEFEB;
+  --bg-deeper: #E5E5E0;
+  --card-dark: #FFFFFF;
+  --white: #151924;
+  --body-light: #404551;
+  --muted: #6B7280;
+  --muted-label: #6B7280;
+  --scrim-start: rgba(0,0,0,0.5);
+  --drop-bg: #EFEFEB;
+  --drop-surface: #FFFFFF;
+  --drop-text: #151924;
+  --drop-text-muted: #6B7280;
+  --drop-text-body: #404551;
+  --drop-border: rgba(0,0,0,0.08);
+  --drop-border-solid: #D4D4D4;
+  --drop-header-bg: #EFEFEB;
+}
+
 body {
   margin: 0;
   font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
@@ -55,7 +77,7 @@ body {
   -moz-osx-font-smoothing: grayscale;
   overscroll-behavior: none;
   background: var(--bg-dark);
-  color: #FFFFFF;
+  color: var(--drop-text);
 }
 
 code {
