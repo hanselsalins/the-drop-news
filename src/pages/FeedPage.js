@@ -161,7 +161,7 @@ export default function FeedPage() {
             fontFamily: "'Inter', sans-serif",
             fontSize: 18,
             fontWeight: 600,
-            color: '#FFFFFF',
+             color: 'var(--white)',
           }}>
             The Drop
           </span>
