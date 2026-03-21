@@ -250,7 +250,7 @@ export default function FeedPage() {
             size={20}
             className={isRefreshing ? 'animate-spin' : ''}
             style={{
-              color: '#507AF9',
+              color: 'var(--accent-blue)',
               transform: isRefreshing ? undefined : `rotate(${Math.min(pullDistance * 2, 360)}deg)`,
               transition: isRefreshing ? 'none' : 'transform 0.1s',
             }}
