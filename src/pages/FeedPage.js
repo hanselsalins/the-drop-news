@@ -144,7 +144,7 @@ export default function FeedPage() {
   })();
 
   return (
-    <div data-testid="feed-page" className="min-h-screen pb-28" style={{ background: '#151924' }}>
+    <div data-testid="feed-page" className="min-h-screen pb-28" style={{ background: 'var(--bg-dark)' }}>
       <StreakCelebration streakCount={streak.current_streak} onComplete={() => setShowCelebration(false)} />
 
       <MilestoneBanner
