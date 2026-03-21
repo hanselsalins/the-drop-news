@@ -267,7 +267,7 @@ export default function FeedPage() {
               fontFamily: "'Inter', sans-serif",
               fontSize: 15,
               fontWeight: 700,
-              color: '#FFFFFF',
+              color: 'var(--white)',
             }}>
               Latest News
             </span>
