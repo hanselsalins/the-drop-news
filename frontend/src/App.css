@@ -1,4 +1,4 @@
-/* The Drop - No Cap News */
+/* The Drop — Yui Design System */
 
 .App {
   min-height: 100vh;
@@ -11,21 +11,8 @@
     margin: 0 auto;
     min-height: 100vh;
     position: relative;
-    box-shadow: var(--shadow);
+    box-shadow: var(--block-shadow);
   }
-}
-
-::-webkit-scrollbar {
-  width: 0px;
-  height: 0px;
-}
-
-.scrollbar-hide::-webkit-scrollbar {
-  display: none;
-}
-.scrollbar-hide {
-  -ms-overflow-style: none;
-  scrollbar-width: none;
 }
 
 .line-clamp-2 {

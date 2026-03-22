@@ -11,9 +11,9 @@ export const WhyThisStory = ({ reason }) => {
         data-testid="why-this-story-btn"
         onClick={(e) => { e.stopPropagation(); setOpen(!open); }}
         className="p-1.5 rounded-full cursor-pointer"
-        style={{ background: 'rgba(255,255,255,0.06)' }}
+        style={{ background: 'var(--light-gray)' }}
       >
-        <Info size={13} style={{ color: '#828693' }} />
+        <Info size={13} style={{ color: 'var(--text-color)' }} />
       </button>
 
       <AnimatePresence>
@@ -26,37 +26,30 @@ export const WhyThisStory = ({ reason }) => {
             onClick={(e) => e.stopPropagation()}
             className="absolute bottom-full left-0 mb-2 p-4 z-50 w-60"
             style={{
-              background: '#1B202F',
-              border: '1px solid rgba(255,255,255,0.06)',
+              background: 'var(--bg)',
+              border: '1px solid var(--light-gray)',
               borderRadius: 14,
-              boxShadow: '0 8px 30px rgba(0,0,0,0.4)',
+              boxShadow: 'var(--block-shadow)',
             }}
           >
             <div className="flex items-start justify-between gap-2">
               <div>
                 <p style={{
-                  fontFamily: "'Inter', sans-serif",
-                  fontSize: 10,
-                  fontWeight: 600,
-                  letterSpacing: '0.06em',
-                  textTransform: 'uppercase',
-                  color: '#828693',
-                  marginBottom: 6,
+                  fontFamily: 'var(--font)', fontSize: 10, fontWeight: 600,
+                  letterSpacing: '0.06em', textTransform: 'uppercase',
+                  color: 'var(--text-color)', marginBottom: 6,
                 }}>
                   WHY THIS STORY?
                 </p>
                 <p style={{
-                  fontFamily: "'Inter', sans-serif",
-                  fontSize: 12,
-                  fontWeight: 400,
-                  color: '#D4D4D4',
-                  lineHeight: '16px',
+                  fontFamily: 'var(--font)', fontSize: 12, fontWeight: 400,
+                  color: 'var(--text-color)', lineHeight: '16px',
                 }}>
                   {reason}
                 </p>
               </div>
               <button onClick={(e) => { e.stopPropagation(); setOpen(false); }} className="shrink-0 mt-0.5 cursor-pointer" style={{ background: 'none', border: 'none' }}>
-                <X size={12} style={{ color: '#828693' }} />
+                <X size={12} style={{ color: 'var(--text-color)' }} />
               </button>
             </div>
           </motion.div>

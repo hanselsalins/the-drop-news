@@ -29,9 +29,7 @@ export const ReactionBar = ({ articleId }) => {
         const res = await axios.get(`${BACKEND_URL}/api/articles/${articleId}/reactions`, { headers });
         setCounts(res.data.counts || {});
         setUserReaction(res.data.user_reaction);
-      } catch (e) {
-        console.error('Failed to fetch reactions:', e);
-      }
+      } catch (e) {}
     };
     fetchReactions();
   }, [articleId, token]);
@@ -60,29 +58,17 @@ export const ReactionBar = ({ articleId }) => {
         }
         setUserReaction(reactionId);
       }
-    } catch (e) {
-      console.error('React failed:', e);
-    }
+    } catch (e) {}
     setTimeout(() => setAnimating(null), 300);
   };
 
   return (
-    <div
-      data-testid="reaction-bar"
-      className="mt-6 p-4"
-      style={{
-        background: 'var(--light-gray)',
-        borderRadius: 14,
-      }}
-    >
+    <div data-testid="reaction-bar" className="mt-6 p-4"
+      style={{ background: 'var(--light-gray)', borderRadius: 14 }}>
       <p style={{
-        fontFamily: "'Rubik', sans-serif",
-        fontSize: 11,
-        fontWeight: 600,
-        letterSpacing: '0.06em',
-        textTransform: 'uppercase',
-        color: 'var(--text-color)',
-        marginBottom: 12,
+        fontFamily: 'var(--font)', fontSize: 11, fontWeight: 600,
+        letterSpacing: '0.06em', textTransform: 'uppercase',
+        color: 'var(--text-color)', marginBottom: 12,
       }}>
         HOW DID THIS MAKE YOU FEEL?
       </p>
@@ -97,40 +83,23 @@ export const ReactionBar = ({ articleId }) => {
               aria-label={r.label}
               onClick={() => handleReact(r.id)}
               whileTap={prefersReducedMotion ? undefined : { scale: 1.15 }}
-              className="flex flex-col items-center gap-1 px-2 py-2 cursor-pointer transition-all duration-200"
+              className="flex flex-col items-center gap-1 px-2 py-2 cursor-pointer"
               style={{
-                background: isActive ? 'rgba(33,150,243,0.1)' : 'transparent',
-                border: isActive ? '1.5px solid rgba(33,150,243,0.3)' : '1.5px solid transparent',
+                background: isActive ? 'rgba(255,107,0,0.1)' : 'transparent',
+                border: isActive ? '1.5px solid rgba(255,107,0,0.3)' : '1.5px solid transparent',
                 borderRadius: 12,
               }}
             >
-              <motion.span
-                className="text-2xl"
-                aria-hidden="true"
+              <motion.span className="text-2xl" aria-hidden="true"
                 animate={!prefersReducedMotion && animating === r.id ? { scale: [1, 1.5, 1] } : {}}
                 transition={{ duration: 0.3 }}
-                style={{
-                  filter: isActive ? 'none' : 'grayscale(0.3)',
-                  opacity: isActive ? 1 : 0.5,
-                }}
-              >
+                style={{ filter: isActive ? 'none' : 'grayscale(0.3)', opacity: isActive ? 1 : 0.5 }}>
                 {r.emoji}
               </motion.span>
-              <span style={{
-                fontFamily: "'Rubik', sans-serif",
-                fontSize: 10,
-                fontWeight: 700,
-                color: isActive ? 'var(--accent)' : 'var(--text-color)',
-              }}>
+              <span style={{ fontFamily: 'var(--font)', fontSize: 10, fontWeight: 700, color: isActive ? 'var(--accent)' : 'var(--text-color)' }}>
                 {count > 0 ? count : ''}
               </span>
-              <span style={{
-                fontFamily: "'Rubik', sans-serif",
-                fontSize: 9,
-                color: 'var(--text-color)',
-              }}>
-                {r.label}
-              </span>
+              <span style={{ fontFamily: 'var(--font)', fontSize: 9, color: 'var(--text-color)' }}>{r.label}</span>
             </motion.button>
           );
         })}
