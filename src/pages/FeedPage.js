@@ -15,7 +15,7 @@ import { SkeletonTabs } from '../components/SkeletonTabs';
 import { StreakCelebration } from '../components/StreakCelebration';
 import { useReadArticles } from '../hooks/useReadArticles';
 import { motion } from 'framer-motion';
-import { RefreshCw, Search, Menu } from 'lucide-react';
+import { RefreshCw, Search } from 'lucide-react';
 import axios from 'axios';
 
 const BACKEND_URL = import.meta.env.VITE_BACKEND_URL;
@@ -112,7 +112,6 @@ export default function FeedPage() {
   const buildFeedItems = () => {
     const items = [];
     let factIdx = 0;
-    // For "today" tab, first 2 articles go to hero carousel, rest to list
     const listArticles = activeCategory === 'today' ? articles.slice(2) : articles;
     listArticles.forEach((article, i) => {
       items.push({ type: 'article', data: article });
@@ -136,15 +135,11 @@ export default function FeedPage() {
     setIsRefreshing(false);
   };
 
-  const greeting = (() => {
-    const hour = new Date().getHours();
-    if (hour < 12) return 'Good Morning';
-    if (hour < 17) return 'Good Afternoon';
-    return 'Good Evening';
-  })();
+  const today = new Date();
+  const dateStr = today.toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric' });
 
   return (
-    <div data-testid="feed-page" className="min-h-screen pb-28" style={{ background: 'var(--bg-dark)' }}>
+    <div data-testid="feed-page" className="min-h-screen pb-24" style={{ background: 'var(--bg)' }}>
       <StreakCelebration streakCount={streak.current_streak} onComplete={() => setShowCelebration(false)} />
 
       <MilestoneBanner
@@ -153,65 +148,33 @@ export default function FeedPage() {
       />
 
       {/* ── HEADER ── */}
-      <div style={{ padding: '16px 16px 0' }}>
-        {/* Top row: hamburger | app name | avatar */}
-        <div className="flex items-center justify-between mb-4">
-          <Menu size={24} style={{ color: 'var(--white)' }} />
-          <span style={{
-            fontFamily: "'Inter', sans-serif",
-            fontSize: 18,
-            fontWeight: 600,
-             color: 'var(--white)',
-          }}>
-            The Drop
-          </span>
-          <ProfileButton onClick={() => setProfileOpen(true)} size={46} />
-        </div>
-
-        {/* Greeting */}
-        <p style={{
-          fontFamily: "'Inter', sans-serif",
-          fontSize: 15,
-          fontWeight: 400,
-           color: 'var(--body-light)',
-          marginBottom: 4,
-        }}>
-          {greeting}! {user?.full_name?.split(' ')[0] || ''} 👋
-        </p>
-
-        {/* Section title */}
-        <h1 style={{
-          fontFamily: "'Inter', sans-serif",
-          fontSize: 22,
-          fontWeight: 600,
-           color: 'var(--white)',
-          margin: '0 0 16px 0',
-        }}>
-          Today's News
-        </h1>
-
-        {/* Search bar */}
-        <div
-          className="flex items-center"
-          style={{
-            width: '100%',
-            height: 46,
-            background: 'var(--card-dark)',
-            borderRadius: 12,
-            padding: '0 14px',
-            marginBottom: 8,
-          }}
-        >
-          <span style={{
-            fontFamily: "'Inter', sans-serif",
-            fontSize: 13,
-            fontWeight: 400,
-             color: 'var(--muted)',
-            flex: 1,
-          }}>
-            Find Breaking News
-          </span>
-          <Search size={18} style={{ color: 'var(--muted)' }} />
+      <div style={{
+        padding: '16px 16px 12px',
+        background: 'var(--bg)',
+        borderBottom: '1px solid var(--light-gray)',
+      }}>
+        <div className="flex items-center justify-between mb-1">
+          <div>
+            <h1 style={{
+              fontFamily: "'Rubik', sans-serif",
+              fontSize: 20,
+              fontWeight: 600,
+              color: 'var(--title-color)',
+              margin: 0,
+            }}>
+              The Drop
+            </h1>
+            <p style={{
+              fontFamily: "'Rubik', sans-serif",
+              fontSize: 13,
+              fontWeight: 400,
+              color: 'var(--text-color)',
+              margin: 0,
+            }}>
+              {dateStr}
+            </p>
+          </div>
+          <ProfileButton onClick={() => setProfileOpen(true)} size={40} />
         </div>
       </div>
 
@@ -250,7 +213,7 @@ export default function FeedPage() {
             size={20}
             className={isRefreshing ? 'animate-spin' : ''}
             style={{
-              color: 'var(--accent-blue)',
+              color: 'var(--accent)',
               transform: isRefreshing ? undefined : `rotate(${Math.min(pullDistance * 2, 360)}deg)`,
               transition: isRefreshing ? 'none' : 'transform 0.1s',
             }}
@@ -260,22 +223,21 @@ export default function FeedPage() {
 
       {/* ── LIST CARDS ── */}
       <div className="px-4 pt-2">
-        {/* Section header */}
         {!loading && feedItems.length > 0 && (
           <div className="flex items-center justify-between mb-3">
             <span style={{
-              fontFamily: "'Inter', sans-serif",
+              fontFamily: "'Rubik', sans-serif",
               fontSize: 15,
               fontWeight: 700,
-              color: 'var(--white)',
+              color: 'var(--title-color)',
             }}>
               Latest News
             </span>
             <span style={{
-              fontFamily: "'Inter', sans-serif",
-              fontSize: 15,
+              fontFamily: "'Rubik', sans-serif",
+              fontSize: 13,
               fontWeight: 400,
-              color: 'var(--body-light)',
+              color: 'var(--text-color)',
               cursor: 'pointer',
             }}>
               View All
@@ -304,10 +266,10 @@ export default function FeedPage() {
           ) : feedItems.length === 0 ? (
             <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="text-center py-20">
               <p style={{
-                fontFamily: "'Inter', sans-serif",
+                fontFamily: "'Rubik', sans-serif",
                 fontSize: 15,
                 fontWeight: 400,
-                color: 'var(--muted)',
+                color: 'var(--text-color)',
               }}>
                 No articles yet. Pull down to refresh!
               </p>
