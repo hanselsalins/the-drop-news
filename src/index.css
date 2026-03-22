@@ -2,152 +2,79 @@
 @tailwind components;
 @tailwind utilities;
 
-/* ═══════════════════════════════════════════════════
-   THE DROP — Design System (Dark-First)
-   ═══════════════════════════════════════════════════ */
-
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Rubik:wght@400;500;600;700&display=swap');
 
 :root {
-  --bg-dark: #151924;
-  --bg-deeper: #0F131E;
-  --card-dark: #1B202F;
-  --bg-light: #EFEFEB;
-  --chip-light: #EBE1E1;
-  --white: #FFFFFF;
-  --accent-blue: #507AF9;
-  --accent-light-blue: #74C9EB;
-  --headline-dark: #151924;
-  --body-dark: #404551;
-  --body-light: #D4D4D4;
-  --muted: #A2A2A2;
-  --muted-label: #878989;
-  --danger: #FF6E6E;
-  --scrim-start: #161A25;
-
-  /* Legacy compat tokens */
-  --drop-bg: #151924;
-  --drop-surface: #1B202F;
-  --drop-primary: #507AF9;
-  --drop-accent: #74C9EB;
-  --drop-accent2: #507AF9;
-  --drop-text: #FFFFFF;
-  --drop-text-muted: #828693;
-  --drop-text-body: #D4D4D4;
-  --drop-border: rgba(255,255,255,0.06);
-  --drop-border-solid: #2A2A38;
-  --drop-error: #FF6E6E;
-  --drop-success: #34D399;
-  --drop-font-heading: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
-  --drop-font-body: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
-  --drop-radius-card: 14px;
-  --drop-radius-btn: 12px;
-  --drop-shadow-card: none;
-  --drop-min-touch: 44px;
-  --drop-header-bg: #151924;
-  --drop-line-height: 1.5;
+  --title-color: #1e2b47;
+  --text-color: #828d9c;
+  --bg: #ffffff;
+  --light-gray: #ecf1f5;
+  --shadow: 0px 2px 10px 0px rgba(85,95,105,0.13);
+  --accent: #2196f3;
 }
 
-/* ═══════════════════════════════════════════════════
-   LIGHT MODE OVERRIDES
-   ═══════════════════════════════════════════════════ */
-[data-theme="light"] {
-  --bg-dark: #EFEFEB;
-  --bg-deeper: #E5E5E0;
-  --card-dark: #FFFFFF;
-  --white: #151924;
-  --body-light: #404551;
-  --muted: #6B7280;
-  --muted-label: #6B7280;
-  --scrim-start: rgba(0,0,0,0.5);
-  --drop-bg: #EFEFEB;
-  --drop-surface: #FFFFFF;
-  --drop-text: #151924;
-  --drop-text-muted: #6B7280;
-  --drop-text-body: #404551;
-  --drop-border: rgba(0,0,0,0.08);
-  --drop-border-solid: #D4D4D4;
-  --drop-header-bg: #EFEFEB;
+[data-theme="dark"] {
+  --title-color: #ffffff;
+  --text-color: #9aa9b2;
+  --bg: #001119;
+  --light-gray: #0e232d;
 }
 
 body {
   margin: 0;
-  font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+  font-family: 'Rubik', sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   overscroll-behavior: none;
-  background: var(--bg-dark);
-  color: var(--drop-text);
+  background: var(--bg);
+  color: var(--title-color);
 }
 
 code {
   font-family: 'JetBrains Mono', monospace;
 }
 
-/* ═══════════════════════════════════════════════════
-   CATEGORY COLORS
-   ═══════════════════════════════════════════════════ */
-.cat-world { color: #3B82F6; }
-.cat-power { color: #EF4444; }
-.cat-money { color: #F59E0B; }
-.cat-tech { color: #8B5CF6; }
-.cat-sports { color: #F97316; }
-.cat-entertainment { color: #EC4899; }
-.cat-environment { color: #10B981; }
-
-/* ═══════════════════════════════════════════════════
-   SKELETON LOADING SHIMMER
-   ═══════════════════════════════════════════════════ */
+/* Skeleton Loading */
 @keyframes shimmer {
   0% { background-position: -200px 0; }
   100% { background-position: calc(200px + 100%) 0; }
 }
 .skeleton-shimmer {
-  background: linear-gradient(90deg, #1B202F 25%, #252A3A 50%, #1B202F 75%);
+  background: linear-gradient(90deg, var(--light-gray) 25%, rgba(255,255,255,0.4) 50%, var(--light-gray) 75%);
   background-size: 200px 100%;
   animation: shimmer 1.5s infinite;
 }
 .skeleton-shimmer-light {
-  background: linear-gradient(90deg, #E5E5E5 25%, #F0F0F0 50%, #E5E5E5 75%);
+  background: linear-gradient(90deg, #e8edf2 25%, #f4f6f8 50%, #e8edf2 75%);
   background-size: 200px 100%;
   animation: shimmer 1.5s infinite;
 }
 
-/* ═══════════════════════════════════════════════════
-   SCROLLBAR HIDE
-   ═══════════════════════════════════════════════════ */
+/* Scrollbar Hide */
 .scrollbar-hide::-webkit-scrollbar { display: none; }
 .scrollbar-hide { -ms-overflow-style: none; scrollbar-width: none; }
 
-/* ═══════════════════════════════════════════════════
-   PULL QUOTE (Article Page)
-   ═══════════════════════════════════════════════════ */
+/* Pull Quote */
 .pull-quote {
-  border-left: 3px solid var(--accent-blue);
+  border-left: 3px solid var(--accent);
   padding: 12px 16px;
   margin: 16px 0;
   font-style: italic;
   font-size: 14px;
   font-weight: 500;
-  color: var(--accent-blue);
-  font-family: 'Inter', sans-serif;
+  color: var(--accent);
+  font-family: 'Rubik', sans-serif;
 }
 
-/* ═══════════════════════════════════════════════════
-   REDUCED MOTION
-   ═══════════════════════════════════════════════════ */
 @media (prefers-reduced-motion: reduce) {
   .skeleton-shimmer, .skeleton-shimmer-light {
     animation: none;
   }
 }
 
-/* ═══════════════════════════════════════════════════
-   TAILWIND BASE OVERRIDES
-   ═══════════════════════════════════════════════════ */
 @layer base {
   * {
-    border-color: rgba(255,255,255,0.06);
+    border-color: var(--light-gray);
   }
   [data-debug-wrapper="true"] {
     display: contents !important;
