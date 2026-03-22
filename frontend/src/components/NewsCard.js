@@ -4,7 +4,6 @@ import { CATEGORY_LABELS } from '../lib/bandUtils';
 import { useReducedMotion } from '../hooks/useReducedMotion';
 import { medium } from '../lib/haptic';
 
-// List card variant (vertical feed)
 export const NewsCard = ({ article }) => {
   const navigate = useNavigate();
   const prefersReducedMotion = useReducedMotion();
@@ -29,18 +28,19 @@ export const NewsCard = ({ article }) => {
       className="w-full cursor-pointer flex"
       style={{
         height: 113,
-        background: 'var(--card-dark)',
+        background: 'var(--bg)',
         borderRadius: 14,
         overflow: 'hidden',
+        boxShadow: 'var(--shadow)',
       }}
     >
       {/* Left image */}
       <div className="shrink-0 flex items-center justify-center" style={{ padding: 12 }}>
         <div style={{
           width: 100,
-          height: 89,
+          height: 88,
           borderRadius: 10,
-          background: 'var(--bg-deeper)',
+          background: 'var(--light-gray)',
           overflow: 'hidden',
           flexShrink: 0,
         }}>
@@ -60,44 +60,50 @@ export const NewsCard = ({ article }) => {
       <div className="flex-1 flex flex-col justify-center min-w-0" style={{ padding: '12px 12px 12px 0' }}>
         {/* Category + timestamp row */}
         <div className="flex items-center gap-2 mb-1">
-          <span
-            style={{
-              fontSize: 11,
-              fontWeight: 400,
-              color: 'var(--white)',
-              fontFamily: "'Inter', sans-serif",
-              background: 'var(--bg-dark)',
-              borderRadius: 6,
-              padding: '2px 6px',
-            }}
-          >
+          <span style={{
+            fontSize: 11,
+            fontWeight: 500,
+            color: 'var(--accent)',
+            fontFamily: "'Rubik', sans-serif",
+          }}>
             {CATEGORY_LABELS[article.category] || article.category}
           </span>
           {timeAgo && (
-            <span style={{ fontSize: 11, fontWeight: 400, color: 'var(--muted)', fontFamily: "'Inter', sans-serif" }}>
+            <span style={{ fontSize: 11, fontWeight: 400, color: 'var(--text-color)', fontFamily: "'Rubik', sans-serif" }}>
               {timeAgo}
             </span>
           )}
         </div>
 
         {/* Headline */}
-        <h3
-          style={{
-            fontSize: 13,
-            fontWeight: 700,
-            color: 'var(--white)',
-            fontFamily: "'Inter', sans-serif",
-            lineHeight: 1.4,
-            display: '-webkit-box',
-            WebkitLineClamp: 2,
-            WebkitBoxOrient: 'vertical',
-            overflow: 'hidden',
-            textOverflow: 'ellipsis',
-            margin: 0,
-          }}
-        >
+        <h3 style={{
+          fontSize: 14,
+          fontWeight: 600,
+          color: 'var(--title-color)',
+          fontFamily: "'Rubik', sans-serif",
+          lineHeight: 1.4,
+          display: '-webkit-box',
+          WebkitLineClamp: 2,
+          WebkitBoxOrient: 'vertical',
+          overflow: 'hidden',
+          textOverflow: 'ellipsis',
+          margin: 0,
+        }}>
           {title}
         </h3>
+
+        {/* Source + time */}
+        {article.source && (
+          <span style={{
+            fontSize: 11,
+            fontWeight: 400,
+            color: 'var(--text-color)',
+            fontFamily: "'Rubik', sans-serif",
+            marginTop: 4,
+          }}>
+            {article.source}
+          </span>
+        )}
       </div>
     </motion.article>
   );
@@ -129,11 +135,10 @@ export const HeroNewsCard = ({ article }) => {
       style={{
         width: 252,
         height: 272,
-        background: 'var(--card-dark)',
+        background: 'var(--light-gray)',
         borderRadius: 18,
       }}
     >
-      {/* Image */}
       <div className="absolute inset-0">
         {imageUrl ? (
           <img
@@ -144,54 +149,49 @@ export const HeroNewsCard = ({ article }) => {
             style={{ width: '100%', height: '100%', objectFit: 'cover' }}
           />
         ) : (
-          <div style={{ width: '100%', height: '100%', background: 'var(--bg-deeper)' }} />
+          <div style={{ width: '100%', height: '100%', background: 'var(--light-gray)' }} />
         )}
-        {/* Gradient scrim */}
         <div
           className="absolute inset-0"
-          style={{ background: 'linear-gradient(to bottom, transparent 40%, var(--scrim-start) 100%)' }}
+          style={{ background: 'linear-gradient(to bottom, transparent 40%, rgba(0,0,0,0.7) 100%)' }}
         />
       </div>
 
-      {/* Category badge */}
       <div className="absolute top-3 left-3">
         <span style={{
           fontSize: 11,
-          fontWeight: 400,
+          fontWeight: 500,
           color: '#FFFFFF',
-          fontFamily: "'Inter', sans-serif",
-          background: 'var(--bg-dark)',
-          borderRadius: 6,
-          padding: '4px 8px',
+          fontFamily: "'Rubik', sans-serif",
+          background: 'var(--accent)',
+          borderRadius: 20,
+          padding: '4px 10px',
         }}>
           {CATEGORY_LABELS[article.category] || article.category}
         </span>
       </div>
 
-      {/* Bottom text */}
       <div className="absolute bottom-0 left-0 right-0 p-4">
-        <h3
-          style={{
-            fontSize: 16,
-            fontWeight: 700,
-            color: '#FFFFFF',
-            fontFamily: "'Inter', sans-serif",
-            lineHeight: 1.35,
-            display: '-webkit-box',
-            WebkitLineClamp: 2,
-            WebkitBoxOrient: 'vertical',
-            overflow: 'hidden',
-            margin: 0,
-          }}
-        >
+        <h3 style={{
+          fontSize: 16,
+          fontWeight: 700,
+          color: '#FFFFFF',
+          fontFamily: "'Rubik', sans-serif",
+          lineHeight: 1.35,
+          display: '-webkit-box',
+          WebkitLineClamp: 2,
+          WebkitBoxOrient: 'vertical',
+          overflow: 'hidden',
+          margin: 0,
+        }}>
           {title}
         </h3>
         {timeAgo && (
           <span style={{
             fontSize: 11,
             fontWeight: 400,
-            color: 'var(--muted)',
-            fontFamily: "'Inter', sans-serif",
+            color: 'rgba(255,255,255,0.7)',
+            fontFamily: "'Rubik', sans-serif",
             marginTop: 4,
             display: 'block',
           }}>

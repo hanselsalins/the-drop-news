@@ -68,8 +68,8 @@ export default function ArticlePage() {
 
   if (loading) {
     return (
-      <div className="min-h-screen" style={{ background: '#FFFFFF' }}>
-        <div className="skeleton-shimmer-light" style={{ width: '100%', height: 505 }} />
+      <div className="min-h-screen" style={{ background: 'var(--bg)' }}>
+        <div className="skeleton-shimmer-light" style={{ width: '100%', height: 400 }} />
         <div className="px-6 pt-6 space-y-4">
           <div className="skeleton-shimmer-light" style={{ width: 80, height: 10, borderRadius: 5 }} />
           <div className="skeleton-shimmer-light" style={{ width: '100%', height: 20, borderRadius: 6 }} />
@@ -87,8 +87,8 @@ export default function ArticlePage() {
 
   if (!article) {
     return (
-      <div className="min-h-screen flex items-center justify-center" style={{ background: '#FFFFFF' }}>
-        <p style={{ color: '#A2A2A2', fontFamily: "'Inter', sans-serif" }}>Article not found.</p>
+      <div className="min-h-screen flex items-center justify-center" style={{ background: 'var(--bg)' }}>
+        <p style={{ color: 'var(--text-color)', fontFamily: "'Rubik', sans-serif" }}>Article not found.</p>
       </div>
     );
   }
@@ -111,19 +111,19 @@ export default function ArticlePage() {
   }
 
   return (
-    <div data-testid="article-page" className="min-h-screen pb-28" style={{ background: '#FFFFFF' }}>
+    <div data-testid="article-page" className="min-h-screen pb-28" style={{ background: 'var(--bg)' }}>
       {/* Reading progress bar */}
-      <div className="fixed top-0 left-0 right-0 z-50" style={{ height: 3, background: 'rgba(80,122,249,0.15)' }}>
+      <div className="fixed top-0 left-0 right-0 z-50" style={{ height: 3, background: 'var(--light-gray)' }}>
         <div style={{
           width: `${readProgress}%`,
           height: '100%',
-          background: '#507AF9',
+          background: 'var(--accent)',
           transition: 'width 0.1s',
         }} />
       </div>
 
       {/* Hero image */}
-      <div className="relative w-full" style={{ height: 505, background: '#EFEFEB' }}>
+      <div className="relative w-full" style={{ height: 400, background: 'var(--light-gray)' }}>
         {imageUrl ? (
           <img
             src={imageUrl}
@@ -131,7 +131,7 @@ export default function ArticlePage() {
             style={{ width: '100%', height: '100%', objectFit: 'cover' }}
           />
         ) : (
-          <div style={{ width: '100%', height: '100%', background: '#EFEFEB' }} />
+          <div style={{ width: '100%', height: '100%', background: 'var(--light-gray)' }} />
         )}
 
         {/* Nav over image */}
@@ -140,26 +140,26 @@ export default function ArticlePage() {
           aria-label="Go back"
           onClick={() => navigate(-1)}
           className="absolute cursor-pointer"
-          style={{ top: 16, left: 16, width: 28, height: 28 }}
+          style={{ top: 16, left: 16, width: 36, height: 36, background: 'rgba(0,0,0,0.3)', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', border: 'none' }}
         >
-          <ChevronLeft size={28} style={{ color: '#FFFFFF' }} />
+          <ChevronLeft size={24} style={{ color: '#FFFFFF' }} />
         </button>
         <button
           aria-label="Bookmark"
           className="absolute cursor-pointer"
-          style={{ top: 16, right: 16, width: 28, height: 28 }}
+          style={{ top: 16, right: 16, width: 36, height: 36, background: 'rgba(0,0,0,0.3)', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', border: 'none' }}
         >
-          <Bookmark size={28} style={{ color: '#FFFFFF' }} />
+          <Bookmark size={20} style={{ color: '#FFFFFF' }} />
         </button>
       </div>
 
-      {/* Article content — slides up */}
+      {/* Article content */}
       <motion.div
         initial={prefersReducedMotion ? undefined : { y: 30, opacity: 0 }}
         animate={prefersReducedMotion ? undefined : { y: 0, opacity: 1 }}
         transition={prefersReducedMotion ? undefined : { duration: 0.4 }}
         style={{
-          background: '#FFFFFF',
+          background: 'var(--bg)',
           borderRadius: '20px 20px 0 0',
           marginTop: -24,
           position: 'relative',
@@ -169,13 +169,13 @@ export default function ArticlePage() {
       >
         {/* Category badge */}
         <span style={{
-          fontFamily: "'Inter', sans-serif",
+          fontFamily: "'Rubik', sans-serif",
           fontSize: 11,
-          fontWeight: 600,
+          fontWeight: 500,
           color: '#FFFFFF',
-          background: '#151924',
-          borderRadius: 18,
-          padding: '8px 16px',
+          background: 'var(--accent)',
+          borderRadius: 20,
+          padding: '6px 14px',
           display: 'inline-block',
         }}>
           {CATEGORY_LABELS[article.category] || article.category}
@@ -183,10 +183,10 @@ export default function ArticlePage() {
 
         {/* Headline */}
         <h1 style={{
-          fontFamily: "'Inter', sans-serif",
-          fontSize: 20,
+          fontFamily: "'Rubik', sans-serif",
+          fontSize: 22,
           fontWeight: 600,
-          color: '#151924',
+          color: 'var(--title-color)',
           lineHeight: 1.35,
           marginTop: 12,
           marginBottom: 8,
@@ -196,11 +196,11 @@ export default function ArticlePage() {
 
         {/* Meta row */}
         <div className="flex items-center gap-2 mb-5">
-          <span style={{ fontFamily: "'Inter', sans-serif", fontSize: 12, fontWeight: 400, color: '#A2A2A2' }}>
+          <span style={{ fontFamily: "'Rubik', sans-serif", fontSize: 12, fontWeight: 400, color: 'var(--text-color)' }}>
             {readingTime} read
           </span>
-          <span style={{ color: '#A2A2A2' }}>·</span>
-          <span style={{ fontFamily: "'Inter', sans-serif", fontSize: 12, fontWeight: 500, color: '#A2A2A2' }}>
+          <span style={{ color: 'var(--text-color)' }}>·</span>
+          <span style={{ fontFamily: "'Rubik', sans-serif", fontSize: 12, fontWeight: 500, color: 'var(--text-color)' }}>
             posted by {article.source}
           </span>
         </div>
@@ -209,15 +209,15 @@ export default function ArticlePage() {
         {summary && (
           <div style={{
             padding: 16,
-            background: '#F5F5F5',
+            background: 'var(--light-gray)',
             borderRadius: 12,
             marginBottom: 20,
           }}>
             <p style={{
-              fontFamily: "'Inter', sans-serif",
+              fontFamily: "'Rubik', sans-serif",
               fontSize: 13,
               fontWeight: 500,
-              color: '#404551',
+              color: 'var(--title-color)',
               lineHeight: '18px',
               margin: 0,
             }}>
@@ -231,11 +231,11 @@ export default function ArticlePage() {
           {bodyParagraphs.map((p, i) => (
             <div key={i}>
               <p style={{
-                fontFamily: "'Inter', sans-serif",
+                fontFamily: "'Rubik', sans-serif",
                 fontSize: 13,
                 fontWeight: 400,
-                color: '#404551',
-                lineHeight: '18px',
+                color: 'var(--text-color)',
+                lineHeight: '20px',
                 margin: 0,
               }}>
                 {p}
@@ -250,14 +250,14 @@ export default function ArticlePage() {
           <div data-testid="wonder-question" style={{
             marginTop: 16,
             paddingLeft: 12,
-            borderLeft: '3px solid #507AF9',
+            borderLeft: '3px solid var(--accent)',
           }}>
             <p style={{
-              fontFamily: "'Inter', sans-serif",
+              fontFamily: "'Rubik', sans-serif",
               fontSize: 14,
               fontWeight: 500,
               fontStyle: 'italic',
-              color: '#507AF9',
+              color: 'var(--accent)',
               margin: 0,
             }}>
               {wonderQuestion}
@@ -275,10 +275,10 @@ export default function ArticlePage() {
           onClick={handleShare}
           className="flex items-center justify-center gap-2 w-full mt-5 py-3 cursor-pointer transition-all duration-200"
           style={{
-            fontFamily: "'Inter', sans-serif",
+            fontFamily: "'Rubik', sans-serif",
             fontSize: 15,
             fontWeight: 600,
-            background: '#151924',
+            background: 'var(--accent)',
             color: '#FFFFFF',
             border: 'none',
             borderRadius: 12,
@@ -296,7 +296,7 @@ export default function ArticlePage() {
           }}
           className="flex items-center justify-center gap-2 w-full mt-2 py-3 cursor-pointer transition-all duration-200"
           style={{
-            fontFamily: "'Inter', sans-serif",
+            fontFamily: "'Rubik', sans-serif",
             fontSize: 15,
             fontWeight: 600,
             background: '#25D366',
@@ -312,13 +312,13 @@ export default function ArticlePage() {
         <a data-testid="source-link" href={article.original_url} target="_blank" rel="noopener noreferrer"
           className="inline-flex items-center gap-2 mt-6 mb-4 px-5 py-3 transition-all duration-200"
           style={{
-            fontFamily: "'Inter', sans-serif",
+            fontFamily: "'Rubik', sans-serif",
             fontSize: 13,
             fontWeight: 500,
-            background: '#F5F5F5',
+            background: 'var(--light-gray)',
             border: 'none',
             borderRadius: 12,
-            color: '#A2A2A2',
+            color: 'var(--text-color)',
             textDecoration: 'none',
           }}>
           <ExternalLink size={16} />
