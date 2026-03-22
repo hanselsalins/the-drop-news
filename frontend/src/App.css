@@ -2,7 +2,7 @@
 
 .App {
   min-height: 100vh;
-  background: #F8FAFC;
+  background: var(--bg);
 }
 
 @media (min-width: 768px) {
@@ -11,7 +11,7 @@
     margin: 0 auto;
     min-height: 100vh;
     position: relative;
-    box-shadow: 0 0 80px rgba(59, 130, 246, 0.06);
+    box-shadow: var(--shadow);
   }
 }
 
@@ -47,6 +47,6 @@ img {
 }
 
 ::selection {
-  background: #3B82F6;
+  background: var(--accent);
   color: #fff;
 }

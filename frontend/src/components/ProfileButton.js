@@ -12,7 +12,7 @@ export const ProfileButton = ({ onClick, size = 46 }) => {
         width: size,
         height: size,
         borderRadius: 12,
-        background: '#1B202F',
+        background: 'var(--light-gray)',
         border: 'none',
         overflow: 'hidden',
       }}
@@ -23,9 +23,9 @@ export const ProfileButton = ({ onClick, size = 46 }) => {
         <div
           className="w-full h-full flex items-center justify-center"
           style={{
-            background: '#1B202F',
-            color: '#507AF9',
-            fontFamily: "'Inter', sans-serif",
+            background: 'var(--light-gray)',
+            color: 'var(--accent)',
+            fontFamily: "'Rubik', sans-serif",
             fontSize: size * 0.38,
             fontWeight: 700,
           }}

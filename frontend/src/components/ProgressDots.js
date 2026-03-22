@@ -11,13 +11,13 @@ export const ProgressDots = ({ articleIds, readArticleIds }) => {
   const allRead = dots.every(Boolean) && articleIds.length === total;
 
   return (
-    <div className="py-4 px-4">
+    <div style={{ padding: '16px', background: 'var(--light-gray)', borderRadius: 16, margin: '0 16px' }}>
       <div className="flex items-center justify-between mb-3">
         <span style={{
-          fontFamily: "'Inter', sans-serif",
+          fontFamily: "'Rubik', sans-serif",
           fontSize: 15,
           fontWeight: 700,
-          color: '#FFFFFF',
+          color: 'var(--title-color)',
         }}>
           Today's Mission
         </span>
@@ -33,8 +33,8 @@ export const ProgressDots = ({ articleIds, readArticleIds }) => {
               width: 20,
               height: 20,
               borderRadius: '50%',
-              background: filled ? '#507AF9' : '#1B202F',
-              border: '1px solid #507AF9',
+              background: filled ? 'var(--accent)' : 'var(--bg)',
+              border: '2px solid var(--accent)',
               transition: 'background 0.3s',
             }}
           />
@@ -47,10 +47,10 @@ export const ProgressDots = ({ articleIds, readArticleIds }) => {
           animate={prefersReducedMotion ? undefined : { opacity: 1, y: 0 }}
           transition={prefersReducedMotion ? undefined : { duration: 0.5, delay: 0.2 }}
           style={{
-            fontFamily: "'Inter', sans-serif",
+            fontFamily: "'Rubik', sans-serif",
             fontSize: 13,
             fontWeight: 500,
-            color: '#507AF9',
+            color: 'var(--accent)',
             marginTop: 8,
           }}
         >

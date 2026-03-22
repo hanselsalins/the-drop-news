@@ -34,13 +34,13 @@ export const CategoryTabs = ({ categories, activeCategory, setActiveCategory }) 
               onClick={() => handleTabClick(cat.id)}
               className="shrink-0 whitespace-nowrap cursor-pointer transition-all duration-200"
               style={{
-                fontFamily: "'Inter', sans-serif",
+                fontFamily: "'Rubik', sans-serif",
                 fontSize: 13,
-                fontWeight: 600,
-                padding: '6px 14px',
-                borderRadius: 8,
-                background: isActive ? 'var(--accent-blue)' : 'var(--card-dark)',
-                color: isActive ? '#FFFFFF' : 'var(--body-light)',
+                fontWeight: 500,
+                padding: '6px 16px',
+                borderRadius: 20,
+                background: isActive ? 'var(--accent)' : 'var(--light-gray)',
+                color: isActive ? '#FFFFFF' : 'var(--title-color)',
                 border: 'none',
               }}
             >

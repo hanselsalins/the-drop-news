@@ -27,14 +27,8 @@ export default function SplashScreen() {
     <div
       data-testid="splash-screen"
       className="fixed inset-0 flex flex-col items-center justify-center overflow-hidden"
-      style={{
-        background: 'var(--bg-deeper)',
-      }}
+      style={{ background: 'var(--bg)' }}
     >
-      {/* Accent glow */}
-      <div className="absolute top-1/3 left-1/2 -translate-x-1/2 -translate-y-1/2 w-64 h-64 rounded-full opacity-30 blur-3xl"
-        style={{ background: 'var(--accent-blue)' }} />
-
       {/* Letter-by-letter drop animation */}
       <div className="relative z-10 flex items-baseline justify-center">
         {LETTERS.map((letter, i) => (
@@ -50,10 +44,10 @@ export default function SplashScreen() {
               damping: 15,
             }}
             style={{
-              fontFamily: "'Inter', sans-serif",
+              fontFamily: "'Rubik', sans-serif",
               fontSize: 52,
               fontWeight: 700,
-              color: 'var(--white)',
+              color: 'var(--title-color)',
               lineHeight: 1,
               display: letter === ' ' ? 'inline-block' : undefined,
               width: letter === ' ' ? '0.3em' : undefined,
@@ -73,9 +67,9 @@ export default function SplashScreen() {
             transition={{ duration: 0.6 }}
             className="relative z-10 mt-4"
             style={{
-              fontFamily: "'Inter', sans-serif",
+              fontFamily: "'Rubik', sans-serif",
               fontSize: 16,
-              color: 'var(--body-light)',
+              color: 'var(--text-color)',
             }}
           >
             News that hits different
@@ -89,7 +83,7 @@ export default function SplashScreen() {
         animate={{ opacity: [0.3, 1, 0.3] }}
         transition={{ duration: 1.8, repeat: Infinity }}
       >
-        <div className="w-3 h-3 rounded-full" style={{ background: 'var(--accent-blue)' }} />
+        <div className="w-3 h-3 rounded-full" style={{ background: 'var(--accent)' }} />
       </motion.div>
     </div>
   );

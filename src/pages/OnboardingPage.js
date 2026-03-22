@@ -8,33 +8,28 @@ const BACKEND_URL = import.meta.env.VITE_BACKEND_URL;
 
 const groupStyles = {
   '8-10': {
-    bg: 'linear-gradient(135deg, #FFD60A 0%, #FF006E 100%)',
     label: 'Kid Mode',
     sub: 'Ages 8-10',
     desc: 'Big pictures, simple words, lots of fun!',
     icon: '🎮',
   },
   '11-13': {
-    bg: 'linear-gradient(135deg, #3A86FF 0%, #8338EC 100%)',
     label: 'Tween Mode',
     sub: 'Ages 11-13',
     desc: 'Real talk, cool comparisons, easy to get.',
     icon: '🎯',
   },
   '14-16': {
-    bg: 'linear-gradient(135deg, var(--accent-blue) 0%, #7209B7 100%)',
     label: 'Teen Mode',
     sub: 'Ages 14-16',
     desc: 'No cap, just facts with the right vibe.',
     icon: '🔥',
   },
   '17-20': {
-    bg: 'linear-gradient(135deg, var(--bg-deeper) 0%, var(--card-dark) 100%)',
     label: 'Young Adult',
     sub: 'Ages 17-20',
     desc: 'Deep dives, real context, think critically.',
     icon: '💫',
-    border: '1px solid var(--accent-blue)',
   },
 };
 
@@ -66,7 +61,7 @@ export default function OnboardingPage() {
     <div
       data-testid="onboarding-page"
       className="min-h-screen flex flex-col px-5 py-8"
-      style={{ background: 'var(--bg-dark)' }}
+      style={{ background: 'var(--bg)' }}
     >
       <motion.div
         initial={{ y: -20, opacity: 0 }}
@@ -76,13 +71,13 @@ export default function OnboardingPage() {
       >
         <h1
           className="text-4xl md:text-5xl font-bold tracking-tight"
-          style={{ fontFamily: "'Inter', sans-serif", color: 'var(--white)' }}
+          style={{ fontFamily: "'Rubik', sans-serif", color: 'var(--title-color)' }}
         >
           Pick your vibe
         </h1>
         <p
           className="mt-2 text-base"
-          style={{ fontFamily: "'Inter', sans-serif", color: 'var(--body-light)' }}
+          style={{ fontFamily: "'Rubik', sans-serif", color: 'var(--text-color)' }}
         >
           We'll serve your news the way you like it.
         </p>
@@ -101,36 +96,28 @@ export default function OnboardingPage() {
             disabled={loading}
             className="relative rounded-2xl p-5 text-left overflow-hidden"
             style={{
-              background: style.bg,
-              border: style.border || 'none',
+              background: 'var(--light-gray)',
+              border: selected === id ? '2px solid var(--accent)' : '2px solid transparent',
               opacity: loading && selected !== id ? 0.4 : 1,
             }}
           >
-            {selected === id && (
-              <motion.div
-                layoutId="selector"
-                className="absolute inset-0 rounded-2xl"
-                style={{ border: '3px solid var(--accent-blue)' }}
-                transition={{ type: 'spring', stiffness: 400, damping: 30 }}
-              />
-            )}
             <div className="flex items-center justify-between relative z-10">
               <div>
                 <span
                   className="text-xs font-bold tracking-widest uppercase opacity-80"
-                  style={{ fontFamily: "'Inter', sans-serif", color: 'var(--white)' }}
+                  style={{ fontFamily: "'Rubik', sans-serif", color: 'var(--text-color)' }}
                 >
                   {style.sub}
                 </span>
                 <h3
                   className="text-2xl font-bold mt-1"
-                  style={{ fontFamily: "'Inter', sans-serif", color: 'var(--white)' }}
+                  style={{ fontFamily: "'Rubik', sans-serif", color: 'var(--title-color)' }}
                 >
                   {style.label}
                 </h3>
                 <p
                   className="text-sm mt-1 opacity-80"
-                  style={{ fontFamily: "'Inter', sans-serif", color: 'var(--body-light)' }}
+                  style={{ fontFamily: "'Rubik', sans-serif", color: 'var(--text-color)' }}
                 >
                   {style.desc}
                 </p>

@@ -12,29 +12,29 @@ export const MicroFactCard = ({ fact }) => {
       animate={prefersReducedMotion ? undefined : { opacity: 1, scale: 1 }}
       className="p-4 relative overflow-hidden"
       style={{
-        background: '#1B202F',
-        borderLeft: '3px solid #74C9EB',
+        background: 'var(--light-gray)',
+        borderLeft: '3px solid var(--accent)',
         borderRadius: 14,
       }}
     >
       <div className="flex items-center gap-2 mb-2">
-        <Lightbulb size={16} style={{ color: '#74C9EB' }} aria-hidden="true" />
+        <Lightbulb size={16} style={{ color: 'var(--accent)' }} aria-hidden="true" />
         <span style={{
-          fontFamily: "'Inter', sans-serif",
+          fontFamily: "'Rubik', sans-serif",
           fontSize: 11,
           fontWeight: 600,
           letterSpacing: '0.04em',
           textTransform: 'uppercase',
-          color: '#74C9EB',
+          color: 'var(--accent)',
         }}>
           Quick Fact
         </span>
       </div>
       <p style={{
-        fontFamily: "'Inter', sans-serif",
+        fontFamily: "'Rubik', sans-serif",
         fontSize: 13,
         fontWeight: 400,
-        color: '#D4D4D4',
+        color: 'var(--text-color)',
         lineHeight: '18px',
         margin: 0,
       }}>

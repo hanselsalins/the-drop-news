@@ -71,17 +71,17 @@ export const ReactionBar = ({ articleId }) => {
       data-testid="reaction-bar"
       className="mt-6 p-4"
       style={{
-        background: '#F5F5F5',
+        background: 'var(--light-gray)',
         borderRadius: 14,
       }}
     >
       <p style={{
-        fontFamily: "'Inter', sans-serif",
+        fontFamily: "'Rubik', sans-serif",
         fontSize: 11,
         fontWeight: 600,
         letterSpacing: '0.06em',
         textTransform: 'uppercase',
-        color: '#A2A2A2',
+        color: 'var(--text-color)',
         marginBottom: 12,
       }}>
         HOW DID THIS MAKE YOU FEEL?
@@ -99,8 +99,8 @@ export const ReactionBar = ({ articleId }) => {
               whileTap={prefersReducedMotion ? undefined : { scale: 1.15 }}
               className="flex flex-col items-center gap-1 px-2 py-2 cursor-pointer transition-all duration-200"
               style={{
-                background: isActive ? 'rgba(80,122,249,0.1)' : 'transparent',
-                border: isActive ? '1.5px solid rgba(80,122,249,0.2)' : '1.5px solid transparent',
+                background: isActive ? 'rgba(33,150,243,0.1)' : 'transparent',
+                border: isActive ? '1.5px solid rgba(33,150,243,0.3)' : '1.5px solid transparent',
                 borderRadius: 12,
               }}
             >
@@ -117,17 +117,17 @@ export const ReactionBar = ({ articleId }) => {
                 {r.emoji}
               </motion.span>
               <span style={{
-                fontFamily: "'Inter', sans-serif",
+                fontFamily: "'Rubik', sans-serif",
                 fontSize: 10,
                 fontWeight: 700,
-                color: isActive ? '#507AF9' : '#A2A2A2',
+                color: isActive ? 'var(--accent)' : 'var(--text-color)',
               }}>
                 {count > 0 ? count : ''}
               </span>
               <span style={{
-                fontFamily: "'Inter', sans-serif",
+                fontFamily: "'Rubik', sans-serif",
                 fontSize: 9,
-                color: '#A2A2A2',
+                color: 'var(--text-color)',
               }}>
                 {r.label}
               </span>
