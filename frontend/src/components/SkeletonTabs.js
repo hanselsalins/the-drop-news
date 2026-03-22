@@ -1,25 +1,13 @@
-import { useTheme } from '../contexts/ThemeContext';
-
 export function SkeletonTabs() {
-  const { band } = useTheme();
-  const pillRadius = (band === 'big-bold-bright' || band === 'cool-connected') ? 999 : 6;
-  const widths = [48, 64, 56, 72, 52, 60];
+  const items = [64, 64, 64, 64, 64, 64];
 
   return (
-    <div
-      className="flex gap-2 overflow-hidden px-4 py-3"
-      style={{ WebkitOverflowScrolling: 'touch' }}
-    >
-      {widths.map((w, i) => (
-        <div
-          key={i}
-          className="skeleton-shimmer shrink-0"
-          style={{
-            width: w,
-            height: 32,
-            borderRadius: pillRadius,
-          }}
-        />
+    <div className="flex gap-5 overflow-hidden px-4 py-4" style={{ WebkitOverflowScrolling: 'touch' }}>
+      {items.map((w, i) => (
+        <div key={i} className="flex flex-col items-center gap-1.5">
+          <div className="skeleton-shimmer" style={{ width: w, height: w, borderRadius: '50%' }} />
+          <div className="skeleton-shimmer" style={{ width: 40, height: 8, borderRadius: 4 }} />
+        </div>
       ))}
     </div>
   );

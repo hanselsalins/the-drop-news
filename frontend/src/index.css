@@ -9,8 +9,14 @@
   --text-color: #828d9c;
   --bg: #ffffff;
   --light-gray: #ecf1f5;
-  --shadow: 0px 2px 10px 0px rgba(85,95,105,0.13);
-  --accent: #2196f3;
+  --block-shadow: 0px 2px 10px 0px rgba(85,95,105,0.13);
+  --accent: #FF6B00;
+  --accent-hover: #E55A00;
+  --font: "Rubik", -apple-system, SF Pro Text, system-ui, Helvetica Neue, Helvetica, Arial, sans-serif;
+  --radius-card: 18px;
+  --radius-pill: 22px;
+  --radius-btn: 10px;
+  --radius-input: 10px;
 }
 
 [data-theme="dark"] {
@@ -22,12 +28,55 @@
 
 body {
   margin: 0;
-  font-family: 'Rubik', sans-serif;
+  font-family: var(--font);
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   overscroll-behavior: none;
   background: var(--bg);
   color: var(--title-color);
+  transition: background-color 0.4s;
+}
+
+h1 {
+  font-size: 28px;
+  font-weight: 600;
+  color: var(--title-color);
+  margin-bottom: 20px;
+}
+
+h2 {
+  font-size: 20px;
+  font-weight: 600;
+  line-height: 1.5;
+}
+
+h3 {
+  font-weight: 600;
+  color: var(--title-color);
+}
+
+p {
+  font-size: 15px;
+  line-height: 1.8em;
+  color: var(--text-color);
+}
+
+label {
+  font-size: 15px;
+  font-weight: 500;
+}
+
+input {
+  font-family: var(--font);
+  font-size: 15px;
+  font-weight: 500;
+  height: 44px;
+  border-radius: var(--radius-input);
+}
+
+input::placeholder {
+  font-weight: 400;
+  color: #93a0b1;
 }
 
 code {
@@ -50,25 +99,42 @@ code {
   animation: shimmer 1.5s infinite;
 }
 
-/* Scrollbar Hide */
-.scrollbar-hide::-webkit-scrollbar { display: none; }
-.scrollbar-hide { -ms-overflow-style: none; scrollbar-width: none; }
+/* Scrollbar Hide — global */
+::-webkit-scrollbar { display: none; }
+* { -ms-overflow-style: none; scrollbar-width: none; }
 
 /* Pull Quote */
 .pull-quote {
-  border-left: 3px solid var(--accent);
+  border-left: 4px solid var(--accent);
   padding: 12px 16px;
-  margin: 16px 0;
+  margin: 20px 0;
   font-style: italic;
   font-size: 14px;
   font-weight: 500;
   color: var(--accent);
-  font-family: 'Rubik', sans-serif;
+  background: rgba(255,107,0,0.06);
+  border-radius: 0 8px 8px 0;
+}
+
+/* Links */
+a {
+  transition: opacity 0.1s ease;
+}
+a:active {
+  opacity: 0.95;
+}
+
+/* Theme transitions */
+*, *::before, *::after {
+  transition: background-color 0.4s;
 }
 
 @media (prefers-reduced-motion: reduce) {
   .skeleton-shimmer, .skeleton-shimmer-light {
     animation: none;
+  }
+  *, *::before, *::after {
+    transition: none !important;
   }
 }
 

@@ -1,38 +1,3 @@
-// Design System B font imports
-import "@fontsource/baloo-2/400.css";
-import "@fontsource/baloo-2/600.css";
-import "@fontsource/baloo-2/700.css";
-import "@fontsource/baloo-2/800.css";
-import "@fontsource/nunito/400.css";
-import "@fontsource/nunito/600.css";
-import "@fontsource/nunito/700.css";
-import "@fontsource/nunito/800.css";
-import "@fontsource/fredoka/400.css";
-import "@fontsource/fredoka/500.css";
-import "@fontsource/fredoka/600.css";
-import "@fontsource/fredoka/700.css";
-import "@fontsource/outfit/300.css";
-import "@fontsource/outfit/400.css";
-import "@fontsource/outfit/500.css";
-import "@fontsource/outfit/600.css";
-import "@fontsource/outfit/700.css";
-import "@fontsource/plus-jakarta-sans/400.css";
-import "@fontsource/plus-jakarta-sans/600.css";
-import "@fontsource/plus-jakarta-sans/700.css";
-import "@fontsource/plus-jakarta-sans/800.css";
-import "@fontsource/inter/300.css";
-import "@fontsource/inter/400.css";
-import "@fontsource/inter/500.css";
-import "@fontsource/inter/600.css";
-import "@fontsource/inter/700.css";
-import "@fontsource/newsreader/400.css";
-import "@fontsource/newsreader/400-italic.css";
-import "@fontsource/newsreader/600.css";
-import "@fontsource/newsreader/700.css";
-import "@fontsource/newsreader/700-italic.css";
-import "@fontsource/jetbrains-mono/400.css";
-import "@fontsource/jetbrains-mono/700.css";
-
 import "@/App.css";
 import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import { ThemeProvider, useTheme } from "./contexts/ThemeContext";
@@ -48,8 +13,8 @@ function ProtectedRoute({ children }) {
   const { isAuthenticated, loading } = useTheme();
   if (loading) {
     return (
-      <div className="min-h-screen flex items-center justify-center" style={{ background: 'var(--drop-bg, #0A0E1A)' }}>
-        <Loader2 className="animate-spin" size={32} style={{ color: 'var(--drop-accent, #3B82F6)' }} />
+      <div className="min-h-screen flex items-center justify-center" style={{ background: 'var(--bg)' }}>
+        <Loader2 className="animate-spin" size={32} style={{ color: 'var(--accent)' }} />
       </div>
     );
   }

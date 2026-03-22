@@ -2,7 +2,7 @@ import { useState, useEffect, useCallback } from 'react';
 import { useTheme } from '../contexts/ThemeContext';
 import { useNotifications } from '../hooks/useNotifications';
 import { useReducedMotion } from '../hooks/useReducedMotion';
-import { NewsCard, HeroNewsCard } from '../components/NewsCard';
+import { HeroNewsCard, TodayDropCard, CategoryCard } from '../components/NewsCard';
 import { CategoryTabs } from '../components/CategoryTabs';
 import { BottomNav } from '../components/BottomNav';
 import { MicroFactCard } from '../components/MicroFactCard';
@@ -15,13 +15,13 @@ import { SkeletonTabs } from '../components/SkeletonTabs';
 import { StreakCelebration } from '../components/StreakCelebration';
 import { useReadArticles } from '../hooks/useReadArticles';
 import { motion } from 'framer-motion';
-import { RefreshCw, Search } from 'lucide-react';
+import { RefreshCw, Sun, Moon } from 'lucide-react';
 import axios from 'axios';
 
 const BACKEND_URL = import.meta.env.VITE_BACKEND_URL;
 
 export default function FeedPage() {
-  const { ageGroup, user, token } = useTheme();
+  const { ageGroup, user, token, darkMode, toggleDarkMode } = useTheme();
   const prefersReducedMotion = useReducedMotion();
   const [articles, setArticles] = useState([]);
   const [categories, setCategories] = useState([]);
@@ -31,19 +31,12 @@ export default function FeedPage() {
   const [loading, setLoading] = useState(true);
   const [profileOpen, setProfileOpen] = useState(false);
   const [showCelebration, setShowCelebration] = useState(false);
-  const [pullDistance, setPullDistance] = useState(0);
   const [isRefreshing, setIsRefreshing] = useState(false);
-  const [atTop, setAtTop] = useState(true);
+  const [refreshSpin, setRefreshSpin] = useState(false);
 
   const headers = token ? { Authorization: `Bearer ${token}` } : {};
   const { milestone, checkMilestone, acknowledgeMilestone, requestPermission, permission } = useNotifications();
   const { readIds, refresh: refreshReadIds } = useReadArticles();
-
-  useEffect(() => {
-    const handleScroll = () => setAtTop(window.scrollY <= 0);
-    window.addEventListener('scroll', handleScroll, { passive: true });
-    return () => window.removeEventListener('scroll', handleScroll);
-  }, []);
 
   useEffect(() => {
     if (permission === 'default') {
@@ -109,192 +102,133 @@ export default function FeedPage() {
     }
   }, [allTodayRead, token]);
 
-  const buildFeedItems = () => {
-    const items = [];
-    let factIdx = 0;
-    const listArticles = activeCategory === 'today' ? articles.slice(2) : articles;
-    listArticles.forEach((article, i) => {
-      items.push({ type: 'article', data: article });
-      if ((i + 1) % 3 === 0 && factIdx < microFacts.length) {
-        items.push({ type: 'fact', data: microFacts[factIdx] });
-        factIdx++;
-      }
-    });
-    return items;
-  };
-
-  const heroArticles = activeCategory === 'today' ? articles.slice(0, 2) : [];
-  const feedItems = buildFeedItems();
-
-  const handlePullRefresh = async () => {
+  const handleRefresh = async () => {
     if (isRefreshing) return;
+    setRefreshSpin(true);
     setIsRefreshing(true);
-    setPullDistance(0);
     await fetchArticles();
     await fetchMicroFacts();
     setIsRefreshing(false);
+    setTimeout(() => setRefreshSpin(false), 600);
   };
 
-  const today = new Date();
-  const dateStr = today.toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric' });
+  const heroArticle = activeCategory === 'today' && articles.length > 0 ? articles[0] : null;
+  const todayDropArticles = activeCategory === 'today' ? articles : [];
 
   return (
-    <div data-testid="feed-page" className="min-h-screen pb-24" style={{ background: 'var(--bg)' }}>
+    <div data-testid="feed-page" className="min-h-screen pb-16" style={{ background: 'var(--bg)' }}>
       <StreakCelebration streakCount={streak.current_streak} onComplete={() => setShowCelebration(false)} />
+      <MilestoneBanner milestone={milestone} onDismiss={() => acknowledgeMilestone(milestone?.notification_id)} />
 
-      <MilestoneBanner
-        milestone={milestone}
-        onDismiss={() => acknowledgeMilestone(milestone?.notification_id)}
-      />
-
-      {/* ── HEADER ── */}
-      <div style={{
-        padding: '16px 16px 12px',
-        background: 'var(--bg)',
-        borderBottom: '1px solid var(--light-gray)',
-      }}>
-        <div className="flex items-center justify-between mb-1">
-          <div>
-            <h1 style={{
-              fontFamily: "'Rubik', sans-serif",
-              fontSize: 20,
-              fontWeight: 600,
+      {/* ── HEADER — avatar left, icons right ── */}
+      <div className="flex items-center justify-between" style={{ padding: '8px 15px' }}>
+        <ProfileButton onClick={() => setProfileOpen(true)} size={30} />
+        <div className="flex items-center gap-2">
+          <button onClick={toggleDarkMode} aria-label="Toggle theme"
+            className="flex items-center justify-center cursor-pointer"
+            style={{ width: 44, height: 44, background: 'none', border: 'none' }}>
+            {darkMode ? <Sun size={24} style={{ color: 'var(--title-color)' }} /> : <Moon size={24} style={{ color: 'var(--title-color)' }} />}
+          </button>
+          <button onClick={handleRefresh} aria-label="Refresh feed"
+            className="flex items-center justify-center cursor-pointer"
+            style={{ width: 44, height: 44, background: 'none', border: 'none' }}>
+            <RefreshCw size={24} style={{
               color: 'var(--title-color)',
-              margin: 0,
-            }}>
-              The Drop
-            </h1>
-            <p style={{
-              fontFamily: "'Rubik', sans-serif",
-              fontSize: 13,
-              fontWeight: 400,
-              color: 'var(--text-color)',
-              margin: 0,
-            }}>
-              {dateStr}
-            </p>
-          </div>
-          <ProfileButton onClick={() => setProfileOpen(true)} size={40} />
+              transform: refreshSpin ? 'rotate(360deg)' : 'rotate(0deg)',
+              transition: 'transform 0.6s ease',
+            }} />
+          </button>
         </div>
       </div>
 
-      {/* ── CATEGORY TABS ── */}
+      {/* ── CATEGORY CIRCLES ── */}
       {loading && categories.length === 0 ? <SkeletonTabs /> : (
         <CategoryTabs categories={categories} activeCategory={activeCategory} setActiveCategory={setActiveCategory} />
       )}
 
-      {/* ── HERO CARDS (horizontal scroll) ── */}
-      {activeCategory === 'today' && (
-        <div className="overflow-x-auto scrollbar-hide" style={{ WebkitOverflowScrolling: 'touch' }}>
-          <div className="flex gap-3 px-4 py-3 min-w-max">
+      {/* ── PAGE CONTENT ── */}
+      <div style={{ padding: '0 15px' }}>
+
+        {/* BREAKING / TRENDING hero card */}
+        {activeCategory === 'today' && (
+          <div style={{ marginTop: 25 }}>
+            <div className="flex items-center justify-between" style={{ marginBottom: 12 }}>
+              <span style={{ fontFamily: 'var(--font)', fontSize: 18, fontWeight: 600, color: 'var(--title-color)' }}>
+                Trending
+              </span>
+            </div>
             {loading ? (
-              <>
-                <HeroSkeletonCard />
-                <HeroSkeletonCard />
-              </>
-            ) : heroArticles.length > 0 ? (
-              heroArticles.map(article => (
-                <HeroNewsCard key={article.id} article={article} />
-              ))
+              <HeroSkeletonCard />
+            ) : heroArticle ? (
+              <HeroNewsCard article={heroArticle} badge="BREAKING" />
             ) : null}
-          </div>
-        </div>
-      )}
-
-      {/* ── PROGRESS DOTS ── */}
-      {activeCategory === 'today' && !loading && articles.length > 0 && (
-        <ProgressDots articleIds={todayArticleIds} readArticleIds={readIds} />
-      )}
-
-      {/* Pull-to-refresh indicator */}
-      {(pullDistance > 10 || isRefreshing) && (
-        <div className="flex items-center justify-center py-2" style={{ height: Math.min(pullDistance * 0.5, 50) }}>
-          <RefreshCw
-            size={20}
-            className={isRefreshing ? 'animate-spin' : ''}
-            style={{
-              color: 'var(--accent)',
-              transform: isRefreshing ? undefined : `rotate(${Math.min(pullDistance * 2, 360)}deg)`,
-              transition: isRefreshing ? 'none' : 'transform 0.1s',
-            }}
-          />
-        </div>
-      )}
-
-      {/* ── LIST CARDS ── */}
-      <div className="px-4 pt-2">
-        {!loading && feedItems.length > 0 && (
-          <div className="flex items-center justify-between mb-3">
-            <span style={{
-              fontFamily: "'Rubik', sans-serif",
-              fontSize: 15,
-              fontWeight: 700,
-              color: 'var(--title-color)',
-            }}>
-              Latest News
-            </span>
-            <span style={{
-              fontFamily: "'Rubik', sans-serif",
-              fontSize: 13,
-              fontWeight: 400,
-              color: 'var(--text-color)',
-              cursor: 'pointer',
-            }}>
-              View All
-            </span>
           </div>
         )}
 
-        <motion.div
-          className="space-y-2.5"
-          drag={atTop && !isRefreshing ? 'y' : false}
-          dragConstraints={{ top: 0, bottom: 0 }}
-          dragElastic={0.4}
-          onDrag={(e, info) => { if (info.offset.y > 0) setPullDistance(info.offset.y); }}
-          onDragEnd={(e, info) => {
-            if (info.offset.y > 80) handlePullRefresh();
-            else setPullDistance(0);
-          }}
-          style={{ touchAction: atTop ? 'none' : 'auto' }}
-        >
-          {loading ? (
-            <div className="space-y-2.5">
-              {Array.from({ length: 5 }).map((_, i) => (
-                <SkeletonCard key={i} />
-              ))}
+        {/* TODAY'S DROP section */}
+        {activeCategory === 'today' && !loading && todayDropArticles.length > 0 && (
+          <div style={{ marginTop: 25 }}>
+            <ProgressDots articleIds={todayArticleIds} readArticleIds={readIds} />
+            <div className="overflow-x-auto mt-3" style={{ margin: '0 -15px', padding: '0 15px' }}>
+              <div className="flex gap-3 min-w-max">
+                {todayDropArticles.map(article => (
+                  <TodayDropCard key={article.id} article={article} isRead={readIds.has(String(article.id))} />
+                ))}
+              </div>
             </div>
-          ) : feedItems.length === 0 ? (
-            <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="text-center py-20">
-              <p style={{
-                fontFamily: "'Rubik', sans-serif",
-                fontSize: 15,
-                fontWeight: 400,
-                color: 'var(--text-color)',
-              }}>
-                No articles yet. Pull down to refresh!
-              </p>
-            </motion.div>
-          ) : (
-            feedItems.map((item, index) => (
-              <motion.div
-                key={item.type === 'article' ? item.data.id : `fact-${index}`}
+          </div>
+        )}
+
+        {/* Category-specific section */}
+        {activeCategory !== 'today' && (
+          <div style={{ marginTop: 25 }}>
+            <div className="flex items-center justify-between" style={{ marginBottom: 12 }}>
+              <span style={{ fontFamily: 'var(--font)', fontSize: 18, fontWeight: 600, color: 'var(--title-color)' }}>
+                {categories.find(c => c.id === activeCategory)?.name || activeCategory}
+              </span>
+              <span style={{ fontFamily: 'var(--font)', fontSize: 15, fontWeight: 500, color: 'var(--accent)', cursor: 'pointer' }}>
+                See All
+              </span>
+            </div>
+            {loading ? (
+              <div className="flex gap-3">
+                <SkeletonCard />
+                <SkeletonCard />
+              </div>
+            ) : (
+              <div className="overflow-x-auto" style={{ margin: '0 -15px', padding: '0 15px' }}>
+                <div className="flex gap-3 min-w-max">
+                  {articles.map(article => (
+                    <CategoryCard key={article.id} article={article} />
+                  ))}
+                </div>
+              </div>
+            )}
+          </div>
+        )}
+
+        {/* Micro facts */}
+        {!loading && microFacts.length > 0 && (
+          <div className="space-y-3 mt-6">
+            {microFacts.slice(0, 2).map((fact, i) => (
+              <motion.div key={i}
                 initial={prefersReducedMotion ? undefined : { y: 20, opacity: 0 }}
                 animate={prefersReducedMotion ? undefined : { y: 0, opacity: 1 }}
-                transition={prefersReducedMotion ? undefined : {
-                  delay: Math.min(index * 0.05, 0.4),
-                  duration: 0.4,
-                  ease: [0.16, 1, 0.3, 1],
-                }}
-              >
-                {item.type === 'article' ? (
-                  <NewsCard article={item.data} />
-                ) : (
-                  <MicroFactCard fact={item.data} />
-                )}
+                transition={prefersReducedMotion ? undefined : { delay: 0.2 + i * 0.1, duration: 0.4 }}>
+                <MicroFactCard fact={fact} />
               </motion.div>
-            ))
-          )}
-        </motion.div>
+            ))}
+          </div>
+        )}
+
+        {/* Empty state */}
+        {!loading && articles.length === 0 && (
+          <div className="text-center py-20">
+            <p style={{ fontFamily: 'var(--font)', fontSize: 15, color: 'var(--text-color)' }}>
+              No articles yet. Tap refresh to load!
+            </p>
+          </div>
+        )}
       </div>
 
       <BottomNav active="home" />

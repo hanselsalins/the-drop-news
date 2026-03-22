@@ -1,17 +1,21 @@
+import { useNavigate } from 'react-router-dom';
 import { useTheme } from '../contexts/ThemeContext';
 
-export const ProfileButton = ({ onClick, size = 46 }) => {
+export const ProfileButton = ({ onClick, size = 30 }) => {
   const { user } = useTheme();
+  const navigate = useNavigate();
+
+  const handleClick = onClick || (() => navigate('/profile'));
 
   return (
     <button
       data-testid="profile-btn"
-      onClick={onClick}
+      onClick={handleClick}
       className="flex-shrink-0 cursor-pointer"
       style={{
         width: size,
         height: size,
-        borderRadius: 12,
+        borderRadius: '50%',
         background: 'var(--light-gray)',
         border: 'none',
         overflow: 'hidden',
@@ -25,7 +29,7 @@ export const ProfileButton = ({ onClick, size = 46 }) => {
           style={{
             background: 'var(--light-gray)',
             color: 'var(--accent)',
-            fontFamily: "'Rubik', sans-serif",
+            fontFamily: 'var(--font)',
             fontSize: size * 0.38,
             fontWeight: 700,
           }}
