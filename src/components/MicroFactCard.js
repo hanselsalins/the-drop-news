@@ -20,23 +20,15 @@ export const MicroFactCard = ({ fact }) => {
       <div className="flex items-center gap-2 mb-2">
         <Lightbulb size={16} style={{ color: 'var(--accent)' }} aria-hidden="true" />
         <span style={{
-          fontFamily: "'Rubik', sans-serif",
-          fontSize: 11,
-          fontWeight: 600,
-          letterSpacing: '0.04em',
-          textTransform: 'uppercase',
-          color: 'var(--accent)',
+          fontFamily: 'var(--font)', fontSize: 11, fontWeight: 600,
+          letterSpacing: '0.04em', textTransform: 'uppercase', color: 'var(--accent)',
         }}>
           Quick Fact
         </span>
       </div>
       <p style={{
-        fontFamily: "'Rubik', sans-serif",
-        fontSize: 13,
-        fontWeight: 400,
-        color: 'var(--text-color)',
-        lineHeight: '18px',
-        margin: 0,
+        fontFamily: 'var(--font)', fontSize: 13, fontWeight: 400,
+        color: 'var(--text-color)', lineHeight: '18px', margin: 0,
       }}>
         {fact.fact}
       </p>
