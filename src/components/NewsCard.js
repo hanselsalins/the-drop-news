@@ -106,6 +106,7 @@ export const TodayDropCard = ({ article, isRead }) => {
       style={{
         width: 200, height: 260, borderRadius: 18,
         background: 'var(--surface)', boxShadow: 'var(--block-shadow)',
+        border: 'var(--card-border, none)',
       }}
     >
       {/* Image top 55% */}
