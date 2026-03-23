@@ -40,7 +40,7 @@ export const ProgressDots = ({ articleIds, readArticleIds }) => {
               fontWeight: 400,
               color: 'var(--text-color)',
               display: 'block',
-              marginTop: 2,
+              marginTop: 2, paddingLeft: 2,
             }}>
               5 stories shaping the world today
             </span>
