@@ -98,7 +98,7 @@ export const ProfileSwitcherModal = ({ open, onClose, onPanelClose }) => {
         <>
           <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
             onClick={onClose} className="fixed inset-0 z-[80]"
-            style={{ background: 'rgba(0,0,0,0.3)' }} />
+            style={{ background: 'var(--overlay-backdrop)' }} />
           <motion.div
             initial={{ opacity: 0, scale: 0.92, y: 20 }}
             animate={{ opacity: 1, scale: 1, y: 0 }}

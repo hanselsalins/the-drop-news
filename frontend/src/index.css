@@ -15,6 +15,7 @@ html, body, #root {
   --bg: #ffffff;
   --surface: #ffffff;
   --light-gray: #ecf1f5;
+  --overlay-backdrop: rgba(0, 0, 0, 0.3);
   --block-shadow: 0px 2px 10px 0px rgba(85,95,105,0.13);
   --accent: #FF6B00;
   --accent-hover: #E55A00;
@@ -29,6 +30,7 @@ html, body, #root {
   --bg: #1A1A1A;
   --surface: #2A2A2A;
   --light-gray: #3A3A3A;
+  --overlay-backdrop: hsl(0 0% 10% / 0.78);
   --title-color: #ffffff;
   --text-color: #9aa9b2;
   --header-bg: #1A1A1A;

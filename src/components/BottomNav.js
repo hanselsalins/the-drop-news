@@ -81,7 +81,7 @@ export const BottomNav = ({ active = 'home' }) => {
               initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
               onClick={() => setSearchOpen(false)}
               className="fixed inset-0 z-[60]"
-              style={{ background: 'rgba(0,0,0,0.3)' }}
+              style={{ background: 'var(--overlay-backdrop)' }}
             />
             <motion.div
               initial={{ y: '100%' }} animate={{ y: 0 }} exit={{ y: '100%' }}
@@ -130,7 +130,7 @@ export const BottomNav = ({ active = 'home' }) => {
               initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
               onClick={() => setShareOpen(false)}
               className="fixed inset-0 z-[60]"
-              style={{ background: 'rgba(0,0,0,0.3)' }}
+              style={{ background: 'var(--overlay-backdrop)' }}
             />
             <motion.div
               initial={{ y: '100%' }} animate={{ y: 0 }} exit={{ y: '100%' }}
