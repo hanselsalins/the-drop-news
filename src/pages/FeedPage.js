@@ -188,16 +188,14 @@ export default function FeedPage() {
       {/* ── PAGE CONTENT ── */}
       <div style={{ padding: '0 15px' }}>
 
-        {/* TODAY'S DROP section */}
+        {/* TODAY'S DROP section — vertical post list */}
         {activeCategory === 'today' && !loading && todayDropArticles.length > 0 && (
           <div style={{ marginTop: 25 }}>
             <ProgressDots articleIds={todayArticleIds} readArticleIds={readIds} />
-            <div className="overflow-x-auto mt-3" style={{ margin: '0 -15px', padding: '0 15px' }}>
-              <div className="flex gap-3 min-w-max">
-                {todayDropArticles.map(article => (
-                  <TodayDropCard key={article.id} article={article} isRead={readIds.has(String(article.id))} />
-                ))}
-              </div>
+            <div className="mt-3">
+              {todayDropArticles.map(article => (
+                <PostListCard key={article.id} article={article} />
+              ))}
             </div>
           </div>
         )}

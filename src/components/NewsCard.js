@@ -215,6 +215,73 @@ export const CategoryCard = ({ article }) => {
   );
 };
 
+// Post list item — vertical feed card (image left, text right)
+export const PostListCard = ({ article }) => {
+  const navigate = useNavigate();
+  const prefersReducedMotion = useReducedMotion();
+  const rw = article.rewrite || {};
+  const title = rw.title || article.original_title || 'Untitled';
+  const imageUrl = article.image_url;
+
+  const handleClick = () => {
+    medium();
+    navigate(`/article/${article.id}`);
+  };
+
+  return (
+    <motion.article
+      data-testid={`post-list-card-${article.id}`}
+      onClick={handleClick}
+      role="button"
+      tabIndex={0}
+      onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); handleClick(); } }}
+      whileTap={prefersReducedMotion ? undefined : { scale: 0.98 }}
+      className="w-full cursor-pointer flex"
+      style={{
+        background: 'var(--surface)',
+        borderRadius: 15,
+        padding: '15px 17px',
+        boxShadow: 'var(--block-shadow)',
+        marginBottom: 10,
+        border: 'var(--card-border, none)',
+      }}
+    >
+      {/* Left: image */}
+      <div style={{ width: 84, height: 84, borderRadius: 15, overflow: 'hidden', flexShrink: 0 }}>
+        {imageUrl ? (
+          <img src={imageUrl} alt="" loading="lazy"
+            onError={(e) => { e.target.style.display = 'none'; }}
+            style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+        ) : (
+          <div style={{ width: '100%', height: '100%', background: 'var(--light-gray)', borderRadius: 15 }} />
+        )}
+      </div>
+
+      {/* Right: text column */}
+      <div style={{ marginLeft: 12, paddingTop: 8, flex: 1, display: 'flex', flexDirection: 'column', minWidth: 0 }}>
+        <span style={{
+          fontFamily: 'var(--font)', fontSize: 13, fontWeight: 500,
+          color: 'var(--accent)',
+        }}>
+          {CATEGORY_LABELS[article.category] || article.category}
+        </span>
+        <h3 style={{
+          fontFamily: 'var(--font)', fontSize: 14, fontWeight: 500,
+          color: 'var(--title-color)', lineHeight: '22px',
+          margin: '4px 0 0 0',
+          display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical', overflow: 'hidden',
+          textOverflow: 'ellipsis',
+        }}>
+          {title}
+        </h3>
+        <div style={{ marginTop: 8, display: 'flex', justifyContent: 'flex-end' }}>
+          <F7Icon name="bookmark" size={18} color="var(--accent)" />
+        </div>
+      </div>
+    </motion.article>
+  );
+};
+
 // Legacy list card name kept for backward compat
 export const NewsCard = TodayDropCard;
 
