@@ -230,15 +230,8 @@ export default function FeedPage() {
 
         {/* Micro facts */}
         {!loading && microFacts.length > 0 && (
-          <div className="space-y-3 mt-6">
-            {microFacts.slice(0, 2).map((fact, i) => (
-              <motion.div key={i}
-                initial={prefersReducedMotion ? undefined : { y: 20, opacity: 0 }}
-                animate={prefersReducedMotion ? undefined : { y: 0, opacity: 1 }}
-                transition={prefersReducedMotion ? undefined : { delay: 0.2 + i * 0.1, duration: 0.4 }}>
-                <MicroFactCard fact={fact} />
-              </motion.div>
-            ))}
+          <div className="mt-6">
+            <MicroFactCard fact={microFacts[0]} />
           </div>
         )}
 
