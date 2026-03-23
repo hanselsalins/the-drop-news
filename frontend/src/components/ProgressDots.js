@@ -36,7 +36,7 @@ export const ProgressDots = ({ articleIds, readArticleIds }) => {
           </span>
           <span style={{
               fontFamily: 'var(--font)',
-              fontSize: 16,
+              fontSize: 15,
               fontWeight: 400,
               color: 'var(--text-color)',
               display: 'block',
