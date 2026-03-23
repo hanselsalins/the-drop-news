@@ -23,7 +23,7 @@ const CATEGORIES_BY_BAND = {
   '11-13': [
     { id: 'world', name: 'World', desc: 'Big stories from around the globe', img: UNSPLASH.globe },
     { id: 'fairornot', name: 'Fair or Not?', desc: 'Who makes the rules and why', img: UNSPLASH.justice },
-    { id: 'science', name: 'Science & Tech', desc: 'Discovery, innovation and what\'s next', img: UNSPLASH.science },
+    { id: 'science', name: 'Science & Tech', desc: 'Discovery, innovation and what\'s next', img: UNSPLASH.tech },
     { id: 'sports', name: 'Sports', desc: 'Results, records and rivalries', img: UNSPLASH.sports },
   ],
   '14-16': [
@@ -38,7 +38,7 @@ const CATEGORIES_BY_BAND = {
     { id: 'world', name: 'World', desc: 'Global affairs and international news', img: UNSPLASH.globe },
     { id: 'power', name: 'Power', desc: 'Politics, governance and elections', img: UNSPLASH.government },
     { id: 'business', name: 'Business', desc: 'Markets, economy and enterprise', img: UNSPLASH.business },
-    { id: 'science', name: 'Science & Tech', desc: 'Innovation, research and technology', img: UNSPLASH.science },
+    { id: 'science', name: 'Science & Tech', desc: 'Innovation, research and technology', img: UNSPLASH.tech },
     { id: 'sports', name: 'Sports', desc: 'Results, records and analysis', img: UNSPLASH.sports },
     { id: 'culture', name: 'Culture', desc: 'Arts, society and human stories', img: UNSPLASH.culture },
   ],
@@ -46,11 +46,13 @@ const CATEGORIES_BY_BAND = {
     { id: 'world', name: 'World', desc: 'Global affairs and international news', img: UNSPLASH.globe },
     { id: 'power', name: 'Power', desc: 'Politics, governance and elections', img: UNSPLASH.government },
     { id: 'business', name: 'Business', desc: 'Markets, economy and enterprise', img: UNSPLASH.business },
-    { id: 'science', name: 'Science & Tech', desc: 'Innovation, research and technology', img: UNSPLASH.science },
+    { id: 'science', name: 'Science & Tech', desc: 'Innovation, research and technology', img: UNSPLASH.tech },
     { id: 'sports', name: 'Sports', desc: 'Results, records and analysis', img: UNSPLASH.sports },
     { id: 'culture', name: 'Culture', desc: 'Arts, society and human stories', img: UNSPLASH.culture },
   ],
 };
+
+const FONT_STACK = "'Rubik', -apple-system, 'SF Pro Text', system-ui, 'Helvetica Neue', Arial, sans-serif";
 
 export const CategoryTabs = () => {
   const { ageGroup } = useTheme();
@@ -70,84 +72,99 @@ export const CategoryTabs = () => {
         fontWeight: 600,
         color: 'var(--title-color)',
         display: 'block',
-        marginBottom: 12,
       }}>
         Categories
       </span>
+      <style>{`.cat-slider::-webkit-scrollbar { display: none; }`}</style>
       <div
-        className="w-full overflow-x-auto"
+        className="cat-slider"
         style={{
-          WebkitOverflowScrolling: 'touch',
+          display: 'flex',
+          gap: 10,
+          overflowX: 'auto',
+          paddingBottom: 8,
+          marginTop: 15,
           scrollbarWidth: 'none',
+          WebkitOverflowScrolling: 'touch',
         }}
       >
-      <style>{`.cat-slider::-webkit-scrollbar { display: none; }`}</style>
-      <div className="cat-slider flex" style={{ gap: 10, minWidth: 'max-content', overflow: 'auto', scrollbarWidth: 'none', padding: 0 }}>
         {cats.map((cat) => (
           <button
             key={cat.id}
             onClick={() => handleTap(cat.id)}
             style={{
-              width: 'calc((100% - 20px) / 3)',
-              minWidth: 'calc((100% - 20px) / 3)',
-              height: 100,
-              borderRadius: 15,
-              position: 'relative',
+              width: 130,
+              minWidth: 130,
+              borderRadius: 18,
               overflow: 'hidden',
+              boxShadow: 'var(--block-shadow)',
+              display: 'flex',
+              flexDirection: 'column',
+              background: 'var(--surface)',
               flexShrink: 0,
               border: 'none',
               padding: 0,
               cursor: 'pointer',
-              background: 'none',
+              textAlign: 'left',
             }}
           >
-            {/* Background image */}
+            {/* IMAGE SECTION */}
             <div style={{
-              position: 'absolute',
-              inset: 0,
-              backgroundImage: `url(${cat.img})`,
-              backgroundSize: 'cover',
-              backgroundPosition: 'center',
-              filter: 'brightness(55%)',
-              borderRadius: 15,
-            }} />
-            {/* Content */}
-            <div style={{
-              position: 'absolute',
-              inset: 0,
-              display: 'flex',
-              flexDirection: 'column',
-              justifyContent: 'space-between',
-              padding: 10,
+              width: 130,
+              height: 80,
+              position: 'relative',
+              overflow: 'hidden',
             }}>
+              <div style={{
+                position: 'absolute',
+                inset: 0,
+                backgroundImage: `url(${cat.img})`,
+                backgroundSize: 'cover',
+                backgroundPosition: 'center',
+                filter: 'brightness(55%)',
+              }} />
+              <div style={{
+                position: 'absolute',
+                inset: 0,
+                background: 'linear-gradient(to bottom, rgba(0,0,0,0) 0%, rgba(24,24,24,0.85) 100%)',
+              }} />
               <span style={{
-                display: 'inline-block',
-                alignSelf: 'flex-start',
-                background: 'rgba(255,255,255,0.92)',
-                color: '#2a2a2a',
-                fontSize: 11,
-                fontWeight: 600,
-                fontFamily: 'Rubik, var(--font), sans-serif',
-                padding: '3px 8px',
-                borderRadius: 4,
-              }}>
-                {cat.name}
-              </span>
-              <span style={{
-                fontSize: 11,
+                position: 'absolute',
+                bottom: 0,
+                left: 0,
+                right: 0,
+                padding: '20px 10px 8px 10px',
+                fontFamily: FONT_STACK,
+                fontSize: 10,
                 fontWeight: 500,
-                fontFamily: 'Rubik, var(--font), sans-serif',
                 color: '#ffffff',
-                lineHeight: 1.35,
-                textShadow: '0 1px 4px rgba(0,0,0,0.6)',
-                textAlign: 'left',
+                lineHeight: 1.3,
               }}>
                 {cat.desc}
               </span>
             </div>
+            {/* FOOTER SECTION */}
+            <div style={{
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'flex-start',
+              padding: '6px 10px',
+              background: 'var(--muted-bg, #f2f2f7)',
+            }}>
+              <span style={{
+                fontFamily: FONT_STACK,
+                fontSize: 15,
+                fontWeight: 600,
+                color: 'var(--title-color)',
+                whiteSpace: 'nowrap',
+                overflow: 'hidden',
+                textOverflow: 'ellipsis',
+              }}>
+                {cat.name}
+              </span>
+            </div>
           </button>
         ))}
-      </div>
       </div>
     </div>
   );
