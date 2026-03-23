@@ -120,16 +120,18 @@ export default function FeedPage() {
       <StreakCelebration streakCount={streak.current_streak} onComplete={() => setShowCelebration(false)} />
       <MilestoneBanner milestone={milestone} onDismiss={() => acknowledgeMilestone(milestone?.notification_id)} />
 
-      {/* ── HEADER — toggle + avatar right ── */}
-      <div className="flex items-center justify-end" style={{ padding: '8px 16px', background: 'var(--bg)' }}>
-        <div className="flex items-center">
-          <button onClick={toggleDarkMode} aria-label="Toggle theme"
-            className="flex items-center justify-center cursor-pointer"
-            style={{ width: 44, height: 44, background: 'none', border: 'none', marginRight: 4 }}>
-            <F7Icon name={darkMode ? 'sun_max' : 'moon_stars'} size={22} color="var(--title-color)" />
-          </button>
-          <ProfileButton onClick={() => setProfileOpen(true)} size={40} bordered />
-        </div>
+      {/* ── HEADER — THE DROP wordmark right ── */}
+      <div className="flex items-center justify-end" style={{ padding: '12px 16px', background: 'var(--bg)' }}>
+        <span style={{
+          fontFamily: "'Exo 2', sans-serif",
+          fontWeight: 900,
+          fontStyle: 'italic',
+          fontSize: 22,
+          color: 'var(--title-color)',
+          letterSpacing: '0.02em',
+        }}>
+          THE DROP
+        </span>
       </div>
 
       {/* ── BREAKING / TRENDING hero card ── */}
