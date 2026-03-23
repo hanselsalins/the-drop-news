@@ -40,7 +40,7 @@ export const BottomNav = ({ active = 'home' }) => {
         className="fixed bottom-0 left-0 right-0 z-50"
         style={{
           height: 50,
-          background: 'var(--surface, var(--bg))',
+          background: 'var(--surface)',
           borderTop: '1px solid var(--light-gray)',
           transition: 'background-color 0.4s',
         }}
