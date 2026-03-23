@@ -23,35 +23,28 @@ export const ProgressDots = ({ articleIds, readArticleIds }) => {
 
   return (
     <div style={{ marginBottom: 24 }}>
-      {/* Title */}
-      <span style={{
-        fontFamily: 'var(--font)',
-        fontSize: 28,
-        fontWeight: 600,
-        color: 'var(--title-color)',
-        display: 'block',
-      }}>
-        Today's Drop
-      </span>
+      {/* Title + meter on same line */}
+      <div className="flex items-center justify-between">
+        <span style={{
+          fontFamily: 'var(--font)',
+          fontSize: 28,
+          fontWeight: 600,
+          color: 'var(--title-color)',
+        }}>
+          Today's Drop
+        </span>
 
-      {/* Counter + meter — right aligned on next line */}
-      <div className="flex items-center justify-end" style={{ marginTop: 6 }}>
         {meter === 'stars' && (
-          <>
-            <span style={{ fontFamily: 'var(--font)', fontSize: 14, fontWeight: 700, color: 'var(--accent)', marginRight: 8 }}>
-              {readCount} of {total}
-            </span>
-            <div className="flex items-center gap-1">
-              {dots.map((filled, i) => (
-                <motion.span
-                  key={i}
-                  animate={!prefersReducedMotion && filled ? { scale: [1, 1.3, 1] } : {}}
-                  transition={{ duration: 0.3 }}
-                  style={{ fontSize: 24, filter: filled ? 'none' : 'grayscale(1) opacity(0.3)' }}
-                >⭐</motion.span>
-              ))}
-            </div>
-          </>
+          <div className="flex items-center gap-1">
+            {dots.map((filled, i) => (
+              <motion.span
+                key={i}
+                animate={!prefersReducedMotion && filled ? { scale: [1, 1.3, 1] } : {}}
+                transition={{ duration: 0.3 }}
+                style={{ fontSize: 24, filter: filled ? 'none' : 'grayscale(1) opacity(0.3)' }}
+              >⭐</motion.span>
+            ))}
+          </div>
         )}
 
         {meter === 'dots' && (
@@ -81,9 +74,6 @@ export const ProgressDots = ({ articleIds, readArticleIds }) => {
                 style={{ height: '100%', background: 'var(--accent)', borderRadius: 999 }}
               />
             </div>
-            <span style={{ fontFamily: 'var(--font)', fontSize: 12, fontWeight: 500, color: 'var(--text-color)' }}>
-              {readCount}/{total}
-            </span>
           </div>
         )}
 
@@ -92,6 +82,13 @@ export const ProgressDots = ({ articleIds, readArticleIds }) => {
             {readCount} of {total} read
           </span>
         )}
+      </div>
+
+      {/* Counter below, right-aligned */}
+      <div style={{ textAlign: 'right', marginTop: 4 }}>
+        <span style={{ fontFamily: 'var(--font)', fontSize: 14, fontWeight: 700, color: 'var(--accent)' }}>
+          {readCount} of {total}
+        </span>
       </div>
     </div>
   );
