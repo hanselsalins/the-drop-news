@@ -181,16 +181,16 @@ a:active {
   }
 
   [data-theme="dark"] {
-    --background: 0 0% 10%;
-    --foreground: 0 0% 100%;
-    --card: 0 0% 16%;
-    --card-foreground: 0 0% 100%;
-    --popover: 0 0% 16%;
-    --popover-foreground: 0 0% 100%;
-    --muted: 0 0% 21%;
-    --muted-foreground: 0 0% 60%;
-    --border: 0 0% 23%;
-    --input: 0 0% 23%;
+    --background: 0 0% 23%;
+    --foreground: 30 3% 94%;
+    --card: 330 2% 19%;
+    --card-foreground: 30 3% 94%;
+    --popover: 330 2% 19%;
+    --popover-foreground: 30 3% 94%;
+    --muted: 210 3% 16%;
+    --muted-foreground: 0 0% 76%;
+    --border: 210 3% 16%;
+    --input: 210 3% 16%;
   }
 
   * {
