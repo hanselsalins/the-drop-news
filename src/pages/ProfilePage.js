@@ -111,10 +111,10 @@ export default function ProfilePage() {
 
         {/* User summary */}
         <div className="flex items-center gap-4 mb-6">
-          <div style={{ width: 55, height: 55, borderRadius: '50%', overflow: 'hidden', border: '2px solid var(--accent)', flexShrink: 0 }}>
-            {user?.avatar_url ? <img src={user.avatar_url} alt="" className="w-full h-full object-cover" data-testid="profile-avatar" />
-              : <div className="w-full h-full flex items-center justify-center" style={{ background: 'var(--accent)', color: '#fff', fontFamily: f, fontSize: 22, fontWeight: 700 }}>{user?.full_name?.charAt(0)?.toUpperCase() || 'U'}</div>}
-          </div>
+          <button onClick={() => setShowMemojiPicker(true)} style={{ width: 55, height: 55, borderRadius: '50%', overflow: 'hidden', border: '2px solid var(--accent)', flexShrink: 0, padding: 0, background: 'var(--light-gray)', cursor: 'pointer', position: 'relative' }}>
+            <img src={selectedMemojiId ? getMemojiById(selectedMemojiId) : (user?.avatar_url || getMemoji(user?.full_name))} alt="" className="w-full h-full object-cover" data-testid="profile-avatar" />
+            <div style={{ position: 'absolute', bottom: -2, right: -2, width: 20, height: 20, borderRadius: '50%', background: 'var(--accent)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 10, color: '#fff', border: '2px solid var(--surface)' }}>✎</div>
+          </button>
           <div className="flex-1 min-w-0">
             <p style={{ fontFamily: f, fontSize: 15, fontWeight: 500, color: 'var(--title-color)' }}>{user?.full_name}</p>
             <p style={{ fontFamily: f, fontSize: 13, fontWeight: 400, color: 'var(--text-color)' }}>{user?.email || ''}</p>
