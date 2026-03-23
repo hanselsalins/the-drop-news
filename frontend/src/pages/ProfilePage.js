@@ -123,8 +123,8 @@ export default function ProfilePage() {
         </div>
 
         {/* Toggles */}
-        <div style={{ background: 'var(--light-gray)', borderRadius: 18, overflow: 'hidden', marginBottom: 15 }}>
-          <div className="flex items-center justify-between" style={{ padding: '14px 15px', borderBottom: '1px solid rgba(0,0,0,0.12)' }}>
+        <div style={{ background: 'var(--surface)', borderRadius: 18, overflow: 'hidden', marginBottom: 15 }}>
+          <div className="flex items-center justify-between" style={{ padding: '14px 15px', borderBottom: '1px solid var(--light-gray)' }}>
             <span style={{ fontFamily: f, fontSize: 15, fontWeight: 500, color: 'var(--title-color)' }}>Dark Mode</span>
             <button onClick={toggleDarkMode} className="w-11 h-6 rounded-full flex items-center px-0.5 cursor-pointer"
               style={{ background: darkMode ? 'var(--accent)' : '#ddd', border: 'none' }}>
@@ -142,18 +142,18 @@ export default function ProfilePage() {
 
         {/* Account section */}
         <p style={{ fontFamily: f, fontSize: 18, fontWeight: 600, color: 'var(--title-color)', marginTop: 25, marginBottom: 8 }}>Account</p>
-        <div style={{ background: 'var(--light-gray)', borderRadius: 18, overflow: 'hidden', marginBottom: 15 }}>
+        <div style={{ background: 'var(--surface)', borderRadius: 18, overflow: 'hidden', marginBottom: 15 }}>
           {/* Country */}
           <button data-testid="country-selector-btn" onClick={() => setShowCountryPicker(!showCountryPicker)}
             className="w-full flex items-center justify-between cursor-pointer"
-            style={{ padding: '14px 15px', height: 50, background: 'none', border: 'none', borderBottom: '1px solid rgba(0,0,0,0.12)' }}>
+            style={{ padding: '14px 15px', height: 50, background: 'none', border: 'none', borderBottom: '1px solid var(--light-gray)' }}>
             <span style={{ fontFamily: f, fontSize: 15, fontWeight: 500, color: 'var(--title-color)' }}>
               News Country: {userCountry ? `${userCountry.flag_emoji} ${userCountry.country_name}` : (user?.country || 'Select')}
             </span>
             <F7Icon name="chevron_right" size={16} color="#8896b8" />
           </button>
           {/* City */}
-          <div className="flex items-center justify-between" style={{ padding: '14px 15px', height: 50, borderBottom: '1px solid rgba(0,0,0,0.12)' }}>
+          <div className="flex items-center justify-between" style={{ padding: '14px 15px', height: 50, borderBottom: '1px solid var(--light-gray)' }}>
             {editingCity ? (
               <div className="flex items-center gap-2 flex-1">
                 <input data-testid="edit-city-input" value={editCity} onChange={e => setEditCity(e.target.value)}
@@ -181,7 +181,7 @@ export default function ProfilePage() {
         </div>
 
         {showCountryPicker && (
-          <div className="mb-4 max-h-52 overflow-y-auto" style={{ background: 'var(--bg)', border: '1px solid var(--light-gray)', borderRadius: 10, boxShadow: 'var(--block-shadow)' }}>
+          <div className="mb-4 max-h-52 overflow-y-auto" style={{ background: 'var(--surface)', border: '1px solid var(--light-gray)', borderRadius: 10, boxShadow: 'var(--block-shadow)' }}>
             {countries.map(c => (
               <button key={c.country_code} data-testid={`country-option-${c.country_code}`} onClick={() => handleCountrySelect(c)}
                 className="w-full text-left px-4 py-2.5 text-sm flex items-center gap-2 cursor-pointer"
@@ -204,24 +204,24 @@ export default function ProfilePage() {
 
             {/* Stats 2x2 */}
             <div className="grid grid-cols-2 gap-3 mb-4">
-              <div data-testid="streak-card" className="p-4 text-center" style={{ background: 'var(--light-gray)', borderRadius: 15 }}>
+              <div data-testid="streak-card" className="p-4 text-center" style={{ background: 'var(--surface)', borderRadius: 15 }}>
                 <F7Icon name="flame_fill" size={20} color="var(--accent)" style={{ margin: '0 auto 8px', display: 'block' }} />
                 <p data-testid="streak-current" style={{ fontFamily: f, fontSize: 28, fontWeight: 600, color: 'var(--title-color)' }}>{stats.streak.current}</p>
                 <p style={{ fontFamily: f, fontSize: 11, fontWeight: 500, color: 'var(--text-color)', textTransform: 'uppercase' }}>day streak</p>
                 <p style={{ fontFamily: f, fontSize: 12, fontWeight: 400, color: 'var(--text-color)', marginTop: 4 }}>Best: {stats.streak.longest}</p>
               </div>
-              <div data-testid="stories-read-card" className="p-4 text-center" style={{ background: 'var(--light-gray)', borderRadius: 15 }}>
+              <div data-testid="stories-read-card" className="p-4 text-center" style={{ background: 'var(--surface)', borderRadius: 15 }}>
                 <F7Icon name="book_fill" size={20} color="var(--accent)" style={{ margin: '0 auto 8px', display: 'block' }} />
                 <p data-testid="stories-read-total" style={{ fontFamily: f, fontSize: 28, fontWeight: 600, color: 'var(--title-color)' }}>{stats.stories_read.total}</p>
                 <p style={{ fontFamily: f, fontSize: 11, fontWeight: 500, color: 'var(--text-color)', textTransform: 'uppercase' }}>stories read</p>
                 <p style={{ fontFamily: f, fontSize: 12, fontWeight: 400, color: 'var(--text-color)', marginTop: 4 }}>Week: {stats.stories_read.this_week}</p>
               </div>
-              <div data-testid="favourite-topic-card" className="p-4 text-center" style={{ background: 'var(--light-gray)', borderRadius: 15 }}>
+              <div data-testid="favourite-topic-card" className="p-4 text-center" style={{ background: 'var(--surface)', borderRadius: 15 }}>
                 <F7Icon name="rosette" size={20} color="#FFD60A" style={{ margin: '0 auto 8px', display: 'block' }} />
                 <p className="capitalize" style={{ fontFamily: f, fontSize: 15, fontWeight: 500, color: 'var(--title-color)' }}>{stats.favourite_category}</p>
                 <p style={{ fontFamily: f, fontSize: 11, fontWeight: 500, color: 'var(--text-color)', textTransform: 'uppercase' }}>top topic</p>
               </div>
-              <div data-testid="reactions-card" className="p-4 text-center" style={{ background: 'var(--light-gray)', borderRadius: 15 }}>
+              <div data-testid="reactions-card" className="p-4 text-center" style={{ background: 'var(--surface)', borderRadius: 15 }}>
                 <span style={{ fontSize: 20, display: 'block', marginBottom: 8 }}>{stats.reactions.most_used || '---'}</span>
                 <p data-testid="reactions-total" style={{ fontFamily: f, fontSize: 28, fontWeight: 600, color: 'var(--title-color)' }}>{stats.reactions.total}</p>
                 <p style={{ fontFamily: f, fontSize: 11, fontWeight: 500, color: 'var(--text-color)', textTransform: 'uppercase' }}>reactions</p>
@@ -229,7 +229,7 @@ export default function ProfilePage() {
             </div>
 
             {/* Countries */}
-            <div data-testid="countries-card" className="flex items-center gap-4 p-4 mb-4" style={{ background: 'var(--light-gray)', borderRadius: 15 }}>
+            <div data-testid="countries-card" className="flex items-center gap-4 p-4 mb-4" style={{ background: 'var(--surface)', borderRadius: 15 }}>
               <F7Icon name="globe" size={20} color="var(--accent)" />
               <div>
                 <p style={{ fontFamily: f, fontSize: 15, fontWeight: 500, color: 'var(--title-color)' }}>{stats.countries_covered} countries</p>
@@ -259,7 +259,7 @@ export default function ProfilePage() {
           <AnimatePresence>
             {showAddFriend && (
               <motion.div initial={{ height: 0, opacity: 0 }} animate={{ height: 'auto', opacity: 1 }} exit={{ height: 0, opacity: 0 }} className="mb-3 overflow-hidden">
-                <div className="p-4" style={{ background: 'var(--light-gray)', borderRadius: 15 }}>
+                <div className="p-4" style={{ background: 'var(--surface)', borderRadius: 15 }}>
                   <div className="relative mb-3">
                     <F7Icon name="search" size={14} color="var(--text-color)" className="absolute left-3 top-1/2 -translate-y-1/2" />
                     <input data-testid="friend-search-input" placeholder="Find @username" value={searchQuery}
@@ -285,7 +285,7 @@ export default function ProfilePage() {
             )}
           </AnimatePresence>
 
-          <div className="flex gap-1 p-1 mb-3" style={{ background: 'var(--light-gray)', borderRadius: 10 }}>
+          <div className="flex gap-1 p-1 mb-3" style={{ background: 'var(--surface)', borderRadius: 10 }}>
             {[
               { id: 'friends', label: 'Friends', count: friends.length },
               { id: 'leaderboard', label: 'Board' },
@@ -309,12 +309,12 @@ export default function ProfilePage() {
           </div>
 
           {socialTab === 'friends' && (
-            <div style={{ background: 'var(--light-gray)', borderRadius: 15, overflow: 'hidden' }}>
+            <div style={{ background: 'var(--surface)', borderRadius: 15, overflow: 'hidden' }}>
               {friends.length === 0 ? (
                 <p className="text-center py-6" style={{ fontFamily: f, fontSize: 13, color: 'var(--text-color)' }}>No friends yet</p>
               ) : friends.slice(0, 20).map((fr, i) => (
                 <div key={fr.id} data-testid={`friend-${fr.username}`} className="flex items-center gap-3 px-4 py-3"
-                  style={{ borderTop: i > 0 ? '1px solid rgba(0,0,0,0.12)' : 'none' }}>
+                  style={{ borderTop: i > 0 ? '1px solid var(--light-gray)' : 'none' }}>
                   <img src={fr.avatar_url} alt="" className="w-9 h-9 rounded-full" />
                   <div className="flex-1 min-w-0">
                     <p style={{ fontFamily: f, fontSize: 15, fontWeight: 500, color: 'var(--title-color)' }}>{fr.full_name}</p>
@@ -329,10 +329,10 @@ export default function ProfilePage() {
           )}
 
           {socialTab === 'leaderboard' && leaderboard && (
-            <div style={{ background: 'var(--light-gray)', borderRadius: 15, overflow: 'hidden' }}>
+            <div style={{ background: 'var(--surface)', borderRadius: 15, overflow: 'hidden' }}>
               {leaderboard.map((e, i) => (
                 <div key={e.id} data-testid={`leaderboard-${e.rank}`} className="flex items-center gap-3 px-4 py-3"
-                  style={{ borderTop: i > 0 ? '1px solid rgba(0,0,0,0.12)' : 'none', background: e.is_self ? 'rgba(255,107,0,0.04)' : 'transparent' }}>
+                  style={{ borderTop: i > 0 ? '1px solid var(--light-gray)' : 'none', background: e.is_self ? 'rgba(255,107,0,0.04)' : 'transparent' }}>
                   <span className="w-6 text-center text-sm font-bold" style={{ fontFamily: f, color: e.rank <= 3 ? '#FFD60A' : 'var(--text-color)' }}>{e.rank}</span>
                   <img src={e.avatar_url} alt="" className="w-8 h-8 rounded-full" />
                   <div className="flex-1 min-w-0">
@@ -347,12 +347,12 @@ export default function ProfilePage() {
           )}
 
           {socialTab === 'requests' && (
-            <div style={{ background: 'var(--light-gray)', borderRadius: 15, overflow: 'hidden' }}>
+            <div style={{ background: 'var(--surface)', borderRadius: 15, overflow: 'hidden' }}>
               {friendRequests.length === 0 ? (
                 <p className="text-center py-6" style={{ fontFamily: f, fontSize: 13, color: 'var(--text-color)' }}>No pending requests</p>
               ) : friendRequests.map((r, i) => (
                 <div key={r.friendship_id} className="flex items-center gap-3 px-4 py-3"
-                  style={{ borderTop: i > 0 ? '1px solid rgba(0,0,0,0.12)' : 'none' }}>
+                  style={{ borderTop: i > 0 ? '1px solid var(--light-gray)' : 'none' }}>
                   <img src={r.sender.avatar_url} alt="" className="w-9 h-9 rounded-full" />
                   <div className="flex-1 min-w-0">
                     <p style={{ fontFamily: f, fontSize: 15, fontWeight: 500, color: 'var(--title-color)' }}>{r.sender.full_name}</p>
@@ -373,7 +373,7 @@ export default function ProfilePage() {
 
         {/* Log out */}
         <button onClick={handleLogout} className="w-full cursor-pointer"
-          style={{ fontFamily: f, fontSize: 14, fontWeight: 500, height: 44, borderRadius: 10, background: 'var(--light-gray)', color: '#FF3B30', border: 'none', marginTop: 25 }}>
+          style={{ fontFamily: f, fontSize: 14, fontWeight: 500, height: 44, borderRadius: 10, background: 'var(--surface)', color: '#FF3B30', border: 'none', marginTop: 25 }}>
           Log Out
         </button>
       </div>

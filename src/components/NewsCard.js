@@ -105,7 +105,7 @@ export const TodayDropCard = ({ article, isRead }) => {
       className="shrink-0 cursor-pointer relative overflow-hidden"
       style={{
         width: 200, height: 260, borderRadius: 18,
-        background: 'var(--bg)', boxShadow: 'var(--block-shadow)',
+        background: 'var(--surface)', boxShadow: 'var(--block-shadow)',
       }}
     >
       {/* Image top 55% */}
