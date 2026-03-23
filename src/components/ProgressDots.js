@@ -6,7 +6,7 @@ const MISSION_METERS = {
   '8-10': 'stars',
   '11-13': 'dots',
   '14-16': 'bar',
-  '17-20': 'text',
+  '17-20': 'bar',
 };
 
 export const ProgressDots = ({ articleIds, readArticleIds }) => {
