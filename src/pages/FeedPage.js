@@ -6,15 +6,12 @@ import { HeroNewsCard, TodayDropCard, CategoryCard, PostListCard } from '../comp
 import { CategoryTabs } from '../components/CategoryTabs';
 import { BottomNav } from '../components/BottomNav';
 import { MicroFactCard } from '../components/MicroFactCard';
-import { ProfilePanel } from '../components/ProfilePanel';
-import { ProfilePanel } from '../components/ProfilePanel';
 import { MilestoneBanner } from '../components/MilestoneBanner';
 import { ProgressDots } from '../components/ProgressDots';
 import { SkeletonCard, HeroSkeletonCard } from '../components/SkeletonCard';
 import { SkeletonTabs } from '../components/SkeletonTabs';
 import { StreakCelebration } from '../components/StreakCelebration';
 import { useReadArticles } from '../hooks/useReadArticles';
-import { F7Icon } from '../components/F7Icon';
 import { motion } from 'framer-motion';
 import axios from 'axios';
 
