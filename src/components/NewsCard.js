@@ -277,56 +277,52 @@ export const PostListCard = ({ article, isLast, ageGroup }) => {
   }
 
   return (
-    <>
-      <motion.article
-        data-testid={`post-list-card-${article.id}`}
-        onClick={handleClick}
-        role="button"
-        tabIndex={0}
-        onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); handleClick(); } }}
-        whileTap={prefersReducedMotion ? undefined : { scale: 0.98 }}
-        className="w-full cursor-pointer relative"
-        style={{
-          display: 'flex',
-          alignItems: 'flex-start',
-          padding: '15px 0',
-          minHeight: 130,
-          borderBottom: isLast ? 'none' : '1px solid var(--light-gray)',
-        }}
-      >
-        <div style={{ width: 110, height: 110, borderRadius: 12, overflow: 'hidden', flexShrink: 0 }}>
-          {imageUrl ? (
-            <img src={imageUrl} alt="" loading="lazy"
-              onError={(e) => { e.target.style.display = 'none'; }}
-              style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
-          ) : (
-            <div style={{ width: '100%', height: '100%', background: 'var(--light-gray)' }} />
-          )}
-        </div>
-        <div style={{ marginLeft: 18, paddingTop: 30, flex: 1, display: 'flex', flexDirection: 'column', minWidth: 0 }}>
-          <h3 style={{
-            fontFamily: 'var(--font)', fontSize: 15, fontWeight: 600,
-            color: 'var(--title-color)', lineHeight: '22px',
-            margin: 0,
-            display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical', overflow: 'hidden',
-            textOverflow: 'ellipsis',
+    <motion.article
+      data-testid={`post-list-card-${article.id}`}
+      onClick={handleClick}
+      role="button"
+      tabIndex={0}
+      onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); handleClick(); } }}
+      whileTap={prefersReducedMotion ? undefined : { scale: 0.98 }}
+      className="w-full cursor-pointer relative"
+      style={{
+        display: 'flex',
+        alignItems: 'flex-start',
+        padding: '15px 0',
+        minHeight: 130,
+        borderBottom: isLast ? 'none' : '1px solid var(--light-gray)',
+      }}
+    >
+      <div style={{ width: 110, height: 110, borderRadius: 12, overflow: 'hidden', flexShrink: 0 }}>
+        {imageUrl ? (
+          <img src={imageUrl} alt="" loading="lazy"
+            onError={(e) => { e.target.style.display = 'none'; }}
+            style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+        ) : (
+          <div style={{ width: '100%', height: '100%', background: 'var(--light-gray)' }} />
+        )}
+      </div>
+      <div style={{ marginLeft: 18, paddingTop: 30, flex: 1, display: 'flex', flexDirection: 'column', minWidth: 0 }}>
+        <h3 style={{
+          fontFamily: 'var(--font)', fontSize: 15, fontWeight: 600,
+          color: 'var(--title-color)', lineHeight: '22px',
+          margin: 0,
+          display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical', overflow: 'hidden',
+          textOverflow: 'ellipsis',
+        }}>
+          {title}
+        </h3>
+        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginTop: 12 }}>
+          <span style={{
+            fontFamily: 'var(--font)', fontSize: 13, fontWeight: 400,
+            color: 'var(--text-color)',
           }}>
-            {title}
-          </h3>
-          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginTop: 12 }}>
-            <span style={{
-              fontFamily: 'var(--font)', fontSize: 13, fontWeight: 400,
-              color: 'var(--text-color)',
-            }}>
-              {article.published_at ? getTimeAgo(article.published_at) : article.source}
-            </span>
-            <F7Icon name="bookmark_fill" size={18} color="var(--accent)" />
-          </div>
+            {article.published_at ? getTimeAgo(article.published_at) : article.source}
+          </span>
+          <F7Icon name="bookmark_fill" size={18} color="var(--accent)" />
         </div>
-      </motion.article>
-    </>;
-  );
-};
+      </div>
+    </motion.article>
   );
 };
 
