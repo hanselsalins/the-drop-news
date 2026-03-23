@@ -79,7 +79,8 @@ export const CategoryTabs = () => {
             key={cat.id}
             onClick={() => handleTap(cat.id)}
             style={{
-              width: 125.2,
+              width: 'calc((100% - 20px) / 3)',
+              minWidth: 'calc((100% - 20px) / 3)',
               height: 100,
               borderRadius: 15,
               position: 'relative',
