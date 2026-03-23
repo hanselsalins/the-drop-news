@@ -183,6 +183,7 @@ export const CategoryCard = ({ article }) => {
       style={{
         width: 180, height: 200, borderRadius: 18,
         boxShadow: 'var(--block-shadow)',
+        border: 'var(--card-border, none)',
       }}
     >
       <div className="absolute inset-0">

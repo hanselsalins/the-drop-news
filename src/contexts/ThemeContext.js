@@ -29,10 +29,10 @@ const LIGHT_THEME = {
 
 const DARK_THEME = {
   bg: '#1A1A1A',
-  surface: '#2A2A2A',
+  surface: '#2D2D2D',
   titleColor: '#FFFFFF',
   textColor: '#9aa9b2',
-  lightGray: '#3A3A3A',
+  lightGray: '#404040',
   blockShadow: 'none',
 };
 
