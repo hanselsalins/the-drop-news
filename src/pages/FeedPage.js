@@ -162,19 +162,11 @@ export default function FeedPage() {
         {activeCategory === 'today' && !loading && todayDropArticles.length > 0 && (
           <div style={{ marginTop: 25 }}>
             <ProgressDots articleIds={todayArticleIds} readArticleIds={readIds} />
-            {(ageGroup === '14-16' || ageGroup === '17-20' || ageGroup === '20+') ? (
-              <div>
-                {todayDropArticles.map((article, i) => (
-                  <PostListCard key={article.id} article={article} isLast={i === todayDropArticles.length - 1} ageGroup={ageGroup} />
-                ))}
-              </div>
-            ) : (
-              <div style={{ borderRadius: 15, overflow: 'hidden' }}>
-                {todayDropArticles.map((article, i) => (
-                  <PostListCard key={article.id} article={article} isLast={i === todayDropArticles.length - 1} ageGroup={ageGroup} />
-                ))}
-              </div>
-            )}
+            <div>
+              {todayDropArticles.map((article, i) => (
+                <PostListCard key={article.id} article={article} isLast={i === todayDropArticles.length - 1} ageGroup={ageGroup} />
+              ))}
+            </div>
           </div>
         )}
 
