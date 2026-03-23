@@ -25,8 +25,8 @@ export const ProgressDots = ({ articleIds, readArticleIds }) => {
     <div className="flex items-center justify-between">
       <span style={{
         fontFamily: 'var(--font)',
-        fontSize: 15,
-        fontWeight: 700,
+        fontSize: 28,
+        fontWeight: 600,
         color: 'var(--title-color)',
       }}>
         Today's Drop
