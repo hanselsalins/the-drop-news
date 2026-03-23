@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useTheme } from '../contexts/ThemeContext';
-import { Bell } from 'lucide-react';
+import { F7Icon } from './F7Icon';
 import axios from 'axios';
 
 const BACKEND_URL = import.meta.env.VITE_BACKEND_URL;
@@ -43,7 +43,7 @@ export const NotificationSettings = ({ permission, onRequestPermission }) => {
       style={{ background: 'var(--light-gray)', borderRadius: 18 }}>
       <div className="flex items-center justify-between p-4 pb-2">
         <div className="flex items-center gap-2">
-          <Bell size={16} style={{ color: 'var(--accent)' }} />
+          <F7Icon name="bell_fill" size={16} color="var(--accent)" />
           <p style={{ fontFamily: 'var(--font)', fontSize: 15, fontWeight: 500, color: 'var(--title-color)' }}>
             Notifications
           </p>

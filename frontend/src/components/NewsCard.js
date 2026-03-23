@@ -3,7 +3,7 @@ import { motion } from 'framer-motion';
 import { CATEGORY_LABELS } from '../lib/bandUtils';
 import { useReducedMotion } from '../hooks/useReducedMotion';
 import { medium } from '../lib/haptic';
-import { Bookmark } from 'lucide-react';
+import { F7Icon } from './F7Icon';
 
 // Hero card — full width, image footer overlay style (Yui .card-image-footer)
 export const HeroNewsCard = ({ article, badge }) => {
@@ -48,7 +48,7 @@ export const HeroNewsCard = ({ article, badge }) => {
 
       {/* Bookmark */}
       <button className="absolute top-3 right-3 z-10" style={{ background: 'none', border: 'none', cursor: 'pointer' }}>
-        <Bookmark size={24} style={{ color: '#FFFFFF' }} />
+        <F7Icon name="bookmark" size={24} color="#FFFFFF" />
       </button>
 
       {/* Footer content */}

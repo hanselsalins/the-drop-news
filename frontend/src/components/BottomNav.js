@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Home, Search, Share2, Settings, X } from 'lucide-react';
+import { F7Icon } from './F7Icon';
 import { light } from '../lib/haptic';
 import { motion, AnimatePresence } from 'framer-motion';
 
@@ -19,10 +19,10 @@ export const BottomNav = ({ active = 'home' }) => {
   const [copied, setCopied] = useState(false);
 
   const items = [
-    { id: 'home', icon: Home, label: 'Home', action: () => navigate('/feed') },
-    { id: 'search', icon: Search, label: 'Search', action: () => setSearchOpen(true) },
-    { id: 'share', icon: Share2, label: 'Share', action: () => setShareOpen(true) },
-    { id: 'settings', icon: Settings, label: 'Settings', action: () => navigate('/profile') },
+    { id: 'home', icon: 'house_fill', label: 'Home', action: () => navigate('/feed') },
+    { id: 'search', icon: 'search', label: 'Search', action: () => setSearchOpen(true) },
+    { id: 'share', icon: 'square_arrow_up', label: 'Share', action: () => setShareOpen(true) },
+    { id: 'settings', icon: 'gear_alt_fill', label: 'Settings', action: () => navigate('/profile') },
   ];
 
   const handleCopyLink = () => {
@@ -46,7 +46,7 @@ export const BottomNav = ({ active = 'home' }) => {
         }}
       >
         <div className="max-w-md mx-auto flex items-center justify-around h-full px-2">
-          {items.map(({ id, icon: Icon, label, action }) => {
+          {items.map(({ id, icon, label, action }) => {
             const isActive = active === id;
             return (
               <button
@@ -57,11 +57,7 @@ export const BottomNav = ({ active = 'home' }) => {
                 className="flex flex-col items-center gap-0.5 transition-all duration-200"
                 style={{ minWidth: 56, background: 'none', border: 'none', cursor: 'pointer' }}
               >
-                <Icon
-                  size={24}
-                  strokeWidth={isActive ? 2.5 : 1.5}
-                  style={{ color: isActive ? 'var(--accent)' : '#8896b8' }}
-                />
+                <F7Icon name={icon} size={22} color={isActive ? 'var(--accent)' : '#8896b8'} />
                 <span style={{
                   fontFamily: 'var(--font)',
                   fontSize: 10,
@@ -95,28 +91,31 @@ export const BottomNav = ({ active = 'home' }) => {
               <div className="flex items-center justify-between mb-4">
                 <h3 style={{ fontFamily: 'var(--font)', fontSize: 18, fontWeight: 600, color: 'var(--title-color)' }}>Search</h3>
                 <button onClick={() => setSearchOpen(false)} style={{ background: 'none', border: 'none', cursor: 'pointer' }}>
-                  <X size={20} style={{ color: 'var(--text-color)' }} />
+                  <F7Icon name="xmark" size={20} color="var(--text-color)" />
                 </button>
               </div>
-              <input
-                autoFocus
-                type="text"
-                placeholder="Search news..."
-                value={searchQuery}
-                onChange={e => setSearchQuery(e.target.value)}
-                className="w-full outline-none"
-                style={{
-                  fontFamily: 'var(--font)',
-                  fontSize: 15,
-                  fontWeight: 500,
-                  height: 44,
-                  borderRadius: 10,
-                  background: 'var(--light-gray)',
-                  border: 'none',
-                  padding: '0 15px',
-                  color: 'var(--title-color)',
-                }}
-              />
+              <div className="relative">
+                <F7Icon name="search" size={16} color="var(--text-color)" className="absolute left-3 top-1/2 -translate-y-1/2" />
+                <input
+                  autoFocus
+                  type="text"
+                  placeholder="Search news..."
+                  value={searchQuery}
+                  onChange={e => setSearchQuery(e.target.value)}
+                  className="w-full outline-none"
+                  style={{
+                    fontFamily: 'var(--font)',
+                    fontSize: 15,
+                    fontWeight: 500,
+                    height: 44,
+                    borderRadius: 10,
+                    background: 'var(--light-gray)',
+                    border: 'none',
+                    padding: '0 15px 0 40px',
+                    color: 'var(--title-color)',
+                  }}
+                />
+              </div>
             </motion.div>
           </>
         )}
@@ -141,7 +140,7 @@ export const BottomNav = ({ active = 'home' }) => {
               <div className="flex items-center justify-between mb-5">
                 <h3 style={{ fontFamily: 'var(--font)', fontSize: 18, fontWeight: 600, color: 'var(--title-color)' }}>Share The Drop</h3>
                 <button onClick={() => setShareOpen(false)} style={{ background: 'none', border: 'none', cursor: 'pointer' }}>
-                  <X size={20} style={{ color: 'var(--text-color)' }} />
+                  <F7Icon name="xmark" size={20} color="var(--text-color)" />
                 </button>
               </div>
               <div className="flex items-center justify-around">

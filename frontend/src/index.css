@@ -26,6 +26,14 @@
   --light-gray: #0e232d;
 }
 
+.f7-icons {
+  font-family: 'Framework7Icons';
+  font-size: 22px;
+  color: var(--title-color);
+  display: inline-block;
+  line-height: 1;
+}
+
 body {
   margin: 0;
   font-family: var(--font);
