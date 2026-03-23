@@ -152,45 +152,84 @@ function CountryDropdown({ countries, value, onChange, testPrefix = '' }) {
 
 function GateScreen({ setPhase }) {
   return (
-    <motion.div {...slideIn} className="flex-1 flex flex-col">
-      <h1 style={{ fontFamily: 'var(--font)', fontSize: 28, fontWeight: 600, color: 'var(--title-color)', marginBottom: 8 }}>
-        Welcome! 👋
-      </h1>
-      <p style={{ fontFamily: 'var(--font)', fontSize: 15, lineHeight: '1.8em', color: 'var(--text-color)', marginBottom: 32 }}>
-        Let's get you set up with the right experience.
-      </p>
+    <motion.div {...slideIn} className="flex-1 flex flex-col items-center">
+      {/* Logo */}
+      <div className="flex flex-col items-center mt-8 mb-10">
+        <div style={{
+          width: 72, height: 72, borderRadius: 18, background: 'var(--accent)',
+          display: 'flex', alignItems: 'center', justifyContent: 'center',
+          boxShadow: '0 8px 24px rgba(255, 107, 0, 0.3)',
+          marginBottom: 16,
+        }}>
+          <span style={{ fontSize: 36, lineHeight: 1, color: '#fff', fontFamily: 'var(--font)', fontWeight: 700 }}>D</span>
+        </div>
+        <h1 style={{ fontFamily: 'var(--font)', fontSize: 28, fontWeight: 700, color: 'var(--title-color)', marginBottom: 4, textAlign: 'center' }}>
+          The Drop
+        </h1>
+        <p style={{ fontFamily: 'var(--font)', fontSize: 15, color: 'var(--text-color)', textAlign: 'center' }}>
+          News that hits different
+        </p>
+      </div>
 
-      <div className="space-y-4 mb-8">
+      {/* Age gate cards */}
+      <div className="w-full space-y-3 mb-8">
         <button data-testid="gate-under14" onClick={() => setPhase('pathA')}
-          className="w-full text-left p-6 cursor-pointer"
-          style={{ background: 'var(--light-gray)', borderRadius: 18, border: 'none' }}>
-          <div className="flex items-start gap-4">
-            <span className="text-4xl">👦🏻</span>
-            <div className="flex-1">
-              <p style={{ fontFamily: 'var(--font)', fontSize: 15, fontWeight: 500, color: 'var(--title-color)' }}>I'm under 14</p>
-              <p style={{ fontFamily: 'var(--font)', fontSize: 13, color: 'var(--text-color)', marginTop: 4 }}>A parent or guardian will set up your account</p>
+          className="w-full text-left cursor-pointer"
+          style={{
+            background: 'var(--light-gray)', borderRadius: 18, border: 'none',
+            padding: '20px 20px',
+            transition: 'transform 0.15s ease',
+          }}
+          onMouseDown={e => e.currentTarget.style.transform = 'scale(0.98)'}
+          onMouseUp={e => e.currentTarget.style.transform = 'scale(1)'}
+          onMouseLeave={e => e.currentTarget.style.transform = 'scale(1)'}>
+          <div className="flex items-center gap-4">
+            <div style={{
+              width: 48, height: 48, borderRadius: 14, background: 'var(--bg)',
+              display: 'flex', alignItems: 'center', justifyContent: 'center',
+              boxShadow: '0 2px 8px rgba(0,0,0,0.06)',
+            }}>
+              <span style={{ fontSize: 24 }}>👦🏻</span>
             </div>
-            <F7Icon name="arrow_right" size={20} color="var(--accent)" style={{ marginTop: 4 }} />
+            <div className="flex-1">
+              <p style={{ fontFamily: 'var(--font)', fontSize: 16, fontWeight: 600, color: 'var(--title-color)', marginBottom: 2 }}>I'm under 14</p>
+              <p style={{ fontFamily: 'var(--font)', fontSize: 13, color: 'var(--text-color)' }}>A parent or guardian will set up your account</p>
+            </div>
+            <F7Icon name="chevron_right" size={18} color="var(--accent)" />
           </div>
         </button>
 
         <button data-testid="gate-14plus" onClick={() => setPhase('pathB')}
-          className="w-full text-left p-6 cursor-pointer"
-          style={{ background: 'var(--light-gray)', borderRadius: 18, border: 'none' }}>
-          <div className="flex items-start gap-4">
-            <span className="text-4xl">🧑🏻</span>
-            <div className="flex-1">
-              <p style={{ fontFamily: 'var(--font)', fontSize: 15, fontWeight: 500, color: 'var(--title-color)' }}>I'm 14 or older</p>
-              <p style={{ fontFamily: 'var(--font)', fontSize: 13, color: 'var(--text-color)', marginTop: 4 }}>Create your own profile</p>
+          className="w-full text-left cursor-pointer"
+          style={{
+            background: 'var(--light-gray)', borderRadius: 18, border: 'none',
+            padding: '20px 20px',
+            transition: 'transform 0.15s ease',
+          }}
+          onMouseDown={e => e.currentTarget.style.transform = 'scale(0.98)'}
+          onMouseUp={e => e.currentTarget.style.transform = 'scale(1)'}
+          onMouseLeave={e => e.currentTarget.style.transform = 'scale(1)'}>
+          <div className="flex items-center gap-4">
+            <div style={{
+              width: 48, height: 48, borderRadius: 14, background: 'var(--bg)',
+              display: 'flex', alignItems: 'center', justifyContent: 'center',
+              boxShadow: '0 2px 8px rgba(0,0,0,0.06)',
+            }}>
+              <span style={{ fontSize: 24 }}>🧑🏻</span>
             </div>
-            <F7Icon name="arrow_right" size={20} color="var(--accent)" style={{ marginTop: 4 }} />
+            <div className="flex-1">
+              <p style={{ fontFamily: 'var(--font)', fontSize: 16, fontWeight: 600, color: 'var(--title-color)', marginBottom: 2 }}>I'm 14 or older</p>
+              <p style={{ fontFamily: 'var(--font)', fontSize: 13, color: 'var(--text-color)' }}>Create your own profile</p>
+            </div>
+            <F7Icon name="chevron_right" size={18} color="var(--accent)" />
           </div>
         </button>
       </div>
 
-      <div className="mt-auto">
+      {/* Login link */}
+      <div className="mt-auto w-full">
         <button data-testid="gate-login-link" onClick={() => setPhase('login')}
-          className="w-full text-sm py-2 cursor-pointer" style={{ fontFamily: 'var(--font)', color: 'var(--text-color)', background: 'none', border: 'none' }}>
+          className="w-full text-sm py-3 cursor-pointer" style={{ fontFamily: 'var(--font)', color: 'var(--text-color)', background: 'none', border: 'none' }}>
           Already have an account? <span style={{ color: 'var(--accent)', fontWeight: 600 }}>Log in</span>
         </button>
       </div>
