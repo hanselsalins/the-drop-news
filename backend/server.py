@@ -3018,8 +3018,8 @@ async def _initial_crawl():
         await select_articles_for_display()
         for ag in ["8-10", "11-13", "14-16", "17-20", "20+"]:
             await rewrite_pending_articles(ag)
-        await generate_micro_facts("8-10")
-        await generate_micro_facts("14-16")
+        for ag in ["8-10", "11-13", "14-16", "17-20", "20+"]:
+            await generate_micro_facts(ag)
     except Exception as e:
         logger.error(f"Initial crawl failed: {e}")
 
