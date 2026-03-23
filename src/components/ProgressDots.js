@@ -96,7 +96,7 @@ export const ProgressDots = ({ articleIds, readArticleIds }) => {
             </span>
           )}
 
-          <span style={{ fontFamily: 'var(--font)', fontSize: 14, fontWeight: 700, color: 'var(--accent)', marginTop: 4, whiteSpace: 'nowrap' }}>
+          <span style={{ fontFamily: 'var(--font)', fontSize: 14, fontWeight: 700, color: 'var(--accent)', marginTop: 4, whiteSpace: 'nowrap', paddingRight: 2 }}>
             {readCount} of {total}
           </span>
         </div>
