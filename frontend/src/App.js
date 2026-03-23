@@ -13,7 +13,7 @@ function ProtectedRoute({ children }) {
   const { isAuthenticated, loading } = useTheme();
   if (loading) {
     return (
-      <div className="min-h-screen flex items-center justify-center" style={{ background: 'var(--bg)' }}>
+      <div className="min-h-screen flex items-center justify-center" style={{ backgroundColor: 'var(--bg)' }}>
         <Loader2 className="animate-spin" size={32} style={{ color: 'var(--accent)' }} />
       </div>
     );
@@ -38,7 +38,7 @@ function AppRoutes() {
 function App() {
   return (
     <ThemeProvider>
-      <div className="App">
+      <div className="App" style={{ backgroundColor: 'var(--bg)' }}>
         <BrowserRouter>
           <AppRoutes />
         </BrowserRouter>

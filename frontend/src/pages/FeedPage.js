@@ -116,7 +116,7 @@ export default function FeedPage() {
   const todayDropArticles = activeCategory === 'today' ? articles : [];
 
   return (
-    <div data-testid="feed-page" className="min-h-screen pb-16" style={{ background: 'var(--bg)' }}>
+    <div data-testid="feed-page" className="min-h-screen pb-16" style={{ backgroundColor: 'var(--bg)' }}>
       <StreakCelebration streakCount={streak.current_streak} onComplete={() => setShowCelebration(false)} />
       <MilestoneBanner milestone={milestone} onDismiss={() => acknowledgeMilestone(milestone?.notification_id)} />
 

@@ -66,7 +66,7 @@ export default function ArticlePage() {
 
   if (loading) {
     return (
-      <div className="min-h-screen" style={{ background: 'var(--bg)' }}>
+      <div className="min-h-screen" style={{ backgroundColor: 'var(--bg)' }}>
         <div className="skeleton-shimmer-light" style={{ width: '100%', height: '45vh' }} />
         <div style={{ padding: '24px 15px' }} className="space-y-4">
           <div className="skeleton-shimmer-light" style={{ width: 80, height: 10, borderRadius: 5 }} />
@@ -85,7 +85,7 @@ export default function ArticlePage() {
 
   if (!article) {
     return (
-      <div className="min-h-screen flex items-center justify-center" style={{ background: 'var(--bg)' }}>
+      <div className="min-h-screen flex items-center justify-center" style={{ backgroundColor: 'var(--bg)' }}>
         <p style={{ color: 'var(--text-color)', fontFamily: 'var(--font)' }}>Article not found.</p>
       </div>
     );
@@ -108,7 +108,7 @@ export default function ArticlePage() {
   }
 
   return (
-    <div data-testid="article-page" className="min-h-screen pb-16" style={{ background: 'var(--bg)' }}>
+    <div data-testid="article-page" className="min-h-screen pb-16" style={{ backgroundColor: 'var(--bg)' }}>
       {/* Reading progress bar */}
       <div className="fixed top-0 left-0 right-0 z-50" style={{ height: 3, background: 'var(--light-gray)' }}>
         <div style={{ width: `${readProgress}%`, height: '100%', background: 'var(--accent)', transition: 'width 0.1s' }} />
