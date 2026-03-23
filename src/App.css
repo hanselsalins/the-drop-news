@@ -1,8 +1,17 @@
 /* The Drop — Yui Design System */
 
+html,
+body,
+#root,
+.App {
+  background: var(--bg) !important;
+  background-color: var(--bg) !important;
+}
+
 .App {
   min-height: 100vh;
-  background: var(--bg);
+  background: var(--bg) !important;
+  background-color: var(--bg) !important;
 }
 
 @media (min-width: 768px) {
