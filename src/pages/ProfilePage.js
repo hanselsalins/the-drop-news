@@ -343,6 +343,17 @@ export default function ProfilePage() {
 
       <BottomNav active="settings" />
       <ProfilePanel open={profilePanelOpen} onClose={() => setProfilePanelOpen(false)} />
+      {showMemojiPicker && (
+        <MemojiPicker
+          currentId={selectedMemojiId}
+          onSelect={(id) => {
+            setSelectedMemojiId(id);
+            localStorage.setItem(`memoji_${user?.id || 'default'}`, id);
+            setShowMemojiPicker(false);
+          }}
+          onClose={() => setShowMemojiPicker(false)}
+        />
+      )}
     </div>
   );
 }
