@@ -53,6 +53,7 @@ export function ThemeProvider({ children }) {
       const next = !prev;
       localStorage.setItem('darkMode', String(next));
       if (ageGroup) applyBand(ageGroup, next);
+      applyDarkMode(next);
       return next;
     });
   }, [ageGroup]);
