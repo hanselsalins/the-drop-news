@@ -106,6 +106,7 @@ export const TodayDropCard = ({ article, isRead }) => {
       style={{
         width: 200, height: 260, borderRadius: 18,
         background: 'var(--surface)', boxShadow: 'var(--block-shadow)',
+        border: 'var(--card-border, none)',
       }}
     >
       {/* Image top 55% */}
@@ -182,6 +183,7 @@ export const CategoryCard = ({ article }) => {
       style={{
         width: 180, height: 200, borderRadius: 18,
         boxShadow: 'var(--block-shadow)',
+        border: 'var(--card-border, none)',
       }}
     >
       <div className="absolute inset-0">
