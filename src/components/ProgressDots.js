@@ -33,6 +33,16 @@ export const ProgressDots = ({ articleIds, readArticleIds }) => {
         }}>
           Today's Drop
         </span>
+        <span style={{
+          fontFamily: 'var(--font)',
+          fontSize: 14,
+          fontWeight: 400,
+          color: 'var(--text-color)',
+          display: 'block',
+          marginTop: 2,
+        }}>
+          5 stories shaping the world today
+        </span>
 
         {meter === 'stars' && (
           <div className="flex items-center gap-1">
