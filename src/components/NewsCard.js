@@ -46,10 +46,6 @@ export const HeroNewsCard = ({ article, badge }) => {
           style={{ background: 'linear-gradient(to bottom, rgba(0,0,0,0) 0%, rgb(24 24 24 / 95%) 100%)' }} />
       </div>
 
-      {/* Bookmark */}
-      <button className="absolute top-3 right-3 z-10" style={{ background: 'none', border: 'none', cursor: 'pointer' }}>
-        <F7Icon name="bookmark" size={24} color="#FFFFFF" />
-      </button>
 
       {/* Footer content */}
       <div className="absolute bottom-0 left-0 right-0" style={{ padding: '60px 18px 15px 18px' }}>
@@ -319,7 +315,7 @@ export const PostListCard = ({ article, isLast, ageGroup }) => {
           }}>
             {article.published_at ? getTimeAgo(article.published_at) : article.source}
           </span>
-          <F7Icon name="bookmark_fill" size={18} color="var(--accent)" />
+          
         </div>
       </div>
     </motion.article>
