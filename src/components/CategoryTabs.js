@@ -86,6 +86,7 @@ export const CategoryTabs = () => {
           marginTop: 15,
           scrollbarWidth: 'none',
           WebkitOverflowScrolling: 'touch',
+          justifyContent: cats.length <= 3 ? 'center' : 'flex-start',
         }}
       >
         {cats.map((cat) => (
@@ -93,8 +94,8 @@ export const CategoryTabs = () => {
             key={cat.id}
             onClick={() => handleTap(cat.id)}
             style={{
-              width: 130,
-              minWidth: 130,
+              width: 125.2,
+              minWidth: 125.2,
               borderRadius: 18,
               overflow: 'hidden',
               boxShadow: 'var(--block-shadow)',
@@ -110,7 +111,7 @@ export const CategoryTabs = () => {
           >
             {/* IMAGE SECTION */}
             <div style={{
-              width: 130,
+              width: 125.2,
               height: 80,
               position: 'relative',
               overflow: 'hidden',
