@@ -148,8 +148,8 @@ export const CategoryTabs = () => {
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'flex-start',
-              padding: '12px 16px',
-              background: 'var(--surface)',
+              padding: '6px 10px',
+              background: 'var(--muted-bg, #f2f2f7)',
             }}>
               <span style={{
                 fontFamily: FONT_STACK,
