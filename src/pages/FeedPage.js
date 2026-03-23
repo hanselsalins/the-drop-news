@@ -218,7 +218,7 @@ export default function FeedPage() {
       </div>
 
       <BottomNav active="home" />
-      <ProfilePanel open={profileOpen} onClose={() => setProfileOpen(false)} />
+      
     </div>
   );
 }
