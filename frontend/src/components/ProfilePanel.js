@@ -70,7 +70,7 @@ export const ProfilePanel = ({ open, onClose }) => {
             style={{ width: 'min(360px, 85vw)', background: 'var(--bg)' }}>
 
             <div className="flex justify-end p-4">
-              <button onClick={onClose} className="p-2 cursor-pointer" style={{ background: 'var(--light-gray)', borderRadius: 10, border: 'none' }}>
+              <button onClick={onClose} className="p-2 cursor-pointer" style={{ background: 'var(--surface)', borderRadius: 10, border: 'none' }}>
                 <F7Icon name="xmark" size={18} color="var(--text-color)" />
               </button>
             </div>
@@ -79,15 +79,15 @@ export const ProfilePanel = ({ open, onClose }) => {
             <div className="flex flex-col items-center px-6 pb-5">
               <div style={{ width: 55, height: 55, borderRadius: '50%', overflow: 'hidden', border: '2px solid var(--accent)' }}>
                 {user?.avatar_url ? <img src={user.avatar_url} alt="" className="w-full h-full object-cover" />
-                  : <div className="w-full h-full flex items-center justify-center" style={{ background: 'var(--light-gray)', color: 'var(--accent)', fontFamily: 'var(--font)', fontSize: 24, fontWeight: 700 }}>{user?.full_name?.charAt(0)?.toUpperCase() || 'U'}</div>}
+                  : <div className="w-full h-full flex items-center justify-center" style={{ background: 'var(--surface)', color: 'var(--accent)', fontFamily: 'var(--font)', fontSize: 24, fontWeight: 700 }}>{user?.full_name?.charAt(0)?.toUpperCase() || 'U'}</div>}
               </div>
               <h2 style={{ fontFamily: 'var(--font)', fontSize: 15, fontWeight: 500, color: 'var(--title-color)', marginTop: 12 }}>{user?.full_name}</h2>
               {user?.username && <p style={{ fontFamily: 'var(--font)', fontSize: 13, fontWeight: 400, color: 'var(--text-color)', marginTop: 2 }}>@{user.username}</p>}
             </div>
 
             {/* Settings toggles */}
-            <div style={{ margin: '0 15px', background: 'var(--light-gray)', borderRadius: 18, overflow: 'hidden', marginBottom: 15 }}>
-              <div className="flex items-center justify-between" style={{ padding: '14px 15px', borderBottom: '1px solid rgba(0,0,0,0.12)' }}>
+            <div style={{ margin: '0 15px', background: 'var(--surface)', borderRadius: 18, overflow: 'hidden', marginBottom: 15 }}>
+              <div className="flex items-center justify-between" style={{ padding: '14px 15px', borderBottom: '1px solid var(--light-gray)' }}>
                 <span style={{ fontFamily: 'var(--font)', fontSize: 15, fontWeight: 500, color: 'var(--title-color)' }}>Dark Mode</span>
                 <button onClick={toggleDarkMode} className="w-11 h-6 rounded-full flex items-center px-0.5 cursor-pointer"
                   style={{ background: darkMode ? 'var(--accent)' : '#ddd', border: 'none' }}>
@@ -101,7 +101,7 @@ export const ProfilePanel = ({ open, onClose }) => {
               <div style={{ margin: '0 15px 15px' }}>
                 <button onClick={() => setShowSwitcher(true)}
                   className="w-full flex items-center gap-3 py-3 px-4 cursor-pointer"
-                  style={{ background: 'var(--light-gray)', borderRadius: 18, border: 'none' }}>
+                  style={{ background: 'var(--surface)', borderRadius: 18, border: 'none' }}>
                   <F7Icon name="person_2_fill" size={20} color="var(--accent)" />
                   <span className="flex-1 text-left" style={{ fontFamily: 'var(--font)', fontSize: 15, fontWeight: 500, color: 'var(--title-color)' }}>Switch Profile</span>
                   <F7Icon name="chevron_right" size={16} color="#8896b8" />
@@ -114,10 +114,10 @@ export const ProfilePanel = ({ open, onClose }) => {
             {/* Account section */}
             <div style={{ margin: '0 15px 15px' }}>
               <p style={{ fontFamily: 'var(--font)', fontSize: 18, fontWeight: 600, color: 'var(--title-color)', marginBottom: 8, marginTop: 25 }}>Account</p>
-              <div style={{ background: 'var(--light-gray)', borderRadius: 18, overflow: 'hidden' }}>
+              <div style={{ background: 'var(--surface)', borderRadius: 18, overflow: 'hidden' }}>
                 <button onClick={() => setShowChangePassword(!showChangePassword)}
                   className="w-full flex items-center justify-between cursor-pointer"
-                  style={{ padding: '14px 15px', height: 50, background: 'none', border: 'none', borderBottom: '1px solid rgba(0,0,0,0.12)' }}>
+                  style={{ padding: '14px 15px', height: 50, background: 'none', border: 'none', borderBottom: '1px solid var(--light-gray)' }}>
                   <span style={{ fontFamily: 'var(--font)', fontSize: 15, fontWeight: 500, color: 'var(--title-color)' }}>Change Password</span>
                   <F7Icon name="chevron_right" size={16} color="#8896b8" />
                 </button>
@@ -134,7 +134,7 @@ export const ProfilePanel = ({ open, onClose }) => {
               {showChangePassword && (
                 <motion.div initial={{ height: 0, opacity: 0 }} animate={{ height: 'auto', opacity: 1 }} exit={{ height: 0, opacity: 0 }}
                   className="overflow-hidden" style={{ margin: '0 15px 15px' }}>
-                  <div className="space-y-3 p-4" style={{ background: 'var(--light-gray)', borderRadius: 18 }}>
+                  <div className="space-y-3 p-4" style={{ background: 'var(--surface)', borderRadius: 18 }}>
                     <input type="password" placeholder="Current password" value={passwordForm.current} onChange={e => setPasswordForm({ ...passwordForm, current: e.target.value })}
                       className="w-full px-3 py-2.5 text-sm outline-none" style={{ background: 'var(--bg)', borderRadius: 10, border: 'none', fontFamily: 'var(--font)', color: 'var(--title-color)' }} />
                     <input type="password" placeholder="New password" value={passwordForm.new} onChange={e => setPasswordForm({ ...passwordForm, new: e.target.value })}
@@ -155,7 +155,7 @@ export const ProfilePanel = ({ open, onClose }) => {
             {/* Log out */}
             <div style={{ margin: '25px 15px 15px' }}>
               <button onClick={handleLogout} className="w-full cursor-pointer"
-                style={{ fontFamily: 'var(--font)', fontSize: 14, fontWeight: 500, height: 44, borderRadius: 10, background: 'var(--light-gray)', color: '#FF3B30', border: 'none' }}>
+                style={{ fontFamily: 'var(--font)', fontSize: 14, fontWeight: 500, height: 44, borderRadius: 10, background: 'var(--surface)', color: '#FF3B30', border: 'none' }}>
                 Log Out
               </button>
             </div>

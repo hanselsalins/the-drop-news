@@ -40,7 +40,7 @@ export const NotificationSettings = ({ permission, onRequestPermission }) => {
 
   return (
     <div data-testid="notification-settings" className="overflow-hidden"
-      style={{ background: 'var(--light-gray)', borderRadius: 18 }}>
+      style={{ background: 'var(--surface)', borderRadius: 18 }}>
       <div className="flex items-center justify-between p-4 pb-2">
         <div className="flex items-center gap-2">
           <F7Icon name="bell_fill" size={16} color="var(--accent)" />

@@ -64,7 +64,7 @@ export const ReactionBar = ({ articleId }) => {
 
   return (
     <div data-testid="reaction-bar" className="mt-6 p-4"
-      style={{ background: 'var(--light-gray)', borderRadius: 14 }}>
+      style={{ background: 'var(--surface)', borderRadius: 14 }}>
       <p style={{
         fontFamily: 'var(--font)', fontSize: 11, fontWeight: 600,
         letterSpacing: '0.06em', textTransform: 'uppercase',

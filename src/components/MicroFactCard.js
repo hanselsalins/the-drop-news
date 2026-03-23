@@ -12,7 +12,7 @@ export const MicroFactCard = ({ fact }) => {
       animate={prefersReducedMotion ? undefined : { opacity: 1, scale: 1 }}
       className="p-4 relative overflow-hidden"
       style={{
-        background: 'var(--light-gray)',
+        background: 'var(--surface)',
         borderLeft: '3px solid var(--accent)',
         borderRadius: 14,
       }}
