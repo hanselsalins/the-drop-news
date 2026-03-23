@@ -304,13 +304,7 @@ export const PostListCard = ({ article, isLast, ageGroup }) => {
             <div style={{ width: '100%', height: '100%', background: 'var(--light-gray)' }} />
           )}
         </div>
-        <div style={{ marginLeft: 14, paddingTop: 16, flex: 1, display: 'flex', flexDirection: 'column', minWidth: 0 }}>
-          <span style={{
-            fontFamily: 'var(--font)', fontSize: 13, fontWeight: 500,
-            color: 'var(--accent)', marginBottom: 8,
-          }}>
-            {CATEGORY_LABELS[article.category] || article.category}
-          </span>
+        <div style={{ marginLeft: 18, paddingTop: 30, flex: 1, display: 'flex', flexDirection: 'column', minWidth: 0 }}>
           <h3 style={{
             fontFamily: 'var(--font)', fontSize: 15, fontWeight: 600,
             color: 'var(--title-color)', lineHeight: '22px',
@@ -320,9 +314,15 @@ export const PostListCard = ({ article, isLast, ageGroup }) => {
           }}>
             {title}
           </h3>
-        </div>
-        <div style={{ position: 'absolute', right: 15, bottom: 15 }}>
-          <F7Icon name="bookmark" size={20} color="var(--accent)" />
+          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginTop: 12 }}>
+            <span style={{
+              fontFamily: 'var(--font)', fontSize: 13, fontWeight: 400,
+              color: 'var(--text-color)',
+            }}>
+              {article.published_at ? getTimeAgo(article.published_at) : article.source}
+            </span>
+            <F7Icon name="bookmark_fill" size={18} color="var(--accent)" />
+          </div>
         </div>
       </motion.article>
       {!isLast && (
