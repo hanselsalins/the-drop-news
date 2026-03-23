@@ -222,7 +222,7 @@ export const PostListCard = ({ article, isLast, ageGroup }) => {
   const rw = article.rewrite || {};
   const title = rw.title || article.original_title || 'Untitled';
   const imageUrl = article.image_url;
-  const isCompact = ageGroup === '14-16' || ageGroup === '17-20';
+  const isCompact = ageGroup === '14-16' || ageGroup === '17-20' || ageGroup === '20+';
 
   const handleClick = () => {
     medium();
@@ -231,53 +231,48 @@ export const PostListCard = ({ article, isLast, ageGroup }) => {
 
   if (isCompact) {
     return (
-      <>
-        <motion.article
-          data-testid={`post-list-card-${article.id}`}
-          onClick={handleClick}
-          role="button"
-          tabIndex={0}
-          onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); handleClick(); } }}
-          whileTap={prefersReducedMotion ? undefined : { scale: 0.98 }}
-          className="w-full cursor-pointer"
-          style={{
-            display: 'flex',
-            alignItems: 'flex-start',
-            padding: '15px 0',
-            borderBottom: isLast ? 'none' : '1px solid var(--light-gray)',
-          }}
-        >
-          <div style={{ width: 84, height: 84, borderRadius: 12, overflow: 'hidden', flexShrink: 0 }}>
-            {imageUrl ? (
-              <img src={imageUrl} alt="" loading="lazy"
-                onError={(e) => { e.target.style.display = 'none'; }}
-                style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
-            ) : (
-              <div style={{ width: '100%', height: '100%', background: 'var(--light-gray)' }} />
-            )}
-          </div>
-          <div style={{ marginLeft: 12, paddingTop: 8, flex: 1, display: 'flex', flexDirection: 'column', minWidth: 0 }}>
-            <span style={{
-              fontFamily: 'var(--font)', fontSize: 13, fontWeight: 500,
-              color: 'var(--accent)', marginBottom: 4,
-            }}>
-              {CATEGORY_LABELS[article.category] || article.category}
-            </span>
-            <h3 style={{
-              fontFamily: 'var(--font)', fontSize: 14, fontWeight: 500,
-              color: 'var(--title-color)', lineHeight: '22px',
-              margin: 0,
-              display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical', overflow: 'hidden',
-              textOverflow: 'ellipsis',
-            }}>
-              {title}
-            </h3>
-            <div style={{ display: 'flex', justifyContent: 'flex-end', marginTop: 8 }}>
-              <F7Icon name="bookmark" size={18} color="var(--accent)" />
-            </div>
-          </div>
-        </motion.article>
-      </>
+      <motion.article
+        data-testid={`post-list-card-${article.id}`}
+        onClick={handleClick}
+        role="button"
+        tabIndex={0}
+        onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); handleClick(); } }}
+        whileTap={prefersReducedMotion ? undefined : { scale: 0.98 }}
+        className="w-full cursor-pointer"
+        style={{
+          display: 'flex',
+          alignItems: 'center',
+          padding: '15px 0',
+          borderBottom: isLast ? 'none' : '1px solid var(--light-gray)',
+        }}
+      >
+        <div style={{ width: 84, height: 84, borderRadius: 12, overflow: 'hidden', flexShrink: 0 }}>
+          {imageUrl ? (
+            <img src={imageUrl} alt="" loading="lazy"
+              onError={(e) => { e.target.style.display = 'none'; }}
+              style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+          ) : (
+            <div style={{ width: '100%', height: '100%', background: 'var(--light-gray)' }} />
+          )}
+        </div>
+        <div style={{ marginLeft: 16, flex: 1, display: 'flex', flexDirection: 'column', justifyContent: 'center', minWidth: 0 }}>
+          <span style={{
+            fontFamily: 'var(--font)', fontSize: 13, fontWeight: 500,
+            color: 'var(--accent)', marginBottom: 6,
+          }}>
+            {CATEGORY_LABELS[article.category] || article.category}
+          </span>
+          <h3 style={{
+            fontFamily: 'var(--font)', fontSize: 14, fontWeight: 500,
+            color: 'var(--title-color)', lineHeight: '22px',
+            margin: 0,
+            display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical', overflow: 'hidden',
+            textOverflow: 'ellipsis',
+          }}>
+            {title}
+          </h3>
+        </div>
+      </motion.article>
     );
   }
 
