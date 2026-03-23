@@ -2689,7 +2689,8 @@ async def trigger_crawl(background_tasks: BackgroundTasks, country_code: str = N
         await select_articles_for_display()
         for ag in ["8-10", "11-13", "14-16", "17-20", "20+"]:
             await rewrite_pending_articles(ag)
-        await generate_micro_facts("14-16")
+        for ag in ["8-10", "11-13", "14-16", "17-20", "20+"]:
+            await generate_micro_facts(ag)
     background_tasks.add_task(crawl_and_rewrite)
     return {"message": f"Crawl started for country={country_code or 'ALL'}. Processing in background."}
 
@@ -2981,7 +2982,8 @@ async def startup_event():
         today = today_str()
         facts_count = await db.micro_facts.count_documents({"date": today})
         if facts_count == 0:
-            asyncio.create_task(generate_micro_facts("14-16"))
+            for ag in ["8-10", "11-13", "14-16", "17-20", "20+"]:
+                asyncio.create_task(generate_micro_facts(ag))
 
     # Register and start APScheduler — after DB is ready
     # Pipeline: crawl (:00) → select (:30) → rewrite (:00 of next hour), all on 3-hour cycle
@@ -3016,8 +3018,8 @@ async def _initial_crawl():
         await select_articles_for_display()
         for ag in ["8-10", "11-13", "14-16", "17-20", "20+"]:
             await rewrite_pending_articles(ag)
-        await generate_micro_facts("8-10")
-        await generate_micro_facts("14-16")
+        for ag in ["8-10", "11-13", "14-16", "17-20", "20+"]:
+            await generate_micro_facts(ag)
     except Exception as e:
         logger.error(f"Initial crawl failed: {e}")
 
