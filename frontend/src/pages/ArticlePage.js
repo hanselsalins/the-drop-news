@@ -6,11 +6,18 @@ import { PullQuote } from '../components/PullQuote';
 import { CATEGORY_LABELS } from '../lib/bandUtils';
 import { useReducedMotion } from '../hooks/useReducedMotion';
 import { F7Icon } from '../components/F7Icon';
-import { motion } from 'framer-motion';
+import { BottomNav } from '../components/BottomNav';
+import { motion, AnimatePresence } from 'framer-motion';
 import axios from 'axios';
 import { markArticleRead } from '../hooks/useReadArticles';
 
 const BACKEND_URL = import.meta.env.VITE_BACKEND_URL;
+
+const SHARE_OPTIONS = [
+  { label: 'Share to WhatsApp', icon: 'bubble_left_fill', getUrl: (t, u) => `https://wa.me/?text=${encodeURIComponent(t + ' ' + u)}` },
+  { label: 'Share to Twitter/X', icon: 'at', getUrl: (t, u) => `https://twitter.com/intent/tweet?text=${encodeURIComponent(t)}&url=${encodeURIComponent(u)}` },
+  { label: 'Copy Link', icon: 'link', action: 'copy' },
+];
 
 export default function ArticlePage() {
   const { id } = useParams();
@@ -20,7 +27,8 @@ export default function ArticlePage() {
   const [article, setArticle] = useState(null);
   const [loading, setLoading] = useState(true);
   const [readProgress, setReadProgress] = useState(0);
-  const [bookmarked, setBookmarked] = useState(false);
+  const [menuOpen, setMenuOpen] = useState(false);
+  const [copied, setCopied] = useState(false);
 
   const headers = token ? { Authorization: `Bearer ${token}` } : {};
 
@@ -53,14 +61,18 @@ export default function ArticlePage() {
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
 
-  const handleShare = async () => {
-    const shareUrl = window.location.href;
-    const shareTitle = article?.rewrite?.title || article?.original_title || 'Check this out on The Drop';
-    if (navigator.share) {
-      try { await navigator.share({ title: shareTitle, url: shareUrl }); return; } catch (e) {}
-    }
-    try { await navigator.clipboard.writeText(shareUrl); } catch {
-      window.open(`https://wa.me/?text=${encodeURIComponent(shareTitle + ' ' + shareUrl)}`, '_blank');
+  const shareTitle = article?.rewrite?.title || article?.original_title || 'Check this out on The Drop';
+  const shareUrl = typeof window !== 'undefined' ? window.location.href : '';
+
+  const handleShareOption = (option) => {
+    if (option.action === 'copy') {
+      navigator.clipboard.writeText(shareUrl).then(() => {
+        setCopied(true);
+        setTimeout(() => { setCopied(false); setMenuOpen(false); }, 1200);
+      });
+    } else if (option.getUrl) {
+      window.open(option.getUrl(shareTitle, shareUrl), '_blank');
+      setMenuOpen(false);
     }
   };
 
@@ -79,6 +91,7 @@ export default function ArticlePage() {
             ))}
           </div>
         </div>
+        <BottomNav active="" />
       </div>
     );
   }
@@ -87,6 +100,7 @@ export default function ArticlePage() {
     return (
       <div className="min-h-screen flex items-center justify-center" style={{ backgroundColor: 'var(--bg)' }}>
         <p style={{ color: 'var(--text-color)', fontFamily: 'var(--font)' }}>Article not found.</p>
+        <BottomNav active="" />
       </div>
     );
   }
@@ -108,7 +122,7 @@ export default function ArticlePage() {
   }
 
   return (
-    <div data-testid="article-page" className="min-h-screen pb-16" style={{ backgroundColor: 'var(--bg)' }}>
+    <div data-testid="article-page" className="min-h-screen" style={{ backgroundColor: 'var(--bg)', paddingBottom: 68 }}>
       {/* Reading progress bar */}
       <div className="fixed top-0 left-0 right-0 z-50" style={{ height: 3, background: 'var(--light-gray)' }}>
         <div style={{ width: `${readProgress}%`, height: '100%', background: 'var(--accent)', transition: 'width 0.1s' }} />
@@ -132,14 +146,14 @@ export default function ArticlePage() {
           }}>
           <F7Icon name="arrow_left" size={22} color="#FFFFFF" />
         </button>
-        {/* Bookmark */}
-        <button aria-label="Bookmark" onClick={() => setBookmarked(!bookmarked)} className="absolute cursor-pointer"
+        {/* Three-dot menu */}
+        <button aria-label="More options" onClick={() => setMenuOpen(true)} className="absolute cursor-pointer"
           style={{
             top: 16, right: 16, width: 36, height: 36,
             background: 'rgba(0,0,0,0.4)', borderRadius: '50%',
             display: 'flex', alignItems: 'center', justifyContent: 'center', border: 'none',
           }}>
-          <F7Icon name={bookmarked ? 'bookmark_fill' : 'bookmark'} size={20} color="#FFFFFF" />
+          <F7Icon name="ellipsis_vertical" size={22} color="#FFFFFF" />
         </button>
       </div>
 
@@ -219,7 +233,7 @@ export default function ArticlePage() {
         <ReactionBar articleId={article.id} />
 
         {/* Share */}
-        <button data-testid="share-btn" aria-label="Share this story" onClick={handleShare}
+        <button data-testid="share-btn" aria-label="Share this story" onClick={() => setMenuOpen(true)}
           className="flex items-center justify-center gap-2 w-full mt-5 cursor-pointer"
           style={{
             fontFamily: 'var(--font)', fontSize: 14, fontWeight: 500,
@@ -242,6 +256,56 @@ export default function ArticlePage() {
           Read the original at {article.source} →
         </a>
       </motion.div>
+
+      {/* Bottom Tab Bar */}
+      <BottomNav active="" />
+
+      {/* Share Bottom Sheet */}
+      <AnimatePresence>
+        {menuOpen && (
+          <>
+            <motion.div
+              initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
+              onClick={() => setMenuOpen(false)}
+              className="fixed inset-0 z-[60]"
+              style={{ background: 'rgba(0,0,0,0.4)' }}
+            />
+            <motion.div
+              initial={{ y: '100%' }} animate={{ y: 0 }} exit={{ y: '100%' }}
+              transition={{ type: 'spring', damping: 28, stiffness: 300 }}
+              className="fixed bottom-0 left-0 right-0 z-[70]"
+              style={{ background: 'var(--surface)', borderRadius: '20px 20px 0 0', padding: 20 }}
+            >
+              {/* Drag handle */}
+              <div style={{
+                width: 40, height: 5, background: 'var(--light-gray)',
+                borderRadius: 3, margin: '0 auto 16px',
+              }} />
+              {SHARE_OPTIONS.map((opt) => (
+                <button
+                  key={opt.label}
+                  onClick={() => handleShareOption(opt)}
+                  className="flex items-center gap-3 w-full cursor-pointer"
+                  style={{
+                    background: 'none', border: 'none',
+                    padding: '14px 0',
+                    borderBottom: '1px solid var(--light-gray)',
+                  }}
+                >
+                  <F7Icon name={opt.icon} size={20} color="var(--title-color)" />
+                  <span style={{
+                    fontFamily: "'Rubik', var(--font)",
+                    fontSize: 15, fontWeight: 500,
+                    color: 'var(--title-color)',
+                  }}>
+                    {opt.action === 'copy' && copied ? 'Copied!' : opt.label}
+                  </span>
+                </button>
+              ))}
+            </motion.div>
+          </>
+        )}
+      </AnimatePresence>
     </div>
   );
 }
