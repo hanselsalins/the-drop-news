@@ -141,15 +141,8 @@ export default function FeedPage() {
         </div>
       </div>
 
-      {/* ── CATEGORY CIRCLES ── */}
-      {loading && categories.length === 0 ? <SkeletonTabs /> : (
-        <CategoryTabs categories={categories} activeCategory={activeCategory} setActiveCategory={setActiveCategory} />
-      )}
-
-      {/* ── PAGE CONTENT ── */}
+      {/* ── BREAKING / TRENDING hero card ── */}
       <div style={{ padding: '0 15px' }}>
-
-        {/* BREAKING / TRENDING hero card */}
         {activeCategory === 'today' && (
           <div style={{ marginTop: 25 }}>
             <div className="flex items-center justify-between" style={{ marginBottom: 12 }}>
@@ -164,6 +157,15 @@ export default function FeedPage() {
             ) : null}
           </div>
         )}
+      </div>
+
+      {/* ── CATEGORY CIRCLES ── */}
+      {loading && categories.length === 0 ? <SkeletonTabs /> : (
+        <CategoryTabs categories={categories} activeCategory={activeCategory} setActiveCategory={setActiveCategory} />
+      )}
+
+      {/* ── PAGE CONTENT ── */}
+      <div style={{ padding: '0 15px' }}>
 
         {/* TODAY'S DROP section */}
         {activeCategory === 'today' && !loading && todayDropArticles.length > 0 && (
