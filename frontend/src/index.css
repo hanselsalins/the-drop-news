@@ -8,6 +8,7 @@
   --title-color: #1e2b47;
   --text-color: #828d9c;
   --bg: #ffffff;
+  --surface: #ffffff;
   --light-gray: #ecf1f5;
   --block-shadow: 0px 2px 10px 0px rgba(85,95,105,0.13);
   --accent: #FF6B00;
@@ -20,10 +21,12 @@
 }
 
 [data-theme="dark"] {
-  --title-color: #ffffff;
+  --bg: #1A1A1A;
+  --surface: #2A2A2A;
+  --title-color: #FFFFFF;
   --text-color: #9aa9b2;
-  --bg: #001119;
-  --light-gray: #0e232d;
+  --light-gray: #3A3A3A;
+  --block-shadow: none;
 }
 
 .f7-icons {
