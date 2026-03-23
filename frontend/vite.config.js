@@ -10,8 +10,12 @@ export default defineConfig({
   plugins: [
     react(),
     VitePWA({
+      selfDestroying: true,
       registerType: 'autoUpdate',
       workbox: {
+        cleanupOutdatedCaches: true,
+        clientsClaim: true,
+        skipWaiting: true,
         runtimeCaching: [
           {
             urlPattern: /\/api\/articles/,
