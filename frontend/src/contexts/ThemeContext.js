@@ -26,7 +26,15 @@ function applyBand(ageGroup, darkMode = false) {
 }
 
 function applyDarkMode(darkMode) {
-  document.documentElement.setAttribute('data-theme', darkMode ? 'dark' : 'light');
+  if (darkMode) {
+    document.documentElement.setAttribute('data-theme', 'dark');
+    document.documentElement.style.backgroundColor = '#1A1A1A';
+    document.body.style.backgroundColor = '#1A1A1A';
+  } else {
+    document.documentElement.setAttribute('data-theme', 'light');
+    document.documentElement.style.backgroundColor = '#ffffff';
+    document.body.style.backgroundColor = '#ffffff';
+  }
 }
 
 export function ThemeProvider({ children }) {
