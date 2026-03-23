@@ -63,15 +63,24 @@ export const CategoryTabs = () => {
   };
 
   return (
-    <div
-      className="w-full overflow-x-auto"
-      style={{
-        WebkitOverflowScrolling: 'touch',
-        marginTop: 15,
-        paddingBottom: 8,
-        scrollbarWidth: 'none',
-      }}
-    >
+    <div style={{ marginTop: 15, paddingBottom: 8 }}>
+      <span style={{
+        fontFamily: 'var(--font)',
+        fontSize: 28,
+        fontWeight: 600,
+        color: 'var(--title-color)',
+        display: 'block',
+        marginBottom: 12,
+      }}>
+        Categories
+      </span>
+      <div
+        className="w-full overflow-x-auto"
+        style={{
+          WebkitOverflowScrolling: 'touch',
+          scrollbarWidth: 'none',
+        }}
+      >
       <style>{`.cat-slider::-webkit-scrollbar { display: none; }`}</style>
       <div className="cat-slider flex" style={{ gap: 10, minWidth: 'max-content', overflow: 'auto', scrollbarWidth: 'none', padding: 0 }}>
         {cats.map((cat) => (
@@ -138,6 +147,7 @@ export const CategoryTabs = () => {
             </div>
           </button>
         ))}
+      </div>
       </div>
     </div>
   );
