@@ -28,22 +28,24 @@ html, body, #root {
 }
 
 [data-theme="dark"] {
-  --bg: #1A1A1A;
-  --surface: #2D2D2D;
-  --light-gray: #404040;
+  --bg: #393a3b;
+  --surface: #302f30;
+  --light-gray: #28292a;
   --overlay-backdrop: hsl(0 0% 10% / 0.78);
-  --title-color: #ffffff;
-  --text-color: #9aa9b2;
-  --header-bg: #1A1A1A;
+  --title-color: #f1f0ef;
+  --text-color: #c1c1c1;
+  --header-bg: #282a2b;
+  --toolbar-bg: #28292a;
+  --toolbar-icon: #c4c4c5;
   --shadow: none;
+  --block-shadow: none;
   --card-border: 1px solid #3A3A3A;
   --category-circle-bg: #383838;
-  --drop-bg: #1A1A1A;
-  --drop-surface: #2D2D2D;
-  --drop-border: #3A3A3A;
-  --drop-text: #ffffff;
-  --drop-text-muted: #9aa9b2;
-  --drop-header-bg: #1A1A1A;
+  --drop-bg: #393a3b;
+  --drop-surface: #302f30;
+  --drop-text: #f1f0ef;
+  --drop-text-muted: #c1c1c1;
+  --drop-header-bg: #282a2b;
   --drop-shadow: none;
 }
 
