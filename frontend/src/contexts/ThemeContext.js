@@ -26,14 +26,30 @@ function applyBand(ageGroup, darkMode = false) {
 }
 
 function applyDarkMode(darkMode) {
+  const root = document.getElementById('root');
+
   if (darkMode) {
     document.documentElement.setAttribute('data-theme', 'dark');
-    document.documentElement.style.backgroundColor = '#1A1A1A';
-    document.body.style.backgroundColor = '#1A1A1A';
+    document.documentElement.style.background = 'var(--bg)';
+    document.documentElement.style.backgroundColor = 'var(--bg)';
+    document.body.style.background = 'var(--bg)';
+    document.body.style.backgroundColor = 'var(--bg)';
+    if (root) {
+      root.style.background = 'var(--bg)';
+      root.style.backgroundColor = 'var(--bg)';
+      root.style.minHeight = '100vh';
+    }
   } else {
     document.documentElement.setAttribute('data-theme', 'light');
-    document.documentElement.style.backgroundColor = '#ffffff';
-    document.body.style.backgroundColor = '#ffffff';
+    document.documentElement.style.background = 'var(--bg)';
+    document.documentElement.style.backgroundColor = 'var(--bg)';
+    document.body.style.background = 'var(--bg)';
+    document.body.style.backgroundColor = 'var(--bg)';
+    if (root) {
+      root.style.background = 'var(--bg)';
+      root.style.backgroundColor = 'var(--bg)';
+      root.style.minHeight = '100vh';
+    }
   }
 }
 
@@ -155,7 +171,7 @@ export function ThemeProvider({ children }) {
         setUser(res.data);
         if (res.data) {
           localStorage.setItem('user', JSON.stringify(res.data));
-          if (res.data.age_group) applyBand(res.data.age_group);
+          if (res.data.age_group) applyBand(res.data.age_group, darkMode);
         }
         fetchLinkedProfiles(parentToken || token);
       } catch (e) {
