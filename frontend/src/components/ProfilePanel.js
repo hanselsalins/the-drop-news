@@ -63,7 +63,7 @@ export const ProfilePanel = ({ open, onClose }) => {
       {open && (
         <>
           <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
-            onClick={onClose} className="fixed inset-0 z-[60]" style={{ background: 'rgba(0,0,0,0.3)' }} />
+            onClick={onClose} className="fixed inset-0 z-[60]" style={{ background: darkMode ? 'hsl(0 0% 10% / 0.78)' : 'rgba(0,0,0,0.3)' }} />
           <motion.div initial={{ x: '100%' }} animate={{ x: 0 }} exit={{ x: '100%' }}
             transition={{ type: 'spring', damping: 28, stiffness: 300 }}
             className="fixed top-0 right-0 bottom-0 z-[70] overflow-y-auto"
