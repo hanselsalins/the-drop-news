@@ -5,6 +5,7 @@ html, body, #root {
   min-height: 100vh;
 }
 
+/* The Drop News */
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
