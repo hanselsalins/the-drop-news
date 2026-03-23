@@ -117,27 +117,6 @@ export default function FeedPage() {
 
   return (
     <div data-testid="feed-page" className="min-h-screen pb-16" style={{ backgroundColor: 'var(--bg)', color: 'var(--title-color)' }}>
-      {/* DEBUG BUTTON - TEMPORARY */}
-      <button
-        onClick={() => {
-          const html = document.documentElement;
-          const body = document.body;
-          const root = document.getElementById('root');
-          const info = [
-            'data-theme: ' + html.getAttribute('data-theme'),
-            'html inline bg: ' + html.style.backgroundColor,
-            'body inline bg: ' + body.style.backgroundColor,
-            'root inline bg: ' + (root ? root.style.backgroundColor : 'no root'),
-            '--bg computed: ' + getComputedStyle(html).getPropertyValue('--bg').trim(),
-            'html computed bg: ' + getComputedStyle(html).backgroundColor,
-            'body computed bg: ' + getComputedStyle(body).backgroundColor,
-          ].join('\n');
-          alert(info);
-        }}
-        style={{ background: 'red', color: 'white', padding: '8px 16px', borderRadius: 8, border: 'none', fontWeight: 700, margin: 8, cursor: 'pointer' }}
-      >
-        🔍 DEBUG: Show BG Info
-      </button>
       <StreakCelebration streakCount={streak.current_streak} onComplete={() => setShowCelebration(false)} />
       <MilestoneBanner milestone={milestone} onDismiss={() => acknowledgeMilestone(milestone?.notification_id)} />
 
