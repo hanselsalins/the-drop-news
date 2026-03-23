@@ -200,7 +200,7 @@ export default function FeedPage() {
 
         {/* Micro facts */}
         {!loading && microFacts.length > 0 && (
-          <div className="mt-6" style={{ paddingBottom: 24 }}>
+          <div className="mt-6" style={{ paddingBottom: 36 }}>
             <MicroFactCard fact={microFacts[0]} />
           </div>
         )}
