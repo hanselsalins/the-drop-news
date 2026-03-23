@@ -19,10 +19,10 @@ export const BottomNav = ({ active = 'home' }) => {
   const [copied, setCopied] = useState(false);
 
   const items = [
-    { id: 'home', icon: 'house_fill', label: 'Home', action: () => navigate('/feed') },
-    { id: 'search', icon: 'search', label: 'Search', action: () => setSearchOpen(true) },
-    { id: 'share', icon: 'square_arrow_up', label: 'Share', action: () => setShareOpen(true) },
-    { id: 'settings', icon: 'gear_alt_fill', label: 'Settings', action: () => navigate('/profile') },
+    { id: 'home', icon: 'house_fill', action: () => navigate('/feed') },
+    { id: 'search', icon: 'search', action: () => setSearchOpen(true) },
+    { id: 'settings', icon: 'gear_alt_fill', action: () => navigate('/profile') },
+    { id: 'profile', icon: 'person_fill', action: () => navigate('/profile') },
   ];
 
   const handleCopyLink = () => {
@@ -39,34 +39,26 @@ export const BottomNav = ({ active = 'home' }) => {
         aria-label="Main navigation"
         className="fixed bottom-0 left-0 right-0 z-50"
         style={{
-          height: 50,
-          background: 'var(--surface)',
+          height: 68,
+          background: 'var(--toolbar-bg, var(--surface))',
           borderTop: '1px solid var(--light-gray)',
           boxShadow: 'none',
           transition: 'background-color 0.4s',
         }}
       >
         <div className="max-w-md mx-auto flex items-center justify-around h-full px-2">
-          {items.map(({ id, icon, label, action }) => {
+          {items.map(({ id, icon, action }) => {
             const isActive = active === id;
             return (
               <button
                 key={id}
                 data-testid={`nav-${id}`}
-                aria-label={label}
+                aria-label={id}
                 onClick={() => { light(); action(); }}
-                className="flex flex-col items-center gap-0.5 transition-all duration-200"
+                className="flex flex-col items-center justify-center"
                 style={{ minWidth: 56, background: 'none', border: 'none', cursor: 'pointer' }}
               >
-                <F7Icon name={icon} size={22} color={isActive ? 'var(--accent)' : '#8896b8'} />
-                <span style={{
-                  fontFamily: 'var(--font)',
-                  fontSize: 10,
-                  fontWeight: isActive ? 600 : 400,
-                  color: isActive ? 'var(--accent)' : '#8896b8',
-                }}>
-                  {label}
-                </span>
+                <F7Icon name={icon} size={24} color={isActive ? 'var(--accent)' : '#c4c4c5'} />
               </button>
             );
           })}
