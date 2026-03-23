@@ -86,6 +86,7 @@ export const CategoryTabs = () => {
           marginTop: 15,
           scrollbarWidth: 'none',
           WebkitOverflowScrolling: 'touch',
+          justifyContent: cats.length <= 3 ? 'center' : 'flex-start',
         }}
       >
         {cats.map((cat) => (
