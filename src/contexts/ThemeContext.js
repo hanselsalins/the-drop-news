@@ -49,6 +49,9 @@ function applyThemeVariables(theme) {
   root.style.setProperty('--text-color', theme.textColor);
   root.style.setProperty('--light-gray', theme.lightGray);
   root.style.setProperty('--block-shadow', theme.blockShadow);
+  root.style.setProperty('--header-bg', theme.headerBg || theme.bg);
+  root.style.setProperty('--toolbar-bg', theme.toolbarBg || theme.bg);
+  root.style.setProperty('--toolbar-icon', theme.toolbarIconColor || theme.textColor);
 
   root.style.background = theme.bg;
   root.style.backgroundColor = theme.bg;
