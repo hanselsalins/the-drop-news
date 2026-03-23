@@ -24,29 +24,18 @@ export const ProgressDots = ({ articleIds, readArticleIds }) => {
   return (
     <div style={{ marginBottom: 12 }}>
       {/* Title + meter on same line */}
-      <div className="flex items-start justify-between">
-        <div>
-          <span style={{
-            fontFamily: 'var(--font)',
-            fontSize: 28,
-            fontWeight: 600,
-            color: 'var(--title-color)',
-          }}>
-            Today's Drop
-          </span>
-          <span style={{
-              fontFamily: 'var(--font)',
-              fontSize: 15,
-              fontWeight: 400,
-              color: 'var(--text-color)',
-              display: 'block',
-              marginTop: 2, paddingLeft: 2,
-            }}>
-              5 stories shaping the world today
-            </span>
-        </div>
+      {/* Row 1: Title + meter */}
+      <div className="flex items-center justify-between">
+        <span style={{
+          fontFamily: 'var(--font)',
+          fontSize: 28,
+          fontWeight: 600,
+          color: 'var(--title-color)',
+        }}>
+          Today's Drop
+        </span>
 
-        <div className="flex flex-col items-end" style={{ marginTop: 4 }}>
+        <div>
           {meter === 'stars' && (
             <div className="flex items-center gap-1">
               {dots.map((filled, i) => (
@@ -95,11 +84,23 @@ export const ProgressDots = ({ articleIds, readArticleIds }) => {
               {readCount} of {total} read
             </span>
           )}
-
-          <span style={{ fontFamily: 'var(--font)', fontSize: 14, fontWeight: 700, color: 'var(--accent)', marginTop: 4, whiteSpace: 'nowrap', paddingRight: 2 }}>
-            {readCount} of {total}
-          </span>
         </div>
+      </div>
+
+      {/* Row 2: Subtitle + count */}
+      <div className="flex items-center justify-between" style={{ marginTop: 2 }}>
+        <span style={{
+          fontFamily: 'var(--font)',
+          fontSize: 15,
+          fontWeight: 400,
+          color: 'var(--text-color)',
+          paddingLeft: 2,
+        }}>
+          5 stories shaping the world today
+        </span>
+        <span style={{ fontFamily: 'var(--font)', fontSize: 14, fontWeight: 700, color: 'var(--accent)', whiteSpace: 'nowrap', paddingRight: 2 }}>
+          {readCount} of {total}
+        </span>
       </div>
 
     </div>
