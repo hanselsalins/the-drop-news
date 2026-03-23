@@ -34,16 +34,20 @@ export const ProgressDots = ({ articleIds, readArticleIds }) => {
           }}>
             Today's Drop
           </span>
-          <span style={{
-            fontFamily: 'var(--font)',
-            fontSize: 14,
-            fontWeight: 400,
-            color: 'var(--text-color)',
-            display: 'block',
-            marginTop: 2,
-          }}>
-            5 stories shaping the world today
-          </span>
+          <div className="flex items-center justify-between">
+            <span style={{
+              fontFamily: 'var(--font)',
+              fontSize: 16,
+              fontWeight: 400,
+              color: 'var(--title-color)',
+              opacity: 0.7,
+            }}>
+              5 stories shaping the world today
+            </span>
+            <span style={{ fontFamily: 'var(--font)', fontSize: 14, fontWeight: 700, color: 'var(--accent)', paddingRight: 2 }}>
+              {readCount} of {total}
+            </span>
+          </div>
         </div>
 
         <div className="flex flex-col items-end" style={{ marginTop: 4 }}>
@@ -96,13 +100,6 @@ export const ProgressDots = ({ articleIds, readArticleIds }) => {
             </span>
           )}
         </div>
-      </div>
-
-      {/* Counter below, right-aligned */}
-      <div style={{ textAlign: 'right', marginTop: 4, paddingRight: 2 }}>
-        <span style={{ fontFamily: 'var(--font)', fontSize: 14, fontWeight: 700, color: 'var(--accent)' }}>
-          {readCount} of {total}
-        </span>
       </div>
     </div>
   );
