@@ -192,9 +192,9 @@ export default function FeedPage() {
         {activeCategory === 'today' && !loading && todayDropArticles.length > 0 && (
           <div style={{ marginTop: 25 }}>
             <ProgressDots articleIds={todayArticleIds} readArticleIds={readIds} />
-            <div className="mt-3">
-              {todayDropArticles.map(article => (
-                <PostListCard key={article.id} article={article} />
+            <div style={{ borderRadius: 15, overflow: 'hidden' }}>
+              {todayDropArticles.map((article, i) => (
+                <PostListCard key={article.id} article={article} isLast={i === todayDropArticles.length - 1} />
               ))}
             </div>
           </div>
