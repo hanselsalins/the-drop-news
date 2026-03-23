@@ -1,11 +1,13 @@
 import { useNavigate } from 'react-router-dom';
 import { useTheme } from '../contexts/ThemeContext';
+import { getMemoji } from '../lib/memojis';
 
-export const ProfileButton = ({ onClick, size = 30, bordered = false }) => {
+export const ProfileButton = ({ onClick, size = 40, bordered = false }) => {
   const { user } = useTheme();
   const navigate = useNavigate();
 
   const handleClick = onClick || (() => navigate('/profile'));
+  const avatarSrc = user?.avatar_url || getMemoji(user?.full_name || user?.username);
 
   return (
     <button
@@ -16,27 +18,13 @@ export const ProfileButton = ({ onClick, size = 30, bordered = false }) => {
         width: size,
         height: size,
         borderRadius: '50%',
-        background: 'var(--surface)',
+        background: 'var(--light-gray)',
         border: bordered ? '2px solid var(--accent)' : 'none',
         overflow: 'hidden',
+        padding: 0,
       }}
     >
-      {user?.avatar_url ? (
-        <img src={user.avatar_url} alt="Profile" className="w-full h-full object-cover" />
-      ) : (
-        <div
-          className="w-full h-full flex items-center justify-center"
-          style={{
-            background: 'var(--surface)',
-            color: 'var(--accent)',
-            fontFamily: 'var(--font)',
-            fontSize: size * 0.38,
-            fontWeight: 700,
-          }}
-        >
-          {user?.full_name?.charAt(0)?.toUpperCase() || 'U'}
-        </div>
-      )}
+      <img src={avatarSrc} alt="Profile" className="w-full h-full object-cover" />
     </button>
   );
 };
