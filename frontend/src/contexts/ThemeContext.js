@@ -25,6 +25,10 @@ function applyBand(ageGroup, darkMode = false) {
   return band;
 }
 
+function applyDarkMode(darkMode) {
+  document.documentElement.setAttribute('data-theme', darkMode ? 'dark' : 'light');
+}
+
 export function ThemeProvider({ children }) {
   const [token, setTokenState] = useState(() => localStorage.getItem('token') || null);
   const [parentToken, setParentTokenState] = useState(() => localStorage.getItem('parent_token') || null);
@@ -49,6 +53,7 @@ export function ThemeProvider({ children }) {
       const next = !prev;
       localStorage.setItem('darkMode', String(next));
       if (ageGroup) applyBand(ageGroup, next);
+      applyDarkMode(next);
       return next;
     });
   }, [ageGroup]);
@@ -122,6 +127,7 @@ export function ThemeProvider({ children }) {
 
   // Apply band + dark mode on mount from saved user
   useEffect(() => {
+    applyDarkMode(darkMode);
     if (ageGroup) {
       applyBand(ageGroup, darkMode);
     }

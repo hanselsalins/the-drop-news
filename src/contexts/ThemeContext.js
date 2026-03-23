@@ -147,7 +147,7 @@ export function ThemeProvider({ children }) {
         setUser(res.data);
         if (res.data) {
           localStorage.setItem('user', JSON.stringify(res.data));
-          if (res.data.age_group) applyBand(res.data.age_group);
+          if (res.data.age_group) applyBand(res.data.age_group, darkMode);
         }
         fetchLinkedProfiles(parentToken || token);
       } catch (e) {
