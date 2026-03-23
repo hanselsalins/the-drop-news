@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Info, X } from 'lucide-react';
+import { F7Icon } from './F7Icon';
 
 export const WhyThisStory = ({ reason }) => {
   const [open, setOpen] = useState(false);
@@ -11,9 +11,9 @@ export const WhyThisStory = ({ reason }) => {
         data-testid="why-this-story-btn"
         onClick={(e) => { e.stopPropagation(); setOpen(!open); }}
         className="p-1.5 rounded-full cursor-pointer"
-        style={{ background: 'var(--light-gray)' }}
+        style={{ background: 'var(--light-gray)', border: 'none' }}
       >
-        <Info size={13} style={{ color: 'var(--text-color)' }} />
+        <F7Icon name="info_circle" size={13} color="var(--text-color)" />
       </button>
 
       <AnimatePresence>
@@ -49,7 +49,7 @@ export const WhyThisStory = ({ reason }) => {
                 </p>
               </div>
               <button onClick={(e) => { e.stopPropagation(); setOpen(false); }} className="shrink-0 mt-0.5 cursor-pointer" style={{ background: 'none', border: 'none' }}>
-                <X size={12} style={{ color: 'var(--text-color)' }} />
+                <F7Icon name="xmark" size={12} color="var(--text-color)" />
               </button>
             </div>
           </motion.div>

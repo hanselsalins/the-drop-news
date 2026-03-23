@@ -2,7 +2,7 @@ import { useState, useEffect, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useTheme } from '../contexts/ThemeContext';
 import { motion, AnimatePresence } from 'framer-motion';
-import { X, Flame, ChevronRight, LogOut, Trash2, Lock, Eye, EyeOff, Users, Sun, Moon } from 'lucide-react';
+import { F7Icon } from './F7Icon';
 import { ProfileSwitcherModal } from './ProfileSwitcherModal';
 import axios from 'axios';
 
@@ -71,7 +71,7 @@ export const ProfilePanel = ({ open, onClose }) => {
 
             <div className="flex justify-end p-4">
               <button onClick={onClose} className="p-2 cursor-pointer" style={{ background: 'var(--light-gray)', borderRadius: 10, border: 'none' }}>
-                <X size={18} style={{ color: 'var(--text-color)' }} />
+                <F7Icon name="xmark" size={18} color="var(--text-color)" />
               </button>
             </div>
 
@@ -102,9 +102,9 @@ export const ProfilePanel = ({ open, onClose }) => {
                 <button onClick={() => setShowSwitcher(true)}
                   className="w-full flex items-center gap-3 py-3 px-4 cursor-pointer"
                   style={{ background: 'var(--light-gray)', borderRadius: 18, border: 'none' }}>
-                  <Users size={20} style={{ color: 'var(--accent)' }} />
+                  <F7Icon name="person_2_fill" size={20} color="var(--accent)" />
                   <span className="flex-1 text-left" style={{ fontFamily: 'var(--font)', fontSize: 15, fontWeight: 500, color: 'var(--title-color)' }}>Switch Profile</span>
-                  <ChevronRight size={16} style={{ color: '#8896b8' }} />
+                  <F7Icon name="chevron_right" size={16} color="#8896b8" />
                 </button>
               </div>
             )}
@@ -119,13 +119,13 @@ export const ProfilePanel = ({ open, onClose }) => {
                   className="w-full flex items-center justify-between cursor-pointer"
                   style={{ padding: '14px 15px', height: 50, background: 'none', border: 'none', borderBottom: '1px solid rgba(0,0,0,0.12)' }}>
                   <span style={{ fontFamily: 'var(--font)', fontSize: 15, fontWeight: 500, color: 'var(--title-color)' }}>Change Password</span>
-                  <ChevronRight size={16} style={{ color: '#8896b8' }} />
+                  <F7Icon name="chevron_right" size={16} color="#8896b8" />
                 </button>
                 <button onClick={() => navigate('/profile')}
                   className="w-full flex items-center justify-between cursor-pointer"
                   style={{ padding: '14px 15px', height: 50, background: 'none', border: 'none' }}>
                   <span style={{ fontFamily: 'var(--font)', fontSize: 15, fontWeight: 500, color: 'var(--title-color)' }}>Edit Account</span>
-                  <ChevronRight size={16} style={{ color: '#8896b8' }} />
+                  <F7Icon name="chevron_right" size={16} color="#8896b8" />
                 </button>
               </div>
             </div>

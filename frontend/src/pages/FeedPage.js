@@ -14,8 +14,8 @@ import { SkeletonCard, HeroSkeletonCard } from '../components/SkeletonCard';
 import { SkeletonTabs } from '../components/SkeletonTabs';
 import { StreakCelebration } from '../components/StreakCelebration';
 import { useReadArticles } from '../hooks/useReadArticles';
+import { F7Icon } from '../components/F7Icon';
 import { motion } from 'framer-motion';
-import { RefreshCw, Sun, Moon } from 'lucide-react';
 import axios from 'axios';
 
 const BACKEND_URL = import.meta.env.VITE_BACKEND_URL;
@@ -127,16 +127,16 @@ export default function FeedPage() {
           <button onClick={toggleDarkMode} aria-label="Toggle theme"
             className="flex items-center justify-center cursor-pointer"
             style={{ width: 44, height: 44, background: 'none', border: 'none' }}>
-            {darkMode ? <Sun size={24} style={{ color: 'var(--title-color)' }} /> : <Moon size={24} style={{ color: 'var(--title-color)' }} />}
+            <F7Icon name={darkMode ? 'sun_max' : 'moon_stars'} size={22} color="var(--title-color)" />
           </button>
           <button onClick={handleRefresh} aria-label="Refresh feed"
             className="flex items-center justify-center cursor-pointer"
             style={{ width: 44, height: 44, background: 'none', border: 'none' }}>
-            <RefreshCw size={24} style={{
-              color: 'var(--title-color)',
-              transform: refreshSpin ? 'rotate(360deg)' : 'rotate(0deg)',
-              transition: 'transform 0.6s ease',
-            }} />
+            <F7Icon name="arrow_2_circlepath" size={22} color="var(--title-color)"
+              style={{
+                transform: refreshSpin ? 'rotate(360deg)' : 'rotate(0deg)',
+                transition: 'transform 0.6s ease',
+              }} />
           </button>
         </div>
       </div>

@@ -5,8 +5,8 @@ import { useNotifications } from '../hooks/useNotifications';
 import { BottomNav } from '../components/BottomNav';
 import { NotificationSettings } from '../components/NotificationSettings';
 import { ProfilePanel } from '../components/ProfilePanel';
+import { F7Icon } from '../components/F7Icon';
 import { motion, AnimatePresence } from 'framer-motion';
-import { LogOut, MapPin, Calendar, Globe, Flame, BookOpen, Trophy, Zap, Heart, Users, ChevronDown, ChevronRight, Edit3, Check, Search, UserPlus, Crown, Link, Copy, X } from 'lucide-react';
 import axios from 'axios';
 
 const BACKEND_URL = import.meta.env.VITE_BACKEND_URL;
@@ -150,7 +150,7 @@ export default function ProfilePage() {
             <span style={{ fontFamily: f, fontSize: 15, fontWeight: 500, color: 'var(--title-color)' }}>
               News Country: {userCountry ? `${userCountry.flag_emoji} ${userCountry.country_name}` : (user?.country || 'Select')}
             </span>
-            <ChevronRight size={16} style={{ color: '#8896b8' }} />
+            <F7Icon name="chevron_right" size={16} color="#8896b8" />
           </button>
           {/* City */}
           <div className="flex items-center justify-between" style={{ padding: '14px 15px', height: 50, borderBottom: '1px solid rgba(0,0,0,0.12)' }}>
@@ -159,14 +159,14 @@ export default function ProfilePage() {
                 <input data-testid="edit-city-input" value={editCity} onChange={e => setEditCity(e.target.value)}
                   className="flex-1 px-2 py-1 text-sm outline-none" style={{ fontFamily: f, background: 'var(--bg)', borderRadius: 8, border: 'none', color: 'var(--title-color)' }} />
                 <button data-testid="save-city-btn" onClick={handleSaveCity} className="cursor-pointer" style={{ background: 'none', border: 'none' }}>
-                  <Check size={16} style={{ color: 'var(--accent)' }} />
+                  <F7Icon name="checkmark_alt" size={16} color="var(--accent)" />
                 </button>
               </div>
             ) : (
               <>
                 <span style={{ fontFamily: f, fontSize: 15, fontWeight: 500, color: 'var(--title-color)' }}>City: {user?.city || 'Not set'}</span>
                 <button data-testid="edit-city-btn" onClick={() => { setEditingCity(true); setEditCity(user?.city || ''); }} className="cursor-pointer" style={{ background: 'none', border: 'none' }}>
-                  <Edit3 size={16} style={{ color: 'var(--accent)' }} />
+                  <F7Icon name="pencil" size={16} color="var(--accent)" />
                 </button>
               </>
             )}
@@ -205,19 +205,19 @@ export default function ProfilePage() {
             {/* Stats 2x2 */}
             <div className="grid grid-cols-2 gap-3 mb-4">
               <div data-testid="streak-card" className="p-4 text-center" style={{ background: 'var(--light-gray)', borderRadius: 15 }}>
-                <Flame size={20} style={{ color: 'var(--accent)', margin: '0 auto 8px' }} />
+                <F7Icon name="flame_fill" size={20} color="var(--accent)" style={{ margin: '0 auto 8px', display: 'block' }} />
                 <p data-testid="streak-current" style={{ fontFamily: f, fontSize: 28, fontWeight: 600, color: 'var(--title-color)' }}>{stats.streak.current}</p>
                 <p style={{ fontFamily: f, fontSize: 11, fontWeight: 500, color: 'var(--text-color)', textTransform: 'uppercase' }}>day streak</p>
                 <p style={{ fontFamily: f, fontSize: 12, fontWeight: 400, color: 'var(--text-color)', marginTop: 4 }}>Best: {stats.streak.longest}</p>
               </div>
               <div data-testid="stories-read-card" className="p-4 text-center" style={{ background: 'var(--light-gray)', borderRadius: 15 }}>
-                <BookOpen size={20} style={{ color: 'var(--accent)', margin: '0 auto 8px' }} />
+                <F7Icon name="book_fill" size={20} color="var(--accent)" style={{ margin: '0 auto 8px', display: 'block' }} />
                 <p data-testid="stories-read-total" style={{ fontFamily: f, fontSize: 28, fontWeight: 600, color: 'var(--title-color)' }}>{stats.stories_read.total}</p>
                 <p style={{ fontFamily: f, fontSize: 11, fontWeight: 500, color: 'var(--text-color)', textTransform: 'uppercase' }}>stories read</p>
                 <p style={{ fontFamily: f, fontSize: 12, fontWeight: 400, color: 'var(--text-color)', marginTop: 4 }}>Week: {stats.stories_read.this_week}</p>
               </div>
               <div data-testid="favourite-topic-card" className="p-4 text-center" style={{ background: 'var(--light-gray)', borderRadius: 15 }}>
-                <Trophy size={20} style={{ color: '#FFD60A', margin: '0 auto 8px' }} />
+                <F7Icon name="rosette" size={20} color="#FFD60A" style={{ margin: '0 auto 8px', display: 'block' }} />
                 <p className="capitalize" style={{ fontFamily: f, fontSize: 15, fontWeight: 500, color: 'var(--title-color)' }}>{stats.favourite_category}</p>
                 <p style={{ fontFamily: f, fontSize: 11, fontWeight: 500, color: 'var(--text-color)', textTransform: 'uppercase' }}>top topic</p>
               </div>
@@ -230,7 +230,7 @@ export default function ProfilePage() {
 
             {/* Countries */}
             <div data-testid="countries-card" className="flex items-center gap-4 p-4 mb-4" style={{ background: 'var(--light-gray)', borderRadius: 15 }}>
-              <Globe size={20} style={{ color: 'var(--accent)' }} />
+              <F7Icon name="globe" size={20} color="var(--accent)" />
               <div>
                 <p style={{ fontFamily: f, fontSize: 15, fontWeight: 500, color: 'var(--title-color)' }}>{stats.countries_covered} countries</p>
                 <p style={{ fontFamily: f, fontSize: 13, fontWeight: 400, color: 'var(--text-color)', textTransform: 'uppercase' }}>IN YOUR FEED THIS WEEK</p>
@@ -247,11 +247,11 @@ export default function ProfilePage() {
               <button data-testid="invite-link-btn" onClick={handleCopyInvite}
                 className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-bold uppercase cursor-pointer"
                 style={{ fontFamily: f, background: 'rgba(255,107,0,0.1)', color: 'var(--accent)', borderRadius: 10, border: 'none' }}>
-                {copiedLink ? <Check size={12} /> : <Link size={12} />} {copiedLink ? 'Copied!' : 'Invite'}
+                {copiedLink ? <F7Icon name="checkmark_alt" size={12} color="var(--accent)" /> : <F7Icon name="link" size={12} color="var(--accent)" />} {copiedLink ? 'Copied!' : 'Invite'}
               </button>
               <button data-testid="add-friend-btn" onClick={() => setShowAddFriend(!showAddFriend)}
                 className="p-2 cursor-pointer" style={{ background: 'rgba(255,107,0,0.1)', borderRadius: 10, border: 'none' }}>
-                {showAddFriend ? <X size={14} color="var(--accent)" /> : <UserPlus size={14} color="var(--accent)" />}
+                {showAddFriend ? <F7Icon name="xmark" size={14} color="var(--accent)" /> : <F7Icon name="person_badge_plus" size={14} color="var(--accent)" />}
               </button>
             </div>
           </div>
@@ -261,7 +261,7 @@ export default function ProfilePage() {
               <motion.div initial={{ height: 0, opacity: 0 }} animate={{ height: 'auto', opacity: 1 }} exit={{ height: 0, opacity: 0 }} className="mb-3 overflow-hidden">
                 <div className="p-4" style={{ background: 'var(--light-gray)', borderRadius: 15 }}>
                   <div className="relative mb-3">
-                    <Search size={14} className="absolute left-3 top-1/2 -translate-y-1/2" style={{ color: 'var(--text-color)' }} />
+                    <F7Icon name="search" size={14} color="var(--text-color)" className="absolute left-3 top-1/2 -translate-y-1/2" />
                     <input data-testid="friend-search-input" placeholder="Find @username" value={searchQuery}
                       onChange={e => handleSearchFriends(e.target.value)}
                       className="w-full pl-9 pr-4 py-2.5 text-sm outline-none"
@@ -319,7 +319,7 @@ export default function ProfilePage() {
                   <div className="flex-1 min-w-0">
                     <p style={{ fontFamily: f, fontSize: 15, fontWeight: 500, color: 'var(--title-color)' }}>{fr.full_name}</p>
                     <div className="flex items-center gap-2">
-                      <span className="text-[10px] flex items-center gap-0.5" style={{ color: 'var(--accent)' }}><Flame size={10} /> {fr.current_streak}</span>
+                      <span className="text-[10px] flex items-center gap-0.5" style={{ color: 'var(--accent)' }}><F7Icon name="flame_fill" size={10} color="var(--accent)" /> {fr.current_streak}</span>
                       <span style={{ fontFamily: f, fontSize: 11, color: 'var(--text-color)' }}>{fr.knowledge_score} pts</span>
                     </div>
                   </div>

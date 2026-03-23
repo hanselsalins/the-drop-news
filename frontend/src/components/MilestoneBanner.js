@@ -1,5 +1,5 @@
 import { motion, AnimatePresence } from 'framer-motion';
-import { Trophy, X } from 'lucide-react';
+import { F7Icon } from './F7Icon';
 import { useReducedMotion } from '../hooks/useReducedMotion';
 
 export const MilestoneBanner = ({ milestone, onDismiss }) => {
@@ -22,7 +22,7 @@ export const MilestoneBanner = ({ milestone, onDismiss }) => {
           style={{ background: 'var(--accent)', boxShadow: 'var(--block-shadow)', borderRadius: 18 }}>
           <div className="w-12 h-12 flex items-center justify-center shrink-0"
             style={{ background: 'rgba(255,255,255,0.15)', borderRadius: 14 }}>
-            <Trophy size={24} color="#fff" />
+            <F7Icon name="rosette" size={24} color="#fff" />
           </div>
           <div className="flex-1 min-w-0">
             <p className="text-[10px] font-semibold tracking-wider uppercase opacity-80"
@@ -33,8 +33,8 @@ export const MilestoneBanner = ({ milestone, onDismiss }) => {
             </p>
           </div>
           <button data-testid="milestone-dismiss" aria-label="Dismiss milestone" onClick={onDismiss}
-            className="p-1 rounded-full shrink-0" style={{ background: 'rgba(255,255,255,0.2)' }}>
-            <X size={16} color="#fff" />
+            className="p-1 rounded-full shrink-0" style={{ background: 'rgba(255,255,255,0.2)', border: 'none', cursor: 'pointer' }}>
+            <F7Icon name="xmark" size={16} color="#fff" />
           </button>
         </div>
       </motion.div>
