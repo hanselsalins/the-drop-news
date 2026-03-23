@@ -37,6 +37,11 @@
   line-height: 1;
 }
 
+html, body, #root {
+  min-height: 100%;
+  background: var(--bg);
+}
+
 body {
   margin: 0;
   font-family: var(--font);
