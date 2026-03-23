@@ -2,7 +2,7 @@ import { useState, useEffect, useCallback } from 'react';
 import { useTheme } from '../contexts/ThemeContext';
 import { useNotifications } from '../hooks/useNotifications';
 import { useReducedMotion } from '../hooks/useReducedMotion';
-import { HeroNewsCard, TodayDropCard, CategoryCard } from '../components/NewsCard';
+import { HeroNewsCard, TodayDropCard, CategoryCard, PostListCard } from '../components/NewsCard';
 import { CategoryTabs } from '../components/CategoryTabs';
 import { BottomNav } from '../components/BottomNav';
 import { MicroFactCard } from '../components/MicroFactCard';
