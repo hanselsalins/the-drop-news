@@ -2689,7 +2689,8 @@ async def trigger_crawl(background_tasks: BackgroundTasks, country_code: str = N
         await select_articles_for_display()
         for ag in ["8-10", "11-13", "14-16", "17-20", "20+"]:
             await rewrite_pending_articles(ag)
-        await generate_micro_facts("14-16")
+        for ag in ["8-10", "11-13", "14-16", "17-20", "20+"]:
+            await generate_micro_facts(ag)
     background_tasks.add_task(crawl_and_rewrite)
     return {"message": f"Crawl started for country={country_code or 'ALL'}. Processing in background."}
 
