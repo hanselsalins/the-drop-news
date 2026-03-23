@@ -100,7 +100,7 @@ export default function ProfilePage() {
   const f = 'var(--font)';
 
   return (
-    <div data-testid="profile-page" className="min-h-screen pb-16" style={{ background: 'var(--bg)' }}>
+    <div data-testid="profile-page" className="min-h-screen pb-16" style={{ backgroundColor: 'var(--bg)' }}>
       <div style={{ padding: '0 15px' }} className="max-w-lg mx-auto">
 
         {/* Page title */}

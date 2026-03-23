@@ -34,7 +34,7 @@ export default function InvitePage() {
 
   if (loading) {
     return (
-      <div className="min-h-screen flex items-center justify-center" style={{ background: '#050505' }}>
+      <div className="min-h-screen flex items-center justify-center" style={{ backgroundColor: 'var(--bg)' }}>
         <div className="w-8 h-8 border-2 border-t-transparent rounded-full animate-spin" style={{ borderColor: '#CCFF00', borderTopColor: 'transparent' }} />
       </div>
     );
@@ -42,7 +42,7 @@ export default function InvitePage() {
 
   if (error || !inviter) {
     return (
-      <div className="min-h-screen flex flex-col items-center justify-center px-6" style={{ background: '#050505' }}>
+      <div className="min-h-screen flex flex-col items-center justify-center px-6" style={{ backgroundColor: 'var(--bg)' }}>
         <p className="text-lg mb-4" style={{ fontFamily: 'Outfit, sans-serif', color: '#FAFAFA' }}>{error || 'Something went wrong'}</p>
         <button onClick={() => navigate('/auth')} className="px-6 py-3 rounded-2xl font-bold"
           style={{ fontFamily: 'Syne, sans-serif', background: '#CCFF00', color: '#050505', border: 'none', cursor: 'pointer' }}>
@@ -53,7 +53,7 @@ export default function InvitePage() {
   }
 
   return (
-    <div data-testid="invite-page" className="min-h-screen flex flex-col relative overflow-hidden" style={{ background: '#050505' }}>
+    <div data-testid="invite-page" className="min-h-screen flex flex-col relative overflow-hidden" style={{ backgroundColor: 'var(--bg)' }}>
       <div className="absolute top-20 right-0 w-72 h-72 rounded-full opacity-8 blur-3xl" style={{ background: '#CCFF00' }} />
       <div className="absolute bottom-20 left-0 w-60 h-60 rounded-full opacity-6 blur-3xl" style={{ background: '#7209B7' }} />
 

@@ -37,7 +37,7 @@ export default function OnboardingPage() {
   };
 
   return (
-    <div data-testid="onboarding-page" className="min-h-screen flex flex-col" style={{ background: 'var(--bg)', padding: '32px 15px' }}>
+    <div data-testid="onboarding-page" className="min-h-screen flex flex-col" style={{ backgroundColor: 'var(--bg)', padding: '32px 15px' }}>
       <motion.div initial={{ y: -20, opacity: 0 }} animate={{ y: 0, opacity: 1 }} transition={{ duration: 0.5 }} className="mb-8">
         <h1 style={{ fontFamily: 'var(--font)', fontSize: 28, fontWeight: 600, color: 'var(--title-color)', marginBottom: 20 }}>
           Pick your vibe

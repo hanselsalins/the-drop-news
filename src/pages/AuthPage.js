@@ -46,7 +46,7 @@ export default function AuthPage() {
 
   return (
     <div data-testid="auth-page" className="min-h-screen flex flex-col relative overflow-hidden"
-      style={{ background: 'var(--bg)' }}>
+      style={{ backgroundColor: 'var(--bg)' }}>
       <div className="relative z-10 flex-1 flex flex-col" style={{ padding: '24px 15px' }}>
         <AnimatePresence mode="wait">
           {phase === 'gate' && <GateScreen key="gate" setPhase={setPhase} />}
