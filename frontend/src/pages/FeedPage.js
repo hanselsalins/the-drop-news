@@ -151,9 +151,11 @@ export default function FeedPage() {
       </div>
 
       {/* ── CATEGORY CIRCLES ── */}
-      {loading && categories.length === 0 ? <SkeletonTabs /> : (
-        <CategoryTabs categories={categories} activeCategory={activeCategory} setActiveCategory={setActiveCategory} />
-      )}
+      <div style={{ padding: '0 15px' }}>
+        {loading && categories.length === 0 ? <SkeletonTabs /> : (
+          <CategoryTabs categories={categories} activeCategory={activeCategory} setActiveCategory={setActiveCategory} />
+        )}
+      </div>
 
       {/* ── PAGE CONTENT ── */}
       <div style={{ padding: '0 15px' }}>
