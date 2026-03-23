@@ -21,7 +21,7 @@ import axios from 'axios';
 const BACKEND_URL = import.meta.env.VITE_BACKEND_URL;
 
 export default function FeedPage() {
-  const { ageGroup, user, token, darkMode, toggleDarkMode } = useTheme();
+  const { ageGroup, user, token } = useTheme();
   const prefersReducedMotion = useReducedMotion();
   const [articles, setArticles] = useState([]);
   const [categories, setCategories] = useState([]);
