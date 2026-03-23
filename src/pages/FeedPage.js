@@ -29,7 +29,7 @@ export default function FeedPage() {
   const [streak, setStreak] = useState({ current_streak: 0, longest_streak: 0, read_today: false });
   const [activeCategory, setActiveCategory] = useState('today');
   const [loading, setLoading] = useState(true);
-  const [profileOpen, setProfileOpen] = useState(false);
+  
   const [showCelebration, setShowCelebration] = useState(false);
   const [isRefreshing, setIsRefreshing] = useState(false);
   const [refreshSpin, setRefreshSpin] = useState(false);
