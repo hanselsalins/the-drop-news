@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useTheme } from '../contexts/ThemeContext';
 import { motion, AnimatePresence } from 'framer-motion';
-import { X, Check, Users, Loader2 } from 'lucide-react';
+import { F7Icon } from './F7Icon';
 import axios from 'axios';
 
 const BACKEND_URL = import.meta.env.VITE_BACKEND_URL;
@@ -109,21 +109,21 @@ export const ProfileSwitcherModal = ({ open, onClose, onPanelClose }) => {
           >
             <div className="flex items-center justify-between px-5 pt-5 pb-3">
               <div className="flex items-center gap-2.5">
-                <Users size={18} style={{ color: 'var(--text-color)' }} />
+                <F7Icon name="person_2_fill" size={18} color="var(--text-color)" />
                 <h3 style={{ fontFamily: 'var(--font)', fontSize: 18, fontWeight: 600, color: 'var(--title-color)' }}>
                   Who's reading?
                 </h3>
               </div>
               <button onClick={onClose} className="p-2 rounded-xl cursor-pointer"
                 style={{ background: 'var(--light-gray)', border: 'none' }}>
-                <X size={16} style={{ color: 'var(--text-color)' }} />
+                <F7Icon name="xmark" size={16} color="var(--text-color)" />
               </button>
             </div>
 
             <div className="px-4 pb-4 space-y-2.5">
               {loadingProfiles ? (
                 <div className="flex items-center justify-center py-8">
-                  <Loader2 className="animate-spin" size={24} style={{ color: 'var(--text-color)' }} />
+                  <div className="w-6 h-6 border-2 border-t-transparent rounded-full animate-spin" style={{ borderColor: 'var(--text-color)', borderTopColor: 'transparent' }} />
                 </div>
               ) : sorted.length === 0 ? (
                 <p className="text-center text-sm py-6" style={{ color: 'var(--text-color)', fontFamily: 'var(--font)' }}>No profiles found</p>
@@ -168,7 +168,7 @@ export const ProfileSwitcherModal = ({ open, onClose, onPanelClose }) => {
                     {isActive ? (
                       <div className="flex-shrink-0 w-7 h-7 rounded-full flex items-center justify-center"
                         style={{ background: 'rgba(255,107,0,0.1)' }}>
-                        <Check size={16} style={{ color: 'var(--accent)' }} strokeWidth={3} />
+                        <F7Icon name="checkmark_alt" size={16} color="var(--accent)" />
                       </div>
                     ) : (
                       <span style={{

@@ -5,8 +5,8 @@ import { ReactionBar } from '../components/ReactionBar';
 import { PullQuote } from '../components/PullQuote';
 import { CATEGORY_LABELS } from '../lib/bandUtils';
 import { useReducedMotion } from '../hooks/useReducedMotion';
+import { F7Icon } from '../components/F7Icon';
 import { motion } from 'framer-motion';
-import { ChevronLeft, ExternalLink, Share2, Bookmark } from 'lucide-react';
 import axios from 'axios';
 import { markArticleRead } from '../hooks/useReadArticles';
 
@@ -20,6 +20,7 @@ export default function ArticlePage() {
   const [article, setArticle] = useState(null);
   const [loading, setLoading] = useState(true);
   const [readProgress, setReadProgress] = useState(0);
+  const [bookmarked, setBookmarked] = useState(false);
 
   const headers = token ? { Authorization: `Bearer ${token}` } : {};
 
@@ -129,16 +130,16 @@ export default function ArticlePage() {
             background: 'rgba(0,0,0,0.4)', borderRadius: '50%',
             display: 'flex', alignItems: 'center', justifyContent: 'center', border: 'none',
           }}>
-          <ChevronLeft size={24} style={{ color: '#FFFFFF' }} />
+          <F7Icon name="arrow_left" size={22} color="#FFFFFF" />
         </button>
         {/* Bookmark */}
-        <button aria-label="Bookmark" className="absolute cursor-pointer"
+        <button aria-label="Bookmark" onClick={() => setBookmarked(!bookmarked)} className="absolute cursor-pointer"
           style={{
             top: 16, right: 16, width: 36, height: 36,
             background: 'rgba(0,0,0,0.4)', borderRadius: '50%',
             display: 'flex', alignItems: 'center', justifyContent: 'center', border: 'none',
           }}>
-          <Bookmark size={20} style={{ color: '#FFFFFF' }} />
+          <F7Icon name={bookmarked ? 'bookmark_fill' : 'bookmark'} size={20} color="#FFFFFF" />
         </button>
       </div>
 
@@ -225,7 +226,7 @@ export default function ArticlePage() {
             height: 44, borderRadius: 10,
             background: 'var(--accent)', color: '#FFFFFF', border: 'none',
           }}>
-          <Share2 size={16} />
+          <F7Icon name="square_arrow_up" size={16} color="#FFFFFF" />
           Share this story
         </button>
 
@@ -237,7 +238,7 @@ export default function ArticlePage() {
             background: 'var(--light-gray)', borderRadius: 10,
             color: 'var(--text-color)', textDecoration: 'none',
           }}>
-          <ExternalLink size={16} />
+          <F7Icon name="arrow_up_right_square" size={16} color="var(--text-color)" />
           Read the original at {article.source} →
         </a>
       </motion.div>
