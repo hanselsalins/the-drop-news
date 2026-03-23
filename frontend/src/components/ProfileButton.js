@@ -3,7 +3,7 @@ import { useTheme } from '../contexts/ThemeContext';
 import { getMemoji, getMemojiById } from '../lib/memojis';
 
 export const ProfileButton = ({ onClick, size = 40, bordered = false }) => {
-  const { user } = useTheme();
+  const { user, ageGroup } = useTheme();
   const navigate = useNavigate();
 
   const handleClick = onClick || (() => navigate('/profile'));
@@ -12,7 +12,7 @@ export const ProfileButton = ({ onClick, size = 40, bordered = false }) => {
   const savedMemojiId = localStorage.getItem(`memoji_${user?.id || 'default'}`);
   const avatarSrc = savedMemojiId
     ? getMemojiById(savedMemojiId)
-    : user?.avatar_url || getMemoji(user?.full_name || user?.username);
+    : user?.avatar_url || getMemoji(user?.full_name || user?.username, ageGroup);
 
   return (
     <button

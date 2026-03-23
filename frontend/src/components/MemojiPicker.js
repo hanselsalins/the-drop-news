@@ -1,9 +1,15 @@
 import { useState } from 'react';
-import { MEMOJI_BANK } from '../lib/memojis';
+import { getBankForAge } from '../lib/memojis';
+import { useTheme } from '../contexts/ThemeContext';
 import { motion, AnimatePresence } from 'framer-motion';
 
 export function MemojiPicker({ currentId, onSelect, onClose }) {
+  const { ageGroup } = useTheme();
+  const bank = getBankForAge(ageGroup);
+  const [filter, setFilter] = useState('all'); // 'all' | 'boy' | 'girl'
   const [selected, setSelected] = useState(currentId || null);
+
+  const filtered = filter === 'all' ? bank : bank.filter(m => m.gender === filter);
 
   const handleConfirm = () => {
     if (selected) onSelect(selected);
@@ -31,13 +37,13 @@ export function MemojiPicker({ currentId, onSelect, onClose }) {
             width: '100%',
             maxWidth: 480,
             padding: '24px 20px 32px',
-            maxHeight: '70vh',
+            maxHeight: '75vh',
             overflow: 'hidden',
             display: 'flex',
             flexDirection: 'column',
           }}
         >
-          <div className="flex items-center justify-between" style={{ marginBottom: 20 }}>
+          <div className="flex items-center justify-between" style={{ marginBottom: 16 }}>
             <h2 style={{
               fontFamily: 'var(--font)',
               fontSize: 20,
@@ -66,15 +72,42 @@ export function MemojiPicker({ currentId, onSelect, onClose }) {
             </button>
           </div>
 
+          {/* Gender filter tabs */}
+          <div style={{ display: 'flex', gap: 8, marginBottom: 16 }}>
+            {[
+              { key: 'all', label: 'All' },
+              { key: 'boy', label: '👦 Boys' },
+              { key: 'girl', label: '👧 Girls' },
+            ].map(tab => (
+              <button
+                key={tab.key}
+                onClick={() => setFilter(tab.key)}
+                style={{
+                  padding: '6px 16px',
+                  borderRadius: 20,
+                  border: 'none',
+                  background: filter === tab.key ? 'var(--accent)' : 'var(--light-gray)',
+                  color: filter === tab.key ? '#fff' : 'var(--text-color)',
+                  fontFamily: 'var(--font)',
+                  fontSize: 13,
+                  fontWeight: 600,
+                  cursor: 'pointer',
+                }}
+              >
+                {tab.label}
+              </button>
+            ))}
+          </div>
+
           <div style={{
             display: 'grid',
             gridTemplateColumns: 'repeat(5, 1fr)',
-            gap: 12,
+            gap: 10,
             overflowY: 'auto',
             flex: 1,
             paddingBottom: 16,
           }}>
-            {MEMOJI_BANK.map(memoji => (
+            {filtered.map(memoji => (
               <button
                 key={memoji.id}
                 onClick={() => setSelected(memoji.id)}
@@ -84,7 +117,7 @@ export function MemojiPicker({ currentId, onSelect, onClose }) {
                   borderRadius: '50%',
                   border: selected === memoji.id ? '3px solid var(--accent)' : '3px solid transparent',
                   background: selected === memoji.id ? 'var(--light-gray)' : 'transparent',
-                  padding: 4,
+                  padding: 3,
                   cursor: 'pointer',
                   transition: 'all 0.15s ease',
                   overflow: 'hidden',
