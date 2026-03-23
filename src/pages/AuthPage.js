@@ -2,7 +2,7 @@ import { useState, useCallback, useEffect } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { useTheme } from '../contexts/ThemeContext';
 import { motion, AnimatePresence } from 'framer-motion';
-import { ArrowRight, ArrowLeft, Eye, EyeOff, Mail, Lock, User, ChevronDown, Check, Sparkles, Plus, Trash2, AtSign } from 'lucide-react';
+import { F7Icon } from '../components/F7Icon';
 import axios from 'axios';
 
 const BACKEND_URL = import.meta.env.VITE_BACKEND_URL;
@@ -123,7 +123,7 @@ function CountryDropdown({ countries, value, onChange, testPrefix = '' }) {
         <span style={{ opacity: selected ? 1 : 0.4, color: selected ? 'var(--title-color)' : '#93a0b1' }}>
           {selected ? `${selected.flag_emoji} ${selected.country_name}` : 'Select country'}
         </span>
-        <ChevronDown size={16} style={{ color: 'var(--text-color)' }} />
+        <F7Icon name="chevron_down" size={16} color="var(--text-color)" />
       </button>
       {open && (
         <div className="absolute left-0 right-0 mt-1 overflow-hidden z-20"
@@ -170,7 +170,7 @@ function GateScreen({ setPhase }) {
               <p style={{ fontFamily: 'var(--font)', fontSize: 15, fontWeight: 500, color: 'var(--title-color)' }}>I'm under 14</p>
               <p style={{ fontFamily: 'var(--font)', fontSize: 13, color: 'var(--text-color)', marginTop: 4 }}>A parent or guardian will set up your account</p>
             </div>
-            <ArrowRight size={20} style={{ color: 'var(--accent)', marginTop: 4 }} />
+            <F7Icon name="arrow_right" size={20} color="var(--accent)" style={{ marginTop: 4 }} />
           </div>
         </button>
 
@@ -183,7 +183,7 @@ function GateScreen({ setPhase }) {
               <p style={{ fontFamily: 'var(--font)', fontSize: 15, fontWeight: 500, color: 'var(--title-color)' }}>I'm 14 or older</p>
               <p style={{ fontFamily: 'var(--font)', fontSize: 13, color: 'var(--text-color)', marginTop: 4 }}>Create your own profile</p>
             </div>
-            <ArrowRight size={20} style={{ color: 'var(--accent)', marginTop: 4 }} />
+            <F7Icon name="arrow_right" size={20} color="var(--accent)" style={{ marginTop: 4 }} />
           </div>
         </button>
       </div>
@@ -206,7 +206,7 @@ function ChildForm({ index, child, onChange, onRemove, countries, showRemove }) 
         <div className="flex items-center justify-between mb-1">
           <span style={{ fontFamily: 'var(--font)', fontSize: 11, fontWeight: 600, textTransform: 'uppercase', color: 'var(--text-color)' }}>Child {index + 1}</span>
           <button onClick={() => onRemove(index)} className="p-1.5 cursor-pointer" style={{ background: 'none', border: 'none' }}>
-            <Trash2 size={14} style={{ color: '#FF3B30' }} />
+            <F7Icon name="trash" size={14} color="#FF3B30" />
           </button>
         </div>
       )}
@@ -215,7 +215,7 @@ function ChildForm({ index, child, onChange, onRemove, countries, showRemove }) 
         <div><label style={{ fontFamily: 'var(--font)', fontSize: 13, fontWeight: 500, color: 'var(--text-color)' }}>Last Name</label><input placeholder="Last name" value={child.last_name} onChange={e => u('last_name', e.target.value)} className={inputClass} style={inputStyle} /></div>
       </div>
       <div><label style={{ fontFamily: 'var(--font)', fontSize: 13, fontWeight: 500, color: 'var(--text-color)' }}>Username</label>
-        <div className="relative"><AtSign size={16} className="absolute left-4 top-1/2 -translate-y-1/2" style={{ color: 'var(--text-color)' }} /><input placeholder="choose a fun name" value={child.username} onChange={e => u('username', e.target.value)} className={inputClass} style={{ ...inputStyle, paddingLeft: '2.8rem' }} /></div></div>
+        <div className="relative"><F7Icon name="at" size={16} color="var(--text-color)" className="absolute left-4 top-1/2 -translate-y-1/2" /><input placeholder="choose a fun name" value={child.username} onChange={e => u('username', e.target.value)} className={inputClass} style={{ ...inputStyle, paddingLeft: '2.8rem' }} /></div></div>
       <div><label style={{ fontFamily: 'var(--font)', fontSize: 13, fontWeight: 500, color: 'var(--text-color)' }}>Age</label><input type="number" min="5" max="17" placeholder="Age" value={child.age} onChange={e => u('age', e.target.value)} className={inputClass} style={inputStyle} /></div>
       <div><label style={{ fontFamily: 'var(--font)', fontSize: 13, fontWeight: 500, color: 'var(--text-color)' }}>Gender</label><ToggleButtons options={GENDER_OPTIONS} value={child.gender} onChange={v => u('gender', v)} /></div>
       <div><label style={{ fontFamily: 'var(--font)', fontSize: 13, fontWeight: 500, color: 'var(--text-color)' }}>Country</label><CountryDropdown countries={countries} value={child.country_code} onChange={v => u('country_code', v)} testPrefix={`child${index}-`} /></div>
@@ -278,7 +278,7 @@ function PathASignup({ setPhase, setToken, setParentToken, setUserData, navigate
     <motion.div {...slideIn} className="flex-1 flex flex-col">
       <div className="flex items-center gap-3 mb-4">
         <button onClick={() => step > 1 ? setStep(step - 1) : setPhase('gate')} className="p-2 cursor-pointer" style={{ background: 'var(--light-gray)', borderRadius: 10, border: 'none' }}>
-          <ArrowLeft size={18} style={{ color: 'var(--text-color)' }} />
+          <F7Icon name="arrow_left" size={18} color="var(--text-color)" />
         </button>
         <p style={{ fontFamily: 'var(--font)', fontSize: 15, fontWeight: 500, color: 'var(--title-color)' }}>
           {step === 1 ? 'Parent / Guardian Details' : "Your Child's Profile"}
@@ -298,14 +298,14 @@ function PathASignup({ setPhase, setToken, setParentToken, setUserData, navigate
                 <div><label style={{ fontFamily: 'var(--font)', fontSize: 13, fontWeight: 500, color: 'var(--text-color)' }}>Last Name</label><input placeholder="Last name" value={parentForm.last_name} onChange={e => pU('last_name', e.target.value)} className={inputClass} style={inputStyle} /></div>
               </div>
               <div><label style={{ fontFamily: 'var(--font)', fontSize: 13, fontWeight: 500, color: 'var(--text-color)' }}>Email</label>
-                <div className="relative"><Mail size={16} className="absolute left-4 top-1/2 -translate-y-1/2" style={{ color: 'var(--text-color)' }} /><input type="email" placeholder="parent@example.com" value={parentForm.email} onChange={e => pU('email', e.target.value)} className={inputClass} style={{ ...inputStyle, paddingLeft: '2.8rem' }} /></div></div>
+                <div className="relative"><F7Icon name="envelope" size={16} color="var(--text-color)" className="absolute left-4 top-1/2 -translate-y-1/2" /><input type="email" placeholder="parent@example.com" value={parentForm.email} onChange={e => pU('email', e.target.value)} className={inputClass} style={{ ...inputStyle, paddingLeft: '2.8rem' }} /></div></div>
               <div><label style={{ fontFamily: 'var(--font)', fontSize: 13, fontWeight: 500, color: 'var(--text-color)' }}>Password</label>
-                <div className="relative"><Lock size={16} className="absolute left-4 top-1/2 -translate-y-1/2" style={{ color: 'var(--text-color)' }} /><input type={showPass ? 'text' : 'password'} placeholder="Min 8 characters" value={parentForm.password} onChange={e => pU('password', e.target.value)} className={inputClass} style={{ ...inputStyle, paddingLeft: '2.8rem', paddingRight: '3rem' }} /><button onClick={() => setShowPass(!showPass)} className="absolute right-4 top-1/2 -translate-y-1/2 cursor-pointer" style={{ background: 'none', border: 'none' }}>{showPass ? <EyeOff size={16} style={{ color: 'var(--text-color)' }} /> : <Eye size={16} style={{ color: 'var(--text-color)' }} />}</button></div></div>
+                <div className="relative"><F7Icon name="lock" size={16} color="var(--text-color)" className="absolute left-4 top-1/2 -translate-y-1/2" /><input type={showPass ? 'text' : 'password'} placeholder="Min 8 characters" value={parentForm.password} onChange={e => pU('password', e.target.value)} className={inputClass} style={{ ...inputStyle, paddingLeft: '2.8rem', paddingRight: '3rem' }} /><button onClick={() => setShowPass(!showPass)} className="absolute right-4 top-1/2 -translate-y-1/2 cursor-pointer" style={{ background: 'none', border: 'none' }}>{showPass ? <F7Icon name="eye_slash" size={16} color="var(--text-color)" /> : <F7Icon name="eye" size={16} color="var(--text-color)" />}</button></div></div>
             </div>
             <div className="pt-4">
               <button onClick={() => setStep(2)} disabled={!canStep1} className={btnPrimary}
                 style={{ fontFamily: 'var(--font)', fontSize: 14, fontWeight: 500, height: 44, borderRadius: 10, background: canStep1 ? 'var(--accent)' : 'var(--light-gray)', color: canStep1 ? '#FFFFFF' : 'var(--text-color)', border: 'none' }}>
-                Next <ArrowRight size={18} />
+                Next <F7Icon name="arrow_right" size={18} color={canStep1 ? '#FFFFFF' : 'var(--text-color)'} />
               </button>
             </div>
           </motion.div>
@@ -319,14 +319,14 @@ function PathASignup({ setPhase, setToken, setParentToken, setUserData, navigate
               {children.length < 5 && (
                 <button onClick={addChild} className="w-full flex items-center justify-center gap-2 py-3 text-sm font-medium cursor-pointer"
                   style={{ fontFamily: 'var(--font)', color: 'var(--accent)', background: 'var(--light-gray)', border: '1.5px dashed var(--accent)', borderRadius: 10 }}>
-                  <Plus size={16} /> Add Another Child
+                  <F7Icon name="plus" size={16} color="var(--accent)" /> Add Another Child
                 </button>
               )}
             </div>
             <div className="pt-4">
               <button onClick={handleSubmit} disabled={!canStep2 || loading} className={btnPrimary}
                 style={{ fontFamily: 'var(--font)', fontSize: 14, fontWeight: 500, height: 44, borderRadius: 10, background: canStep2 ? 'var(--accent)' : 'var(--light-gray)', color: canStep2 ? '#FFFFFF' : 'var(--text-color)', border: 'none' }}>
-                {loading ? 'Creating Profiles...' : 'Create Profiles'} {!loading && <ArrowRight size={18} />}
+                {loading ? 'Creating Profiles...' : 'Create Profiles'} {!loading && <F7Icon name="arrow_right" size={18} color={canStep2 ? '#FFFFFF' : 'var(--text-color)'} />}
               </button>
             </div>
           </motion.div>
@@ -363,7 +363,7 @@ function PathBSignup({ setPhase, setToken, setUserData, navigate, error, setErro
     <motion.div {...slideIn} className="flex-1 flex flex-col">
       <div className="flex items-center gap-3 mb-4">
         <button onClick={() => setPhase('gate')} className="p-2 cursor-pointer" style={{ background: 'var(--light-gray)', borderRadius: 10, border: 'none' }}>
-          <ArrowLeft size={18} style={{ color: 'var(--text-color)' }} />
+          <F7Icon name="arrow_left" size={18} color="var(--text-color)" />
         </button>
         <p style={{ fontFamily: 'var(--font)', fontSize: 15, fontWeight: 500, color: 'var(--title-color)' }}>Create Your Profile</p>
       </div>
@@ -373,19 +373,19 @@ function PathBSignup({ setPhase, setToken, setUserData, navigate, error, setErro
           <div><label style={{ fontFamily: 'var(--font)', fontSize: 13, fontWeight: 500, color: 'var(--text-color)' }}>First Name</label><input placeholder="First name" value={form.first_name} onChange={e => u('first_name', e.target.value)} className={inputClass} style={inputStyle} /></div>
           <div><label style={{ fontFamily: 'var(--font)', fontSize: 13, fontWeight: 500, color: 'var(--text-color)' }}>Last Name</label><input placeholder="Last name" value={form.last_name} onChange={e => u('last_name', e.target.value)} className={inputClass} style={inputStyle} /></div>
         </div>
-        <div><label style={{ fontFamily: 'var(--font)', fontSize: 13, fontWeight: 500, color: 'var(--text-color)' }}>Username</label><div className="relative"><AtSign size={16} className="absolute left-4 top-1/2 -translate-y-1/2" style={{ color: 'var(--text-color)' }} /><input placeholder="choose a fun name" value={form.username} onChange={e => u('username', e.target.value)} className={inputClass} style={{ ...inputStyle, paddingLeft: '2.8rem' }} /></div></div>
+        <div><label style={{ fontFamily: 'var(--font)', fontSize: 13, fontWeight: 500, color: 'var(--text-color)' }}>Username</label><div className="relative"><F7Icon name="at" size={16} color="var(--text-color)" className="absolute left-4 top-1/2 -translate-y-1/2" /><input placeholder="choose a fun name" value={form.username} onChange={e => u('username', e.target.value)} className={inputClass} style={{ ...inputStyle, paddingLeft: '2.8rem' }} /></div></div>
         <div><label style={{ fontFamily: 'var(--font)', fontSize: 13, fontWeight: 500, color: 'var(--text-color)' }}>Age</label><input type="number" min="14" max="20" placeholder="Your age" value={form.age} onChange={e => u('age', e.target.value)} className={inputClass} style={inputStyle} /></div>
         <div><label style={{ fontFamily: 'var(--font)', fontSize: 13, fontWeight: 500, color: 'var(--text-color)' }}>Gender</label><ToggleButtons options={GENDER_OPTIONS} value={form.gender} onChange={v => u('gender', v)} /></div>
         <div><label style={{ fontFamily: 'var(--font)', fontSize: 13, fontWeight: 500, color: 'var(--text-color)' }}>Country</label><CountryDropdown countries={countries} value={form.country_code} onChange={v => u('country_code', v)} testPrefix="self-" /></div>
         <div><label style={{ fontFamily: 'var(--font)', fontSize: 13, fontWeight: 500, color: 'var(--text-color)' }}>City <span style={{ color: 'var(--text-color)' }}>(optional)</span></label><input placeholder="City" value={form.city} onChange={e => u('city', e.target.value)} className={inputClass} style={inputStyle} /></div>
         <div><label style={{ fontFamily: 'var(--font)', fontSize: 13, fontWeight: 500, color: 'var(--text-color)' }}>School <span style={{ color: 'var(--text-color)' }}>(optional)</span></label><input placeholder="School name" value={form.school} onChange={e => u('school', e.target.value)} className={inputClass} style={inputStyle} /></div>
-        <div><label style={{ fontFamily: 'var(--font)', fontSize: 13, fontWeight: 500, color: 'var(--text-color)' }}>Email</label><div className="relative"><Mail size={16} className="absolute left-4 top-1/2 -translate-y-1/2" style={{ color: 'var(--text-color)' }} /><input type="email" placeholder="you@example.com" value={form.email} onChange={e => u('email', e.target.value)} className={inputClass} style={{ ...inputStyle, paddingLeft: '2.8rem' }} /></div></div>
-        <div><label style={{ fontFamily: 'var(--font)', fontSize: 13, fontWeight: 500, color: 'var(--text-color)' }}>Password</label><div className="relative"><Lock size={16} className="absolute left-4 top-1/2 -translate-y-1/2" style={{ color: 'var(--text-color)' }} /><input type={showPass ? 'text' : 'password'} placeholder="Min 8 characters" value={form.password} onChange={e => u('password', e.target.value)} className={inputClass} style={{ ...inputStyle, paddingLeft: '2.8rem', paddingRight: '3rem' }} /><button onClick={() => setShowPass(!showPass)} className="absolute right-4 top-1/2 -translate-y-1/2 cursor-pointer" style={{ background: 'none', border: 'none' }}>{showPass ? <EyeOff size={16} style={{ color: 'var(--text-color)' }} /> : <Eye size={16} style={{ color: 'var(--text-color)' }} />}</button></div></div>
+        <div><label style={{ fontFamily: 'var(--font)', fontSize: 13, fontWeight: 500, color: 'var(--text-color)' }}>Email</label><div className="relative"><F7Icon name="envelope" size={16} color="var(--text-color)" className="absolute left-4 top-1/2 -translate-y-1/2" /><input type="email" placeholder="you@example.com" value={form.email} onChange={e => u('email', e.target.value)} className={inputClass} style={{ ...inputStyle, paddingLeft: '2.8rem' }} /></div></div>
+        <div><label style={{ fontFamily: 'var(--font)', fontSize: 13, fontWeight: 500, color: 'var(--text-color)' }}>Password</label><div className="relative"><F7Icon name="lock" size={16} color="var(--text-color)" className="absolute left-4 top-1/2 -translate-y-1/2" /><input type={showPass ? 'text' : 'password'} placeholder="Min 8 characters" value={form.password} onChange={e => u('password', e.target.value)} className={inputClass} style={{ ...inputStyle, paddingLeft: '2.8rem', paddingRight: '3rem' }} /><button onClick={() => setShowPass(!showPass)} className="absolute right-4 top-1/2 -translate-y-1/2 cursor-pointer" style={{ background: 'none', border: 'none' }}>{showPass ? <F7Icon name="eye_slash" size={16} color="var(--text-color)" /> : <F7Icon name="eye" size={16} color="var(--text-color)" />}</button></div></div>
       </div>
       <div className="pt-4">
         <button onClick={handleSubmit} disabled={!canSubmit || loading} className={btnPrimary}
           style={{ fontFamily: 'var(--font)', fontSize: 14, fontWeight: 500, height: 44, borderRadius: 10, background: canSubmit ? 'var(--accent)' : 'var(--light-gray)', color: canSubmit ? '#FFFFFF' : 'var(--text-color)', border: 'none' }}>
-          {loading ? 'Creating Profile...' : 'Create Profile'} {!loading && <ArrowRight size={18} />}
+          {loading ? 'Creating Profile...' : 'Create Profile'} {!loading && <F7Icon name="arrow_right" size={18} color={canSubmit ? '#FFFFFF' : 'var(--text-color)'} />}
         </button>
       </div>
     </motion.div>
@@ -417,7 +417,7 @@ function AddProfileForm({ token, setUserData, navigate, error, setError, fetchLi
     <motion.div {...slideIn} className="flex-1 flex flex-col">
       <div className="flex items-center gap-3 mb-4">
         <button onClick={() => navigate('/feed')} className="p-2 cursor-pointer" style={{ background: 'var(--light-gray)', borderRadius: 10, border: 'none' }}>
-          <ArrowLeft size={18} style={{ color: 'var(--text-color)' }} />
+          <F7Icon name="arrow_left" size={18} color="var(--text-color)" />
         </button>
         <p style={{ fontFamily: 'var(--font)', fontSize: 15, fontWeight: 500, color: 'var(--title-color)' }}>Add New Profile</p>
       </div>
@@ -428,7 +428,7 @@ function AddProfileForm({ token, setUserData, navigate, error, setError, fetchLi
       <div className="pt-4">
         <button onClick={handleSubmit} disabled={!canSubmit || loading} className={btnPrimary}
           style={{ fontFamily: 'var(--font)', fontSize: 14, fontWeight: 500, height: 44, borderRadius: 10, background: canSubmit ? 'var(--accent)' : 'var(--light-gray)', color: canSubmit ? '#FFFFFF' : 'var(--text-color)', border: 'none' }}>
-          {loading ? 'Adding Profile...' : 'Add Profile'} {!loading && <Sparkles size={18} />}
+          {loading ? 'Adding Profile...' : 'Add Profile'} {!loading && <F7Icon name="sparkles" size={18} color={canSubmit ? '#FFFFFF' : 'var(--text-color)'} />}
         </button>
       </div>
     </motion.div>
@@ -512,7 +512,7 @@ function LoginForm({ setPhase, setToken, setParentToken, setUserData, navigate, 
                     : <div className="w-full h-full flex items-center justify-center text-xl font-bold text-white" style={{ fontFamily: 'var(--font)' }}>{profile.full_name?.charAt(0)?.toUpperCase() || '?'}</div>}
                 </div>
                 <div className="flex-1 text-left"><p style={{ fontFamily: 'var(--font)', fontSize: 15, fontWeight: 500, color: 'var(--title-color)' }}>{profile.full_name}</p></div>
-                <ArrowRight size={18} style={{ color: 'var(--text-color)' }} />
+                <F7Icon name="arrow_right" size={18} color="var(--text-color)" />
               </button>
             );
           })}
@@ -526,7 +526,7 @@ function LoginForm({ setPhase, setToken, setParentToken, setUserData, navigate, 
       <motion.div {...slideIn} className="flex-1 flex flex-col justify-center">
         <div className="flex items-center gap-3 mb-6">
           <button onClick={() => { setForgotMode(false); setForgotSent(false); setError(''); }} className="p-2 cursor-pointer" style={{ background: 'var(--light-gray)', borderRadius: 10, border: 'none' }}>
-            <ArrowLeft size={18} style={{ color: 'var(--text-color)' }} />
+            <F7Icon name="arrow_left" size={18} color="var(--text-color)" />
           </button>
           <span style={{ fontFamily: 'var(--font)', fontSize: 15, fontWeight: 500, color: 'var(--title-color)' }}>Reset Password</span>
         </div>
@@ -541,7 +541,7 @@ function LoginForm({ setPhase, setToken, setParentToken, setUserData, navigate, 
             <h2 style={{ fontFamily: 'var(--font)', fontSize: 20, fontWeight: 600, color: 'var(--title-color)', marginBottom: 8 }}>Forgot your password?</h2>
             <p style={{ fontFamily: 'var(--font)', fontSize: 15, color: 'var(--text-color)', marginBottom: 24, lineHeight: '1.8em' }}>Enter your email and we'll send a reset link.</p>
             {error && <div className="mb-4 px-4 py-3 text-sm" style={{ background: 'rgba(255,59,48,0.08)', borderRadius: 10, color: '#FF3B30', fontFamily: 'var(--font)' }}>{error}</div>}
-            <div className="relative mb-6"><Mail size={16} className="absolute left-4 top-1/2 -translate-y-1/2" style={{ color: 'var(--text-color)' }} /><input type="email" placeholder="Your email address" value={forgotEmail} onChange={e => { setForgotEmail(e.target.value); setError(''); }} className={inputClass} style={{ ...inputStyle, paddingLeft: '2.8rem' }} /></div>
+            <div className="relative mb-6"><F7Icon name="envelope" size={16} color="var(--text-color)" className="absolute left-4 top-1/2 -translate-y-1/2" /><input type="email" placeholder="Your email address" value={forgotEmail} onChange={e => { setForgotEmail(e.target.value); setError(''); }} className={inputClass} style={{ ...inputStyle, paddingLeft: '2.8rem' }} /></div>
             <button onClick={handleForgotPassword} disabled={forgotLoading || !forgotEmail} className={btnPrimary}
               style={{ fontFamily: 'var(--font)', fontSize: 14, fontWeight: 500, height: 44, borderRadius: 10, background: forgotEmail ? 'var(--accent)' : 'var(--light-gray)', color: forgotEmail ? '#FFFFFF' : 'var(--text-color)', border: 'none' }}>
               {forgotLoading ? 'Sending...' : 'Send Reset Link'}
@@ -556,7 +556,7 @@ function LoginForm({ setPhase, setToken, setParentToken, setUserData, navigate, 
     <motion.div {...slideIn} className="flex-1 flex flex-col justify-center">
       <div className="flex items-center gap-3 mb-6">
         <button onClick={() => setPhase('gate')} className="p-2 cursor-pointer" style={{ background: 'var(--light-gray)', borderRadius: 10, border: 'none' }}>
-          <ArrowLeft size={18} style={{ color: 'var(--text-color)' }} />
+          <F7Icon name="arrow_left" size={18} color="var(--text-color)" />
         </button>
         <span style={{ fontFamily: 'var(--font)', fontSize: 15, fontWeight: 500, color: 'var(--title-color)' }}>LOG IN</span>
       </div>
@@ -564,12 +564,12 @@ function LoginForm({ setPhase, setToken, setParentToken, setUserData, navigate, 
       <p style={{ fontFamily: 'var(--font)', fontSize: 15, color: 'var(--text-color)', marginBottom: 32, lineHeight: '1.8em' }}>Pick up where you left off.</p>
       {error && <div className="mb-4 px-4 py-3 text-sm" style={{ background: 'rgba(255,59,48,0.08)', borderRadius: 10, color: '#FF3B30', fontFamily: 'var(--font)' }}>{error}</div>}
       <div className="space-y-3 mb-6">
-        <div className="relative"><Mail size={16} className="absolute left-4 top-1/2 -translate-y-1/2" style={{ color: 'var(--text-color)' }} /><input type="email" placeholder="Email" value={email} onChange={e => { setEmail(e.target.value); setError(''); }} className={inputClass} style={{ ...inputStyle, paddingLeft: '2.8rem' }} /></div>
-        <div className="relative"><Lock size={16} className="absolute left-4 top-1/2 -translate-y-1/2" style={{ color: 'var(--text-color)' }} /><input type={showPass ? 'text' : 'password'} placeholder="Password" value={password} onChange={e => { setPassword(e.target.value); setError(''); }} onKeyDown={e => e.key === 'Enter' && handleLogin()} className={inputClass} style={{ ...inputStyle, paddingLeft: '2.8rem', paddingRight: '3rem' }} /><button onClick={() => setShowPass(!showPass)} className="absolute right-4 top-1/2 -translate-y-1/2 cursor-pointer" style={{ background: 'none', border: 'none' }}>{showPass ? <EyeOff size={16} style={{ color: 'var(--text-color)' }} /> : <Eye size={16} style={{ color: 'var(--text-color)' }} />}</button></div>
+        <div className="relative"><F7Icon name="envelope" size={16} color="var(--text-color)" className="absolute left-4 top-1/2 -translate-y-1/2" /><input type="email" placeholder="Email" value={email} onChange={e => { setEmail(e.target.value); setError(''); }} className={inputClass} style={{ ...inputStyle, paddingLeft: '2.8rem' }} /></div>
+        <div className="relative"><F7Icon name="lock" size={16} color="var(--text-color)" className="absolute left-4 top-1/2 -translate-y-1/2" /><input type={showPass ? 'text' : 'password'} placeholder="Password" value={password} onChange={e => { setPassword(e.target.value); setError(''); }} onKeyDown={e => e.key === 'Enter' && handleLogin()} className={inputClass} style={{ ...inputStyle, paddingLeft: '2.8rem', paddingRight: '3rem' }} /><button onClick={() => setShowPass(!showPass)} className="absolute right-4 top-1/2 -translate-y-1/2 cursor-pointer" style={{ background: 'none', border: 'none' }}>{showPass ? <F7Icon name="eye_slash" size={16} color="var(--text-color)" /> : <F7Icon name="eye" size={16} color="var(--text-color)" />}</button></div>
       </div>
       <button onClick={handleLogin} disabled={loading} className={btnPrimary}
         style={{ fontFamily: 'var(--font)', fontSize: 14, fontWeight: 500, height: 44, borderRadius: 10, background: 'var(--accent)', color: '#FFFFFF', border: 'none' }}>
-        {loading ? 'Signing in...' : 'Sign In'} {!loading && <ArrowRight size={18} />}
+        {loading ? 'Signing in...' : 'Sign In'} {!loading && <F7Icon name="arrow_right" size={18} color="#FFFFFF" />}
       </button>
       <button onClick={() => { setForgotMode(true); setError(''); }} className="mt-4 text-sm text-center w-full cursor-pointer"
         style={{ fontFamily: 'var(--font)', color: 'var(--accent)', background: 'none', border: 'none' }}>Forgot password?</button>
