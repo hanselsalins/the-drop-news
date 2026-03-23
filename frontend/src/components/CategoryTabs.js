@@ -73,7 +73,7 @@ export const CategoryTabs = () => {
       }}
     >
       <style>{`.cat-slider::-webkit-scrollbar { display: none; }`}</style>
-      <div className="cat-slider flex" style={{ gap: 10, minWidth: 'max-content', overflow: 'auto', scrollbarWidth: 'none', padding: '0 15px' }}>
+      <div className="cat-slider flex" style={{ gap: 10, minWidth: 'max-content', overflow: 'auto', scrollbarWidth: 'none', padding: 0 }}>
         {cats.map((cat) => (
           <button
             key={cat.id}
