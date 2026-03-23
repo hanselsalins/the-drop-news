@@ -22,7 +22,7 @@ export const ProgressDots = ({ articleIds, readArticleIds }) => {
   const meter = MISSION_METERS[ageGroup] || 'dots';
 
   return (
-    <div style={{ marginBottom: 24 }}>
+    <div style={{ marginBottom: 12 }}>
       {/* Title + meter on same line */}
       <div className="flex items-center justify-between">
         <span style={{
