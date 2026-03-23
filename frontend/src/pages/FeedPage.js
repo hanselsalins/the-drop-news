@@ -116,12 +116,12 @@ export default function FeedPage() {
   const todayDropArticles = activeCategory === 'today' ? articles : [];
 
   return (
-    <div data-testid="feed-page" className="min-h-screen pb-16" style={{ backgroundColor: 'var(--bg)' }}>
+    <div data-testid="feed-page" className="min-h-screen pb-16" style={{ backgroundColor: 'var(--bg)', color: 'var(--title-color)' }}>
       <StreakCelebration streakCount={streak.current_streak} onComplete={() => setShowCelebration(false)} />
       <MilestoneBanner milestone={milestone} onDismiss={() => acknowledgeMilestone(milestone?.notification_id)} />
 
       {/* ── HEADER — avatar left, icons right ── */}
-      <div className="flex items-center justify-between" style={{ padding: '8px 15px' }}>
+      <div className="flex items-center justify-between" style={{ padding: '8px 15px', background: 'var(--bg)' }}>
         <ProfileButton onClick={() => setProfileOpen(true)} size={30} />
         <div className="flex items-center gap-2">
           <button onClick={toggleDarkMode} aria-label="Toggle theme"

@@ -67,7 +67,7 @@ export const ProfilePanel = ({ open, onClose }) => {
           <motion.div initial={{ x: '100%' }} animate={{ x: 0 }} exit={{ x: '100%' }}
             transition={{ type: 'spring', damping: 28, stiffness: 300 }}
             className="fixed top-0 right-0 bottom-0 z-[70] overflow-y-auto"
-            style={{ width: 'min(360px, 85vw)', background: 'var(--surface)' }}>
+            style={{ width: 'min(360px, 85vw)', background: 'var(--surface)', boxShadow: 'none', borderLeft: '1px solid var(--light-gray)' }}>
 
             <div className="flex justify-end p-4">
               <button onClick={onClose} className="p-2 cursor-pointer" style={{ background: 'var(--light-gray)', borderRadius: 10, border: 'none' }}>

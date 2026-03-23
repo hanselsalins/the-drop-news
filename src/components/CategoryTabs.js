@@ -44,7 +44,7 @@ export const CategoryTabs = ({ categories, activeCategory, setActiveCategory }) 
                 alignItems: 'center',
                 justifyContent: 'center',
                 fontSize: 28,
-                background: 'var(--bg)',
+                background: 'var(--surface)',
                 transition: 'border-color 0.2s',
               }}>
                 {emoji}

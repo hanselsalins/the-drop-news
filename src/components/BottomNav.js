@@ -42,6 +42,7 @@ export const BottomNav = ({ active = 'home' }) => {
           height: 50,
           background: 'var(--surface)',
           borderTop: '1px solid var(--light-gray)',
+          boxShadow: 'none',
           transition: 'background-color 0.4s',
         }}
       >
