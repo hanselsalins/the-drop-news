@@ -25,6 +25,10 @@ function applyBand(ageGroup, darkMode = false) {
   return band;
 }
 
+function applyDarkMode(darkMode) {
+  document.documentElement.setAttribute('data-theme', darkMode ? 'dark' : 'light');
+}
+
 export function ThemeProvider({ children }) {
   const [token, setTokenState] = useState(() => localStorage.getItem('token') || null);
   const [parentToken, setParentTokenState] = useState(() => localStorage.getItem('parent_token') || null);
