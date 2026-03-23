@@ -44,8 +44,8 @@ export default defineConfig({
         name: 'The Drop - News for Gen Z',
         short_name: 'The Drop',
         description: 'Youth news app for ages 8-20',
-        theme_color: '#1A1A2E',
-        background_color: '#1A1A2E',
+        theme_color: '#1A1A1A',
+        background_color: '#1A1A1A',
         display: 'standalone',
         start_url: '/',
         icons: [
