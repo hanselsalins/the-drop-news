@@ -127,6 +127,7 @@ export function ThemeProvider({ children }) {
 
   // Apply band + dark mode on mount from saved user
   useEffect(() => {
+    applyDarkMode(darkMode);
     if (ageGroup) {
       applyBand(ageGroup, darkMode);
     }
