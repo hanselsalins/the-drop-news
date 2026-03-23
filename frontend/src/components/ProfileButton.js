@@ -1,7 +1,7 @@
 import { useNavigate } from 'react-router-dom';
 import { useTheme } from '../contexts/ThemeContext';
 
-export const ProfileButton = ({ onClick, size = 30 }) => {
+export const ProfileButton = ({ onClick, size = 30, bordered = false }) => {
   const { user } = useTheme();
   const navigate = useNavigate();
 
@@ -17,7 +17,7 @@ export const ProfileButton = ({ onClick, size = 30 }) => {
         height: size,
         borderRadius: '50%',
         background: 'var(--surface)',
-        border: 'none',
+        border: bordered ? '2px solid var(--accent)' : 'none',
         overflow: 'hidden',
       }}
     >
