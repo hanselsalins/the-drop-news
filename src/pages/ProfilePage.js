@@ -6,6 +6,8 @@ import { BottomNav } from '../components/BottomNav';
 import { NotificationSettings } from '../components/NotificationSettings';
 import { ProfilePanel } from '../components/ProfilePanel';
 import { F7Icon } from '../components/F7Icon';
+import { MemojiPicker } from '../components/MemojiPicker';
+import { getMemoji, getMemojiById } from '../lib/memojis';
 import { motion, AnimatePresence } from 'framer-motion';
 import axios from 'axios';
 
