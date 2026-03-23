@@ -111,7 +111,7 @@ export const CategoryTabs = () => {
           >
             {/* IMAGE SECTION */}
             <div style={{
-              width: 130,
+              width: 125.2,
               height: 80,
               position: 'relative',
               overflow: 'hidden',
