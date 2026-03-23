@@ -28,10 +28,18 @@ html, body, #root {
 [data-theme="dark"] {
   --bg: #1A1A1A;
   --surface: #2A2A2A;
-  --title-color: #FFFFFF;
-  --text-color: #9aa9b2;
   --light-gray: #3A3A3A;
-  --block-shadow: none;
+  --title-color: #ffffff;
+  --text-color: #9aa9b2;
+  --header-bg: #1A1A1A;
+  --shadow: none;
+  --drop-bg: #1A1A1A;
+  --drop-surface: #2A2A2A;
+  --drop-border: #3A3A3A;
+  --drop-text: #ffffff;
+  --drop-text-muted: #9aa9b2;
+  --drop-header-bg: #1A1A1A;
+  --drop-shadow: none;
 }
 
 .f7-icons {

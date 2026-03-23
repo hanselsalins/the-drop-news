@@ -76,10 +76,14 @@ function applyDarkMode(darkMode) {
   if (darkMode) {
     document.documentElement.setAttribute('data-theme', 'dark');
     document.documentElement.style.colorScheme = 'dark';
+    document.documentElement.style.setProperty('background-color', '#1A1A1A');
+    document.body.style.setProperty('background-color', '#1A1A1A');
     applyThemeVariables(DARK_THEME);
   } else {
     document.documentElement.removeAttribute('data-theme');
     document.documentElement.style.colorScheme = 'light';
+    document.documentElement.style.setProperty('background-color', '#ffffff');
+    document.body.style.setProperty('background-color', '#ffffff');
     applyThemeVariables(LIGHT_THEME);
   }
 }
