@@ -1,13 +1,18 @@
 import { useNavigate } from 'react-router-dom';
 import { useTheme } from '../contexts/ThemeContext';
-import { getMemoji } from '../lib/memojis';
+import { getMemoji, getMemojiById } from '../lib/memojis';
 
 export const ProfileButton = ({ onClick, size = 40, bordered = false }) => {
   const { user } = useTheme();
   const navigate = useNavigate();
 
   const handleClick = onClick || (() => navigate('/profile'));
-  const avatarSrc = user?.avatar_url || getMemoji(user?.full_name || user?.username);
+
+  // Priority: saved memoji choice > server avatar > auto-assigned
+  const savedMemojiId = localStorage.getItem(`memoji_${user?.id || 'default'}`);
+  const avatarSrc = savedMemojiId
+    ? getMemojiById(savedMemojiId)
+    : user?.avatar_url || getMemoji(user?.full_name || user?.username);
 
   return (
     <button

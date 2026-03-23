@@ -6,6 +6,8 @@ import { BottomNav } from '../components/BottomNav';
 import { NotificationSettings } from '../components/NotificationSettings';
 import { ProfilePanel } from '../components/ProfilePanel';
 import { F7Icon } from '../components/F7Icon';
+import { MemojiPicker } from '../components/MemojiPicker';
+import { getMemoji, getMemojiById } from '../lib/memojis';
 import { motion, AnimatePresence } from 'framer-motion';
 import axios from 'axios';
 
@@ -38,7 +40,8 @@ export default function ProfilePage() {
   const [copiedLink, setCopiedLink] = useState(false);
   const { permission, requestPermission } = useNotifications();
   const [profilePanelOpen, setProfilePanelOpen] = useState(false);
-
+  const [showMemojiPicker, setShowMemojiPicker] = useState(false);
+  const [selectedMemojiId, setSelectedMemojiId] = useState(() => localStorage.getItem(`memoji_${user?.id || 'default'}`) || null);
   const headers = token ? { Authorization: `Bearer ${token}` } : {};
 
   useEffect(() => {
@@ -108,10 +111,10 @@ export default function ProfilePage() {
 
         {/* User summary */}
         <div className="flex items-center gap-4 mb-6">
-          <div style={{ width: 55, height: 55, borderRadius: '50%', overflow: 'hidden', border: '2px solid var(--accent)', flexShrink: 0 }}>
-            {user?.avatar_url ? <img src={user.avatar_url} alt="" className="w-full h-full object-cover" data-testid="profile-avatar" />
-              : <div className="w-full h-full flex items-center justify-center" style={{ background: 'var(--accent)', color: '#fff', fontFamily: f, fontSize: 22, fontWeight: 700 }}>{user?.full_name?.charAt(0)?.toUpperCase() || 'U'}</div>}
-          </div>
+          <button onClick={() => setShowMemojiPicker(true)} style={{ width: 55, height: 55, borderRadius: '50%', overflow: 'hidden', border: '2px solid var(--accent)', flexShrink: 0, padding: 0, background: 'var(--light-gray)', cursor: 'pointer', position: 'relative' }}>
+            <img src={selectedMemojiId ? getMemojiById(selectedMemojiId) : (user?.avatar_url || getMemoji(user?.full_name))} alt="" className="w-full h-full object-cover" data-testid="profile-avatar" />
+            <div style={{ position: 'absolute', bottom: -2, right: -2, width: 20, height: 20, borderRadius: '50%', background: 'var(--accent)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 10, color: '#fff', border: '2px solid var(--surface)' }}>✎</div>
+          </button>
           <div className="flex-1 min-w-0">
             <p style={{ fontFamily: f, fontSize: 15, fontWeight: 500, color: 'var(--title-color)' }}>{user?.full_name}</p>
             <p style={{ fontFamily: f, fontSize: 13, fontWeight: 400, color: 'var(--text-color)' }}>{user?.email || ''}</p>
@@ -340,6 +343,17 @@ export default function ProfilePage() {
 
       <BottomNav active="settings" />
       <ProfilePanel open={profilePanelOpen} onClose={() => setProfilePanelOpen(false)} />
+      {showMemojiPicker && (
+        <MemojiPicker
+          currentId={selectedMemojiId}
+          onSelect={(id) => {
+            setSelectedMemojiId(id);
+            localStorage.setItem(`memoji_${user?.id || 'default'}`, id);
+            setShowMemojiPicker(false);
+          }}
+          onClose={() => setShowMemojiPicker(false)}
+        />
+      )}
     </div>
   );
 }
