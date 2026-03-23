@@ -324,10 +324,9 @@ export const PostListCard = ({ article, isLast, ageGroup }) => {
           </div>
         </div>
       </motion.article>
-      {!isLast && (
-        <div style={{ height: 1, background: 'var(--light-gray)' }} />
-      )}
-    </>
+    </>;
+  );
+};
   );
 };
 
