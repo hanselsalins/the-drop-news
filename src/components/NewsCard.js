@@ -289,10 +289,9 @@ export const PostListCard = ({ article, isLast, ageGroup }) => {
         style={{
           display: 'flex',
           alignItems: 'flex-start',
-          background: 'var(--surface)',
-          padding: 15,
+          padding: '15px 0',
           minHeight: 130,
-          boxShadow: 'var(--block-shadow)',
+          borderBottom: isLast ? 'none' : '1px solid var(--light-gray)',
         }}
       >
         <div style={{ width: 110, height: 110, borderRadius: 12, overflow: 'hidden', flexShrink: 0 }}>
