@@ -123,65 +123,25 @@ export default function ProfilePage() {
         </div>
 
         {/* Toggles */}
-        <div style={{ background: 'var(--surface)', borderRadius: 18, overflow: 'hidden', marginBottom: 15 }}>
+        <div style={{ background: 'var(--surface)', borderRadius: 18, overflow: 'hidden', marginBottom: 15, border: '1px solid var(--light-gray)' }}>
           <div className="flex items-center justify-between" style={{ padding: '14px 15px', borderBottom: '1px solid var(--light-gray)' }}>
             <span style={{ fontFamily: f, fontSize: 15, fontWeight: 500, color: 'var(--title-color)' }}>Dark Mode</span>
             <button onClick={toggleDarkMode} className="w-11 h-6 rounded-full flex items-center px-0.5 cursor-pointer"
-              style={{ background: darkMode ? 'var(--accent)' : '#ddd', border: 'none' }}>
-              <div className="w-5 h-5 rounded-full" style={{ background: '#fff', transform: darkMode ? 'translateX(20px)' : 'translateX(0)', transition: 'transform 0.2s', boxShadow: '0 1px 4px rgba(0,0,0,0.2)' }} />
+              style={{ background: darkMode ? 'var(--accent)' : 'var(--light-gray)', border: 'none' }}>
+              <div className="w-5 h-5 rounded-full" style={{ background: '#fff', transform: darkMode ? 'translateX(20px)' : 'translateX(0)', transition: 'transform 0.2s', boxShadow: 'none' }} />
             </button>
           </div>
           <div className="flex items-center justify-between" style={{ padding: '14px 15px' }}>
             <span style={{ fontFamily: f, fontSize: 15, fontWeight: 500, color: 'var(--title-color)' }}>Notifications</span>
             <button onClick={requestPermission} className="w-11 h-6 rounded-full flex items-center px-0.5 cursor-pointer"
-              style={{ background: permission === 'granted' ? 'var(--accent)' : '#ddd', border: 'none' }}>
-              <div className="w-5 h-5 rounded-full" style={{ background: '#fff', transform: permission === 'granted' ? 'translateX(20px)' : 'translateX(0)', transition: 'transform 0.2s', boxShadow: '0 1px 4px rgba(0,0,0,0.2)' }} />
+              style={{ background: permission === 'granted' ? 'var(--accent)' : 'var(--light-gray)', border: 'none' }}>
+              <div className="w-5 h-5 rounded-full" style={{ background: '#fff', transform: permission === 'granted' ? 'translateX(20px)' : 'translateX(0)', transition: 'transform 0.2s', boxShadow: 'none' }} />
             </button>
           </div>
         </div>
-
-        {/* Account section */}
-        <p style={{ fontFamily: f, fontSize: 18, fontWeight: 600, color: 'var(--title-color)', marginTop: 25, marginBottom: 8 }}>Account</p>
-        <div style={{ background: 'var(--surface)', borderRadius: 18, overflow: 'hidden', marginBottom: 15 }}>
-          {/* Country */}
-          <button data-testid="country-selector-btn" onClick={() => setShowCountryPicker(!showCountryPicker)}
-            className="w-full flex items-center justify-between cursor-pointer"
-            style={{ padding: '14px 15px', height: 50, background: 'none', border: 'none', borderBottom: '1px solid var(--light-gray)' }}>
-            <span style={{ fontFamily: f, fontSize: 15, fontWeight: 500, color: 'var(--title-color)' }}>
-              News Country: {userCountry ? `${userCountry.flag_emoji} ${userCountry.country_name}` : (user?.country || 'Select')}
-            </span>
-            <F7Icon name="chevron_right" size={16} color="#8896b8" />
-          </button>
-          {/* City */}
-          <div className="flex items-center justify-between" style={{ padding: '14px 15px', height: 50, borderBottom: '1px solid var(--light-gray)' }}>
-            {editingCity ? (
-              <div className="flex items-center gap-2 flex-1">
-                <input data-testid="edit-city-input" value={editCity} onChange={e => setEditCity(e.target.value)}
-                  className="flex-1 px-2 py-1 text-sm outline-none" style={{ fontFamily: f, background: 'var(--bg)', borderRadius: 8, border: 'none', color: 'var(--title-color)' }} />
-                <button data-testid="save-city-btn" onClick={handleSaveCity} className="cursor-pointer" style={{ background: 'none', border: 'none' }}>
-                  <F7Icon name="checkmark_alt" size={16} color="var(--accent)" />
-                </button>
-              </div>
-            ) : (
-              <>
-                <span style={{ fontFamily: f, fontSize: 15, fontWeight: 500, color: 'var(--title-color)' }}>City: {user?.city || 'Not set'}</span>
-                <button data-testid="edit-city-btn" onClick={() => { setEditingCity(true); setEditCity(user?.city || ''); }} className="cursor-pointer" style={{ background: 'none', border: 'none' }}>
-                  <F7Icon name="pencil" size={16} color="var(--accent)" />
-                </button>
-              </>
-            )}
-          </div>
-          {/* Age badge */}
-          <div className="flex items-center justify-between" style={{ padding: '14px 15px', height: 50 }}>
-            <span style={{ fontFamily: f, fontSize: 15, fontWeight: 500, color: 'var(--title-color)' }}>Role</span>
-            <span data-testid="age-badge" style={{ fontFamily: f, fontSize: 13, fontWeight: 500, color: 'var(--bg)', background: 'var(--title-color)', borderRadius: 22, padding: '0 10px', height: 24, display: 'inline-flex', alignItems: 'center' }}>
-              {badge.label}
-            </span>
-          </div>
-        </div>
-
+...
         {showCountryPicker && (
-          <div className="mb-4 max-h-52 overflow-y-auto" style={{ background: 'var(--surface)', border: '1px solid var(--light-gray)', borderRadius: 10, boxShadow: 'var(--block-shadow)' }}>
+          <div className="mb-4 max-h-52 overflow-y-auto" style={{ background: 'var(--surface)', border: '1px solid var(--light-gray)', borderRadius: 10, boxShadow: 'none' }}>
             {countries.map(c => (
               <button key={c.country_code} data-testid={`country-option-${c.country_code}`} onClick={() => handleCountrySelect(c)}
                 className="w-full text-left px-4 py-2.5 text-sm flex items-center gap-2 cursor-pointer"
