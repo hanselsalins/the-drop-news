@@ -151,7 +151,9 @@ export default function FeedPage() {
       </div>
 
       {/* ── CATEGORY CARDS ── */}
-      <CategoryTabs />
+      <div style={{ padding: '0 15px' }}>
+        <CategoryTabs />
+      </div>
 
       {/* ── PAGE CONTENT ── */}
       <div style={{ padding: '0 15px' }}>
