@@ -18,38 +18,69 @@ const AGE_TO_BAND = {
   '17-20': 'editorial',
 };
 
+const LIGHT_THEME = {
+  bg: '#ffffff',
+  surface: '#ffffff',
+  titleColor: '#1e2b47',
+  textColor: '#828d9c',
+  lightGray: '#ecf1f5',
+  blockShadow: '0px 2px 10px 0px rgba(85,95,105,0.13)',
+};
+
+const DARK_THEME = {
+  bg: '#1A1A1A',
+  surface: '#2A2A2A',
+  titleColor: '#FFFFFF',
+  textColor: '#9aa9b2',
+  lightGray: '#3A3A3A',
+  blockShadow: 'none',
+};
+
+function applyThemeVariables(theme) {
+  const root = document.documentElement;
+  const appRoot = document.getElementById('root');
+
+  root.style.setProperty('--bg', theme.bg);
+  root.style.setProperty('--surface', theme.surface);
+  root.style.setProperty('--title-color', theme.titleColor);
+  root.style.setProperty('--text-color', theme.textColor);
+  root.style.setProperty('--light-gray', theme.lightGray);
+  root.style.setProperty('--block-shadow', theme.blockShadow);
+
+  root.style.background = theme.bg;
+  root.style.backgroundColor = theme.bg;
+  document.body.style.background = theme.bg;
+  document.body.style.backgroundColor = theme.bg;
+  document.body.style.color = theme.titleColor;
+
+  if (appRoot) {
+    appRoot.style.background = theme.bg;
+    appRoot.style.backgroundColor = theme.bg;
+    appRoot.style.color = theme.titleColor;
+    appRoot.style.minHeight = '100vh';
+  }
+}
+
 function applyBand(ageGroup, darkMode = false) {
   const band = AGE_TO_BAND[ageGroup] || 'cool-connected';
   document.documentElement.setAttribute('data-band', band);
-  document.documentElement.setAttribute('data-theme', darkMode ? 'dark' : 'light');
+  if (darkMode) {
+    document.documentElement.setAttribute('data-theme', 'dark');
+  } else {
+    document.documentElement.removeAttribute('data-theme');
+  }
   return band;
 }
 
 function applyDarkMode(darkMode) {
-  const root = document.getElementById('root');
-
   if (darkMode) {
     document.documentElement.setAttribute('data-theme', 'dark');
-    document.documentElement.style.background = 'var(--bg)';
-    document.documentElement.style.backgroundColor = 'var(--bg)';
-    document.body.style.background = 'var(--bg)';
-    document.body.style.backgroundColor = 'var(--bg)';
-    if (root) {
-      root.style.background = 'var(--bg)';
-      root.style.backgroundColor = 'var(--bg)';
-      root.style.minHeight = '100vh';
-    }
+    document.documentElement.style.colorScheme = 'dark';
+    applyThemeVariables(DARK_THEME);
   } else {
-    document.documentElement.setAttribute('data-theme', 'light');
-    document.documentElement.style.background = 'var(--bg)';
-    document.documentElement.style.backgroundColor = 'var(--bg)';
-    document.body.style.background = 'var(--bg)';
-    document.body.style.backgroundColor = 'var(--bg)';
-    if (root) {
-      root.style.background = 'var(--bg)';
-      root.style.backgroundColor = 'var(--bg)';
-      root.style.minHeight = '100vh';
-    }
+    document.documentElement.removeAttribute('data-theme');
+    document.documentElement.style.colorScheme = 'light';
+    applyThemeVariables(LIGHT_THEME);
   }
 }
 
