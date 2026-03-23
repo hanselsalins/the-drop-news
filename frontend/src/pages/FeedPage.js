@@ -2,7 +2,7 @@ import { useState, useEffect, useCallback } from 'react';
 import { useTheme } from '../contexts/ThemeContext';
 import { useNotifications } from '../hooks/useNotifications';
 import { useReducedMotion } from '../hooks/useReducedMotion';
-import { HeroNewsCard, TodayDropCard, CategoryCard } from '../components/NewsCard';
+import { HeroNewsCard, TodayDropCard, CategoryCard, PostListCard } from '../components/NewsCard';
 import { CategoryTabs } from '../components/CategoryTabs';
 import { BottomNav } from '../components/BottomNav';
 import { MicroFactCard } from '../components/MicroFactCard';
@@ -117,6 +117,27 @@ export default function FeedPage() {
 
   return (
     <div data-testid="feed-page" className="min-h-screen pb-16" style={{ backgroundColor: 'var(--bg)', color: 'var(--title-color)' }}>
+      {/* DEBUG BUTTON - TEMPORARY */}
+      <button
+        onClick={() => {
+          const html = document.documentElement;
+          const body = document.body;
+          const root = document.getElementById('root');
+          const info = [
+            'data-theme: ' + html.getAttribute('data-theme'),
+            'html inline bg: ' + html.style.backgroundColor,
+            'body inline bg: ' + body.style.backgroundColor,
+            'root inline bg: ' + (root ? root.style.backgroundColor : 'no root'),
+            '--bg computed: ' + getComputedStyle(html).getPropertyValue('--bg').trim(),
+            'html computed bg: ' + getComputedStyle(html).backgroundColor,
+            'body computed bg: ' + getComputedStyle(body).backgroundColor,
+          ].join('\n');
+          alert(info);
+        }}
+        style={{ background: 'red', color: 'white', padding: '8px 16px', borderRadius: 8, border: 'none', fontWeight: 700, margin: 8, cursor: 'pointer' }}
+      >
+        🔍 DEBUG: Show BG Info
+      </button>
       <StreakCelebration streakCount={streak.current_streak} onComplete={() => setShowCelebration(false)} />
       <MilestoneBanner milestone={milestone} onDismiss={() => acknowledgeMilestone(milestone?.notification_id)} />
 
@@ -167,16 +188,14 @@ export default function FeedPage() {
       {/* ── PAGE CONTENT ── */}
       <div style={{ padding: '0 15px' }}>
 
-        {/* TODAY'S DROP section */}
+        {/* TODAY'S DROP section — vertical post list */}
         {activeCategory === 'today' && !loading && todayDropArticles.length > 0 && (
           <div style={{ marginTop: 25 }}>
             <ProgressDots articleIds={todayArticleIds} readArticleIds={readIds} />
-            <div className="overflow-x-auto mt-3" style={{ margin: '0 -15px', padding: '0 15px' }}>
-              <div className="flex gap-3 min-w-max">
-                {todayDropArticles.map(article => (
-                  <TodayDropCard key={article.id} article={article} isRead={readIds.has(String(article.id))} />
-                ))}
-              </div>
+            <div className="mt-3">
+              {todayDropArticles.map(article => (
+                <PostListCard key={article.id} article={article} />
+              ))}
             </div>
           </div>
         )}
