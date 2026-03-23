@@ -148,6 +148,7 @@ export const CategoryTabs = () => {
           </button>
         ))}
       </div>
+      </div>
     </div>
   );
 };
