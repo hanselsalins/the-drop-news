@@ -22,70 +22,77 @@ export const ProgressDots = ({ articleIds, readArticleIds }) => {
   const meter = MISSION_METERS[ageGroup] || 'dots';
 
   return (
-    <div className="flex items-center justify-between">
+    <div style={{ marginBottom: 24 }}>
+      {/* Title */}
       <span style={{
         fontFamily: 'var(--font)',
         fontSize: 28,
         fontWeight: 600,
         color: 'var(--title-color)',
+        display: 'block',
       }}>
         Today's Drop
       </span>
 
-      {meter === 'stars' && (
-        <div className="flex items-center gap-1">
-          {dots.map((filled, i) => (
-            <motion.span
-              key={i}
-              animate={!prefersReducedMotion && filled ? { scale: [1, 1.3, 1] } : {}}
-              transition={{ duration: 0.3 }}
-              style={{ fontSize: 24, filter: filled ? 'none' : 'grayscale(1) opacity(0.3)' }}
-            >⭐</motion.span>
-          ))}
-          <span style={{ fontFamily: 'var(--font)', fontSize: 14, fontWeight: 700, color: 'var(--accent)', marginLeft: 4 }}>
-            {readCount} of {total}
-          </span>
-        </div>
-      )}
+      {/* Counter + meter — right aligned on next line */}
+      <div className="flex items-center justify-end" style={{ marginTop: 6 }}>
+        {meter === 'stars' && (
+          <>
+            <span style={{ fontFamily: 'var(--font)', fontSize: 14, fontWeight: 700, color: 'var(--accent)', marginRight: 8 }}>
+              {readCount} of {total}
+            </span>
+            <div className="flex items-center gap-1">
+              {dots.map((filled, i) => (
+                <motion.span
+                  key={i}
+                  animate={!prefersReducedMotion && filled ? { scale: [1, 1.3, 1] } : {}}
+                  transition={{ duration: 0.3 }}
+                  style={{ fontSize: 24, filter: filled ? 'none' : 'grayscale(1) opacity(0.3)' }}
+                >⭐</motion.span>
+              ))}
+            </div>
+          </>
+        )}
 
-      {meter === 'dots' && (
-        <div className="flex items-center gap-2">
-          {dots.map((filled, i) => (
-            <motion.div
-              key={i}
-              initial={prefersReducedMotion ? undefined : { scale: 0.8, opacity: 0 }}
-              animate={prefersReducedMotion ? undefined : { scale: 1, opacity: 1 }}
-              transition={prefersReducedMotion ? undefined : { delay: i * 0.06, duration: 0.3 }}
-              style={{
-                width: 20, height: 20, borderRadius: '50%',
-                background: filled ? 'var(--accent)' : 'transparent',
-                border: '2px solid var(--accent)',
-              }}
-            />
-          ))}
-        </div>
-      )}
-
-      {meter === 'bar' && (
-        <div className="flex items-center gap-2">
-          <div style={{ width: 120, height: 4, background: 'var(--light-gray)', borderRadius: 999, overflow: 'hidden' }}>
-            <motion.div
-              initial={{ width: 0 }}
-              animate={{ width: `${(readCount / total) * 100}%` }}
-              style={{ height: '100%', background: 'var(--accent)', borderRadius: 999 }}
-            />
+        {meter === 'dots' && (
+          <div className="flex items-center gap-2">
+            {dots.map((filled, i) => (
+              <motion.div
+                key={i}
+                initial={prefersReducedMotion ? undefined : { scale: 0.8, opacity: 0 }}
+                animate={prefersReducedMotion ? undefined : { scale: 1, opacity: 1 }}
+                transition={prefersReducedMotion ? undefined : { delay: i * 0.06, duration: 0.3 }}
+                style={{
+                  width: 20, height: 20, borderRadius: '50%',
+                  background: filled ? 'var(--accent)' : 'transparent',
+                  border: '2px solid var(--accent)',
+                }}
+              />
+            ))}
           </div>
-          <span style={{ fontFamily: 'var(--font)', fontSize: 12, fontWeight: 500, color: 'var(--text-color)' }}>
-            {readCount}/{total}
-          </span>
-        </div>
-      )}
+        )}
 
-      {meter === 'text' && (
-        <span style={{ fontFamily: 'var(--font)', fontSize: 12, fontWeight: 400, color: 'var(--text-color)' }}>
-          {readCount} of {total} read
-        </span>
-      )}
+        {meter === 'bar' && (
+          <div className="flex items-center gap-2">
+            <div style={{ width: 120, height: 4, background: 'var(--light-gray)', borderRadius: 999, overflow: 'hidden' }}>
+              <motion.div
+                initial={{ width: 0 }}
+                animate={{ width: `${(readCount / total) * 100}%` }}
+                style={{ height: '100%', background: 'var(--accent)', borderRadius: 999 }}
+              />
+            </div>
+            <span style={{ fontFamily: 'var(--font)', fontSize: 12, fontWeight: 500, color: 'var(--text-color)' }}>
+              {readCount}/{total}
+            </span>
+          </div>
+        )}
+
+        {meter === 'text' && (
+          <span style={{ fontFamily: 'var(--font)', fontSize: 12, fontWeight: 400, color: 'var(--text-color)' }}>
+            {readCount} of {total} read
+          </span>
+        )}
+      </div>
     </div>
   );
 };
