@@ -315,7 +315,7 @@ export const PostListCard = ({ article, isLast, ageGroup }) => {
           }}>
             {article.published_at ? getTimeAgo(article.published_at) : article.source}
           </span>
-          <F7Icon name="bookmark_fill" size={18} color="var(--accent)" />
+          
         </div>
       </div>
     </motion.article>
