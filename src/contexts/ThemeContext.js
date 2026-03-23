@@ -28,12 +28,15 @@ const LIGHT_THEME = {
 };
 
 const DARK_THEME = {
-  bg: '#1A1A1A',
-  surface: '#2D2D2D',
-  titleColor: '#FFFFFF',
-  textColor: '#9aa9b2',
-  lightGray: '#404040',
+  bg: '#393a3b',
+  surface: '#302f30',
+  lightGray: '#28292a',
+  titleColor: '#f1f0ef',
+  textColor: '#c1c1c1',
   blockShadow: 'none',
+  headerBg: '#282a2b',
+  toolbarBg: '#28292a',
+  toolbarIconColor: '#c4c4c5',
 };
 
 function applyThemeVariables(theme) {
