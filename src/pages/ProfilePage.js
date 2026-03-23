@@ -40,7 +40,8 @@ export default function ProfilePage() {
   const [copiedLink, setCopiedLink] = useState(false);
   const { permission, requestPermission } = useNotifications();
   const [profilePanelOpen, setProfilePanelOpen] = useState(false);
-
+  const [showMemojiPicker, setShowMemojiPicker] = useState(false);
+  const [selectedMemojiId, setSelectedMemojiId] = useState(() => localStorage.getItem(`memoji_${user?.id || 'default'}`) || null);
   const headers = token ? { Authorization: `Bearer ${token}` } : {};
 
   useEffect(() => {
