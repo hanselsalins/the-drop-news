@@ -6,22 +6,19 @@ import { HeroNewsCard, TodayDropCard, CategoryCard, PostListCard } from '../comp
 import { CategoryTabs } from '../components/CategoryTabs';
 import { BottomNav } from '../components/BottomNav';
 import { MicroFactCard } from '../components/MicroFactCard';
-import { ProfileButton } from '../components/ProfileButton';
-import { ProfilePanel } from '../components/ProfilePanel';
 import { MilestoneBanner } from '../components/MilestoneBanner';
 import { ProgressDots } from '../components/ProgressDots';
 import { SkeletonCard, HeroSkeletonCard } from '../components/SkeletonCard';
 import { SkeletonTabs } from '../components/SkeletonTabs';
 import { StreakCelebration } from '../components/StreakCelebration';
 import { useReadArticles } from '../hooks/useReadArticles';
-import { F7Icon } from '../components/F7Icon';
 import { motion } from 'framer-motion';
 import axios from 'axios';
 
 const BACKEND_URL = import.meta.env.VITE_BACKEND_URL;
 
 export default function FeedPage() {
-  const { ageGroup, user, token, darkMode, toggleDarkMode } = useTheme();
+  const { ageGroup, user, token } = useTheme();
   const prefersReducedMotion = useReducedMotion();
   const [articles, setArticles] = useState([]);
   const [categories, setCategories] = useState([]);
@@ -29,7 +26,7 @@ export default function FeedPage() {
   const [streak, setStreak] = useState({ current_streak: 0, longest_streak: 0, read_today: false });
   const [activeCategory, setActiveCategory] = useState('today');
   const [loading, setLoading] = useState(true);
-  const [profileOpen, setProfileOpen] = useState(false);
+  
   const [showCelebration, setShowCelebration] = useState(false);
   const [isRefreshing, setIsRefreshing] = useState(false);
   const [refreshSpin, setRefreshSpin] = useState(false);
@@ -120,16 +117,18 @@ export default function FeedPage() {
       <StreakCelebration streakCount={streak.current_streak} onComplete={() => setShowCelebration(false)} />
       <MilestoneBanner milestone={milestone} onDismiss={() => acknowledgeMilestone(milestone?.notification_id)} />
 
-      {/* ── HEADER — toggle + avatar right ── */}
-      <div className="flex items-center justify-end" style={{ padding: '8px 16px', background: 'var(--bg)' }}>
-        <div className="flex items-center">
-          <button onClick={toggleDarkMode} aria-label="Toggle theme"
-            className="flex items-center justify-center cursor-pointer"
-            style={{ width: 44, height: 44, background: 'none', border: 'none', marginRight: 4 }}>
-            <F7Icon name={darkMode ? 'sun_max' : 'moon_stars'} size={22} color="var(--title-color)" />
-          </button>
-          <ProfileButton onClick={() => setProfileOpen(true)} size={40} bordered />
-        </div>
+      {/* ── HEADER — THE DROP wordmark right ── */}
+      <div className="flex items-center justify-end" style={{ padding: '12px 16px', background: 'var(--bg)' }}>
+        <span style={{
+          fontFamily: "'Exo 2', sans-serif",
+          fontWeight: 900,
+          fontStyle: 'italic',
+          fontSize: 22,
+          color: 'var(--title-color)',
+          letterSpacing: '0.02em',
+        }}>
+          THE DROP
+        </span>
       </div>
 
       {/* ── BREAKING / TRENDING hero card ── */}
@@ -216,7 +215,7 @@ export default function FeedPage() {
       </div>
 
       <BottomNav active="home" />
-      <ProfilePanel open={profileOpen} onClose={() => setProfileOpen(false)} />
+      
     </div>
   );
 }
