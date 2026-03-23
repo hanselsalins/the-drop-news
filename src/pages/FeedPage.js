@@ -120,24 +120,15 @@ export default function FeedPage() {
       <StreakCelebration streakCount={streak.current_streak} onComplete={() => setShowCelebration(false)} />
       <MilestoneBanner milestone={milestone} onDismiss={() => acknowledgeMilestone(milestone?.notification_id)} />
 
-      {/* ── HEADER — avatar left, icons right ── */}
-      <div className="flex items-center justify-between" style={{ padding: '8px 15px', background: 'var(--bg)' }}>
-        <ProfileButton onClick={() => setProfileOpen(true)} size={30} />
-        <div className="flex items-center gap-2">
+      {/* ── HEADER — toggle + avatar right ── */}
+      <div className="flex items-center justify-end" style={{ padding: '8px 16px', background: 'var(--bg)' }}>
+        <div className="flex items-center">
           <button onClick={toggleDarkMode} aria-label="Toggle theme"
             className="flex items-center justify-center cursor-pointer"
-            style={{ width: 44, height: 44, background: 'none', border: 'none' }}>
+            style={{ width: 44, height: 44, background: 'none', border: 'none', marginRight: 4 }}>
             <F7Icon name={darkMode ? 'sun_max' : 'moon_stars'} size={22} color="var(--title-color)" />
           </button>
-          <button onClick={handleRefresh} aria-label="Refresh feed"
-            className="flex items-center justify-center cursor-pointer"
-            style={{ width: 44, height: 44, background: 'none', border: 'none' }}>
-            <F7Icon name="arrow_2_circlepath" size={22} color="var(--title-color)"
-              style={{
-                transform: refreshSpin ? 'rotate(360deg)' : 'rotate(0deg)',
-                transition: 'transform 0.6s ease',
-              }} />
-          </button>
+          <ProfileButton onClick={() => setProfileOpen(true)} size={40} bordered />
         </div>
       </div>
 
