@@ -321,7 +321,7 @@ export default function ArticlePage() {
             </div>
           </div>
         )}
-        <div style={{ height: 60 }} />
+        <div style={{ height: 40 }} />
       </motion.div>
 
       {/* Bottom Tab Bar */}
