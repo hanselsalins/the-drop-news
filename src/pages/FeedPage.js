@@ -6,6 +6,7 @@ import { HeroNewsCard, TodayDropCard, CategoryCard, PostListCard } from '../comp
 import { CategoryTabs } from '../components/CategoryTabs';
 import { BottomNav } from '../components/BottomNav';
 import { MicroFactCard } from '../components/MicroFactCard';
+import { ProfileButton } from '../components/ProfileButton';
 import { MilestoneBanner } from '../components/MilestoneBanner';
 import { ProgressDots } from '../components/ProgressDots';
 import { SkeletonCard, HeroSkeletonCard } from '../components/SkeletonCard';
