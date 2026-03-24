@@ -319,8 +319,8 @@ export default function CategoryPage() {
           </div>
         </div>
 
-        {/* 16px spacing before articles */}
-        <div style={{ height: 16 }} />
+        {/* spacing before articles */}
+        <div style={{ height: 30 }} />
 
 
         {/* ARTICLE LIST */}
