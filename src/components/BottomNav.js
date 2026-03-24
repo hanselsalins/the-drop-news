@@ -78,8 +78,8 @@ export const BottomNav = ({ active = 'home' }) => {
             <motion.div
               initial={{ y: '-100%' }} animate={{ y: 0 }} exit={{ y: '-100%' }}
               transition={{ type: 'spring', damping: 28, stiffness: 300 }}
-              className="fixed top-0 left-1/2 -translate-x-1/2 z-[70] px-4 pt-12 pb-5 w-full max-w-[430px]"
-              style={{ background: 'var(--surface)', borderRadius: '0 0 20px 20px' }}
+              className="fixed top-0 z-[70] px-4 pt-12 pb-5 w-full max-w-[430px]"
+              style={{ background: 'var(--surface)', borderRadius: '0 0 20px 20px', left: '50%', transform: 'translateX(-50%)' }}
             >
               <div className="flex items-center justify-between mb-4">
                 <h3 style={{ fontFamily: 'var(--font)', fontSize: 18, fontWeight: 600, color: 'var(--title-color)' }}>Search</h3>
