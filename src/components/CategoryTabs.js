@@ -115,7 +115,7 @@ export const CategoryTabs = () => {
               boxShadow: 'var(--block-shadow)',
               display: 'flex',
               flexDirection: 'column',
-              background: '#f0f0f0',
+              background: 'var(--light-gray)',
               flexShrink: 0,
               border: 'none',
               padding: 0,
