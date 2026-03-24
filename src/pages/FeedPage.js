@@ -243,7 +243,7 @@ export default function FeedPage() {
       </div>
 
       {/* ── PAGE CONTENT (below fixed header) ── */}
-      <div style={{ paddingTop: 50 }}>
+      <div style={{ paddingTop: 68 }}>
 
         {/* ── BREAKING NEWS hero card ── */}
         <div style={{ padding: '0 15px' }}>
