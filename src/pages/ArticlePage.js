@@ -286,6 +286,23 @@ export default function ArticlePage() {
       {/* Bottom Tab Bar */}
       <BottomNav active="" />
 
+      {/* Toast */}
+      <AnimatePresence>
+        {toast && (
+          <motion.div
+            initial={{ opacity: 0, y: -20 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -20 }}
+            className="fixed top-12 left-1/2 z-[80]"
+            style={{
+              transform: 'translateX(-50%)', fontFamily: 'var(--font)', fontSize: 13, fontWeight: 500,
+              background: 'var(--title-color)', color: 'var(--bg)',
+              padding: '10px 16px', borderRadius: 10, whiteSpace: 'nowrap',
+            }}
+          >
+            {toast}
+          </motion.div>
+        )}
+      </AnimatePresence>
+
       {/* Share Bottom Sheet */}
       <AnimatePresence>
         {menuOpen && (
@@ -294,40 +311,59 @@ export default function ArticlePage() {
               initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
               onClick={() => setMenuOpen(false)}
               className="fixed inset-0 z-[60]"
-              style={{ background: 'rgba(0,0,0,0.4)' }}
+              style={{ background: 'rgba(0,0,0,0.5)' }}
             />
             <motion.div
               initial={{ y: '100%' }} animate={{ y: 0 }} exit={{ y: '100%' }}
-              transition={{ type: 'spring', damping: 28, stiffness: 300 }}
+              transition={{ duration: 0.25, ease: 'easeOut' }}
               className="fixed bottom-0 left-0 right-0 z-[70]"
-              style={{ background: 'var(--surface)', borderRadius: '20px 20px 0 0', padding: 20 }}
+              style={{ background: 'var(--surface)', borderRadius: '20px 20px 0 0', paddingBottom: 24 }}
             >
               {/* Drag handle */}
               <div style={{
                 width: 40, height: 5, background: 'var(--light-gray)',
-                borderRadius: 3, margin: '0 auto 16px',
+                borderRadius: 3, margin: '12px auto 20px',
               }} />
-              {SHARE_OPTIONS.map((opt) => (
-                <button
-                  key={opt.label}
-                  onClick={() => handleShareOption(opt)}
-                  className="flex items-center gap-3 w-full cursor-pointer"
-                  style={{
-                    background: 'none', border: 'none',
-                    padding: '14px 0',
-                    borderBottom: '1px solid var(--light-gray)',
-                  }}
-                >
-                  <F7Icon name={opt.icon} size={20} color="var(--title-color)" />
-                  <span style={{
-                    fontFamily: "'Rubik', var(--font)",
-                    fontSize: 15, fontWeight: 500,
-                    color: 'var(--title-color)',
-                  }}>
-                    {opt.action === 'copy' && copied ? 'Copied!' : opt.label}
-                  </span>
+              {/* Title */}
+              <p style={{
+                fontFamily: 'var(--font)', fontSize: 13, fontWeight: 600,
+                color: 'var(--text-color)', textTransform: 'uppercase',
+                letterSpacing: '0.08em', textAlign: 'center', margin: '0 0 20px',
+              }}>Share article</p>
+              {/* Icons grid */}
+              <div style={{ display: 'flex', justifyContent: 'center', gap: 28, padding: '0 20px 20px' }}>
+                {/* WhatsApp */}
+                <button onClick={handleWhatsApp} className="cursor-pointer" style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 8, background: 'none', border: 'none', padding: 0 }}>
+                  <div style={{ width: 60, height: 60, borderRadius: 16, background: '#25D366', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                    <WhatsAppIcon />
+                  </div>
+                  <span style={{ fontFamily: 'var(--font)', fontSize: 11, fontWeight: 500, color: 'var(--text-color)' }}>WhatsApp</span>
                 </button>
-              ))}
+                {/* Instagram */}
+                <button onClick={handleInstagram} className="cursor-pointer" style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 8, background: 'none', border: 'none', padding: 0 }}>
+                  <div style={{ width: 60, height: 60, borderRadius: 16, background: 'radial-gradient(circle at 30% 107%, #fdf497 0%, #fdf497 5%, #fd5949 45%, #d6249f 60%, #285AEB 90%)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                    <InstagramIcon />
+                  </div>
+                  <span style={{ fontFamily: 'var(--font)', fontSize: 11, fontWeight: 500, color: 'var(--text-color)' }}>Instagram</span>
+                </button>
+                {/* Copy Link */}
+                <button onClick={handleCopyLink} className="cursor-pointer" style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 8, background: 'none', border: 'none', padding: 0 }}>
+                  <div style={{ width: 60, height: 60, borderRadius: 16, background: 'var(--light-gray)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'var(--title-color)' }}>
+                    <CopyLinkIcon />
+                  </div>
+                  <span style={{ fontFamily: 'var(--font)', fontSize: 11, fontWeight: 500, color: 'var(--text-color)' }}>Copy link</span>
+                </button>
+              </div>
+              {/* Divider + Cancel */}
+              <div style={{ borderTop: '1px solid var(--light-gray)', margin: '0 20px 16px' }} />
+              <button onClick={() => setMenuOpen(false)} className="cursor-pointer"
+                style={{
+                  margin: '0 20px', width: 'calc(100% - 40px)', height: 44, borderRadius: 12,
+                  background: 'var(--light-gray)', color: 'var(--title-color)',
+                  fontFamily: 'var(--font)', fontSize: 15, fontWeight: 500, border: 'none',
+                }}>
+                Cancel
+              </button>
             </motion.div>
           </>
         )}
