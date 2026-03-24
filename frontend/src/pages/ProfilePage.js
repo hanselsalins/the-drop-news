@@ -3,8 +3,8 @@ import { useNavigate } from 'react-router-dom';
 import { useTheme } from '../contexts/ThemeContext';
 import { BottomNav } from '../components/BottomNav';
 import { F7Icon } from '../components/F7Icon';
-import { MemojiPicker } from '../components/MemojiPicker';
-import { getMemoji, getMemojiById } from '../lib/memojis';
+import { AvatarCircle, getSavedAvatarId } from '../components/AvatarCircle';
+import { getBankForAge } from '../lib/memojis';
 import { motion, AnimatePresence } from 'framer-motion';
 import axios from 'axios';
 
@@ -34,8 +34,8 @@ export default function ProfilePage() {
   const [socialTab, setSocialTab] = useState('friends');
   const [inviteLink, setInviteLink] = useState('');
   const [copiedLink, setCopiedLink] = useState(false);
-  const [showMemojiPicker, setShowMemojiPicker] = useState(false);
-  const [selectedMemojiId, setSelectedMemojiId] = useState(() => localStorage.getItem(`memoji_${user?.id || 'default'}`) || null);
+  const [selectedAvatarId, setSelectedAvatarId] = useState(() => getSavedAvatarId(user?.id));
+  const [showAvatarPicker, setShowAvatarPicker] = useState(false);
 
   // Friend search
   const [showAddFriend, setShowAddFriend] = useState(false);
@@ -84,8 +84,6 @@ export default function ProfilePage() {
     try { await axios.post(`${BACKEND_URL}/api/friends/decline/${friendshipId}`, {}, { headers }); setFriendRequests(prev => prev.filter(r => r.friendship_id !== friendshipId)); } catch {}
   };
 
-  const avatarSrc = selectedMemojiId ? getMemojiById(selectedMemojiId) : (user?.avatar_url || getMemoji(user?.full_name));
-  const initials = (user?.full_name || '?').split(' ').map(w => w[0]).join('').slice(0, 2).toUpperCase();
   const knowledgeScore = stats ? stats.knowledge_score?.score || 0 : 0;
 
   return (
@@ -98,18 +96,12 @@ export default function ProfilePage() {
       }}>
         <div style={{ display: 'flex', alignItems: 'center' }}>
           {/* Avatar */}
-          <button onClick={() => setShowMemojiPicker(true)} style={{
-            width: 64, height: 64, borderRadius: '50%', overflow: 'hidden',
-            border: '3px solid #FF6B00', flexShrink: 0, padding: 0,
-            background: avatarSrc ? 'var(--light-gray)' : '#FF6B00', cursor: 'pointer',
-            display: 'flex', alignItems: 'center', justifyContent: 'center',
-          }}>
-            {avatarSrc ? (
-              <img src={avatarSrc} alt="" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
-            ) : (
-              <span style={{ fontFamily: f, fontSize: 24, fontWeight: 600, color: '#fff' }}>{initials}</span>
-            )}
-          </button>
+          <AvatarCircle
+            name={user?.full_name || user?.username || ''}
+            avatarId={selectedAvatarId}
+            size={64}
+            onClick={() => setShowAvatarPicker(true)}
+          />
 
           {/* Name + username + badge */}
           <div style={{ marginLeft: 16, flex: 1, minWidth: 0 }}>
@@ -303,7 +295,7 @@ export default function ProfilePage() {
                   display: 'flex', alignItems: 'center', gap: 10, padding: '10px 0',
                   borderTop: '1px solid var(--light-gray)',
                 }}>
-                  <img src={r.avatar_url} alt="" style={{ width: 36, height: 36, borderRadius: '50%' }} />
+                  <AvatarCircle name={r.full_name} avatarId={null} size={36} bordered={false} />
                   <div style={{ flex: 1, minWidth: 0 }}>
                     <p style={{ fontFamily: f, fontSize: 14, fontWeight: 500, color: 'var(--title-color)', margin: 0 }}>{r.full_name}</p>
                     <p style={{ fontFamily: f, fontSize: 11, color: 'var(--text-color)', margin: 0 }}>@{r.username} · {r.knowledge_score} pts</p>
@@ -360,7 +352,7 @@ export default function ProfilePage() {
               display: 'flex', alignItems: 'center', gap: 10, padding: '12px 16px',
               borderTop: i > 0 ? '1px solid var(--light-gray)' : 'none',
             }}>
-              <img src={fr.avatar_url} alt="" style={{ width: 36, height: 36, borderRadius: '50%' }} />
+              <AvatarCircle name={fr.full_name} avatarId={null} size={40} bordered={false} />
               <div style={{ flex: 1, minWidth: 0 }}>
                 <p style={{ fontFamily: f, fontSize: 14, fontWeight: 500, color: 'var(--title-color)', margin: 0 }}>{fr.full_name}</p>
                 <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
@@ -383,7 +375,7 @@ export default function ProfilePage() {
               background: e.is_self ? 'rgba(255,107,0,0.04)' : 'transparent',
             }}>
               <span style={{ fontFamily: f, fontSize: 14, fontWeight: 700, color: e.rank <= 3 ? '#FFD60A' : 'var(--text-color)', width: 24, textAlign: 'center' }}>{e.rank}</span>
-              <img src={e.avatar_url} alt="" style={{ width: 32, height: 32, borderRadius: '50%' }} />
+              <AvatarCircle name={e.full_name} avatarId={null} size={40} bordered={false} />
               <div style={{ flex: 1, minWidth: 0 }}>
                 <p style={{ fontFamily: f, fontSize: 14, fontWeight: 500, color: 'var(--title-color)', margin: 0 }}>{e.full_name}</p>
               </div>
@@ -401,7 +393,7 @@ export default function ProfilePage() {
               display: 'flex', alignItems: 'center', gap: 10, padding: '12px 16px',
               borderTop: i > 0 ? '1px solid var(--light-gray)' : 'none',
             }}>
-              <img src={r.sender.avatar_url} alt="" style={{ width: 36, height: 36, borderRadius: '50%' }} />
+              <AvatarCircle name={r.sender.full_name} avatarId={null} size={36} bordered={false} />
               <div style={{ flex: 1, minWidth: 0 }}>
                 <p style={{ fontFamily: f, fontSize: 14, fontWeight: 500, color: 'var(--title-color)', margin: 0 }}>{r.sender.full_name}</p>
               </div>
@@ -420,18 +412,120 @@ export default function ProfilePage() {
 
       <BottomNav active="profile" />
 
-      {/* Memoji Picker */}
-      {showMemojiPicker && (
-        <MemojiPicker
-          currentId={selectedMemojiId}
-          onSelect={(id) => {
-            setSelectedMemojiId(id);
-            localStorage.setItem(`memoji_${user?.id || 'default'}`, id);
-            setShowMemojiPicker(false);
-          }}
-          onClose={() => setShowMemojiPicker(false)}
-        />
-      )}
+      {/* Avatar Picker Bottom Sheet */}
+      <AnimatePresence>
+        {showAvatarPicker && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 z-50 flex items-end justify-center"
+            style={{ background: 'rgba(0,0,0,0.5)' }}
+            onClick={() => setShowAvatarPicker(false)}
+          >
+            <motion.div
+              initial={{ y: 300 }}
+              animate={{ y: 0 }}
+              exit={{ y: 300 }}
+              transition={{ type: 'spring', damping: 25, stiffness: 300 }}
+              onClick={e => e.stopPropagation()}
+              style={{
+                background: 'var(--surface)',
+                borderRadius: '24px 24px 0 0',
+                width: '100%',
+                maxWidth: 480,
+                padding: '24px 20px 32px',
+                maxHeight: '75vh',
+                overflow: 'hidden',
+                display: 'flex',
+                flexDirection: 'column',
+              }}
+            >
+              <div className="flex items-center justify-between" style={{ marginBottom: 16 }}>
+                <h2 style={{ fontFamily: f, fontSize: 20, fontWeight: 700, color: 'var(--title-color)' }}>
+                  Choose your avatar
+                </h2>
+                <button
+                  onClick={() => setShowAvatarPicker(false)}
+                  style={{
+                    background: 'var(--light-gray)', border: 'none', borderRadius: '50%',
+                    width: 32, height: 32, display: 'flex', alignItems: 'center', justifyContent: 'center',
+                    color: 'var(--text-color)', fontSize: 18, cursor: 'pointer',
+                  }}
+                >✕</button>
+              </div>
+
+              <div style={{
+                display: 'flex', flexWrap: 'wrap', gap: 12, padding: '0 4px',
+                overflowY: 'auto', flex: 1, paddingBottom: 16,
+              }}>
+                {/* Initials option */}
+                <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 4 }}>
+                  <button
+                    onClick={() => {
+                      setSelectedAvatarId(null);
+                      localStorage.removeItem(`memoji_${user?.id || 'default'}`);
+                    }}
+                    style={{
+                      padding: 3, background: 'none', cursor: 'pointer',
+                      border: !selectedAvatarId ? '3px solid #FF6B00' : '3px solid transparent',
+                      borderRadius: '50%',
+                    }}
+                  >
+                    <AvatarCircle name={user?.full_name || user?.username || ''} avatarId={null} size={64} bordered={false} />
+                  </button>
+                  <span style={{ fontFamily: f, fontSize: 11, fontWeight: 400, color: 'var(--text-color)' }}>Initials</span>
+                </div>
+
+                {/* Memoji options */}
+                {getBankForAge(ageGroup).map(memoji => (
+                  <button
+                    key={memoji.id}
+                    onClick={() => {
+                      setSelectedAvatarId(memoji.id);
+                      localStorage.setItem(`memoji_${user?.id || 'default'}`, memoji.id);
+                    }}
+                    style={{
+                      width: 64, height: 64, borderRadius: '50%',
+                      border: selectedAvatarId === memoji.id ? '3px solid #FF6B00' : '3px solid transparent',
+                      background: selectedAvatarId === memoji.id ? 'var(--light-gray)' : 'transparent',
+                      padding: 3, cursor: 'pointer', overflow: 'hidden',
+                    }}
+                  >
+                    <img src={memoji.src} alt={memoji.label} style={{ width: '100%', height: '100%', objectFit: 'cover', borderRadius: '50%' }} />
+                  </button>
+                ))}
+              </div>
+
+              <button
+                onClick={() => {
+                  if (!selectedAvatarId) {
+                    localStorage.removeItem(`memoji_${user?.id || 'default'}`);
+                  }
+                  setShowAvatarPicker(false);
+                }}
+                style={{
+                  width: '100%', padding: '14px 0', borderRadius: 14, border: 'none',
+                  background: '#FF6B00', color: '#fff',
+                  fontFamily: f, fontSize: 16, fontWeight: 600, cursor: 'pointer', marginTop: 8,
+                }}
+              >Done</button>
+
+              <button
+                onClick={() => {
+                  setSelectedAvatarId(null);
+                  localStorage.removeItem(`memoji_${user?.id || 'default'}`);
+                }}
+                style={{
+                  background: 'none', border: 'none', cursor: 'pointer',
+                  fontFamily: f, fontSize: 13, fontWeight: 500, color: 'var(--text-color)',
+                  marginTop: 10, textAlign: 'center',
+                }}
+              >Reset to initials</button>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
     </div>
   );
 }
