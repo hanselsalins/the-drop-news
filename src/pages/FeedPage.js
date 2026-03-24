@@ -279,7 +279,7 @@ export default function FeedPage() {
           {/* TODAY'S DROP section — vertical post list */}
           {activeCategory === 'today' && !loading && todayDropArticles.length > 0 && (
             <div style={{ marginTop: 25 }}>
-              <div ref={setSectionRef("Today's Drop")}>
+              <div data-section-title="Today's Drop">
                 <ProgressDots articleIds={todayArticleIds} readArticleIds={readIds} />
               </div>
               <div>
