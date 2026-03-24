@@ -40,7 +40,7 @@ export default function ArticlePage() {
   const [loading, setLoading] = useState(true);
   const [readProgress, setReadProgress] = useState(0);
   const [menuOpen, setMenuOpen] = useState(false);
-  const [copied, setCopied] = useState(false);
+  const [toast, setToast] = useState(null);
 
   const headers = token ? { Authorization: `Bearer ${token}` } : {};
 
