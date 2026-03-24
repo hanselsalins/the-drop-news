@@ -1,9 +1,8 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useTheme } from '../contexts/ThemeContext';
 import { useNotifications } from '../hooks/useNotifications';
 import { BottomNav } from '../components/BottomNav';
-import { NotificationSettings } from '../components/NotificationSettings';
 import { ProfilePanel } from '../components/ProfilePanel';
 import { F7Icon } from '../components/F7Icon';
 import { MemojiPicker } from '../components/MemojiPicker';
@@ -13,336 +12,410 @@ import axios from 'axios';
 
 const BACKEND_URL = import.meta.env.VITE_BACKEND_URL;
 
-const AGE_BADGES = {
-  '8-10': { label: 'Junior Reader' }, '11-13': { label: 'News Scout' },
-  '14-16': { label: 'Drop Regular' }, '17-20': { label: 'Sharp Mind' },
+const f = 'Rubik, var(--font), sans-serif';
+
+/* ── reusable section header ── */
+const SectionHeader = ({ children }) => (
+  <p style={{
+    fontFamily: f, fontSize: 13, fontWeight: 600, color: 'var(--text-color)',
+    textTransform: 'uppercase', letterSpacing: '0.06em', padding: '20px 20px 6px 20px',
+  }}>{children}</p>
+);
+
+/* ── reusable list group ── */
+const ListGroup = ({ children }) => (
+  <div style={{ background: 'var(--surface)', borderRadius: 14, margin: '0 15px', overflow: 'hidden' }}>
+    {children}
+  </div>
+);
+
+/* ── reusable row ── */
+const Row = ({ label, right, onClick, isLast, testId }) => (
+  <button
+    data-testid={testId}
+    onClick={onClick}
+    className="w-full cursor-pointer"
+    style={{
+      display: 'flex', alignItems: 'center', justifyContent: 'space-between',
+      padding: '14px 16px', minHeight: 50,
+      borderBottom: isLast ? 'none' : '1px solid var(--light-gray)',
+      background: 'none', border: isLast ? 'none' : undefined,
+      borderTop: 'none', borderLeft: 'none', borderRight: 'none',
+    }}
+  >
+    <span style={{ fontFamily: f, fontSize: 15, fontWeight: 500, color: 'var(--title-color)' }}>{label}</span>
+    <div className="flex items-center gap-1.5">{right}</div>
+  </button>
+);
+
+/* ── iOS toggle ── */
+const Toggle = ({ on, onChange }) => (
+  <button onClick={onChange} className="cursor-pointer" style={{ background: 'none', border: 'none', padding: 0 }}>
+    <div className="flex items-center" style={{
+      width: 44, height: 26, borderRadius: 13, padding: '0 2px',
+      background: on ? '#FF6B00' : 'var(--light-gray)',
+      transition: 'background 0.2s',
+    }}>
+      <div style={{
+        width: 22, height: 22, borderRadius: 11, background: '#fff',
+        transform: on ? 'translateX(18px)' : 'translateX(0)',
+        transition: 'transform 0.2s', boxShadow: '0 1px 3px rgba(0,0,0,0.15)',
+      }} />
+    </div>
+  </button>
+);
+
+/* ── chevron ── */
+const Chevron = () => <F7Icon name="chevron_right" size={16} color="#8896b8" />;
+
+/* ── value + chevron ── */
+const ValueChevron = ({ value }) => (
+  <>
+    <span style={{ fontFamily: f, fontSize: 14, color: 'var(--text-color)', marginRight: 6 }}>{value}</span>
+    <Chevron />
+  </>
+);
+
+/* ── bottom sheet ── */
+const BottomSheet = ({ open, onClose, title, children }) => (
+  <AnimatePresence>
+    {open && (
+      <>
+        <motion.div
+          initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
+          onClick={onClose}
+          style={{ position: 'fixed', inset: 0, background: 'hsl(0 0% 10% / 0.78)', zIndex: 999 }}
+        />
+        <motion.div
+          initial={{ y: '100%' }} animate={{ y: 0 }} exit={{ y: '100%' }}
+          transition={{ type: 'spring', damping: 28, stiffness: 300 }}
+          style={{
+            position: 'fixed', bottom: 0, left: 0, right: 0, zIndex: 1000,
+            background: 'var(--surface)', borderRadius: '20px 20px 0 0',
+            padding: '20px 20px 40px', maxHeight: '80vh', overflowY: 'auto',
+          }}
+        >
+          <div style={{ width: 36, height: 4, borderRadius: 2, background: 'var(--light-gray)', margin: '0 auto 16px' }} />
+          {title && <p style={{ fontFamily: f, fontSize: 18, fontWeight: 600, color: 'var(--title-color)', marginBottom: 16 }}>{title}</p>}
+          {children}
+        </motion.div>
+      </>
+    )}
+  </AnimatePresence>
+);
+
+const AGE_BAND_NAMES = { '8-10': '8–10', '11-13': '11–13', '14-16': '14–16', '17-20': '17–20' };
+const AGE_BAND_DESCRIPTIONS = {
+  '8-10': 'Junior Reader — big, bold stories made simple and fun for younger readers.',
+  '11-13': 'News Scout — stories written for curious tweens who want to understand the world.',
+  '14-16': 'Drop Regular — sharper, deeper coverage for teens ready for real news.',
+  '17-20': 'Sharp Mind — editorial-quality journalism for young adults.',
 };
+
+const TEXT_SIZES = ['Small', 'Medium', 'Large'];
 
 export default function ProfilePage() {
   const navigate = useNavigate();
-  const { user, setUserData, token, ageGroup, logout, darkMode, toggleDarkMode } = useTheme();
-  const [stats, setStats] = useState(null);
-  const [countries, setCountries] = useState([]);
-  const [showCountryPicker, setShowCountryPicker] = useState(false);
-  const [editingCity, setEditingCity] = useState(false);
-  const [editCity, setEditCity] = useState(user?.city || '');
-  const [saving, setSaving] = useState(false);
-  const [friends, setFriends] = useState([]);
-  const [friendRequests, setFriendRequests] = useState([]);
-  const [leaderboard, setLeaderboard] = useState(null);
-  const [prevWinner, setPrevWinner] = useState(null);
-  const [socialTab, setSocialTab] = useState('friends');
-  const [showAddFriend, setShowAddFriend] = useState(false);
-  const [searchQuery, setSearchQuery] = useState('');
-  const [searchResults, setSearchResults] = useState([]);
-  const [searching, setSearching] = useState(false);
-  const [inviteLink, setInviteLink] = useState('');
-  const [copiedLink, setCopiedLink] = useState(false);
+  const { user, setUserData, token, ageGroup, logout, darkMode, toggleDarkMode, linkedProfiles } = useTheme();
   const { permission, requestPermission } = useNotifications();
-  const [profilePanelOpen, setProfilePanelOpen] = useState(false);
-  const [showMemojiPicker, setShowMemojiPicker] = useState(false);
-  const [selectedMemojiId, setSelectedMemojiId] = useState(() => localStorage.getItem(`memoji_${user?.id || 'default'}`) || null);
   const headers = token ? { Authorization: `Bearer ${token}` } : {};
 
+  // Notification prefs
+  const [notifDaily, setNotifDaily] = useState(() => localStorage.getItem('notif_daily') !== 'false');
+  const [notifBreaking, setNotifBreaking] = useState(() => localStorage.getItem('notif_breaking') !== 'false');
+  const [notifStreak, setNotifStreak] = useState(() => localStorage.getItem('notif_streak') !== 'false');
+
+  // Text size
+  const [textSize, setTextSize] = useState(() => localStorage.getItem('text_size') || 'Medium');
+  const [showTextSize, setShowTextSize] = useState(false);
+
+  // Country picker
+  const [countries, setCountries] = useState([]);
+  const [showCountryPicker, setShowCountryPicker] = useState(false);
+  const [countrySearch, setCountrySearch] = useState('');
+
+  // Sheets
+  const [showAgeBand, setShowAgeBand] = useState(false);
+  const [showAbout, setShowAbout] = useState(false);
+  const [showHowItWorks, setShowHowItWorks] = useState(false);
+  const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
+
+  // Memoji
+  const [showMemojiPicker, setShowMemojiPicker] = useState(false);
+  const [selectedMemojiId, setSelectedMemojiId] = useState(() => localStorage.getItem(`memoji_${user?.id || 'default'}`) || null);
+
+  // Profile panel
+  const [profilePanelOpen, setProfilePanelOpen] = useState(false);
+
   useEffect(() => {
-    if (!token) return;
-    axios.get(`${BACKEND_URL}/api/profile/stats`, { headers }).then(r => setStats(r.data)).catch(() => {});
     axios.get(`${BACKEND_URL}/api/countries`).then(r => setCountries(Array.isArray(r.data) ? r.data : [])).catch(() => {});
-    axios.get(`${BACKEND_URL}/api/friends`, { headers }).then(r => setFriends(r.data)).catch(() => {});
-    axios.get(`${BACKEND_URL}/api/friends/requests`, { headers }).then(r => setFriendRequests(r.data)).catch(() => {});
-    axios.get(`${BACKEND_URL}/api/friends/leaderboard`, { headers }).then(r => { setLeaderboard(r.data.leaderboard); setPrevWinner(r.data.previous_month_winner); }).catch(() => {});
-    axios.get(`${BACKEND_URL}/api/invite/my-link`, { headers }).then(r => { setInviteLink(`${window.location.origin}${r.data.invite_url}`); }).catch(() => {});
-  }, [token]);
+  }, []);
 
-  const badge = AGE_BADGES[ageGroup] || AGE_BADGES['14-16'];
-  const userCountry = countries.find(c => c.country_name === user?.country);
-
-  const handleCountrySelect = async (c) => {
-    setShowCountryPicker(false); setSaving(true);
-    try { const res = await axios.put(`${BACKEND_URL}/api/auth/me`, { country: c.country_name }, { headers }); setUserData(res.data); } catch {}
-    setSaving(false);
+  const toggleNotif = (key, val, setter) => {
+    const next = !val;
+    setter(next);
+    localStorage.setItem(key, String(next));
   };
 
-  const handleSaveCity = async () => {
-    setSaving(true);
-    try { const res = await axios.put(`${BACKEND_URL}/api/auth/me`, { city: editCity }, { headers }); setUserData(res.data); setEditingCity(false); } catch {}
-    setSaving(false);
+  const handleCountrySelect = async (c) => {
+    setShowCountryPicker(false);
+    try { const res = await axios.put(`${BACKEND_URL}/api/auth/me`, { country: c.country_name }, { headers }); setUserData(res.data); } catch {}
+  };
+
+  const handleTextSizeSelect = (size) => {
+    setTextSize(size);
+    localStorage.setItem('text_size', size);
+    setShowTextSize(false);
   };
 
   const handleLogout = () => { logout(); navigate('/auth'); };
 
-  const handleSearchFriends = async (q) => {
-    setSearchQuery(q);
-    if (q.length < 2) { setSearchResults([]); return; }
-    setSearching(true);
-    try { const r = await axios.get(`${BACKEND_URL}/api/friends/search?q=${q}`, { headers }); setSearchResults(r.data); } catch { setSearchResults([]); }
-    setSearching(false);
+  const handleDeleteAccount = async () => {
+    try { await axios.delete(`${BACKEND_URL}/api/auth/me`, { headers }); } catch {}
+    logout(); navigate('/auth');
   };
 
-  const handleSendRequest = async (username) => {
-    try { await axios.post(`${BACKEND_URL}/api/friends/request`, { target_username: username }, { headers }); setSearchResults(prev => prev.filter(r => r.username !== username)); } catch {}
+  const showToast = (msg) => {
+    // Simple toast — could be upgraded
+    const el = document.createElement('div');
+    el.textContent = msg;
+    Object.assign(el.style, {
+      position: 'fixed', bottom: '100px', left: '50%', transform: 'translateX(-50%)',
+      background: 'var(--surface)', color: 'var(--title-color)', fontFamily: f,
+      fontSize: '13px', padding: '10px 20px', borderRadius: '10px', zIndex: 9999,
+      boxShadow: '0 4px 20px rgba(0,0,0,0.2)',
+    });
+    document.body.appendChild(el);
+    setTimeout(() => el.remove(), 2500);
   };
 
-  const handleAcceptRequest = async (friendshipId) => {
-    try { await axios.post(`${BACKEND_URL}/api/friends/accept/${friendshipId}`, {}, { headers }); setFriendRequests(prev => prev.filter(r => r.friendship_id !== friendshipId)); const r = await axios.get(`${BACKEND_URL}/api/friends`, { headers }); setFriends(r.data); } catch {}
-  };
-
-  const handleDeclineRequest = async (friendshipId) => {
-    try { await axios.post(`${BACKEND_URL}/api/friends/decline/${friendshipId}`, {}, { headers }); setFriendRequests(prev => prev.filter(r => r.friendship_id !== friendshipId)); } catch {}
-  };
-
-  const handleCopyInvite = () => { navigator.clipboard.writeText(inviteLink).then(() => { setCopiedLink(true); setTimeout(() => setCopiedLink(false), 2000); }); };
-
-  const getRankLabel = (score) => {
-    if (score >= 501) return 'No Cap Legend'; if (score >= 301) return 'Sharp';
-    if (score >= 151) return 'Switched On'; if (score >= 51) return 'Informed'; return 'Curious';
-  };
-
-  const formatMemberSince = (d) => { if (!d) return ''; try { return new Date(d).toLocaleDateString('en-US', { month: 'long', year: 'numeric' }); } catch { return ''; } };
-
-  const f = 'var(--font)';
+  const isParent = user?.account_type === 'parent';
+  const filteredCountries = countries.filter(c =>
+    c.country_name?.toLowerCase().includes(countrySearch.toLowerCase())
+  );
 
   return (
-    <div data-testid="profile-page" className="min-h-screen pb-16" style={{ backgroundColor: 'var(--bg)' }}>
-      <div style={{ padding: '0 15px' }} className="max-w-lg mx-auto">
+    <div data-testid="profile-page" className="min-h-screen" style={{ backgroundColor: 'var(--bg)', paddingBottom: 68 }}>
 
-        {/* Page title */}
-        <h1 style={{ fontFamily: f, fontSize: 28, fontWeight: 600, color: 'var(--title-color)', marginTop: 32, marginBottom: 20 }}>Settings</h1>
+      {/* Page title */}
+      <h1 style={{ fontFamily: f, fontSize: 28, fontWeight: 600, color: 'var(--title-color)', padding: '16px 20px 8px 20px', margin: 0 }}>Settings</h1>
 
-        {/* User summary */}
-        <div className="flex items-center gap-4 mb-6">
-          <button onClick={() => setShowMemojiPicker(true)} style={{ width: 55, height: 55, borderRadius: '50%', overflow: 'hidden', border: '2px solid var(--accent)', flexShrink: 0, padding: 0, background: 'var(--light-gray)', cursor: 'pointer', position: 'relative' }}>
-            <img src={selectedMemojiId ? getMemojiById(selectedMemojiId) : (user?.avatar_url || getMemoji(user?.full_name))} alt="" className="w-full h-full object-cover" data-testid="profile-avatar" />
-            <div style={{ position: 'absolute', bottom: -2, right: -2, width: 20, height: 20, borderRadius: '50%', background: 'var(--accent)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 10, color: '#fff', border: '2px solid var(--surface)' }}>✎</div>
-          </button>
-          <div className="flex-1 min-w-0">
-            <p style={{ fontFamily: f, fontSize: 15, fontWeight: 500, color: 'var(--title-color)' }}>{user?.full_name}</p>
-            <p style={{ fontFamily: f, fontSize: 13, fontWeight: 400, color: 'var(--text-color)' }}>{user?.email || ''}</p>
-          </div>
-          <button data-testid="logout-btn" onClick={handleLogout} className="cursor-pointer"
-            style={{ fontFamily: f, fontSize: 15, fontWeight: 500, color: 'var(--accent)', background: 'none', border: 'none' }}>
-            Sign Out
-          </button>
-        </div>
+      {/* ══════ APPEARANCE ══════ */}
+      <SectionHeader>Appearance</SectionHeader>
+      <ListGroup>
+        <Row label="Dark Mode" isLast={false} right={<Toggle on={darkMode} onChange={toggleDarkMode} />} />
+        <Row label="Text Size" isLast right={<ValueChevron value={textSize} />} onClick={() => setShowTextSize(true)} />
+      </ListGroup>
 
-        {/* Toggles */}
-        <div style={{ background: 'var(--surface)', borderRadius: 18, overflow: 'hidden', marginBottom: 15, border: '1px solid var(--light-gray)' }}>
-          <div className="flex items-center justify-between" style={{ padding: '14px 15px', borderBottom: '1px solid var(--light-gray)' }}>
-            <span style={{ fontFamily: f, fontSize: 15, fontWeight: 500, color: 'var(--title-color)' }}>Dark Mode</span>
-            <button onClick={toggleDarkMode} className="w-11 h-6 rounded-full flex items-center px-0.5 cursor-pointer"
-              style={{ background: darkMode ? 'var(--accent)' : 'var(--light-gray)', border: 'none' }}>
-              <div className="w-5 h-5 rounded-full" style={{ background: '#fff', transform: darkMode ? 'translateX(20px)' : 'translateX(0)', transition: 'transform 0.2s', boxShadow: 'none' }} />
-            </button>
-          </div>
-          <div className="flex items-center justify-between" style={{ padding: '14px 15px' }}>
-            <span style={{ fontFamily: f, fontSize: 15, fontWeight: 500, color: 'var(--title-color)' }}>Notifications</span>
-            <button onClick={requestPermission} className="w-11 h-6 rounded-full flex items-center px-0.5 cursor-pointer"
-              style={{ background: permission === 'granted' ? 'var(--accent)' : 'var(--light-gray)', border: 'none' }}>
-              <div className="w-5 h-5 rounded-full" style={{ background: '#fff', transform: permission === 'granted' ? 'translateX(20px)' : 'translateX(0)', transition: 'transform 0.2s', boxShadow: 'none' }} />
-            </button>
-          </div>
-        </div>
-...
-        {showCountryPicker && (
-          <div className="mb-4 max-h-52 overflow-y-auto" style={{ background: 'var(--surface)', border: '1px solid var(--light-gray)', borderRadius: 10, boxShadow: 'none' }}>
-            {countries.map(c => (
-              <button key={c.country_code} data-testid={`country-option-${c.country_code}`} onClick={() => handleCountrySelect(c)}
-                className="w-full text-left px-4 py-2.5 text-sm flex items-center gap-2 cursor-pointer"
-                style={{ fontFamily: f, color: c.country_name === user?.country ? 'var(--accent)' : 'var(--title-color)', background: 'none', border: 'none' }}>
-                <span>{c.flag_emoji}</span><span>{c.country_name}</span>
-              </button>
-            ))}
-          </div>
-        )}
+      {/* ══════ NOTIFICATIONS ══════ */}
+      <SectionHeader>Notifications</SectionHeader>
+      <ListGroup>
+        <Row label="Daily Drop reminder" isLast={false}
+          right={<Toggle on={notifDaily} onChange={() => toggleNotif('notif_daily', notifDaily, setNotifDaily)} />} />
+        <Row label="Breaking news alerts" isLast={false}
+          right={<Toggle on={notifBreaking} onChange={() => toggleNotif('notif_breaking', notifBreaking, setNotifBreaking)} />} />
+        <Row label="Streak reminders" isLast
+          right={<Toggle on={notifStreak} onChange={() => toggleNotif('notif_streak', notifStreak, setNotifStreak)} />} />
+      </ListGroup>
 
-        {/* Knowledge Score */}
-        {stats && (
-          <>
-            <div data-testid="knowledge-score-card" className="p-5 text-center mb-4"
-              style={{ background: 'linear-gradient(135deg, #4C35E8, #7B5FFF)', borderRadius: 18 }}>
-              <p style={{ fontFamily: f, fontSize: 11, fontWeight: 500, color: 'rgba(255,255,255,0.7)', textTransform: 'uppercase', letterSpacing: '0.1em', marginBottom: 8 }}>KNOWLEDGE SCORE</p>
-              <p data-testid="knowledge-score-value" style={{ fontFamily: f, fontSize: 48, fontWeight: 700, color: '#FFFFFF', margin: 0 }}>{stats.knowledge_score.score}</p>
-              <p data-testid="knowledge-rank-label" style={{ fontFamily: f, fontSize: 13, fontWeight: 500, color: 'rgba(255,255,255,0.8)', textTransform: 'uppercase', marginTop: 4 }}>{stats.knowledge_score.rank_label}</p>
-            </div>
+      {/* ══════ NEWS PREFERENCES ══════ */}
+      <SectionHeader>News preferences</SectionHeader>
+      <ListGroup>
+        <Row label="My Country" isLast={false}
+          right={<ValueChevron value={user?.country || 'Not set'} />}
+          onClick={() => setShowCountryPicker(true)} />
+        <Row label="Language" isLast
+          right={<ValueChevron value="English" />}
+          onClick={() => showToast('More languages coming soon')} />
+      </ListGroup>
 
-            {/* Stats 2x2 */}
-            <div className="grid grid-cols-2 gap-3 mb-4">
-              <div data-testid="streak-card" className="p-4 text-center" style={{ background: 'var(--surface)', borderRadius: 15 }}>
-                <F7Icon name="flame_fill" size={20} color="var(--accent)" style={{ margin: '0 auto 8px', display: 'block' }} />
-                <p data-testid="streak-current" style={{ fontFamily: f, fontSize: 28, fontWeight: 600, color: 'var(--title-color)' }}>{stats.streak.current}</p>
-                <p style={{ fontFamily: f, fontSize: 11, fontWeight: 500, color: 'var(--text-color)', textTransform: 'uppercase' }}>day streak</p>
-                <p style={{ fontFamily: f, fontSize: 12, fontWeight: 400, color: 'var(--text-color)', marginTop: 4 }}>Best: {stats.streak.longest}</p>
-              </div>
-              <div data-testid="stories-read-card" className="p-4 text-center" style={{ background: 'var(--surface)', borderRadius: 15 }}>
-                <F7Icon name="book_fill" size={20} color="var(--accent)" style={{ margin: '0 auto 8px', display: 'block' }} />
-                <p data-testid="stories-read-total" style={{ fontFamily: f, fontSize: 28, fontWeight: 600, color: 'var(--title-color)' }}>{stats.stories_read.total}</p>
-                <p style={{ fontFamily: f, fontSize: 11, fontWeight: 500, color: 'var(--text-color)', textTransform: 'uppercase' }}>stories read</p>
-                <p style={{ fontFamily: f, fontSize: 12, fontWeight: 400, color: 'var(--text-color)', marginTop: 4 }}>Week: {stats.stories_read.this_week}</p>
-              </div>
-              <div data-testid="favourite-topic-card" className="p-4 text-center" style={{ background: 'var(--surface)', borderRadius: 15 }}>
-                <F7Icon name="rosette" size={20} color="#FFD60A" style={{ margin: '0 auto 8px', display: 'block' }} />
-                <p className="capitalize" style={{ fontFamily: f, fontSize: 15, fontWeight: 500, color: 'var(--title-color)' }}>{stats.favourite_category}</p>
-                <p style={{ fontFamily: f, fontSize: 11, fontWeight: 500, color: 'var(--text-color)', textTransform: 'uppercase' }}>top topic</p>
-              </div>
-              <div data-testid="reactions-card" className="p-4 text-center" style={{ background: 'var(--surface)', borderRadius: 15 }}>
-                <span style={{ fontSize: 20, display: 'block', marginBottom: 8 }}>{stats.reactions.most_used || '---'}</span>
-                <p data-testid="reactions-total" style={{ fontFamily: f, fontSize: 28, fontWeight: 600, color: 'var(--title-color)' }}>{stats.reactions.total}</p>
-                <p style={{ fontFamily: f, fontSize: 11, fontWeight: 500, color: 'var(--text-color)', textTransform: 'uppercase' }}>reactions</p>
-              </div>
-            </div>
+      {/* ══════ ACCOUNT ══════ */}
+      <SectionHeader>Account</SectionHeader>
+      <ListGroup>
+        <Row label="Edit Profile" isLast={false} right={<Chevron />} onClick={() => showToast('Coming soon')} />
+        <Row label="Change Password" isLast={false} right={<Chevron />} onClick={() => showToast('Coming soon')} />
+        <Row label="Change Email" isLast={false} right={<Chevron />} onClick={() => showToast('Coming soon')} />
+        <Row label="My Age Band" isLast
+          right={<ValueChevron value={AGE_BAND_NAMES[ageGroup] || ageGroup || '—'} />}
+          onClick={() => setShowAgeBand(true)} />
+      </ListGroup>
 
-            {/* Countries */}
-            <div data-testid="countries-card" className="flex items-center gap-4 p-4 mb-4" style={{ background: 'var(--surface)', borderRadius: 15 }}>
-              <F7Icon name="globe" size={20} color="var(--accent)" />
-              <div>
-                <p style={{ fontFamily: f, fontSize: 15, fontWeight: 500, color: 'var(--title-color)' }}>{stats.countries_covered} countries</p>
-                <p style={{ fontFamily: f, fontSize: 13, fontWeight: 400, color: 'var(--text-color)', textTransform: 'uppercase' }}>IN YOUR FEED THIS WEEK</p>
-              </div>
-            </div>
-          </>
-        )}
+      {/* ══════ FAMILY (parent only) ══════ */}
+      {isParent && (
+        <>
+          <SectionHeader>Family</SectionHeader>
+          <ListGroup>
+            <Row label="Manage Children" isLast={false} right={<Chevron />} onClick={() => showToast('Coming soon')} />
+            <Row label="Switch Profile" isLast right={<Chevron />} onClick={() => setProfilePanelOpen(true)} />
+          </ListGroup>
+        </>
+      )}
 
-        {/* Friends */}
-        <div className="mb-4">
-          <div className="flex items-center justify-between mb-3">
-            <p style={{ fontFamily: f, fontSize: 18, fontWeight: 600, color: 'var(--title-color)', marginTop: 25 }}>Friends</p>
-            <div className="flex gap-2" style={{ marginTop: 25 }}>
-              <button data-testid="invite-link-btn" onClick={handleCopyInvite}
-                className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-bold uppercase cursor-pointer"
-                style={{ fontFamily: f, background: 'rgba(255,107,0,0.1)', color: 'var(--accent)', borderRadius: 10, border: 'none' }}>
-                {copiedLink ? <F7Icon name="checkmark_alt" size={12} color="var(--accent)" /> : <F7Icon name="link" size={12} color="var(--accent)" />} {copiedLink ? 'Copied!' : 'Invite'}
-              </button>
-              <button data-testid="add-friend-btn" onClick={() => setShowAddFriend(!showAddFriend)}
-                className="p-2 cursor-pointer" style={{ background: 'rgba(255,107,0,0.1)', borderRadius: 10, border: 'none' }}>
-                {showAddFriend ? <F7Icon name="xmark" size={14} color="var(--accent)" /> : <F7Icon name="person_badge_plus" size={14} color="var(--accent)" />}
-              </button>
-            </div>
-          </div>
+      {/* ══════ ABOUT ══════ */}
+      <SectionHeader>About</SectionHeader>
+      <ListGroup>
+        <Row label="About The Drop" isLast={false} right={<Chevron />} onClick={() => setShowAbout(true)} />
+        <Row label="How It Works" isLast={false} right={<Chevron />} onClick={() => setShowHowItWorks(true)} />
+        <Row label="Privacy Policy" isLast={false} right={<Chevron />}
+          onClick={() => window.open('https://the-drop-news.lovable.app/privacy', '_blank')} />
+        <Row label="Terms of Use" isLast={false} right={<Chevron />}
+          onClick={() => window.open('https://the-drop-news.lovable.app/terms', '_blank')} />
+        <Row label="Rate the App" isLast right={<Chevron />} onClick={() => showToast('Coming soon')} />
+      </ListGroup>
 
-          <AnimatePresence>
-            {showAddFriend && (
-              <motion.div initial={{ height: 0, opacity: 0 }} animate={{ height: 'auto', opacity: 1 }} exit={{ height: 0, opacity: 0 }} className="mb-3 overflow-hidden">
-                <div className="p-4" style={{ background: 'var(--surface)', borderRadius: 15 }}>
-                  <div className="relative mb-3">
-                    <F7Icon name="search" size={14} color="var(--text-color)" className="absolute left-3 top-1/2 -translate-y-1/2" />
-                    <input data-testid="friend-search-input" placeholder="Find @username" value={searchQuery}
-                      onChange={e => handleSearchFriends(e.target.value)}
-                      className="w-full pl-9 pr-4 py-2.5 text-sm outline-none"
-                      style={{ fontFamily: f, background: 'var(--bg)', borderRadius: 10, border: 'none', color: 'var(--title-color)' }} />
-                  </div>
-                  {searching && <p className="text-xs text-center py-2" style={{ color: 'var(--text-color)' }}>Searching...</p>}
-                  {searchResults.map(r => (
-                    <div key={r.id} className="flex items-center gap-3 py-2.5 border-t" style={{ borderColor: 'var(--light-gray)' }}>
-                      <img src={r.avatar_url} alt="" className="w-9 h-9 rounded-full" />
-                      <div className="flex-1 min-w-0">
-                        <p style={{ fontFamily: f, fontSize: 15, fontWeight: 500, color: 'var(--title-color)' }}>{r.full_name}</p>
-                        <p style={{ fontFamily: f, fontSize: 11, color: 'var(--text-color)' }}>@{r.username} · {r.knowledge_score} pts</p>
-                      </div>
-                      <button data-testid={`add-friend-${r.username}`} onClick={() => handleSendRequest(r.username)}
-                        className="px-3 py-1.5 text-xs font-bold uppercase cursor-pointer"
-                        style={{ fontFamily: f, background: 'var(--accent)', color: '#fff', borderRadius: 10, border: 'none' }}>Add</button>
-                    </div>
-                  ))}
-                </div>
-              </motion.div>
-            )}
-          </AnimatePresence>
+      {/* ══════ SUPPORT ══════ */}
+      <SectionHeader>Support</SectionHeader>
+      <ListGroup>
+        <Row label="Help & FAQ" isLast={false} right={<Chevron />} onClick={() => showToast('Coming soon')} />
+        <Row label="Report a Bug" isLast={false} right={<Chevron />}
+          onClick={() => window.open('mailto:support@thedrop.news?subject=Bug%20Report', '_self')} />
+        <Row label="Contact Us" isLast right={<Chevron />}
+          onClick={() => window.open('mailto:hello@thedrop.news', '_self')} />
+      </ListGroup>
 
-          <div className="flex gap-1 p-1 mb-3" style={{ background: 'var(--surface)', borderRadius: 10 }}>
-            {[
-              { id: 'friends', label: 'Friends', count: friends.length },
-              { id: 'leaderboard', label: 'Board' },
-              { id: 'requests', label: 'Requests', count: friendRequests.length },
-            ].map(tab => (
-              <button key={tab.id} data-testid={`social-tab-${tab.id}`} onClick={() => setSocialTab(tab.id)}
-                className="flex-1 py-2 text-xs font-semibold flex items-center justify-center gap-1 cursor-pointer"
-                style={{
-                  fontFamily: f, borderRadius: 8, border: 'none',
-                  background: socialTab === tab.id ? 'var(--bg)' : 'transparent',
-                  color: socialTab === tab.id ? 'var(--accent)' : 'var(--text-color)',
-                  boxShadow: socialTab === tab.id ? 'var(--block-shadow)' : 'none',
-                }}>
-                {tab.label}
-                {tab.count > 0 && (
-                  <span className="w-4 h-4 rounded-full text-[8px] flex items-center justify-center"
-                    style={{ background: tab.id === 'requests' ? '#FF3B30' : 'var(--accent)', color: '#fff' }}>{tab.count}</span>
-                )}
-              </button>
-            ))}
-          </div>
-
-          {socialTab === 'friends' && (
-            <div style={{ background: 'var(--surface)', borderRadius: 15, overflow: 'hidden' }}>
-              {friends.length === 0 ? (
-                <p className="text-center py-6" style={{ fontFamily: f, fontSize: 13, color: 'var(--text-color)' }}>No friends yet</p>
-              ) : friends.slice(0, 20).map((fr, i) => (
-                <div key={fr.id} data-testid={`friend-${fr.username}`} className="flex items-center gap-3 px-4 py-3"
-                  style={{ borderTop: i > 0 ? '1px solid var(--light-gray)' : 'none' }}>
-                  <img src={fr.avatar_url} alt="" className="w-9 h-9 rounded-full" />
-                  <div className="flex-1 min-w-0">
-                    <p style={{ fontFamily: f, fontSize: 15, fontWeight: 500, color: 'var(--title-color)' }}>{fr.full_name}</p>
-                    <div className="flex items-center gap-2">
-                      <span className="text-[10px] flex items-center gap-0.5" style={{ color: 'var(--accent)' }}><F7Icon name="flame_fill" size={10} color="var(--accent)" /> {fr.current_streak}</span>
-                      <span style={{ fontFamily: f, fontSize: 11, color: 'var(--text-color)' }}>{fr.knowledge_score} pts</span>
-                    </div>
-                  </div>
-                </div>
-              ))}
-            </div>
-          )}
-
-          {socialTab === 'leaderboard' && leaderboard && (
-            <div style={{ background: 'var(--surface)', borderRadius: 15, overflow: 'hidden' }}>
-              {leaderboard.map((e, i) => (
-                <div key={e.id} data-testid={`leaderboard-${e.rank}`} className="flex items-center gap-3 px-4 py-3"
-                  style={{ borderTop: i > 0 ? '1px solid var(--light-gray)' : 'none', background: e.is_self ? 'rgba(255,107,0,0.04)' : 'transparent' }}>
-                  <span className="w-6 text-center text-sm font-bold" style={{ fontFamily: f, color: e.rank <= 3 ? '#FFD60A' : 'var(--text-color)' }}>{e.rank}</span>
-                  <img src={e.avatar_url} alt="" className="w-8 h-8 rounded-full" />
-                  <div className="flex-1 min-w-0">
-                    <p style={{ fontFamily: f, fontSize: 15, fontWeight: 500, color: 'var(--title-color)' }}>{e.full_name}</p>
-                  </div>
-                  <div className="text-right">
-                    <p style={{ fontFamily: f, fontSize: 15, fontWeight: 500, color: 'var(--accent)' }}>{e.knowledge_score}</p>
-                  </div>
-                </div>
-              ))}
-            </div>
-          )}
-
-          {socialTab === 'requests' && (
-            <div style={{ background: 'var(--surface)', borderRadius: 15, overflow: 'hidden' }}>
-              {friendRequests.length === 0 ? (
-                <p className="text-center py-6" style={{ fontFamily: f, fontSize: 13, color: 'var(--text-color)' }}>No pending requests</p>
-              ) : friendRequests.map((r, i) => (
-                <div key={r.friendship_id} className="flex items-center gap-3 px-4 py-3"
-                  style={{ borderTop: i > 0 ? '1px solid var(--light-gray)' : 'none' }}>
-                  <img src={r.sender.avatar_url} alt="" className="w-9 h-9 rounded-full" />
-                  <div className="flex-1 min-w-0">
-                    <p style={{ fontFamily: f, fontSize: 15, fontWeight: 500, color: 'var(--title-color)' }}>{r.sender.full_name}</p>
-                  </div>
-                  <div className="flex gap-1.5">
-                    <button data-testid={`accept-${r.sender.username}`} onClick={() => handleAcceptRequest(r.friendship_id)}
-                      className="px-3 py-1.5 text-[10px] font-bold uppercase cursor-pointer"
-                      style={{ fontFamily: f, background: 'var(--accent)', color: '#fff', borderRadius: 10, border: 'none' }}>Accept</button>
-                    <button data-testid={`decline-${r.sender.username}`} onClick={() => handleDeclineRequest(r.friendship_id)}
-                      className="px-3 py-1.5 text-[10px] font-bold uppercase cursor-pointer"
-                      style={{ fontFamily: f, background: 'rgba(255,59,48,0.1)', color: '#FF3B30', borderRadius: 10, border: 'none' }}>Decline</button>
-                  </div>
-                </div>
-              ))}
-            </div>
-          )}
-        </div>
-
-        {/* Log out */}
-        <button onClick={handleLogout} className="w-full cursor-pointer"
-          style={{ fontFamily: f, fontSize: 14, fontWeight: 500, height: 44, borderRadius: 10, background: 'var(--surface)', color: '#FF3B30', border: 'none', marginTop: 25 }}>
-          Log Out
+      {/* ══════ ACCOUNT ACTIONS ══════ */}
+      <div style={{ margin: '20px 15px 8px' }}>
+        <button onClick={handleLogout} data-testid="logout-btn" className="w-full cursor-pointer"
+          style={{
+            fontFamily: f, fontSize: 15, fontWeight: 500, height: 44, borderRadius: 22,
+            background: 'var(--surface)', color: 'var(--title-color)',
+            border: '1px solid var(--light-gray)', marginBottom: 10,
+          }}>
+          Sign Out
+        </button>
+        <button onClick={() => setShowDeleteConfirm(true)} data-testid="delete-account-btn" className="w-full cursor-pointer"
+          style={{
+            fontFamily: f, fontSize: 15, fontWeight: 500, height: 44, borderRadius: 22,
+            background: 'transparent', color: '#FF3B30',
+            border: '1px solid rgba(255,59,48,0.3)',
+          }}>
+          Delete Account
         </button>
       </div>
 
+      <div style={{ height: 20 }} />
+
+      {/* ══════ BOTTOM NAV ══════ */}
       <BottomNav active="settings" />
+
+      {/* ══════ SHEETS ══════ */}
+
+      {/* Text Size */}
+      <BottomSheet open={showTextSize} onClose={() => setShowTextSize(false)} title="Text Size">
+        {TEXT_SIZES.map(size => (
+          <button key={size} onClick={() => handleTextSizeSelect(size)} className="w-full cursor-pointer"
+            style={{
+              display: 'flex', alignItems: 'center', justifyContent: 'space-between',
+              padding: '14px 0', borderBottom: size !== 'Large' ? '1px solid var(--light-gray)' : 'none',
+              background: 'none', border: size !== 'Large' ? undefined : 'none',
+              borderTop: 'none', borderLeft: 'none', borderRight: 'none',
+            }}>
+            <span style={{ fontFamily: f, fontSize: 15, fontWeight: 500, color: 'var(--title-color)' }}>{size}</span>
+            {textSize === size && <F7Icon name="checkmark_alt" size={18} color="#FF6B00" />}
+          </button>
+        ))}
+      </BottomSheet>
+
+      {/* Country Picker */}
+      <BottomSheet open={showCountryPicker} onClose={() => setShowCountryPicker(false)} title="Select Country">
+        <div className="relative mb-3">
+          <F7Icon name="search" size={14} color="var(--text-color)" className="absolute left-3 top-1/2 -translate-y-1/2" />
+          <input placeholder="Search countries..." value={countrySearch} onChange={e => setCountrySearch(e.target.value)}
+            className="w-full pl-9 pr-4 py-2.5 text-sm outline-none"
+            style={{ fontFamily: f, background: 'var(--bg)', borderRadius: 10, border: 'none', color: 'var(--title-color)' }} />
+        </div>
+        <div style={{ maxHeight: '50vh', overflowY: 'auto' }}>
+          {filteredCountries.map(c => (
+            <button key={c.country_code} onClick={() => handleCountrySelect(c)} className="w-full cursor-pointer"
+              style={{
+                display: 'flex', alignItems: 'center', gap: 10, padding: '12px 0',
+                borderBottom: '1px solid var(--light-gray)', background: 'none',
+                border: 'none', borderBottomStyle: 'solid', borderBottomWidth: 1, borderBottomColor: 'var(--light-gray)',
+              }}>
+              <span style={{ fontSize: 20 }}>{c.flag_emoji}</span>
+              <span style={{ fontFamily: f, fontSize: 15, color: c.country_name === user?.country ? '#FF6B00' : 'var(--title-color)' }}>{c.country_name}</span>
+              {c.country_name === user?.country && <F7Icon name="checkmark_alt" size={16} color="#FF6B00" style={{ marginLeft: 'auto' }} />}
+            </button>
+          ))}
+        </div>
+      </BottomSheet>
+
+      {/* Age Band Info */}
+      <BottomSheet open={showAgeBand} onClose={() => setShowAgeBand(false)} title="Your Age Band">
+        <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 16 }}>
+          <div style={{
+            width: 48, height: 48, borderRadius: 12, background: '#FF6B00',
+            display: 'flex', alignItems: 'center', justifyContent: 'center',
+            fontFamily: f, fontSize: 18, fontWeight: 700, color: '#fff',
+          }}>{AGE_BAND_NAMES[ageGroup] || '—'}</div>
+          <div>
+            <p style={{ fontFamily: f, fontSize: 17, fontWeight: 600, color: 'var(--title-color)' }}>Ages {AGE_BAND_NAMES[ageGroup] || '—'}</p>
+          </div>
+        </div>
+        <p style={{ fontFamily: f, fontSize: 14, color: 'var(--text-color)', lineHeight: 1.7 }}>
+          {AGE_BAND_DESCRIPTIONS[ageGroup] || 'Your content is tailored to your age group.'}
+        </p>
+        <p style={{ fontFamily: f, fontSize: 12, color: 'var(--text-color)', marginTop: 16, opacity: 0.7 }}>
+          Age band is set during sign-up and determines the reading level and content style of your news feed.
+        </p>
+      </BottomSheet>
+
+      {/* About */}
+      <BottomSheet open={showAbout} onClose={() => setShowAbout(false)} title="About The Drop">
+        <p style={{ fontFamily: f, fontSize: 14, color: 'var(--text-color)', lineHeight: 1.7 }}>
+          The Drop is a daily news app built for young readers. We take the world's biggest stories and rewrite them for different age groups — making news accessible, engaging and age-appropriate.
+        </p>
+        <p style={{ fontFamily: f, fontSize: 14, color: 'var(--text-color)', lineHeight: 1.7, marginTop: 12 }}>
+          Every morning, our AI-powered editorial system curates, rewrites and delivers fresh stories tailored to your reading level.
+        </p>
+        <p style={{ fontFamily: f, fontSize: 12, color: 'var(--text-color)', marginTop: 16, opacity: 0.5 }}>Version 1.0.0</p>
+      </BottomSheet>
+
+      {/* How It Works */}
+      <BottomSheet open={showHowItWorks} onClose={() => setShowHowItWorks(false)} title="How It Works">
+        {[
+          { icon: 'globe', title: 'We scan the world', desc: 'Our system monitors thousands of news sources every day.' },
+          { icon: 'pencil', title: 'We rewrite for you', desc: 'Stories are rewritten at the right reading level for your age band.' },
+          { icon: 'bell_fill', title: 'You get The Drop', desc: 'Fresh stories drop every morning — read, react and build your streak.' },
+        ].map((step, i) => (
+          <div key={i} style={{ display: 'flex', gap: 14, marginBottom: 18 }}>
+            <div style={{
+              width: 40, height: 40, borderRadius: 10, background: 'rgba(255,107,0,0.1)',
+              display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0,
+            }}>
+              <F7Icon name={step.icon} size={18} color="#FF6B00" />
+            </div>
+            <div>
+              <p style={{ fontFamily: f, fontSize: 15, fontWeight: 600, color: 'var(--title-color)', marginBottom: 2 }}>{step.title}</p>
+              <p style={{ fontFamily: f, fontSize: 13, color: 'var(--text-color)', lineHeight: 1.5 }}>{step.desc}</p>
+            </div>
+          </div>
+        ))}
+      </BottomSheet>
+
+      {/* Delete Confirm */}
+      <BottomSheet open={showDeleteConfirm} onClose={() => setShowDeleteConfirm(false)} title="Delete Account?">
+        <p style={{ fontFamily: f, fontSize: 14, color: 'var(--text-color)', lineHeight: 1.7, marginBottom: 20 }}>
+          Are you sure? This cannot be undone. All your data, streak and reading history will be permanently deleted.
+        </p>
+        <div className="flex gap-3">
+          <button onClick={() => setShowDeleteConfirm(false)} className="flex-1 cursor-pointer"
+            style={{
+              fontFamily: f, fontSize: 15, fontWeight: 500, height: 44, borderRadius: 22,
+              background: 'var(--light-gray)', color: 'var(--title-color)', border: 'none',
+            }}>Cancel</button>
+          <button onClick={handleDeleteAccount} className="flex-1 cursor-pointer"
+            style={{
+              fontFamily: f, fontSize: 15, fontWeight: 500, height: 44, borderRadius: 22,
+              background: '#FF3B30', color: '#fff', border: 'none',
+            }}>Delete</button>
+        </div>
+      </BottomSheet>
+
+      {/* Profile Panel */}
       <ProfilePanel open={profilePanelOpen} onClose={() => setProfilePanelOpen(false)} />
+
+      {/* Memoji Picker */}
       {showMemojiPicker && (
         <MemojiPicker
           currentId={selectedMemojiId}
