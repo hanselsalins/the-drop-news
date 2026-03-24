@@ -75,12 +75,13 @@ export const BottomNav = ({ active = 'home' }) => {
               className="fixed inset-0 z-[60]"
               style={{ background: 'var(--overlay-backdrop)' }}
             />
-            <motion.div
-              initial={{ y: '-100%' }} animate={{ y: 0 }} exit={{ y: '-100%' }}
-              transition={{ type: 'spring', damping: 28, stiffness: 300 }}
-              className="fixed top-0 z-[70] px-4 pt-12 pb-5 w-full max-w-[430px]"
-              style={{ background: 'var(--surface)', borderRadius: '0 0 20px 20px', left: '50%', transform: 'translateX(-50%)' }}
-            >
+            <div className="fixed inset-0 z-[70] flex justify-center pointer-events-none">
+              <motion.div
+                initial={{ y: '-100%' }} animate={{ y: 0 }} exit={{ y: '-100%' }}
+                transition={{ type: 'spring', damping: 28, stiffness: 300 }}
+                className="px-4 pt-12 pb-5 w-full max-w-[430px] pointer-events-auto"
+                style={{ background: 'var(--surface)', borderRadius: '0 0 20px 20px', alignSelf: 'flex-start' }}
+              >
               <div className="flex items-center justify-between mb-4">
                 <h3 style={{ fontFamily: 'var(--font)', fontSize: 18, fontWeight: 600, color: 'var(--title-color)' }}>Search</h3>
                 <button onClick={() => setSearchOpen(false)} style={{ background: 'none', border: 'none', cursor: 'pointer' }}>
