@@ -268,7 +268,7 @@ export default function FeedPage() {
 
         {/* ── CATEGORY TABS ── */}
         <div style={{ padding: '0 15px' }}>
-          <div ref={setSectionRef('Categories')}>
+          <div data-section-title="Categories">
             <CategoryTabs />
           </div>
         </div>
