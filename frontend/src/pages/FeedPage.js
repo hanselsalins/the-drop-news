@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useRef } from 'react';
 import { useTheme } from '../contexts/ThemeContext';
 import { useNotifications } from '../hooks/useNotifications';
 import { useReducedMotion } from '../hooks/useReducedMotion';
@@ -31,6 +31,10 @@ export default function FeedPage() {
   const [isRefreshing, setIsRefreshing] = useState(false);
   const [refreshSpin, setRefreshSpin] = useState(false);
 
+  // Sticky header state
+  const [activeSectionTitle, setActiveSectionTitle] = useState('');
+  const sectionRefs = useRef({});
+
   const headers = token ? { Authorization: `Bearer ${token}` } : {};
   const { milestone, checkMilestone, acknowledgeMilestone, requestPermission, permission } = useNotifications();
   const { readIds, refresh: refreshReadIds } = useReadArticles();
@@ -41,6 +45,55 @@ export default function FeedPage() {
       return () => clearTimeout(t);
     }
   }, [permission, requestPermission]);
+
+  // IntersectionObserver for sticky header section titles
+  useEffect(() => {
+    const refs = sectionRefs.current;
+    const entries = Object.entries(refs).filter(([, el]) => el);
+    if (entries.length === 0) return;
+
+    const observer = new IntersectionObserver(
+      (observedEntries) => {
+        // Track which sections are out of view (scrolled past)
+        const hiddenSections = [];
+        observedEntries.forEach((entry) => {
+          const name = entry.target.dataset.sectionName;
+          if (!entry.isIntersecting && entry.boundingClientRect.top < 50) {
+            hiddenSections.push(name);
+          }
+        });
+
+        // Check all observed elements to find the last one scrolled past
+        const allHidden = [];
+        entries.forEach(([name, el]) => {
+          const rect = el.getBoundingClientRect();
+          if (rect.top < 50) {
+            allHidden.push(name);
+          }
+        });
+
+        if (allHidden.length > 0) {
+          setActiveSectionTitle(allHidden[allHidden.length - 1]);
+        } else {
+          setActiveSectionTitle('');
+        }
+      },
+      {
+        threshold: 0,
+        rootMargin: '-50px 0px 0px 0px',
+      }
+    );
+
+    entries.forEach(([, el]) => observer.observe(el));
+    return () => observer.disconnect();
+  }, [loading, activeCategory, articles]);
+
+  const setSectionRef = useCallback((name) => (el) => {
+    if (el) {
+      el.dataset.sectionName = name;
+      sectionRefs.current[name] = el;
+    }
+  }, []);
 
   const fetchArticles = useCallback(async () => {
     try {
@@ -117,13 +170,48 @@ export default function FeedPage() {
       <StreakCelebration streakCount={streak.current_streak} onComplete={() => setShowCelebration(false)} />
       <MilestoneBanner milestone={milestone} onDismiss={() => acknowledgeMilestone(milestone?.notification_id)} />
 
-      {/* ── HEADER — logo left, wordmark right ── */}
-      <div className="flex items-center justify-between" style={{ padding: '12px 16px', background: 'var(--bg)' }}>
+      {/* ── FIXED HEADER ── */}
+      <div style={{
+        position: 'fixed',
+        top: 0,
+        left: 0,
+        right: 0,
+        zIndex: 100,
+        height: 50,
+        background: 'var(--bg)',
+        borderBottom: activeSectionTitle ? '1px solid var(--light-gray)' : '1px solid transparent',
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'space-between',
+        padding: '0 16px',
+        transition: 'border-color 0.2s ease',
+      }}>
+        {/* LEFT: Logo */}
         <img
           src={darkMode ? '/darklogo.png' : '/lightlogo.png'}
           alt="The Drop"
           style={{ width: 40, height: 40, objectFit: 'contain' }}
         />
+
+        {/* CENTRE: Section title */}
+        <span style={{
+          position: 'absolute',
+          left: '50%',
+          transform: 'translateX(-50%)',
+          fontFamily: 'Rubik, sans-serif',
+          fontSize: 15,
+          fontWeight: 600,
+          color: 'var(--title-color)',
+          textAlign: 'center',
+          opacity: activeSectionTitle ? 1 : 0,
+          transition: 'opacity 0.2s ease',
+          whiteSpace: 'nowrap',
+          pointerEvents: 'none',
+        }}>
+          {activeSectionTitle}
+        </span>
+
+        {/* RIGHT: Wordmark */}
         <span style={{
           fontFamily: "'Big Shoulders Display', sans-serif",
           fontWeight: 900,
@@ -135,91 +223,101 @@ export default function FeedPage() {
         </span>
       </div>
 
-      {/* ── BREAKING / TRENDING hero card ── */}
-      <div style={{ padding: '0 15px' }}>
-        {activeCategory === 'today' && (
-          <div style={{ marginTop: 25 }}>
-            <div className="flex items-center justify-between" style={{ marginBottom: 12 }}>
-              <span style={{ fontFamily: 'var(--font)', fontSize: 28, fontWeight: 600, color: 'var(--title-color)' }}>
-                Breaking News
-              </span>
-            </div>
-            {loading ? (
-              <HeroSkeletonCard />
-            ) : heroArticle ? (
-              <HeroNewsCard article={heroArticle} badge="BREAKING" />
-            ) : null}
-          </div>
-        )}
-      </div>
+      {/* ── PAGE CONTENT (below fixed header) ── */}
+      <div style={{ paddingTop: 50 }}>
 
-      {/* ── CATEGORY CARDS ── */}
-      <div style={{ padding: '0 15px' }}>
-        <CategoryTabs />
-      </div>
-
-      {/* ── PAGE CONTENT ── */}
-      <div style={{ padding: '0 15px' }}>
-
-        {/* TODAY'S DROP section — vertical post list */}
-        {activeCategory === 'today' && !loading && todayDropArticles.length > 0 && (
-          <div style={{ marginTop: 25 }}>
-            <ProgressDots articleIds={todayArticleIds} readArticleIds={readIds} />
-            <div>
-              {todayDropArticles.map((article, i) => (
-                <PostListCard key={article.id} article={article} isLast={i === todayDropArticles.length - 1} ageGroup={ageGroup} />
-              ))}
-            </div>
-          </div>
-        )}
-
-        {/* Category-specific section */}
-        {activeCategory !== 'today' && (
-          <div style={{ marginTop: 25 }}>
-            <div className="flex items-center justify-between" style={{ marginBottom: 12 }}>
-              <span style={{ fontFamily: 'var(--font)', fontSize: 18, fontWeight: 600, color: 'var(--title-color)' }}>
-                {categories.find(c => c.id === activeCategory)?.name || activeCategory}
-              </span>
-              <span style={{ fontFamily: 'var(--font)', fontSize: 15, fontWeight: 500, color: 'var(--accent)', cursor: 'pointer' }}>
-                See All
-              </span>
-            </div>
-            {loading ? (
-              <div className="flex gap-3">
-                <SkeletonCard />
-                <SkeletonCard />
+        {/* ── BREAKING NEWS hero card ── */}
+        <div style={{ padding: '0 15px' }}>
+          {activeCategory === 'today' && (
+            <div style={{ marginTop: 25 }}>
+              <div className="flex items-center justify-between" style={{ marginBottom: 12 }}>
+                <span
+                  ref={setSectionRef('Breaking News')}
+                  style={{ fontFamily: 'var(--font)', fontSize: 28, fontWeight: 600, color: 'var(--title-color)' }}
+                >
+                  Breaking News
+                </span>
               </div>
-            ) : (
-              <div className="overflow-x-auto" style={{ margin: '0 -15px', padding: '0 15px' }}>
-                <div className="flex gap-3 min-w-max">
-                  {articles.map(article => (
-                    <CategoryCard key={article.id} article={article} />
-                  ))}
+              {loading ? (
+                <HeroSkeletonCard />
+              ) : heroArticle ? (
+                <HeroNewsCard article={heroArticle} badge="BREAKING" />
+              ) : null}
+            </div>
+          )}
+        </div>
+
+        {/* ── CATEGORY TABS ── */}
+        <div style={{ padding: '0 15px' }}>
+          <div ref={setSectionRef('Categories')}>
+            <CategoryTabs />
+          </div>
+        </div>
+
+        {/* ── PAGE CONTENT ── */}
+        <div style={{ padding: '0 15px' }}>
+
+          {/* TODAY'S DROP section — vertical post list */}
+          {activeCategory === 'today' && !loading && todayDropArticles.length > 0 && (
+            <div style={{ marginTop: 25 }}>
+              <div ref={setSectionRef("Today's Drop")}>
+                <ProgressDots articleIds={todayArticleIds} readArticleIds={readIds} />
+              </div>
+              <div>
+                {todayDropArticles.map((article, i) => (
+                  <PostListCard key={article.id} article={article} isLast={i === todayDropArticles.length - 1} ageGroup={ageGroup} />
+                ))}
+              </div>
+            </div>
+          )}
+
+          {/* Category-specific section */}
+          {activeCategory !== 'today' && (
+            <div style={{ marginTop: 25 }}>
+              <div className="flex items-center justify-between" style={{ marginBottom: 12 }}>
+                <span style={{ fontFamily: 'var(--font)', fontSize: 18, fontWeight: 600, color: 'var(--title-color)' }}>
+                  {categories.find(c => c.id === activeCategory)?.name || activeCategory}
+                </span>
+                <span style={{ fontFamily: 'var(--font)', fontSize: 15, fontWeight: 500, color: 'var(--accent)', cursor: 'pointer' }}>
+                  See All
+                </span>
+              </div>
+              {loading ? (
+                <div className="flex gap-3">
+                  <SkeletonCard />
+                  <SkeletonCard />
                 </div>
-              </div>
-            )}
-          </div>
-        )}
+              ) : (
+                <div className="overflow-x-auto" style={{ margin: '0 -15px', padding: '0 15px' }}>
+                  <div className="flex gap-3 min-w-max">
+                    {articles.map(article => (
+                      <CategoryCard key={article.id} article={article} />
+                    ))}
+                  </div>
+                </div>
+              )}
+            </div>
+          )}
 
-        {/* Micro facts */}
-        {!loading && microFacts.length > 0 && (
-          <div className="mt-6" style={{ paddingBottom: 36 }}>
-            <MicroFactCard fact={microFacts[0]} />
-          </div>
-        )}
+          {/* Micro facts */}
+          {!loading && microFacts.length > 0 && (
+            <div className="mt-6" style={{ paddingBottom: 36 }}>
+              <MicroFactCard fact={microFacts[0]} />
+            </div>
+          )}
 
-        {/* Empty state */}
-        {!loading && articles.length === 0 && (
-          <div className="text-center py-20">
-            <p style={{ fontFamily: 'var(--font)', fontSize: 15, color: 'var(--text-color)' }}>
-              No articles yet. Tap refresh to load!
-            </p>
-          </div>
-        )}
+          {/* Empty state */}
+          {!loading && articles.length === 0 && (
+            <div className="text-center py-20">
+              <p style={{ fontFamily: 'var(--font)', fontSize: 15, color: 'var(--text-color)' }}>
+                No articles yet. Tap refresh to load!
+              </p>
+            </div>
+          )}
+        </div>
       </div>
 
       <BottomNav active="home" />
-      
     </div>
   );
 }
