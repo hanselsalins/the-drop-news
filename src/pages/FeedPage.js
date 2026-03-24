@@ -196,7 +196,7 @@ export default function FeedPage() {
         width: '100%',
         maxWidth: 430,
         zIndex: 100,
-        height: 50,
+        height: 68,
         background: 'var(--header-bg, var(--bg))',
         borderBottom: activeSectionTitle ? '1px solid var(--light-gray)' : '1px solid transparent',
         display: 'flex',
