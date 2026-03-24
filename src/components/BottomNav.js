@@ -78,7 +78,7 @@ export const BottomNav = ({ active = 'home' }) => {
             <motion.div
               initial={{ y: '-100%' }} animate={{ y: 0 }} exit={{ y: '-100%' }}
               transition={{ type: 'spring', damping: 28, stiffness: 300 }}
-              className="fixed top-0 left-0 right-0 z-[70] px-4 pt-12 pb-5"
+              className="fixed top-0 left-1/2 -translate-x-1/2 z-[70] px-4 pt-12 pb-5 w-full max-w-[430px]"
               style={{ background: 'var(--surface)', borderRadius: '0 0 20px 20px' }}
             >
               <div className="flex items-center justify-between mb-4">
