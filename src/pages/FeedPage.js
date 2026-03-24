@@ -141,7 +141,7 @@ export default function FeedPage() {
           <div style={{ marginTop: 25 }}>
             <div className="flex items-center justify-between" style={{ marginBottom: 12 }}>
               <span style={{ fontFamily: 'var(--font)', fontSize: 28, fontWeight: 600, color: 'var(--title-color)' }}>
-                Breaking news
+                Breaking News
               </span>
             </div>
             {loading ? (
