@@ -33,7 +33,7 @@ export default function FeedPage() {
 
   // Sticky header state
   const [activeSectionTitle, setActiveSectionTitle] = useState('');
-  const sectionRefs = useRef({});
+  
 
   const headers = token ? { Authorization: `Bearer ${token}` } : {};
   const { milestone, checkMilestone, acknowledgeMilestone, requestPermission, permission } = useNotifications();
