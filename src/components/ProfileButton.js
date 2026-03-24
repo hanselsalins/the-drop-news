@@ -1,35 +1,20 @@
 import { useNavigate } from 'react-router-dom';
 import { useTheme } from '../contexts/ThemeContext';
-import { getMemoji, getMemojiById } from '../lib/memojis';
+import { AvatarCircle, getSavedAvatarId } from './AvatarCircle';
 
-export const ProfileButton = ({ onClick, size = 40, bordered = false }) => {
-  const { user, ageGroup } = useTheme();
+export const ProfileButton = ({ onClick, size = 36, bordered = false }) => {
+  const { user } = useTheme();
   const navigate = useNavigate();
-
   const handleClick = onClick || (() => navigate('/profile'));
-
-  // Priority: saved memoji choice > server avatar > auto-assigned
-  const savedMemojiId = localStorage.getItem(`memoji_${user?.id || 'default'}`);
-  const avatarSrc = savedMemojiId
-    ? getMemojiById(savedMemojiId)
-    : user?.avatar_url || getMemoji(user?.full_name || user?.username, ageGroup);
+  const avatarId = getSavedAvatarId(user?.id);
 
   return (
-    <button
-      data-testid="profile-btn"
+    <AvatarCircle
+      name={user?.full_name || user?.username || ''}
+      avatarId={avatarId}
+      size={size}
+      bordered={bordered}
       onClick={handleClick}
-      className="flex-shrink-0 cursor-pointer"
-      style={{
-        width: size,
-        height: size,
-        borderRadius: '50%',
-        background: 'var(--light-gray)',
-        border: bordered ? '2px solid var(--accent)' : 'none',
-        overflow: 'hidden',
-        padding: 0,
-      }}
-    >
-      <img src={avatarSrc} alt="Profile" className="w-full h-full object-cover" />
-    </button>
+    />
   );
 };
