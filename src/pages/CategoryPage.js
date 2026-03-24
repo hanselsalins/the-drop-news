@@ -36,14 +36,6 @@ const BAND_DESCRIPTIONS = {
     'Sports': "Performance, strategy, economics and sport as a lens on the world",
     'Culture': "Art, identity and the human stories behind the headlines",
   },
-  '20+': {
-    'World': "International affairs, geopolitics and global change",
-    'Power': "Political decisions and the structural forces shaping nations",
-    'Business': "Markets, monetary policy and economic forces explained",
-    'Science & Tech': "Research and innovation redefining human capability",
-    'Sports': "Performance, strategy, economics and sport as a lens on the world",
-    'Culture': "Art, identity and the human stories behind the headlines",
-  },
 };
 
 function getBandDescription(ageGroup, categoryName) {
