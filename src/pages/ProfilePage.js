@@ -96,18 +96,12 @@ export default function ProfilePage() {
       }}>
         <div style={{ display: 'flex', alignItems: 'center' }}>
           {/* Avatar */}
-          <button onClick={() => setShowMemojiPicker(true)} style={{
-            width: 64, height: 64, borderRadius: '50%', overflow: 'hidden',
-            border: '3px solid #FF6B00', flexShrink: 0, padding: 0,
-            background: avatarSrc ? 'var(--light-gray)' : '#FF6B00', cursor: 'pointer',
-            display: 'flex', alignItems: 'center', justifyContent: 'center',
-          }}>
-            {avatarSrc ? (
-              <img src={avatarSrc} alt="" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
-            ) : (
-              <span style={{ fontFamily: f, fontSize: 24, fontWeight: 600, color: '#fff' }}>{initials}</span>
-            )}
-          </button>
+          <AvatarCircle
+            name={user?.full_name || user?.username || ''}
+            avatarId={selectedAvatarId}
+            size={64}
+            onClick={() => setShowAvatarPicker(true)}
+          />
 
           {/* Name + username + badge */}
           <div style={{ marginLeft: 16, flex: 1, minWidth: 0 }}>
