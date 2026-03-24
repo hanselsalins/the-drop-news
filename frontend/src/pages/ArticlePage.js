@@ -258,17 +258,6 @@ export default function ArticlePage() {
         {/* Reaction Bar */}
         <ReactionBar articleId={article.id} />
 
-        {/* Share */}
-        <button data-testid="share-btn" aria-label="Share this story" onClick={() => setMenuOpen(true)}
-          className="flex items-center justify-center gap-2 w-full mt-5 cursor-pointer"
-          style={{
-            fontFamily: 'var(--font)', fontSize: 14, fontWeight: 500,
-            height: 44, borderRadius: 10,
-            background: 'var(--accent)', color: '#FFFFFF', border: 'none',
-          }}>
-          <F7Icon name="square_arrow_up" size={16} color="#FFFFFF" />
-          Share this story
-        </button>
 
         {/* Source Link */}
         <a data-testid="source-link" href={article.original_url} target="_blank" rel="noopener noreferrer"
@@ -316,8 +305,8 @@ export default function ArticlePage() {
             <motion.div
               initial={{ y: '100%' }} animate={{ y: 0 }} exit={{ y: '100%' }}
               transition={{ duration: 0.25, ease: 'easeOut' }}
-              className="fixed bottom-0 z-[70]"
-              style={{ background: 'var(--surface)', borderRadius: '20px 20px 0 0', paddingBottom: 24, left: '50%', transform: 'translateX(-50%)', width: '100%', maxWidth: 430 }}
+              className="fixed bottom-0 left-0 right-0 z-[70]"
+              style={{ background: 'var(--surface)', borderRadius: '20px 20px 0 0', paddingBottom: 24, maxWidth: 430, margin: '0 auto' }}
             >
               {/* Drag handle */}
               <div style={{
