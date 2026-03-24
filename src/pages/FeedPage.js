@@ -60,7 +60,7 @@ export default function FeedPage() {
           let lastHidden = '';
           allHeadings.forEach((el) => {
             const rect = el.getBoundingClientRect();
-            if (rect.top < 50) {
+            if (rect.top < 68) {
               lastHidden = el.getAttribute('data-section-title');
             }
           });
