@@ -268,16 +268,28 @@ export default function ArticlePage() {
           </div>
         )}
 
-        {/* Reactions (8-10 only) or Read Next */}
-        {showReactions ? (
-          <ReactionBar articleId={article.id} />
-        ) : readNext ? (
-          <div>
-            <div style={{ padding: '25px 0 0 0' }}>
-              <span style={{ fontFamily: 'var(--font)', fontSize: 18, fontWeight: 600, color: 'var(--title-color)' }}>
-                Read next
-              </span>
-            </div>
+        {/* Reactions (8-10 only) */}
+        {showReactions && <ReactionBar articleId={article.id} />}
+
+        {/* Source Link */}
+        <a data-testid="source-link" href={article.original_url} target="_blank" rel="noopener noreferrer"
+          className="inline-flex items-center gap-2 px-5 py-3"
+          style={{
+            fontFamily: 'var(--font)', fontSize: 15, fontWeight: 500,
+            background: 'var(--light-gray)', borderRadius: 10,
+            color: 'var(--text-color)', textDecoration: 'none',
+            marginTop: 16,
+          }}>
+          <F7Icon name="arrow_up_right_square" size={16} color="var(--text-color)" />
+          Read the original at {article.source} →
+        </a>
+
+        {/* Read Next (non 8-10 bands) */}
+        {!showReactions && readNext && (
+          <div style={{ paddingTop: 32 }}>
+            <span style={{ fontFamily: 'var(--font)', fontSize: 18, fontWeight: 600, color: 'var(--title-color)' }}>
+              Read next
+            </span>
             <div
               onClick={() => navigate(`/article/${readNext.id}`)}
               className="cursor-pointer"
@@ -308,20 +320,7 @@ export default function ArticlePage() {
               )}
             </div>
           </div>
-        ) : null}
-
-
-        {/* Source Link */}
-        <a data-testid="source-link" href={article.original_url} target="_blank" rel="noopener noreferrer"
-          className="inline-flex items-center gap-2 mt-4 mb-4 px-5 py-3"
-          style={{
-            fontFamily: 'var(--font)', fontSize: 15, fontWeight: 500,
-            background: 'var(--light-gray)', borderRadius: 10,
-            color: 'var(--text-color)', textDecoration: 'none',
-          }}>
-          <F7Icon name="arrow_up_right_square" size={16} color="var(--text-color)" />
-          Read the original at {article.source} →
-        </a>
+        )}
       </motion.div>
 
       {/* Bottom Tab Bar */}
