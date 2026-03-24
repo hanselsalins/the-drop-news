@@ -73,7 +73,7 @@ export default function FeedPage() {
         {
           root: null,
           threshold: 0,
-          rootMargin: '-50px 0px 0px 0px',
+          rootMargin: '-68px 0px 0px 0px',
         }
       );
 
