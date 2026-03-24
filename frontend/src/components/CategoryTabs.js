@@ -2,53 +2,41 @@ import { useNavigate } from 'react-router-dom';
 import { light } from '../lib/haptic';
 import { useTheme } from '../contexts/ThemeContext';
 
-const UNSPLASH = {
-  globe: 'https://images.unsplash.com/photo-1451187580459-43490279c0fa?w=300&q=80',
-  government: 'https://images.unsplash.com/photo-1529107386315-e1a2ed48a620?w=300&q=80',
-  business: 'https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?w=300&q=80',
-  science: 'https://images.unsplash.com/photo-1446776811953-b23d57bd21aa?w=300&q=80',
-  sports: 'https://images.unsplash.com/photo-1461896836934-ffe607ba8211?w=300&q=80',
-  tech: 'https://images.unsplash.com/photo-1518770660439-4636190af475?w=300&q=80',
-  people: 'https://images.unsplash.com/photo-1529156069898-49953e39b3ac?w=300&q=80',
-  justice: 'https://images.unsplash.com/photo-1589829545856-d10d557cf95f?w=300&q=80',
-  culture: 'https://images.unsplash.com/photo-1499781350541-7783f6c6a0c8?w=300&q=80',
-};
-
 const CATEGORIES_BY_BAND = {
   '8-10': [
-    { id: 'world', name: 'Our World', desc: 'Big stories happening right now', img: UNSPLASH.globe },
-    { id: 'people', name: 'People', desc: 'Stories about real people everywhere', img: UNSPLASH.people },
-    { id: 'sports', name: 'Sports', desc: 'Results, records and rivalries', img: UNSPLASH.sports },
+    { id: 'world', name: 'Our World', desc: 'Big stories happening right now', img: 'https://images.unsplash.com/photo-1446776811953-b23d57bd21aa?w=300&q=80' },
+    { id: 'people', name: 'People', desc: 'Stories about real people everywhere', img: 'https://images.unsplash.com/photo-1491438590914-bc09fcaaf77a?w=300&q=80' },
+    { id: 'sports', name: 'Sports', desc: 'Results, records and rivalries', img: 'https://images.unsplash.com/photo-1579952363873-27f3bade9f55?w=300&q=80' },
   ],
   '11-13': [
-    { id: 'world', name: 'World', desc: 'Big stories from around the globe', img: UNSPLASH.globe },
-    { id: 'fairornot', name: 'Fair or Not?', desc: 'Who makes the rules and why', img: UNSPLASH.justice },
-    { id: 'science', name: 'Science & Tech', desc: 'Discovery, innovation and what\'s next', img: UNSPLASH.tech },
-    { id: 'sports', name: 'Sports', desc: 'Results, records and rivalries', img: UNSPLASH.sports },
+    { id: 'world', name: 'World', desc: 'Big stories from around the globe', img: 'https://images.unsplash.com/photo-1521295121783-8a321d551ad2?w=300&q=80' },
+    { id: 'fairornot', name: 'Fair or Not?', desc: 'Who makes the rules and why', img: 'https://images.unsplash.com/photo-1589829545856-d10d557cf95f?w=300&q=80' },
+    { id: 'science', name: 'Science & Tech', desc: 'Discovery, innovation and what\'s next', img: 'https://images.unsplash.com/photo-1507413245164-6160d8298b31?w=300&q=80' },
+    { id: 'sports', name: 'Sports', desc: 'Results, records and rivalries', img: 'https://images.unsplash.com/photo-1461896836934-ffe607ba8211?w=300&q=80' },
   ],
   '14-16': [
-    { id: 'world', name: 'World', desc: 'Big stories from around the globe', img: UNSPLASH.globe },
-    { id: 'power', name: 'Power', desc: 'Governments, leaders and decisions', img: UNSPLASH.government },
-    { id: 'business', name: 'Business', desc: 'Companies, markets and the economy', img: UNSPLASH.business },
-    { id: 'science', name: 'Science & Planet', desc: 'Earth, climate and discovery', img: UNSPLASH.science },
-    { id: 'sports', name: 'Sports', desc: 'Results, records and rivalries', img: UNSPLASH.sports },
-    { id: 'tech', name: 'Tech', desc: 'Innovation, AI and what\'s next', img: UNSPLASH.tech },
+    { id: 'world', name: 'World', desc: 'Big stories from around the globe', img: 'https://images.unsplash.com/photo-1521295121783-8a321d551ad2?w=300&q=80' },
+    { id: 'power', name: 'Power', desc: 'Governments, leaders and decisions', img: 'https://images.unsplash.com/photo-1529107386315-e1a2ed48a620?w=300&q=80' },
+    { id: 'business', name: 'Business', desc: 'Companies, markets and the economy', img: 'https://images.unsplash.com/photo-1611974789855-9c2a0a7236a3?w=300&q=80' },
+    { id: 'science', name: 'Science & Planet', desc: 'Earth, climate and discovery', img: 'https://images.unsplash.com/photo-1518020382113-a7e8fc38eac9?w=300&q=80' },
+    { id: 'sports', name: 'Sports', desc: 'Results, records and rivalries', img: 'https://images.unsplash.com/photo-1579952363873-27f3bade9f55?w=300&q=80' },
+    { id: 'tech', name: 'Tech', desc: 'Innovation, AI and what\'s next', img: 'https://images.unsplash.com/photo-1518770660439-4636190af475?w=300&q=80' },
   ],
   '17-20': [
-    { id: 'world', name: 'World', desc: 'Global affairs and international news', img: UNSPLASH.globe },
-    { id: 'power', name: 'Power', desc: 'Politics, governance and elections', img: UNSPLASH.government },
-    { id: 'business', name: 'Business', desc: 'Markets, economy and enterprise', img: UNSPLASH.business },
-    { id: 'science', name: 'Science & Tech', desc: 'Innovation, research and technology', img: UNSPLASH.tech },
-    { id: 'sports', name: 'Sports', desc: 'Results, records and analysis', img: UNSPLASH.sports },
-    { id: 'culture', name: 'Culture', desc: 'Arts, society and human stories', img: UNSPLASH.culture },
+    { id: 'world', name: 'World', desc: 'Global affairs and international news', img: 'https://images.unsplash.com/photo-1477959858617-67f85cf4f1df?w=300&q=80' },
+    { id: 'power', name: 'Power', desc: 'Politics, governance and elections', img: 'https://images.unsplash.com/photo-1529107386315-e1a2ed48a620?w=300&q=80' },
+    { id: 'business', name: 'Business', desc: 'Markets, economy and enterprise', img: 'https://images.unsplash.com/photo-1611974789855-9c2a0a7236a3?w=300&q=80' },
+    { id: 'science', name: 'Science & Tech', desc: 'Innovation, research and technology', img: 'https://images.unsplash.com/photo-1451187580459-43490279c0fa?w=300&q=80' },
+    { id: 'sports', name: 'Sports', desc: 'Results, records and analysis', img: 'https://images.unsplash.com/photo-1504016798967-54a825798c7d?w=300&q=80' },
+    { id: 'culture', name: 'Culture', desc: 'Arts, society and human stories', img: 'https://images.unsplash.com/photo-1533174072545-7a4b6ad7a6c3?w=300&q=80' },
   ],
   '20+': [
-    { id: 'world', name: 'World', desc: 'Global affairs and international news', img: UNSPLASH.globe },
-    { id: 'power', name: 'Power', desc: 'Politics, governance and elections', img: UNSPLASH.government },
-    { id: 'business', name: 'Business', desc: 'Markets, economy and enterprise', img: UNSPLASH.business },
-    { id: 'science', name: 'Science & Tech', desc: 'Innovation, research and technology', img: UNSPLASH.tech },
-    { id: 'sports', name: 'Sports', desc: 'Results, records and analysis', img: UNSPLASH.sports },
-    { id: 'culture', name: 'Culture', desc: 'Arts, society and human stories', img: UNSPLASH.culture },
+    { id: 'world', name: 'World', desc: 'Global affairs and international news', img: 'https://images.unsplash.com/photo-1477959858617-67f85cf4f1df?w=300&q=80' },
+    { id: 'power', name: 'Power', desc: 'Politics, governance and elections', img: 'https://images.unsplash.com/photo-1529107386315-e1a2ed48a620?w=300&q=80' },
+    { id: 'business', name: 'Business', desc: 'Markets, economy and enterprise', img: 'https://images.unsplash.com/photo-1611974789855-9c2a0a7236a3?w=300&q=80' },
+    { id: 'science', name: 'Science & Tech', desc: 'Innovation, research and technology', img: 'https://images.unsplash.com/photo-1451187580459-43490279c0fa?w=300&q=80' },
+    { id: 'sports', name: 'Sports', desc: 'Results, records and analysis', img: 'https://images.unsplash.com/photo-1504016798967-54a825798c7d?w=300&q=80' },
+    { id: 'culture', name: 'Culture', desc: 'Arts, society and human stories', img: 'https://images.unsplash.com/photo-1533174072545-7a4b6ad7a6c3?w=300&q=80' },
   ],
 };
 
@@ -142,14 +130,19 @@ export const CategoryTabs = () => {
               position: 'relative',
               overflow: 'hidden',
             }}>
-              <div style={{
-                position: 'absolute',
-                inset: 0,
-                backgroundImage: `url(${cat.img})`,
-                backgroundSize: 'cover',
-                backgroundPosition: 'center',
-                filter: 'brightness(55%)',
-              }} />
+              <img
+                src={cat.img}
+                alt={cat.name}
+                style={{
+                  position: 'absolute',
+                  inset: 0,
+                  width: '100%',
+                  height: '100%',
+                  objectFit: 'cover',
+                  filter: 'brightness(60%)',
+                  display: 'block',
+                }}
+              />
               <div style={{
                 position: 'absolute',
                 inset: 0,
