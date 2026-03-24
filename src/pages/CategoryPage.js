@@ -261,58 +261,66 @@ export default function CategoryPage() {
       {/* ── PAGE CONTENT ── */}
       <div style={{ paddingTop: 68, paddingBottom: 68 }}>
 
-        {/* Category section title */}
-        <div style={{ padding: '0 15px', marginTop: 25 }}>
-          <span
-            data-section-title={categoryName}
-            style={{
-              fontFamily: 'var(--font)',
-              fontSize: 28,
-              fontWeight: 600,
-              color: 'var(--title-color)',
-              display: 'block',
-              marginBottom: 0,
-            }}
-          >
-            {categoryName}
-          </span>
-        </div>
-
-        {/* Description */}
-        {categoryDesc && (
-          <p style={{
-            padding: '16px 20px',
-            fontFamily: FONT_STACK,
-            fontSize: 15,
-            fontWeight: 400,
-            color: 'var(--text-color)',
-            lineHeight: '1.8em',
-            margin: 0,
-            marginBottom: 8,
+        {/* Hero header */}
+        <div data-section-title={categoryName} style={{
+          width: '100%',
+          height: 180,
+          position: 'relative',
+          overflow: 'hidden',
+          marginBottom: 0,
+        }}>
+          <img
+            src={catInfo.img}
+            alt={categoryName}
+            style={{ width: '100%', height: '100%', objectFit: 'cover', display: 'block' }}
+          />
+          <div style={{
+            position: 'absolute', inset: 0,
+            background: 'linear-gradient(to bottom, rgba(0,0,0,0.1) 0%, rgba(0,0,0,0.85) 100%)',
+          }} />
+          <div style={{
+            position: 'absolute', bottom: 0, left: 0, right: 0,
+            padding: 20,
           }}>
-            {categoryDesc}
-          </p>
-        )}
-
-        {/* Divider */}
-        <div style={{ height: 1, background: 'var(--light-gray)', margin: '0 20px 20px 20px' }} />
-
-        {/* Today's Articles title */}
-        <div style={{ padding: '0 15px' }}>
-          <span
-            data-section-title="Today's Articles"
-            style={{
-              fontFamily: 'var(--font)',
-              fontSize: 28,
-              fontWeight: 600,
-              color: 'var(--title-color)',
-              display: 'block',
-              marginBottom: 12,
-            }}
-          >
-            Today's Articles
-          </span>
+            <span style={{
+              display: 'inline-block',
+              background: '#FF6B00',
+              color: '#ffffff',
+              fontFamily: 'Rubik, sans-serif',
+              fontSize: 10,
+              fontWeight: 700,
+              padding: '3px 10px',
+              borderRadius: 4,
+              letterSpacing: '0.08em',
+              textTransform: 'uppercase',
+              marginBottom: 8,
+            }}>
+              {categoryName}
+            </span>
+            <div style={{
+              fontFamily: "'Big Shoulders Display', sans-serif",
+              fontWeight: 900,
+              fontSize: 32,
+              color: '#ffffff',
+              lineHeight: 1,
+              marginBottom: 6,
+            }}>
+              {categoryName}
+            </div>
+            <div style={{
+              fontFamily: 'Rubik, sans-serif',
+              fontSize: 12,
+              fontWeight: 400,
+              color: 'rgba(255,255,255,0.85)',
+              lineHeight: 1.4,
+            }}>
+              {categoryDesc}
+            </div>
+          </div>
         </div>
+
+        {/* 16px spacing before articles */}
+        <div style={{ height: 16 }} />
 
 
         {/* ARTICLE LIST */}
