@@ -128,8 +128,7 @@ export default function CategoryPage() {
 
   const catInfo = getCategoryInfo(categoryId, ageGroup);
   const categoryName = location.state?.name || catInfo.name;
-  const categoryImg = location.state?.img || catInfo.img;
-  const categoryDesc = CATEGORY_DESCRIPTIONS[categoryName] || catInfo.description;
+  const categoryDesc = getBandDescription(ageGroup, categoryName);
 
   useEffect(() => {
     const fetchArticles = async () => {
