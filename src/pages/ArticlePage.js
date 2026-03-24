@@ -41,8 +41,10 @@ export default function ArticlePage() {
   const [readProgress, setReadProgress] = useState(0);
   const [menuOpen, setMenuOpen] = useState(false);
   const [toast, setToast] = useState(null);
+  const [readNext, setReadNext] = useState(null);
 
   const headers = token ? { Authorization: `Bearer ${token}` } : {};
+  const showReactions = ageGroup === '8-10';
 
   useEffect(() => {
     const fetchArticle = async () => {
