@@ -298,7 +298,13 @@ export const PostListCard = ({ article, isLast, ageGroup }) => {
           <div style={{ width: '100%', height: '100%', background: 'var(--light-gray)' }} />
         )}
       </div>
-      <div style={{ marginLeft: 18, paddingTop: 30, flex: 1, display: 'flex', flexDirection: 'column', minWidth: 0 }}>
+      <div style={{ marginLeft: 18, paddingTop: 15, flex: 1, display: 'flex', flexDirection: 'column', minWidth: 0 }}>
+        <span style={{
+          fontFamily: 'var(--font)', fontSize: 13, fontWeight: 500,
+          color: 'var(--accent)', marginBottom: 6,
+        }}>
+          {CATEGORY_LABELS[article.category] || article.category}
+        </span>
         <h3 style={{
           fontFamily: 'var(--font)', fontSize: 15, fontWeight: 600,
           color: 'var(--title-color)', lineHeight: '22px',
