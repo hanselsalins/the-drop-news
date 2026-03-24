@@ -174,8 +174,10 @@ export default function FeedPage() {
       <div style={{
         position: 'fixed',
         top: 0,
-        left: 0,
-        right: 0,
+        left: '50%',
+        transform: 'translateX(-50%)',
+        width: '100%',
+        maxWidth: 430,
         zIndex: 100,
         height: 50,
         background: 'var(--bg)',
