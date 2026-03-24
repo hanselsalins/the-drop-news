@@ -16,10 +16,14 @@ const SOCIAL_LINKS = [
 
 export const BottomNav = ({ active = 'home' }) => {
   const navigate = useNavigate();
+  const { user } = useTheme();
   const [searchOpen, setSearchOpen] = useState(false);
   const [shareOpen, setShareOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
   const [copied, setCopied] = useState(false);
+
+  const avatarId = getSavedAvatarId(user?.id);
+  const memojiData = avatarId ? getMemojiById(avatarId) : null;
 
   const items = [
     { id: 'home', icon: 'house_fill', action: () => navigate('/feed') },
