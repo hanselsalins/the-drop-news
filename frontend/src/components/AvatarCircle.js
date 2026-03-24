@@ -38,7 +38,7 @@ export function AvatarCircle({ name, avatarId, size = 64, bordered = true, onCli
     height: size,
     borderRadius: '50%',
     overflow: 'hidden',
-    border: bordered ? '3px solid #FF6B00' : 'none',
+    border: 'none',
     flexShrink: 0,
     padding: 0,
     background: hasMemoji ? 'var(--light-gray)' : bg,
