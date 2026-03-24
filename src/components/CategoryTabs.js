@@ -47,9 +47,9 @@ export const CategoryTabs = () => {
   const navigate = useNavigate();
   const cats = CATEGORIES_BY_BAND[ageGroup] || CATEGORIES_BY_BAND['14-16'];
 
-  const handleTap = (catId) => {
+  const handleTap = (cat) => {
     light();
-    navigate(`/category/${catId}`);
+    navigate(`/category/${cat.id}`, { state: { name: cat.name, img: cat.img } });
   };
 
   const count = cats.length;
