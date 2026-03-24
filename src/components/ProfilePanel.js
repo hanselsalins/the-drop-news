@@ -78,10 +78,7 @@ export const ProfilePanel = ({ open, onClose }) => {
 
             {/* Avatar + name */}
             <div className="flex flex-col items-center px-6 pb-5">
-              <div style={{ width: 55, height: 55, borderRadius: '50%', overflow: 'hidden', border: '2px solid var(--accent)' }}>
-                {user?.avatar_url ? <img src={user.avatar_url} alt="" className="w-full h-full object-cover" />
-                  : <div className="w-full h-full flex items-center justify-center" style={{ background: 'var(--surface)', color: 'var(--accent)', fontFamily: 'var(--font)', fontSize: 24, fontWeight: 700 }}>{user?.full_name?.charAt(0)?.toUpperCase() || 'U'}</div>}
-              </div>
+              <AvatarCircle name={user?.full_name} avatarId={getSavedAvatarId(user?.id)} size={55} />
               <h2 style={{ fontFamily: 'var(--font)', fontSize: 15, fontWeight: 500, color: 'var(--title-color)', marginTop: 12 }}>{user?.full_name}</h2>
               {user?.username && <p style={{ fontFamily: 'var(--font)', fontSize: 13, fontWeight: 400, color: 'var(--text-color)', marginTop: 2 }}>@{user.username}</p>}
             </div>

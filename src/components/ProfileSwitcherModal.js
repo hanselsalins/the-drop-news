@@ -144,17 +144,7 @@ export const ProfileSwitcherModal = ({ open, onClose, onPanelClose }) => {
                       border: isActive ? '1.5px solid rgba(255,107,0,0.3)' : '1.5px solid transparent',
                       opacity: isSwitching ? 0.5 : 1,
                     }}>
-                    <div className="flex-shrink-0 w-[48px] h-[48px] rounded-full overflow-hidden"
-                      style={{ background: 'var(--accent)' }}>
-                      {profile.avatar_url ? (
-                        <img src={profile.avatar_url} alt="" className="w-full h-full object-cover" />
-                      ) : (
-                        <div className="w-full h-full flex items-center justify-center font-bold"
-                          style={{ color: '#FFFFFF', fontFamily: 'var(--font)', fontSize: 20 }}>
-                          {profile.full_name?.charAt(0)?.toUpperCase() || '?'}
-                        </div>
-                      )}
-                    </div>
+                    <AvatarCircle name={profile.full_name} avatarId={getSavedAvatarId(profile.id)} size={52} />
                     <div className="flex-1 text-left min-w-0">
                       <p style={{ fontFamily: 'var(--font)', fontSize: 15, fontWeight: 500, color: 'var(--title-color)' }}>
                         {profile.full_name}
