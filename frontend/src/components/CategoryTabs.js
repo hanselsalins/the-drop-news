@@ -64,6 +64,21 @@ export const CategoryTabs = () => {
     navigate(`/category/${catId}`);
   };
 
+  const count = cats.length;
+
+  const getDescription = () => {
+    switch (ageGroup) {
+      case '8-10':
+        return <>Explore <span style={{ color: '#FF6B00', fontWeight: 600 }}>{count}</span> topics we picked just for you</>;
+      case '11-13':
+        return <>Dive into <span style={{ color: '#FF6B00', fontWeight: 600 }}>{count}</span> topics that matter right now</>;
+      case '14-16':
+        return <>Stay sharp across <span style={{ color: '#FF6B00', fontWeight: 600 }}>{count}</span> topics shaping the world</>;
+      default:
+        return <>Your <span style={{ color: '#FF6B00', fontWeight: 600 }}>{count}</span> essential topics — read them all</>;
+    }
+  };
+
   return (
     <div style={{ marginTop: 20, paddingBottom: 8 }}>
       <span style={{
@@ -75,6 +90,16 @@ export const CategoryTabs = () => {
       }}>
         Categories
       </span>
+      <p style={{
+        fontFamily: FONT_STACK,
+        fontSize: 13,
+        fontWeight: 400,
+        color: 'var(--text-color)',
+        marginTop: 2,
+        marginBottom: 8,
+      }}>
+        {getDescription()}
+      </p>
       <style>{`.cat-slider::-webkit-scrollbar { display: none; }`}</style>
       <div
         className="cat-slider"
