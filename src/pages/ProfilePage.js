@@ -375,7 +375,7 @@ export default function ProfilePage() {
               background: e.is_self ? 'rgba(255,107,0,0.04)' : 'transparent',
             }}>
               <span style={{ fontFamily: f, fontSize: 14, fontWeight: 700, color: e.rank <= 3 ? '#FFD60A' : 'var(--text-color)', width: 24, textAlign: 'center' }}>{e.rank}</span>
-              <img src={e.avatar_url} alt="" style={{ width: 32, height: 32, borderRadius: '50%' }} />
+              <AvatarCircle name={e.full_name} avatarId={null} size={40} bordered={false} />
               <div style={{ flex: 1, minWidth: 0 }}>
                 <p style={{ fontFamily: f, fontSize: 14, fontWeight: 500, color: 'var(--title-color)', margin: 0 }}>{e.full_name}</p>
               </div>
