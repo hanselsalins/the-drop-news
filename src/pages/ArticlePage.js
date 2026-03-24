@@ -258,17 +258,6 @@ export default function ArticlePage() {
         {/* Reaction Bar */}
         <ReactionBar articleId={article.id} />
 
-        {/* Share */}
-        <button data-testid="share-btn" aria-label="Share this story" onClick={() => setMenuOpen(true)}
-          className="flex items-center justify-center gap-2 w-full mt-5 cursor-pointer"
-          style={{
-            fontFamily: 'var(--font)', fontSize: 14, fontWeight: 500,
-            height: 44, borderRadius: 10,
-            background: 'var(--accent)', color: '#FFFFFF', border: 'none',
-          }}>
-          <F7Icon name="square_arrow_up" size={16} color="#FFFFFF" />
-          Share this story
-        </button>
 
         {/* Source Link */}
         <a data-testid="source-link" href={article.original_url} target="_blank" rel="noopener noreferrer"
