@@ -84,8 +84,6 @@ export default function ProfilePage() {
     try { await axios.post(`${BACKEND_URL}/api/friends/decline/${friendshipId}`, {}, { headers }); setFriendRequests(prev => prev.filter(r => r.friendship_id !== friendshipId)); } catch {}
   };
 
-  const avatarSrc = selectedMemojiId ? getMemojiById(selectedMemojiId) : (user?.avatar_url || getMemoji(user?.full_name));
-  const initials = (user?.full_name || '?').split(' ').map(w => w[0]).join('').slice(0, 2).toUpperCase();
   const knowledgeScore = stats ? stats.knowledge_score?.score || 0 : 0;
 
   return (
