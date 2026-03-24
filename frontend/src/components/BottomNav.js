@@ -111,6 +111,7 @@ export const BottomNav = ({ active = 'home' }) => {
                 />
               </div>
             </motion.div>
+            </div>
           </>
         )}
       </AnimatePresence>
