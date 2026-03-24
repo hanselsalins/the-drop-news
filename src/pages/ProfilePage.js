@@ -3,8 +3,8 @@ import { useNavigate } from 'react-router-dom';
 import { useTheme } from '../contexts/ThemeContext';
 import { BottomNav } from '../components/BottomNav';
 import { F7Icon } from '../components/F7Icon';
-import { MemojiPicker } from '../components/MemojiPicker';
-import { getMemoji, getMemojiById } from '../lib/memojis';
+import { AvatarCircle, getSavedAvatarId } from '../components/AvatarCircle';
+import { getBankForAge } from '../lib/memojis';
 import { motion, AnimatePresence } from 'framer-motion';
 import axios from 'axios';
 
