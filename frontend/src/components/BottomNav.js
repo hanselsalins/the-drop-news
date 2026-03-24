@@ -1,8 +1,11 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { useTheme } from '../contexts/ThemeContext';
 import { F7Icon } from './F7Icon';
 import { light } from '../lib/haptic';
 import { motion, AnimatePresence } from 'framer-motion';
+import { getMemojiById } from '../lib/memojis';
+import { getSavedAvatarId } from './AvatarCircle';
 
 const SOCIAL_LINKS = [
   { label: 'WhatsApp', color: '#25D366', icon: '💬', url: 'https://wa.me/?text=Check+out+The+Drop!' },
@@ -13,10 +16,14 @@ const SOCIAL_LINKS = [
 
 export const BottomNav = ({ active = 'home' }) => {
   const navigate = useNavigate();
+  const { user } = useTheme();
   const [searchOpen, setSearchOpen] = useState(false);
   const [shareOpen, setShareOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
   const [copied, setCopied] = useState(false);
+
+  const avatarId = getSavedAvatarId(user?.id);
+  const memojiData = avatarId ? getMemojiById(avatarId) : null;
 
   const items = [
     { id: 'home', icon: 'house_fill', action: () => navigate('/feed') },
@@ -58,7 +65,18 @@ export const BottomNav = ({ active = 'home' }) => {
                 className="flex flex-col items-center justify-center"
                 style={{ minWidth: 56, background: 'none', border: 'none', cursor: 'pointer' }}
               >
-                <F7Icon name={icon} size={24} color={isActive ? 'var(--accent)' : '#c4c4c5'} />
+                {id === 'profile' && memojiData ? (
+                  <img
+                    src={memojiData.src}
+                    alt="Profile"
+                    style={{
+                      width: 28, height: 28, borderRadius: '50%', objectFit: 'cover',
+                      border: isActive ? '2px solid #FF6B00' : '2px solid transparent',
+                    }}
+                  />
+                ) : (
+                  <F7Icon name={icon} size={24} color={isActive ? 'var(--accent)' : '#c4c4c5'} />
+                )}
               </button>
             );
           })}
