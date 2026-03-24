@@ -8,19 +8,48 @@ import axios from 'axios';
 const BACKEND_URL = import.meta.env.VITE_BACKEND_URL;
 const FONT_STACK = "'Rubik', -apple-system, 'SF Pro Text', system-ui, 'Helvetica Neue', Arial, sans-serif";
 
-const CATEGORY_DESCRIPTIONS = {
-  'Our World': 'The biggest stories happening around the world right now',
-  'People': 'Real stories about real people from every corner of the world',
-  'Sports': 'Latest results, records, rivalries and sporting moments',
-  'World': 'Global affairs, conflicts and international stories',
-  'Fair or Not?': 'Who makes the rules, who breaks them, and why it matters',
-  'Science & Tech': 'Discoveries, inventions and the technology shaping our future',
-  'Power': 'Governments, elections, leaders and the decisions that affect us all',
-  'Business': 'Companies, markets, money and the economy explained',
-  'Science & Planet': 'Our earth, climate, wildlife and the science of our world',
-  'Tech': 'AI, innovation and the technology changing everything',
-  'Culture': 'Arts, music, society and the human stories behind the headlines',
+const BAND_DESCRIPTIONS = {
+  '8-10': {
+    'Our World': "Find out what's happening in big places far away — wars, weather, animals and people making news all around the world.",
+    'People': "Meet real people doing amazing, brave or surprising things. Every story here is about someone just like you — or very different from you.",
+    'Sports': "Goals, wins, records and the best moments in sport. From cricket in Mumbai to football in London — it's all here.",
+  },
+  '11-13': {
+    'World': "The biggest stories happening across the globe right now — from conflicts to discoveries, politics to natural disasters. Stay in the loop.",
+    'Fair or Not?': "Governments make rules. Leaders make decisions. But are they always fair? This is where we ask the hard questions about power, rights and justice.",
+    'Science & Tech': "From AI to space exploration, climate science to the latest inventions — the stories here will make you think about what's coming next.",
+    'Sports': "Results, records and the stories behind the scores. The biggest sporting moments from around the world, every day.",
+  },
+  '14-16': {
+    'World': "Global affairs don't stay global for long — they affect your city, your economy and your future. Here's what's happening and why it matters.",
+    'Power': "Elections, governments, wars and the decisions made by people in power. Understanding power is understanding the world.",
+    'Business': "Companies rise and fall. Markets move. Economies shift. This is where you start to understand why — and what it means for you.",
+    'Science & Planet': "The science of our world — from climate change to deep space, from new species to new cures. Evidence-based, no noise.",
+    'Sports': "Beyond the scores — the business of sport, the politics of sport, and the performances that define generations.",
+    'Tech': "AI, startups, breakthroughs and the technology reshaping every industry. The future is being built right now.",
+  },
+  '17-20': {
+    'World': "International affairs, geopolitics and the stories driving global change. Read beyond the headline.",
+    'Power': "Political decisions, governance failures, elections and the structural forces that shape nations. No spin.",
+    'Business': "Markets, monetary policy, corporate strategy and economic forces. The stories behind the numbers.",
+    'Science & Tech': "Research, innovation and the technology redefining industries, societies and human capability.",
+    'Sports': "Performance, strategy, economics and culture — sport as a lens on the wider world.",
+    'Culture': "Art, identity, social movements and the human stories that don't fit anywhere else — but matter most.",
+  },
+  '20+': {
+    'World': "International affairs, geopolitics and the stories driving global change. Read beyond the headline.",
+    'Power': "Political decisions, governance failures, elections and the structural forces that shape nations. No spin.",
+    'Business': "Markets, monetary policy, corporate strategy and economic forces. The stories behind the numbers.",
+    'Science & Tech': "Research, innovation and the technology redefining industries, societies and human capability.",
+    'Sports': "Performance, strategy, economics and culture — sport as a lens on the wider world.",
+    'Culture': "Art, identity, social movements and the human stories that don't fit anywhere else — but matter most.",
+  },
 };
+
+function getBandDescription(ageGroup, categoryName) {
+  const band = BAND_DESCRIPTIONS[ageGroup] || BAND_DESCRIPTIONS['14-16'];
+  return band[categoryName] || '';
+}
 
 const CATEGORIES_BY_BAND = {
   '8-10': [
@@ -63,12 +92,8 @@ const CATEGORIES_BY_BAND = {
 function getCategoryInfo(categoryId, ageGroup) {
   const band = CATEGORIES_BY_BAND[ageGroup] || CATEGORIES_BY_BAND['14-16'];
   const cat = band.find(c => c.id === categoryId);
-  if (!cat) return { name: categoryId, img: '', description: '' };
-  return {
-    name: cat.name,
-    img: cat.img,
-    description: CATEGORY_DESCRIPTIONS[cat.name] || '',
-  };
+  if (!cat) return { name: categoryId, img: '' };
+  return { name: cat.name, img: cat.img };
 }
 
 function SkeletonArticleCard() {
@@ -103,8 +128,7 @@ export default function CategoryPage() {
 
   const catInfo = getCategoryInfo(categoryId, ageGroup);
   const categoryName = location.state?.name || catInfo.name;
-  const categoryImg = location.state?.img || catInfo.img;
-  const categoryDesc = CATEGORY_DESCRIPTIONS[categoryName] || catInfo.description;
+  const categoryDesc = getBandDescription(ageGroup, categoryName);
 
   useEffect(() => {
     const fetchArticles = async () => {
@@ -237,7 +261,7 @@ export default function CategoryPage() {
       {/* ── PAGE CONTENT ── */}
       <div style={{ paddingTop: 68, paddingBottom: 68 }}>
 
-        {/* Category section title (like "Breaking News" on home) */}
+        {/* Category section title */}
         <div style={{ padding: '0 15px', marginTop: 25 }}>
           <span
             data-section-title={categoryName}
@@ -247,58 +271,34 @@ export default function CategoryPage() {
               fontWeight: 600,
               color: 'var(--title-color)',
               display: 'block',
-              marginBottom: 12,
+              marginBottom: 0,
             }}
           >
             {categoryName}
           </span>
         </div>
 
-        {/* HERO CARD */}
-        {categoryImg && (
-          <div style={{
-            margin: 15,
-            borderRadius: 18,
-            overflow: 'hidden',
-            position: 'relative',
+        {/* Description */}
+        {categoryDesc && (
+          <p style={{
+            padding: '16px 20px',
+            fontFamily: FONT_STACK,
+            fontSize: 15,
+            fontWeight: 400,
+            color: 'var(--text-color)',
+            lineHeight: '1.8em',
+            margin: 0,
+            marginBottom: 8,
           }}>
-            <img
-              src={categoryImg.replace('w=300', 'w=800')}
-              alt={categoryName}
-              style={{
-                width: '100%',
-                aspectRatio: '16/10',
-                objectFit: 'cover',
-                display: 'block',
-              }}
-            />
-            <div style={{
-              position: 'absolute',
-              inset: 0,
-              background: 'linear-gradient(to bottom, rgba(0,0,0,0) 0%, rgba(24,24,24,0.95) 100%)',
-            }} />
-            <div style={{
-              position: 'absolute',
-              bottom: 0,
-              left: 0,
-              right: 0,
-              padding: '60px 18px 18px 18px',
-            }}>
-              <span style={{
-                fontFamily: FONT_STACK,
-                fontSize: 15,
-                fontWeight: 400,
-                color: '#ffffff',
-                lineHeight: 1.6,
-              }}>
-                {categoryDesc}
-              </span>
-            </div>
-          </div>
+            {categoryDesc}
+          </p>
         )}
 
+        {/* Divider */}
+        <div style={{ height: 1, background: 'var(--light-gray)', margin: '0 20px 20px 20px' }} />
+
         {/* Today's Articles title */}
-        <div style={{ padding: '0 15px', marginTop: 25 }}>
+        <div style={{ padding: '0 15px' }}>
           <span
             data-section-title="Today's Articles"
             style={{
@@ -313,6 +313,7 @@ export default function CategoryPage() {
             Today's Articles
           </span>
         </div>
+
 
         {/* ARTICLE LIST */}
         {loading ? (
