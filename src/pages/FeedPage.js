@@ -33,7 +33,7 @@ export default function FeedPage() {
 
   // Sticky header state
   const [activeSectionTitle, setActiveSectionTitle] = useState('');
-  const sectionRefs = useRef({});
+  
 
   const headers = token ? { Authorization: `Bearer ${token}` } : {};
   const { milestone, checkMilestone, acknowledgeMilestone, requestPermission, permission } = useNotifications();
@@ -46,54 +46,71 @@ export default function FeedPage() {
     }
   }, [permission, requestPermission]);
 
-  // IntersectionObserver for sticky header section titles
+  // IntersectionObserver + scroll listener for sticky header section titles
   useEffect(() => {
-    const refs = sectionRefs.current;
-    const entries = Object.entries(refs).filter(([, el]) => el);
-    if (entries.length === 0) return;
+    // Small delay to let DOM render section headings
+    const timer = setTimeout(() => {
+      const headings = document.querySelectorAll('[data-section-title]');
+      if (headings.length === 0) return;
 
-    const observer = new IntersectionObserver(
-      (observedEntries) => {
-        // Track which sections are out of view (scrolled past)
-        const hiddenSections = [];
-        observedEntries.forEach((entry) => {
-          const name = entry.target.dataset.sectionName;
-          if (!entry.isIntersecting && entry.boundingClientRect.top < 50) {
-            hiddenSections.push(name);
+      const observer = new IntersectionObserver(
+        () => {
+          // On any intersection change, recalculate which section is active
+          const allHeadings = document.querySelectorAll('[data-section-title]');
+          let lastHidden = '';
+          allHeadings.forEach((el) => {
+            const rect = el.getBoundingClientRect();
+            if (rect.top < 50) {
+              lastHidden = el.getAttribute('data-section-title');
+            }
+          });
+          if (window.scrollY < 60) {
+            setActiveSectionTitle('');
+          } else {
+            setActiveSectionTitle(lastHidden);
           }
-        });
+        },
+        {
+          root: null,
+          threshold: 0,
+          rootMargin: '-50px 0px 0px 0px',
+        }
+      );
 
-        // Check all observed elements to find the last one scrolled past
-        const allHidden = [];
-        entries.forEach(([name, el]) => {
+      headings.forEach((h) => observer.observe(h));
+
+      const handleScroll = () => {
+        if (window.scrollY < 60) {
+          setActiveSectionTitle('');
+          return;
+        }
+        const allHeadings = document.querySelectorAll('[data-section-title]');
+        let lastHidden = '';
+        allHeadings.forEach((el) => {
           const rect = el.getBoundingClientRect();
           if (rect.top < 50) {
-            allHidden.push(name);
+            lastHidden = el.getAttribute('data-section-title');
           }
         });
+        setActiveSectionTitle(lastHidden);
+      };
 
-        if (allHidden.length > 0) {
-          setActiveSectionTitle(allHidden[allHidden.length - 1]);
-        } else {
-          setActiveSectionTitle('');
-        }
-      },
-      {
-        threshold: 0,
-        rootMargin: '-50px 0px 0px 0px',
-      }
-    );
+      window.addEventListener('scroll', handleScroll, { passive: true });
 
-    entries.forEach(([, el]) => observer.observe(el));
-    return () => observer.disconnect();
+      // Store cleanup refs
+      cleanupRef.current = () => {
+        observer.disconnect();
+        window.removeEventListener('scroll', handleScroll);
+      };
+    }, 300);
+
+    return () => {
+      clearTimeout(timer);
+      if (cleanupRef.current) cleanupRef.current();
+    };
   }, [loading, activeCategory, articles]);
 
-  const setSectionRef = useCallback((name) => (el) => {
-    if (el) {
-      el.dataset.sectionName = name;
-      sectionRefs.current[name] = el;
-    }
-  }, []);
+  const cleanupRef = useRef(null);
 
   const fetchArticles = useCallback(async () => {
     try {
@@ -234,7 +251,7 @@ export default function FeedPage() {
             <div style={{ marginTop: 25 }}>
               <div className="flex items-center justify-between" style={{ marginBottom: 12 }}>
                 <span
-                  ref={setSectionRef('Breaking News')}
+                  data-section-title="Breaking News"
                   style={{ fontFamily: 'var(--font)', fontSize: 28, fontWeight: 600, color: 'var(--title-color)' }}
                 >
                   Breaking News
@@ -251,7 +268,7 @@ export default function FeedPage() {
 
         {/* ── CATEGORY TABS ── */}
         <div style={{ padding: '0 15px' }}>
-          <div ref={setSectionRef('Categories')}>
+          <div data-section-title="Categories">
             <CategoryTabs />
           </div>
         </div>
@@ -262,7 +279,7 @@ export default function FeedPage() {
           {/* TODAY'S DROP section — vertical post list */}
           {activeCategory === 'today' && !loading && todayDropArticles.length > 0 && (
             <div style={{ marginTop: 25 }}>
-              <div ref={setSectionRef("Today's Drop")}>
+              <div data-section-title="Today's Drop">
                 <ProgressDots articleIds={todayArticleIds} readArticleIds={readIds} />
               </div>
               <div>
