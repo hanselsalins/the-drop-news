@@ -261,7 +261,7 @@ export default function CategoryPage() {
       {/* ── PAGE CONTENT ── */}
       <div style={{ paddingTop: 68, paddingBottom: 68 }}>
 
-        {/* Category section title (like "Breaking News" on home) */}
+        {/* Category section title */}
         <div style={{ padding: '0 15px', marginTop: 25 }}>
           <span
             data-section-title={categoryName}
@@ -271,58 +271,34 @@ export default function CategoryPage() {
               fontWeight: 600,
               color: 'var(--title-color)',
               display: 'block',
-              marginBottom: 12,
+              marginBottom: 0,
             }}
           >
             {categoryName}
           </span>
         </div>
 
-        {/* HERO CARD */}
-        {categoryImg && (
-          <div style={{
-            margin: 15,
-            borderRadius: 18,
-            overflow: 'hidden',
-            position: 'relative',
+        {/* Description */}
+        {categoryDesc && (
+          <p style={{
+            padding: '16px 20px',
+            fontFamily: FONT_STACK,
+            fontSize: 15,
+            fontWeight: 400,
+            color: 'var(--text-color)',
+            lineHeight: '1.8em',
+            margin: 0,
+            marginBottom: 8,
           }}>
-            <img
-              src={categoryImg.replace('w=300', 'w=800')}
-              alt={categoryName}
-              style={{
-                width: '100%',
-                aspectRatio: '16/10',
-                objectFit: 'cover',
-                display: 'block',
-              }}
-            />
-            <div style={{
-              position: 'absolute',
-              inset: 0,
-              background: 'linear-gradient(to bottom, rgba(0,0,0,0) 0%, rgba(24,24,24,0.95) 100%)',
-            }} />
-            <div style={{
-              position: 'absolute',
-              bottom: 0,
-              left: 0,
-              right: 0,
-              padding: '60px 18px 18px 18px',
-            }}>
-              <span style={{
-                fontFamily: FONT_STACK,
-                fontSize: 15,
-                fontWeight: 400,
-                color: '#ffffff',
-                lineHeight: 1.6,
-              }}>
-                {categoryDesc}
-              </span>
-            </div>
-          </div>
+            {categoryDesc}
+          </p>
         )}
 
+        {/* Divider */}
+        <div style={{ height: 1, background: 'var(--light-gray)', margin: '0 20px 20px 20px' }} />
+
         {/* Today's Articles title */}
-        <div style={{ padding: '0 15px', marginTop: 25 }}>
+        <div style={{ padding: '0 15px' }}>
           <span
             data-section-title="Today's Articles"
             style={{
@@ -337,6 +313,7 @@ export default function CategoryPage() {
             Today's Articles
           </span>
         </div>
+
 
         {/* ARTICLE LIST */}
         {loading ? (
