@@ -1,0 +1,331 @@
+import { useState, useEffect } from 'react';
+import { useParams, useNavigate, useLocation } from 'react-router-dom';
+import { useTheme } from '../contexts/ThemeContext';
+import { BottomNav } from '../components/BottomNav';
+import { F7Icon } from '../components/F7Icon';
+import axios from 'axios';
+
+const BACKEND_URL = import.meta.env.VITE_BACKEND_URL;
+const FONT_STACK = "'Rubik', -apple-system, 'SF Pro Text', system-ui, 'Helvetica Neue', Arial, sans-serif";
+
+const CATEGORY_DESCRIPTIONS = {
+  'Our World': 'The biggest stories happening around the world right now',
+  'People': 'Real stories about real people from every corner of the world',
+  'Sports': 'Latest results, records, rivalries and sporting moments',
+  'World': 'Global affairs, conflicts and international stories',
+  'Fair or Not?': 'Who makes the rules, who breaks them, and why it matters',
+  'Science & Tech': 'Discoveries, inventions and the technology shaping our future',
+  'Power': 'Governments, elections, leaders and the decisions that affect us all',
+  'Business': 'Companies, markets, money and the economy explained',
+  'Science & Planet': 'Our earth, climate, wildlife and the science of our world',
+  'Tech': 'AI, innovation and the technology changing everything',
+  'Culture': 'Arts, music, society and the human stories behind the headlines',
+};
+
+const CATEGORIES_BY_BAND = {
+  '8-10': [
+    { id: 'world', name: 'Our World', img: 'https://images.unsplash.com/photo-1446776811953-b23d57bd21aa?w=300&q=80' },
+    { id: 'people', name: 'People', img: 'https://images.unsplash.com/photo-1491438590914-bc09fcaaf77a?w=300&q=80' },
+    { id: 'sports', name: 'Sports', img: 'https://images.unsplash.com/photo-1579952363873-27f3bade9f55?w=300&q=80' },
+  ],
+  '11-13': [
+    { id: 'world', name: 'World', img: 'https://images.unsplash.com/photo-1521295121783-8a321d551ad2?w=300&q=80' },
+    { id: 'fairornot', name: 'Fair or Not?', img: 'https://images.unsplash.com/photo-1589829545856-d10d557cf95f?w=300&q=80' },
+    { id: 'science', name: 'Science & Tech', img: 'https://images.unsplash.com/photo-1507413245164-6160d8298b31?w=300&q=80' },
+    { id: 'sports', name: 'Sports', img: 'https://images.unsplash.com/photo-1461896836934-ffe607ba8211?w=300&q=80' },
+  ],
+  '14-16': [
+    { id: 'world', name: 'World', img: 'https://images.unsplash.com/photo-1521295121783-8a321d551ad2?w=300&q=80' },
+    { id: 'power', name: 'Power', img: 'https://images.unsplash.com/photo-1529107386315-e1a2ed48a620?w=300&q=80' },
+    { id: 'business', name: 'Business', img: 'https://images.unsplash.com/photo-1611974789855-9c2a0a7236a3?w=300&q=80' },
+    { id: 'science', name: 'Science & Planet', img: 'https://images.unsplash.com/photo-1518020382113-a7e8fc38eac9?w=300&q=80' },
+    { id: 'sports', name: 'Sports', img: 'https://images.unsplash.com/photo-1579952363873-27f3bade9f55?w=300&q=80' },
+    { id: 'tech', name: 'Tech', img: 'https://images.unsplash.com/photo-1518770660439-4636190af475?w=300&q=80' },
+  ],
+  '17-20': [
+    { id: 'world', name: 'World', img: 'https://images.unsplash.com/photo-1477959858617-67f85cf4f1df?w=300&q=80' },
+    { id: 'power', name: 'Power', img: 'https://images.unsplash.com/photo-1529107386315-e1a2ed48a620?w=300&q=80' },
+    { id: 'business', name: 'Business', img: 'https://images.unsplash.com/photo-1611974789855-9c2a0a7236a3?w=300&q=80' },
+    { id: 'science', name: 'Science & Tech', img: 'https://images.unsplash.com/photo-1451187580459-43490279c0fa?w=300&q=80' },
+    { id: 'sports', name: 'Sports', img: 'https://images.unsplash.com/photo-1504016798967-54a825798c7d?w=300&q=80' },
+    { id: 'culture', name: 'Culture', img: 'https://images.unsplash.com/photo-1533174072545-7a4b6ad7a6c3?w=300&q=80' },
+  ],
+  '20+': [
+    { id: 'world', name: 'World', img: 'https://images.unsplash.com/photo-1477959858617-67f85cf4f1df?w=300&q=80' },
+    { id: 'power', name: 'Power', img: 'https://images.unsplash.com/photo-1529107386315-e1a2ed48a620?w=300&q=80' },
+    { id: 'business', name: 'Business', img: 'https://images.unsplash.com/photo-1611974789855-9c2a0a7236a3?w=300&q=80' },
+    { id: 'science', name: 'Science & Tech', img: 'https://images.unsplash.com/photo-1451187580459-43490279c0fa?w=300&q=80' },
+    { id: 'sports', name: 'Sports', img: 'https://images.unsplash.com/photo-1504016798967-54a825798c7d?w=300&q=80' },
+    { id: 'culture', name: 'Culture', img: 'https://images.unsplash.com/photo-1533174072545-7a4b6ad7a6c3?w=300&q=80' },
+  ],
+};
+
+function getCategoryInfo(categoryId, ageGroup) {
+  const band = CATEGORIES_BY_BAND[ageGroup] || CATEGORIES_BY_BAND['14-16'];
+  const cat = band.find(c => c.id === categoryId);
+  if (!cat) return { name: categoryId, img: '', description: '' };
+  return {
+    name: cat.name,
+    img: cat.img,
+    description: CATEGORY_DESCRIPTIONS[cat.name] || '',
+  };
+}
+
+function SkeletonArticleCard() {
+  return (
+    <div style={{
+      margin: '0 15px 20px 15px',
+      borderRadius: 18,
+      overflow: 'hidden',
+      background: 'var(--surface)',
+    }}>
+      <div className="skeleton-shimmer" style={{ width: '100%', aspectRatio: '16/9' }} />
+      <div style={{ padding: 20 }}>
+        <div className="skeleton-shimmer" style={{ width: '85%', height: 20, borderRadius: 6 }} />
+        <div className="skeleton-shimmer" style={{ width: '100%', height: 14, borderRadius: 6, marginTop: 10 }} />
+        <div className="skeleton-shimmer" style={{ width: '60%', height: 14, borderRadius: 6, marginTop: 6 }} />
+        <div className="skeleton-shimmer" style={{ width: '100%', height: 44, borderRadius: 22, marginTop: 15 }} />
+      </div>
+    </div>
+  );
+}
+
+export default function CategoryPage() {
+  const { categoryId } = useParams();
+  const navigate = useNavigate();
+  const location = useLocation();
+  const { ageGroup, token, darkMode } = useTheme();
+
+  const [articles, setArticles] = useState([]);
+  const [loading, setLoading] = useState(true);
+
+  const catInfo = getCategoryInfo(categoryId, ageGroup);
+  // Allow location state to override (from CategoryTabs nav)
+  const categoryName = location.state?.name || catInfo.name;
+  const categoryImg = location.state?.img || catInfo.img;
+  const categoryDesc = CATEGORY_DESCRIPTIONS[categoryName] || catInfo.description;
+
+  useEffect(() => {
+    const fetchArticles = async () => {
+      setLoading(true);
+      try {
+        const res = await axios.get(`${BACKEND_URL}/api/articles`, {
+          headers: { Authorization: `Bearer ${token}` },
+          params: { age_group: ageGroup, category: categoryId },
+        });
+        setArticles(Array.isArray(res.data) ? res.data : res.data?.articles || []);
+      } catch (err) {
+        console.error('[CategoryPage] fetch error:', err);
+        setArticles([]);
+      }
+      setLoading(false);
+    };
+    fetchArticles();
+  }, [categoryId, ageGroup, token]);
+
+  const pageBg = darkMode ? 'var(--bg)' : '#FEFEFF';
+  const cardBg = darkMode ? 'var(--surface)' : '#FFFFFF';
+
+  return (
+    <div style={{ minHeight: '100vh', background: pageBg }}>
+      {/* TOP BAR */}
+      <div style={{
+        position: 'fixed',
+        top: 0,
+        left: 0,
+        right: 0,
+        height: 50,
+        background: 'var(--bg)',
+        zIndex: 100,
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'space-between',
+        padding: '0 16px',
+      }}>
+        {/* LEFT: back arrow */}
+        <button
+          onClick={() => navigate('/feed')}
+          style={{
+            background: 'none',
+            border: 'none',
+            cursor: 'pointer',
+            padding: 4,
+            display: 'flex',
+            alignItems: 'center',
+          }}
+        >
+          <F7Icon name="arrow_left" size={22} color="var(--title-color)" />
+        </button>
+
+        {/* CENTRE: category name */}
+        <span style={{
+          fontFamily: FONT_STACK,
+          fontSize: 15,
+          fontWeight: 600,
+          color: 'var(--title-color)',
+          position: 'absolute',
+          left: '50%',
+          transform: 'translateX(-50%)',
+          whiteSpace: 'nowrap',
+        }}>
+          {categoryName}
+        </span>
+
+        {/* RIGHT: THE DROP wordmark */}
+        <span style={{
+          fontFamily: "'Big Shoulders Display', sans-serif",
+          fontWeight: 900,
+          fontSize: 16,
+          letterSpacing: 1,
+          whiteSpace: 'nowrap',
+        }}>
+          <span style={{ color: 'var(--title-color)' }}>THE </span>
+          <span style={{ color: '#FF6B00' }}>DROP</span>
+        </span>
+      </div>
+
+      {/* CONTENT */}
+      <div style={{ paddingTop: 50, paddingBottom: 68 }}>
+        {/* HERO CARD */}
+        {categoryImg && (
+          <div style={{
+            margin: 15,
+            borderRadius: 18,
+            overflow: 'hidden',
+            position: 'relative',
+          }}>
+            <img
+              src={categoryImg.replace('w=300', 'w=800')}
+              alt={categoryName}
+              style={{
+                width: '100%',
+                aspectRatio: '16/10',
+                objectFit: 'cover',
+                display: 'block',
+              }}
+            />
+            <div style={{
+              position: 'absolute',
+              inset: 0,
+              background: 'linear-gradient(to bottom, rgba(0,0,0,0) 0%, rgba(24,24,24,0.95) 100%)',
+            }} />
+            <div style={{
+              position: 'absolute',
+              bottom: 0,
+              left: 0,
+              right: 0,
+              padding: '60px 18px 18px 18px',
+            }}>
+              <span style={{
+                fontFamily: FONT_STACK,
+                fontSize: 15,
+                fontWeight: 400,
+                color: '#ffffff',
+                lineHeight: 1.6,
+              }}>
+                {categoryDesc}
+              </span>
+            </div>
+          </div>
+        )}
+
+        {/* ARTICLE LIST */}
+        {loading ? (
+          <>
+            <SkeletonArticleCard />
+            <SkeletonArticleCard />
+            <SkeletonArticleCard />
+          </>
+        ) : articles.length === 0 ? (
+          <div style={{
+            textAlign: 'center',
+            padding: '60px 20px',
+            fontFamily: FONT_STACK,
+            fontSize: 15,
+            color: 'var(--text-color)',
+          }}>
+            No stories today — check back soon
+          </div>
+        ) : (
+          articles.map((article) => (
+            <div
+              key={article.id || article._id}
+              style={{
+                margin: '0 15px 20px 15px',
+                borderRadius: 18,
+                overflow: 'hidden',
+                background: cardBg,
+                boxShadow: 'var(--block-shadow)',
+              }}
+            >
+              {/* Article image */}
+              {article.image_url && (
+                <img
+                  src={article.image_url}
+                  alt={article.title}
+                  style={{
+                    width: '100%',
+                    aspectRatio: '16/9',
+                    objectFit: 'cover',
+                    display: 'block',
+                  }}
+                />
+              )}
+              {/* Big footer */}
+              <div style={{
+                background: cardBg,
+                padding: 20,
+              }}>
+                <h2 style={{
+                  fontFamily: FONT_STACK,
+                  fontSize: 20,
+                  fontWeight: 600,
+                  color: 'var(--title-color)',
+                  lineHeight: 1.5,
+                  marginBottom: 8,
+                  margin: '0 0 8px 0',
+                }}>
+                  {article.title}
+                </h2>
+                <p style={{
+                  fontFamily: FONT_STACK,
+                  fontSize: 15,
+                  fontWeight: 400,
+                  color: 'var(--text-color)',
+                  lineHeight: '1.8em',
+                  margin: '0 0 0 0',
+                }}>
+                  {article.summary || article.description || ''}
+                </p>
+                <button
+                  onClick={() => navigate(`/article/${article.id || article._id}`)}
+                  style={{
+                    width: '100%',
+                    height: 44,
+                    borderRadius: 22,
+                    background: '#FF6B00',
+                    color: '#ffffff',
+                    fontFamily: FONT_STACK,
+                    fontSize: 14,
+                    fontWeight: 500,
+                    marginTop: 15,
+                    border: 'none',
+                    cursor: 'pointer',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                  }}
+                >
+                  Read More →
+                </button>
+              </div>
+            </div>
+          ))
+        )}
+      </div>
+
+      {/* BOTTOM NAV */}
+      <BottomNav active="home" />
+    </div>
+  );
+}

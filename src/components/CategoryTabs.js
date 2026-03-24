@@ -106,7 +106,7 @@ export const CategoryTabs = () => {
         {cats.map((cat) => (
           <button
             key={cat.id}
-            onClick={() => handleTap(cat.id)}
+            onClick={() => handleTap(cat)}
             style={{
               width: 125.2,
               minWidth: 125.2,

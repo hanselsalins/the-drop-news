@@ -29,6 +29,7 @@ function AppRoutes() {
       <Route path="/auth" element={<AuthPage />} />
       <Route path="/feed" element={<ProtectedRoute><FeedPage /></ProtectedRoute>} />
       <Route path="/article/:id" element={<ProtectedRoute><ArticlePage /></ProtectedRoute>} />
+      <Route path="/category/:categoryId" element={<ProtectedRoute><CategoryPage /></ProtectedRoute>} />
       <Route path="/profile" element={<ProtectedRoute><ProfilePage /></ProtectedRoute>} />
       <Route path="/join/:username" element={<InvitePage />} />
       <Route path="*" element={<Navigate to="/" replace />} />
