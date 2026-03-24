@@ -297,6 +297,23 @@ export default function CategoryPage() {
           </div>
         )}
 
+        {/* Today's Articles title */}
+        <div style={{ padding: '0 15px', marginTop: 25 }}>
+          <span
+            data-section-title="Today's Articles"
+            style={{
+              fontFamily: 'var(--font)',
+              fontSize: 28,
+              fontWeight: 600,
+              color: 'var(--title-color)',
+              display: 'block',
+              marginBottom: 12,
+            }}
+          >
+            Today's Articles
+          </span>
+        </div>
+
         {/* ARTICLE LIST */}
         {loading ? (
           <>
