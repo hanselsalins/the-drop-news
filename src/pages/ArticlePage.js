@@ -310,14 +310,14 @@ export default function ArticlePage() {
             <motion.div
               initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
               onClick={() => setMenuOpen(false)}
-              className="fixed inset-0 z-[60]"
-              style={{ background: 'rgba(0,0,0,0.5)' }}
+              className="absolute inset-0 z-[60]"
+              style={{ background: 'rgba(0,0,0,0.5)', position: 'fixed', top: 0, left: 0, right: 0, bottom: 0 }}
             />
             <motion.div
               initial={{ y: '100%' }} animate={{ y: 0 }} exit={{ y: '100%' }}
               transition={{ duration: 0.25, ease: 'easeOut' }}
-              className="fixed bottom-0 left-0 right-0 z-[70]"
-              style={{ background: 'var(--surface)', borderRadius: '20px 20px 0 0', paddingBottom: 24 }}
+              className="absolute bottom-0 left-0 right-0 z-[70]"
+              style={{ background: 'var(--surface)', borderRadius: '20px 20px 0 0', paddingBottom: 24, maxWidth: '100%' }}
             >
               {/* Drag handle */}
               <div style={{
