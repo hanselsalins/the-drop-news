@@ -21,8 +21,8 @@ export const BottomNav = ({ active = 'home' }) => {
   const items = [
     { id: 'home', icon: 'house_fill', action: () => navigate('/feed') },
     { id: 'search', icon: 'search', action: () => setSearchOpen(true) },
-    { id: 'settings', icon: 'gear_alt_fill', action: () => navigate('/profile') },
     { id: 'profile', icon: 'person_fill', action: () => navigate('/profile') },
+    { id: 'settings', icon: 'gear_alt_fill', action: () => navigate('/settings') },
   ];
 
   const handleCopyLink = () => {
