@@ -80,7 +80,7 @@ export const CategoryTabs = () => {
   };
 
   return (
-    <div style={{ marginTop: 28, paddingBottom: 8 }}>
+    <div style={{ marginTop: 32, paddingBottom: 8 }}>
       <span style={{
         fontFamily: 'var(--font)',
         fontSize: 28,
