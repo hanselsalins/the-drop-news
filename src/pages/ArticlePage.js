@@ -172,14 +172,14 @@ export default function ArticlePage() {
           }}>
           <F7Icon name="arrow_left" size={22} color="#FFFFFF" />
         </button>
-        {/* Three-dot menu */}
-        <button aria-label="More options" onClick={() => setMenuOpen(true)} className="absolute cursor-pointer"
+        {/* Share button */}
+        <button aria-label="Share" onClick={() => setMenuOpen(true)} className="absolute cursor-pointer"
           style={{
             top: 16, right: 16, width: 36, height: 36,
             background: 'rgba(0,0,0,0.4)', borderRadius: '50%',
             display: 'flex', alignItems: 'center', justifyContent: 'center', border: 'none',
           }}>
-          <F7Icon name="ellipsis_vertical" size={22} color="#FFFFFF" />
+          <F7Icon name="square_arrow_up" size={22} color="#FFFFFF" />
         </button>
       </div>
 
