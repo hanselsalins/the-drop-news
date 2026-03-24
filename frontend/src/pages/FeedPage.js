@@ -180,7 +180,7 @@ export default function FeedPage() {
         maxWidth: 430,
         zIndex: 100,
         height: 50,
-        background: 'var(--bg)',
+        background: 'var(--header-bg, var(--bg))',
         borderBottom: activeSectionTitle ? '1px solid var(--light-gray)' : '1px solid transparent',
         display: 'flex',
         alignItems: 'center',
