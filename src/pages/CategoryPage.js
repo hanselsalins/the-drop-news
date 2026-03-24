@@ -36,14 +36,6 @@ const BAND_DESCRIPTIONS = {
     'Sports': "Performance, strategy, economics and sport as a lens on the world",
     'Culture': "Art, identity and the human stories behind the headlines",
   },
-  '20+': {
-    'World': "International affairs, geopolitics and global change",
-    'Power': "Political decisions and the structural forces shaping nations",
-    'Business': "Markets, monetary policy and economic forces explained",
-    'Science & Tech': "Research and innovation redefining human capability",
-    'Sports': "Performance, strategy, economics and sport as a lens on the world",
-    'Culture': "Art, identity and the human stories behind the headlines",
-  },
 };
 
 function getBandDescription(ageGroup, categoryName) {
@@ -72,14 +64,6 @@ const CATEGORIES_BY_BAND = {
     { id: 'tech', name: 'Tech', img: 'https://images.unsplash.com/photo-1518770660439-4636190af475?w=300&q=80' },
   ],
   '17-20': [
-    { id: 'world', name: 'World', img: 'https://images.unsplash.com/photo-1477959858617-67f85cf4f1df?w=300&q=80' },
-    { id: 'power', name: 'Power', img: 'https://images.unsplash.com/photo-1529107386315-e1a2ed48a620?w=300&q=80' },
-    { id: 'business', name: 'Business', img: 'https://images.unsplash.com/photo-1611974789855-9c2a0a7236a3?w=300&q=80' },
-    { id: 'science', name: 'Science & Tech', img: 'https://images.unsplash.com/photo-1451187580459-43490279c0fa?w=300&q=80' },
-    { id: 'sports', name: 'Sports', img: 'https://images.unsplash.com/photo-1504016798967-54a825798c7d?w=300&q=80' },
-    { id: 'culture', name: 'Culture', img: 'https://images.unsplash.com/photo-1533174072545-7a4b6ad7a6c3?w=300&q=80' },
-  ],
-  '20+': [
     { id: 'world', name: 'World', img: 'https://images.unsplash.com/photo-1477959858617-67f85cf4f1df?w=300&q=80' },
     { id: 'power', name: 'Power', img: 'https://images.unsplash.com/photo-1529107386315-e1a2ed48a620?w=300&q=80' },
     { id: 'business', name: 'Business', img: 'https://images.unsplash.com/photo-1611974789855-9c2a0a7236a3?w=300&q=80' },

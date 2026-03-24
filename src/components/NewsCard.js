@@ -218,7 +218,7 @@ export const PostListCard = ({ article, isLast, ageGroup }) => {
   const rw = article.rewrite || {};
   const title = rw.title || article.original_title || 'Untitled';
   const imageUrl = article.image_url;
-  const isCompact = ageGroup === '14-16' || ageGroup === '17-20' || ageGroup === '20+';
+  const isCompact = ageGroup === '14-16' || ageGroup === '17-20';
 
   const handleClick = () => {
     medium();
