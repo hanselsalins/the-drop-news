@@ -133,7 +133,7 @@ export default function FeedPage() {
 
   const fetchCategories = useCallback(async () => {
     try {
-      const res = await axios.get(`${BACKEND_URL}/api/categories`);
+      const res = await axios.get(`${BACKEND_URL}/api/categories?age_group=${ageGroup || '17-20'}`);
       setCategories(res.data);
     } catch (e) {}
   }, []);
