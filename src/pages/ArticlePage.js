@@ -196,7 +196,7 @@ export default function ArticlePage() {
         {/* Category badge */}
         <span style={{
           fontFamily: 'var(--font)', fontSize: 14, fontWeight: 500,
-          color: 'var(--title-color)', background: 'var(--light-gray)',
+          color: '#FFFFFF', background: '#FF6B00',
           borderRadius: 6, padding: '4px 10px', display: 'inline-block',
           marginTop: 15,
         }}>
