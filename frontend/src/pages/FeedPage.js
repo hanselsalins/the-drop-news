@@ -60,7 +60,7 @@ export default function FeedPage() {
           let lastHidden = '';
           allHeadings.forEach((el) => {
             const rect = el.getBoundingClientRect();
-            if (rect.top < 50) {
+            if (rect.top < 68) {
               lastHidden = el.getAttribute('data-section-title');
             }
           });
@@ -73,7 +73,7 @@ export default function FeedPage() {
         {
           root: null,
           threshold: 0,
-          rootMargin: '-50px 0px 0px 0px',
+          rootMargin: '-68px 0px 0px 0px',
         }
       );
 
@@ -88,7 +88,7 @@ export default function FeedPage() {
         let lastHidden = '';
         allHeadings.forEach((el) => {
           const rect = el.getBoundingClientRect();
-          if (rect.top < 50) {
+          if (rect.top < 68) {
             lastHidden = el.getAttribute('data-section-title');
           }
         });
@@ -196,7 +196,7 @@ export default function FeedPage() {
         width: '100%',
         maxWidth: 430,
         zIndex: 100,
-        height: 50,
+        height: 68,
         background: 'var(--header-bg, var(--bg))',
         borderBottom: activeSectionTitle ? '1px solid var(--light-gray)' : '1px solid transparent',
         display: 'flex',
@@ -243,7 +243,7 @@ export default function FeedPage() {
       </div>
 
       {/* ── PAGE CONTENT (below fixed header) ── */}
-      <div style={{ paddingTop: 50 }}>
+      <div style={{ paddingTop: 68 }}>
 
         {/* ── BREAKING NEWS hero card ── */}
         <div style={{ padding: '0 15px' }}>
