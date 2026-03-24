@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { useParams, useNavigate, useLocation } from 'react-router-dom';
 import { useTheme } from '../contexts/ThemeContext';
 import { BottomNav } from '../components/BottomNav';
@@ -98,9 +98,10 @@ export default function CategoryPage() {
 
   const [articles, setArticles] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [activeSectionTitle, setActiveSectionTitle] = useState('');
+  const cleanupRef = useRef(null);
 
   const catInfo = getCategoryInfo(categoryId, ageGroup);
-  // Allow location state to override (from CategoryTabs nav)
   const categoryName = location.state?.name || catInfo.name;
   const categoryImg = location.state?.img || catInfo.img;
   const categoryDesc = CATEGORY_DESCRIPTIONS[categoryName] || catInfo.description;
@@ -123,24 +124,70 @@ export default function CategoryPage() {
     fetchArticles();
   }, [categoryId, ageGroup, token]);
 
+  // Sticky header collapsing title observer
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      const headings = document.querySelectorAll('[data-section-title]');
+      if (headings.length === 0) return;
+
+      const handleScroll = () => {
+        if (window.scrollY < 60) {
+          setActiveSectionTitle('');
+          return;
+        }
+        const allHeadings = document.querySelectorAll('[data-section-title]');
+        let lastHidden = '';
+        allHeadings.forEach((el) => {
+          if (el.getBoundingClientRect().top < 68) {
+            lastHidden = el.getAttribute('data-section-title');
+          }
+        });
+        setActiveSectionTitle(lastHidden);
+      };
+
+      const observer = new IntersectionObserver(() => handleScroll(), {
+        root: null,
+        threshold: 0,
+        rootMargin: '-68px 0px 0px 0px',
+      });
+
+      headings.forEach((h) => observer.observe(h));
+      window.addEventListener('scroll', handleScroll, { passive: true });
+
+      cleanupRef.current = () => {
+        observer.disconnect();
+        window.removeEventListener('scroll', handleScroll);
+      };
+    }, 300);
+
+    return () => {
+      clearTimeout(timer);
+      if (cleanupRef.current) cleanupRef.current();
+    };
+  }, [loading, articles]);
+
   const pageBg = darkMode ? 'var(--bg)' : '#FEFEFF';
   const cardBg = darkMode ? 'var(--surface)' : '#FFFFFF';
 
   return (
     <div style={{ minHeight: '100vh', background: pageBg }}>
-      {/* TOP BAR */}
+      {/* ── FIXED HEADER (matches home page) ── */}
       <div style={{
         position: 'fixed',
         top: 0,
-        left: 0,
-        right: 0,
-        height: 50,
-        background: 'var(--bg)',
+        left: '50%',
+        transform: 'translateX(-50%)',
+        width: '100%',
+        maxWidth: 430,
         zIndex: 100,
+        height: 68,
+        background: 'var(--header-bg, var(--bg))',
+        borderBottom: activeSectionTitle ? '1px solid var(--light-gray)' : '1px solid transparent',
         display: 'flex',
         alignItems: 'center',
         justifyContent: 'space-between',
         padding: '0 16px',
+        transition: 'border-color 0.2s ease',
       }}>
         {/* LEFT: back arrow */}
         <button
@@ -157,35 +204,56 @@ export default function CategoryPage() {
           <F7Icon name="arrow_left" size={22} color="var(--title-color)" />
         </button>
 
-        {/* CENTRE: category name */}
+        {/* CENTRE: collapsing section title */}
         <span style={{
-          fontFamily: FONT_STACK,
-          fontSize: 15,
-          fontWeight: 600,
-          color: 'var(--title-color)',
           position: 'absolute',
           left: '50%',
           transform: 'translateX(-50%)',
+          fontFamily: 'Rubik, sans-serif',
+          fontSize: 15,
+          fontWeight: 600,
+          color: 'var(--title-color)',
+          textAlign: 'center',
+          opacity: activeSectionTitle ? 1 : 0,
+          transition: 'opacity 0.2s ease',
           whiteSpace: 'nowrap',
+          pointerEvents: 'none',
         }}>
-          {categoryName}
+          {activeSectionTitle}
         </span>
 
         {/* RIGHT: THE DROP wordmark */}
         <span style={{
           fontFamily: "'Big Shoulders Display', sans-serif",
           fontWeight: 900,
-          fontSize: 16,
-          letterSpacing: 1,
-          whiteSpace: 'nowrap',
+          fontSize: 22,
+          letterSpacing: '0.02em',
         }}>
           <span style={{ color: 'var(--title-color)' }}>THE </span>
           <span style={{ color: '#FF6B00' }}>DROP</span>
         </span>
       </div>
 
-      {/* CONTENT */}
-      <div style={{ paddingTop: 50, paddingBottom: 68 }}>
+      {/* ── PAGE CONTENT ── */}
+      <div style={{ paddingTop: 68, paddingBottom: 68 }}>
+
+        {/* Category section title (like "Breaking News" on home) */}
+        <div style={{ padding: '0 15px', marginTop: 25 }}>
+          <span
+            data-section-title={categoryName}
+            style={{
+              fontFamily: 'var(--font)',
+              fontSize: 28,
+              fontWeight: 600,
+              color: 'var(--title-color)',
+              display: 'block',
+              marginBottom: 12,
+            }}
+          >
+            {categoryName}
+          </span>
+        </div>
+
         {/* HERO CARD */}
         {categoryImg && (
           <div style={{
