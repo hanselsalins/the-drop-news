@@ -64,6 +64,17 @@ export default function ArticlePage() {
   useEffect(() => {
     if (!article) return;
     markArticleRead(article.id);
+    // Fetch "read next" article for non-8-10 bands
+    if (ageGroup !== '8-10' && article.category) {
+      axios.get(`${BACKEND_URL}/api/articles`, {
+        params: { age_group: ageGroup || '14-16', category: article.category, limit: 2 },
+        headers,
+      }).then(res => {
+        const articles = res.data?.articles || res.data || [];
+        const filtered = articles.filter(a => a.id !== article.id);
+        if (filtered.length > 0) setReadNext(filtered[0]);
+      }).catch(() => {});
+    }
   }, [article]);
 
   useEffect(() => {
