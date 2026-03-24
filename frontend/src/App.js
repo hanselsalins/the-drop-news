@@ -7,6 +7,7 @@ import FeedPage from "./pages/FeedPage";
 import ArticlePage from "./pages/ArticlePage";
 import CategoryPage from "./pages/CategoryPage";
 import ProfilePage from "./pages/ProfilePage";
+import SettingsPage from "./pages/SettingsPage";
 import InvitePage from "./pages/InvitePage";
 import { Loader2 } from "lucide-react";
 
@@ -31,6 +32,7 @@ function AppRoutes() {
       <Route path="/article/:id" element={<ProtectedRoute><ArticlePage /></ProtectedRoute>} />
       <Route path="/category/:categoryId" element={<ProtectedRoute><CategoryPage /></ProtectedRoute>} />
       <Route path="/profile" element={<ProtectedRoute><ProfilePage /></ProtectedRoute>} />
+      <Route path="/settings" element={<ProtectedRoute><SettingsPage /></ProtectedRoute>} />
       <Route path="/join/:username" element={<InvitePage />} />
       <Route path="*" element={<Navigate to="/" replace />} />
     </Routes>
