@@ -6,6 +6,7 @@ import { HeroNewsCard, TodayDropCard, CategoryCard, PostListCard } from '../comp
 import { CategoryTabs } from '../components/CategoryTabs';
 import { BottomNav } from '../components/BottomNav';
 import { MicroFactCard } from '../components/MicroFactCard';
+import { ProfileButton } from '../components/ProfileButton';
 import { MilestoneBanner } from '../components/MilestoneBanner';
 import { ProgressDots } from '../components/ProgressDots';
 import { SkeletonCard, HeroSkeletonCard } from '../components/SkeletonCard';
@@ -205,12 +206,8 @@ export default function FeedPage() {
         padding: '0 16px',
         transition: 'border-color 0.2s ease',
       }}>
-        {/* LEFT: Logo */}
-        <img
-          src={darkMode ? '/darklogo.png' : '/lightlogo.png'}
-          alt="The Drop"
-          style={{ width: 40, height: 40, objectFit: 'contain' }}
-        />
+        {/* LEFT: Profile avatar */}
+        <ProfileButton size={36} bordered />
 
         {/* CENTRE: Section title */}
         <span style={{
