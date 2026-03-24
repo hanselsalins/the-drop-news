@@ -7,6 +7,7 @@ import FeedPage from "./pages/FeedPage";
 import ArticlePage from "./pages/ArticlePage";
 import CategoryPage from "./pages/CategoryPage";
 import ProfilePage from "./pages/ProfilePage";
+import SettingsPage from "./pages/SettingsPage";
 import InvitePage from "./pages/InvitePage";
 import { Loader2 } from "lucide-react";
 
