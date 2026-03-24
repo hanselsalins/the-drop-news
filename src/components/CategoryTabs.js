@@ -169,7 +169,7 @@ export const CategoryTabs = () => {
               alignItems: 'center',
               justifyContent: 'flex-start',
               padding: '6px 10px',
-              backgroundColor: '#f0f0f0',
+              backgroundColor: 'var(--light-gray)',
             }}>
               <span style={{
                 fontFamily: FONT_STACK,
