@@ -65,7 +65,18 @@ export const BottomNav = ({ active = 'home' }) => {
                 className="flex flex-col items-center justify-center"
                 style={{ minWidth: 56, background: 'none', border: 'none', cursor: 'pointer' }}
               >
-                <F7Icon name={icon} size={24} color={isActive ? 'var(--accent)' : '#c4c4c5'} />
+                {id === 'profile' && memojiData ? (
+                  <img
+                    src={memojiData.src}
+                    alt="Profile"
+                    style={{
+                      width: 28, height: 28, borderRadius: '50%', objectFit: 'cover',
+                      border: isActive ? '2px solid #FF6B00' : '2px solid transparent',
+                    }}
+                  />
+                ) : (
+                  <F7Icon name={icon} size={24} color={isActive ? 'var(--accent)' : '#c4c4c5'} />
+                )}
               </button>
             );
           })}
