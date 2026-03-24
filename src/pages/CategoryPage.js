@@ -92,12 +92,8 @@ const CATEGORIES_BY_BAND = {
 function getCategoryInfo(categoryId, ageGroup) {
   const band = CATEGORIES_BY_BAND[ageGroup] || CATEGORIES_BY_BAND['14-16'];
   const cat = band.find(c => c.id === categoryId);
-  if (!cat) return { name: categoryId, img: '', description: '' };
-  return {
-    name: cat.name,
-    img: cat.img,
-    description: CATEGORY_DESCRIPTIONS[cat.name] || '',
-  };
+  if (!cat) return { name: categoryId, img: '' };
+  return { name: cat.name, img: cat.img };
 }
 
 function SkeletonArticleCard() {
