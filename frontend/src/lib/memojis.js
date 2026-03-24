@@ -122,7 +122,7 @@ import teenG28 from '../assets/memoji-teen-g28.png';
 import teenG29 from '../assets/memoji-teen-g29.png';
 import teenG30 from '../assets/memoji-teen-g30.png';
 
-// Young Adult (17-20+) avatars
+// Young Adult (17-20) avatars
 import yaB1 from '../assets/memoji-ya-b1.png';
 import yaB2 from '../assets/memoji-ya-b2.png';
 import yaB3 from '../assets/memoji-ya-b3.png';
