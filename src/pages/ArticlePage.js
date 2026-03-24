@@ -76,16 +76,30 @@ export default function ArticlePage() {
   const shareTitle = article?.rewrite?.title || article?.original_title || 'Check this out on The Drop';
   const shareUrl = typeof window !== 'undefined' ? window.location.href : '';
 
-  const handleShareOption = (option) => {
-    if (option.action === 'copy') {
-      navigator.clipboard.writeText(shareUrl).then(() => {
-        setCopied(true);
-        setTimeout(() => { setCopied(false); setMenuOpen(false); }, 1200);
-      });
-    } else if (option.getUrl) {
-      window.open(option.getUrl(shareTitle, shareUrl), '_blank');
+  const showToast = (msg) => {
+    setToast(msg);
+    setTimeout(() => setToast(null), 2000);
+  };
+
+  const handleWhatsApp = () => {
+    const text = encodeURIComponent(shareTitle + ' ' + shareUrl);
+    window.open(`https://wa.me/?text=${text}`, '_blank');
+    setMenuOpen(false);
+  };
+
+  const handleInstagram = () => {
+    navigator.clipboard.writeText(shareUrl).then(() => {
+      window.open('https://www.instagram.com/', '_blank');
       setMenuOpen(false);
-    }
+      showToast('Link copied — paste it in Instagram');
+    });
+  };
+
+  const handleCopyLink = () => {
+    navigator.clipboard.writeText(shareUrl).then(() => {
+      setMenuOpen(false);
+      showToast('Link copied to clipboard');
+    });
   };
 
   if (loading) {
