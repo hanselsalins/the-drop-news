@@ -316,8 +316,8 @@ export default function ArticlePage() {
             <motion.div
               initial={{ y: '100%' }} animate={{ y: 0 }} exit={{ y: '100%' }}
               transition={{ duration: 0.25, ease: 'easeOut' }}
-              className="fixed bottom-0 left-0 right-0 z-[70]"
-              style={{ background: 'var(--surface)', borderRadius: '20px 20px 0 0', paddingBottom: 24 }}
+              className="fixed bottom-0 z-[70]"
+              style={{ background: 'var(--surface)', borderRadius: '20px 20px 0 0', paddingBottom: 24, left: '50%', transform: 'translateX(-50%)', width: '100%', maxWidth: 430 }}
             >
               {/* Drag handle */}
               <div style={{
