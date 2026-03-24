@@ -130,14 +130,19 @@ export const CategoryTabs = () => {
               position: 'relative',
               overflow: 'hidden',
             }}>
-              <div style={{
-                position: 'absolute',
-                inset: 0,
-                backgroundImage: `url(${cat.img})`,
-                backgroundSize: 'cover',
-                backgroundPosition: 'center',
-                filter: 'brightness(55%)',
-              }} />
+              <img
+                src={cat.img}
+                alt={cat.name}
+                style={{
+                  position: 'absolute',
+                  inset: 0,
+                  width: '100%',
+                  height: '100%',
+                  objectFit: 'cover',
+                  filter: 'brightness(60%)',
+                  display: 'block',
+                }}
+              />
               <div style={{
                 position: 'absolute',
                 inset: 0,
