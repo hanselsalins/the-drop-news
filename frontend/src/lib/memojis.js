@@ -217,7 +217,7 @@ export const MEMOJI_BANK = KIDS_BANK;
 export function getBankForAge(ageGroup) {
   if (ageGroup === '8-10' || ageGroup === '11-13') return KIDS_BANK;
   if (ageGroup === '14-16') return TEEN_BANK;
-  return YA_BANK; // 17-20, 20+, or default
+  return YA_BANK; // 17-20 or default
 }
 
 export function getMemoji(name, ageGroup) {
