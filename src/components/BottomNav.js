@@ -4,40 +4,24 @@ import { useTheme } from '../contexts/ThemeContext';
 import { F7Icon } from './F7Icon';
 import { light } from '../lib/haptic';
 import { motion, AnimatePresence } from 'framer-motion';
-import { getMemojiById } from '../lib/memojis';
-import { getSavedAvatarId } from './AvatarCircle';
-
-const SOCIAL_LINKS = [
-  { label: 'WhatsApp', color: '#25D366', icon: '💬', url: 'https://wa.me/?text=Check+out+The+Drop!' },
-  { label: 'Twitter', color: '#1DA1F2', icon: '🐦', url: 'https://twitter.com/intent/tweet?text=Check+out+The+Drop!' },
-  { label: 'Instagram', color: '#E1306C', icon: '📷', url: '#' },
-  { label: 'Copy Link', color: 'var(--light-gray)', icon: '🔗', action: 'copy' },
-];
 
 export const BottomNav = ({ active = 'home' }) => {
   const navigate = useNavigate();
-  const { user } = useTheme();
+  const { darkMode, band } = useTheme();
   const [searchOpen, setSearchOpen] = useState(false);
-  const [shareOpen, setShareOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
-  const [copied, setCopied] = useState(false);
-
-  const avatarId = getSavedAvatarId(user?.id);
-  const memojiData = avatarId ? getMemojiById(avatarId) : null;
+  const [dropModalOpen, setDropModalOpen] = useState(false);
 
   const items = [
     { id: 'home', icon: 'house_fill', action: () => navigate('/feed') },
     { id: 'search', icon: 'search', action: () => setSearchOpen(true) },
-    { id: 'profile', icon: 'person_fill', action: () => navigate('/profile') },
     { id: 'settings', icon: 'gear_alt_fill', action: () => navigate('/settings') },
+    { id: 'drop-logo', action: () => setDropModalOpen(true) },
   ];
 
-  const handleCopyLink = () => {
-    navigator.clipboard.writeText(window.location.origin).then(() => {
-      setCopied(true);
-      setTimeout(() => setCopied(false), 2000);
-    });
-  };
+  // Determine modal content based on band
+  const isYounger = band === 'big-bold-bright' || band === 'cool-connected';
+  const modalTitle = isYounger ? 'Did You Know? 🤔' : 'Two Sides';
 
   return (
     <>
@@ -56,6 +40,25 @@ export const BottomNav = ({ active = 'home' }) => {
         <div className="max-w-md mx-auto flex items-center justify-around h-full px-2">
           {items.map(({ id, icon, action }) => {
             const isActive = active === id;
+
+            if (id === 'drop-logo') {
+              return (
+                <button
+                  key={id}
+                  aria-label="The Drop"
+                  onClick={() => { light(); action(); }}
+                  className="flex flex-col items-center justify-center"
+                  style={{ minWidth: 56, background: 'none', border: 'none', cursor: 'pointer' }}
+                >
+                  <img
+                    src={darkMode ? '/darklogo.png' : '/lightlogo.png'}
+                    alt="The Drop"
+                    style={{ width: 32, height: 32, objectFit: 'contain' }}
+                  />
+                </button>
+              );
+            }
+
             return (
               <button
                 key={id}
@@ -65,18 +68,7 @@ export const BottomNav = ({ active = 'home' }) => {
                 className="flex flex-col items-center justify-center"
                 style={{ minWidth: 56, background: 'none', border: 'none', cursor: 'pointer' }}
               >
-                {id === 'profile' && memojiData ? (
-                  <img
-                    src={memojiData.src}
-                    alt="Profile"
-                    style={{
-                      width: 28, height: 28, borderRadius: '50%', objectFit: 'cover',
-                      border: isActive ? '2px solid #FF6B00' : '2px solid transparent',
-                    }}
-                  />
-                ) : (
-                  <F7Icon name={icon} size={24} color={isActive ? 'var(--accent)' : '#c4c4c5'} />
-                )}
+                <F7Icon name={icon} size={24} color={isActive ? 'var(--accent)' : '#c4c4c5'} />
               </button>
             );
           })}
@@ -134,52 +126,75 @@ export const BottomNav = ({ active = 'home' }) => {
         )}
       </AnimatePresence>
 
-      {/* Share Modal */}
+      {/* THE DROP modal — Did You Know / Two Sides */}
       <AnimatePresence>
-        {shareOpen && (
+        {dropModalOpen && (
           <>
             <motion.div
               initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
-              onClick={() => setShareOpen(false)}
+              onClick={() => setDropModalOpen(false)}
               className="fixed inset-0 z-[60]"
-              style={{ background: 'var(--overlay-backdrop)' }}
+              style={{ background: 'rgba(0,0,0,0.5)' }}
             />
-            <motion.div
-              initial={{ y: '100%' }} animate={{ y: 0 }} exit={{ y: '100%' }}
-              transition={{ type: 'spring', damping: 28, stiffness: 300 }}
-              className="fixed bottom-0 left-0 right-0 z-[70] px-4 pt-5 pb-8"
-              style={{ background: 'var(--surface)', borderRadius: '20px 20px 0 0' }}
-            >
-              <div className="flex items-center justify-between mb-5">
-                <h3 style={{ fontFamily: 'var(--font)', fontSize: 18, fontWeight: 600, color: 'var(--title-color)' }}>Share The Drop</h3>
-                <button onClick={() => setShareOpen(false)} style={{ background: 'none', border: 'none', cursor: 'pointer' }}>
-                  <F7Icon name="xmark" size={20} color="var(--text-color)" />
+            <div className="fixed inset-0 z-[70] flex justify-center items-end pointer-events-none">
+              <motion.div
+                initial={{ y: '100%' }} animate={{ y: 0 }} exit={{ y: '100%' }}
+                transition={{ duration: 0.25, ease: 'easeOut' }}
+                className="w-full max-w-[430px] pointer-events-auto"
+                style={{
+                  background: 'var(--surface)',
+                  borderRadius: '20px 20px 0 0',
+                  paddingBottom: 24,
+                }}
+              >
+                {/* Drag handle */}
+                <div style={{
+                  width: 40, height: 5, background: 'var(--light-gray)',
+                  borderRadius: 3, margin: '12px auto 20px',
+                }} />
+                {/* Title */}
+                <p style={{
+                  fontFamily: 'Rubik, var(--font), sans-serif',
+                  fontSize: 18,
+                  fontWeight: 600,
+                  color: 'var(--title-color)',
+                  textAlign: 'center',
+                  margin: '0 0 12px',
+                }}>
+                  {modalTitle}
+                </p>
+                {/* Body */}
+                <p style={{
+                  fontFamily: 'Rubik, var(--font), sans-serif',
+                  fontSize: 15,
+                  fontWeight: 400,
+                  color: 'var(--text-color)',
+                  textAlign: 'center',
+                  margin: '0 20px 20px',
+                }}>
+                  Coming soon — this feature is being built
+                </p>
+                {/* Cancel */}
+                <button
+                  onClick={() => setDropModalOpen(false)}
+                  className="cursor-pointer"
+                  style={{
+                    margin: '0 20px',
+                    width: 'calc(100% - 40px)',
+                    height: 44,
+                    borderRadius: 12,
+                    background: 'var(--light-gray)',
+                    color: 'var(--title-color)',
+                    fontFamily: 'Rubik, var(--font), sans-serif',
+                    fontSize: 15,
+                    fontWeight: 500,
+                    border: 'none',
+                  }}
+                >
+                  Close
                 </button>
-              </div>
-              <div className="flex items-center justify-around">
-                {SOCIAL_LINKS.map(s => (
-                  <button
-                    key={s.label}
-                    onClick={() => {
-                      if (s.action === 'copy') { handleCopyLink(); }
-                      else if (s.url !== '#') { window.open(s.url, '_blank'); }
-                    }}
-                    className="flex flex-col items-center gap-2"
-                    style={{ background: 'none', border: 'none', cursor: 'pointer' }}
-                  >
-                    <div className="flex items-center justify-center" style={{
-                      width: 56, height: 56, borderRadius: '50%',
-                      background: s.action === 'copy' ? 'var(--light-gray)' : s.color,
-                    }}>
-                      <span style={{ fontSize: 24 }}>{s.icon}</span>
-                    </div>
-                    <span style={{ fontFamily: 'var(--font)', fontSize: 12, fontWeight: 400, color: 'var(--text-color)' }}>
-                      {s.action === 'copy' && copied ? 'Copied!' : s.label}
-                    </span>
-                  </button>
-                ))}
-              </div>
-            </motion.div>
+              </motion.div>
+            </div>
           </>
         )}
       </AnimatePresence>
