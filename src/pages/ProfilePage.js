@@ -34,8 +34,8 @@ export default function ProfilePage() {
   const [socialTab, setSocialTab] = useState('friends');
   const [inviteLink, setInviteLink] = useState('');
   const [copiedLink, setCopiedLink] = useState(false);
-  const [showMemojiPicker, setShowMemojiPicker] = useState(false);
-  const [selectedMemojiId, setSelectedMemojiId] = useState(() => localStorage.getItem(`memoji_${user?.id || 'default'}`) || null);
+  const [selectedAvatarId, setSelectedAvatarId] = useState(() => getSavedAvatarId(user?.id));
+  const [showAvatarPicker, setShowAvatarPicker] = useState(false);
 
   // Friend search
   const [showAddFriend, setShowAddFriend] = useState(false);
