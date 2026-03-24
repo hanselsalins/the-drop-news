@@ -95,7 +95,8 @@ export const CategoryTabs = () => {
         fontSize: 13,
         fontWeight: 400,
         color: 'var(--text-color)',
-        marginTop: 2,
+        margin: 0,
+        paddingTop: 6,
         marginBottom: 8,
       }}>
         {getDescription()}
