@@ -393,7 +393,7 @@ export default function ProfilePage() {
               display: 'flex', alignItems: 'center', gap: 10, padding: '12px 16px',
               borderTop: i > 0 ? '1px solid var(--light-gray)' : 'none',
             }}>
-              <img src={r.sender.avatar_url} alt="" style={{ width: 36, height: 36, borderRadius: '50%' }} />
+              <AvatarCircle name={r.sender.full_name} avatarId={null} size={36} bordered={false} />
               <div style={{ flex: 1, minWidth: 0 }}>
                 <p style={{ fontFamily: f, fontSize: 14, fontWeight: 500, color: 'var(--title-color)', margin: 0 }}>{r.sender.full_name}</p>
               </div>
