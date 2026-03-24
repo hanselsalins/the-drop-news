@@ -36,14 +36,6 @@ const BAND_DESCRIPTIONS = {
     'Sports': "Performance, strategy, economics and culture — sport as a lens on the wider world.",
     'Culture': "Art, identity, social movements and the human stories that don't fit anywhere else — but matter most.",
   },
-  '20+': {
-    'World': "International affairs, geopolitics and the stories driving global change. Read beyond the headline.",
-    'Power': "Political decisions, governance failures, elections and the structural forces that shape nations. No spin.",
-    'Business': "Markets, monetary policy, corporate strategy and economic forces. The stories behind the numbers.",
-    'Science & Tech': "Research, innovation and the technology redefining industries, societies and human capability.",
-    'Sports': "Performance, strategy, economics and culture — sport as a lens on the wider world.",
-    'Culture': "Art, identity, social movements and the human stories that don't fit anywhere else — but matter most.",
-  },
 };
 
 function getBandDescription(ageGroup, categoryName) {
