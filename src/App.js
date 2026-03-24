@@ -5,6 +5,7 @@ import SplashScreen from "./pages/SplashScreen";
 import AuthPage from "./pages/AuthPage";
 import FeedPage from "./pages/FeedPage";
 import ArticlePage from "./pages/ArticlePage";
+import CategoryPage from "./pages/CategoryPage";
 import ProfilePage from "./pages/ProfilePage";
 import InvitePage from "./pages/InvitePage";
 import { Loader2 } from "lucide-react";
