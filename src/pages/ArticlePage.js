@@ -268,8 +268,47 @@ export default function ArticlePage() {
           </div>
         )}
 
-        {/* Reaction Bar */}
-        <ReactionBar articleId={article.id} />
+        {/* Reactions (8-10 only) or Read Next */}
+        {showReactions ? (
+          <ReactionBar articleId={article.id} />
+        ) : readNext ? (
+          <div>
+            <div style={{ padding: '25px 0 0 0' }}>
+              <span style={{ fontFamily: 'var(--font)', fontSize: 18, fontWeight: 600, color: 'var(--title-color)' }}>
+                Read next
+              </span>
+            </div>
+            <div
+              onClick={() => navigate(`/article/${readNext.id}`)}
+              className="cursor-pointer"
+              style={{
+                marginTop: 10, display: 'flex', padding: '15px 17px',
+                borderRadius: 15, boxShadow: 'var(--block-shadow)',
+                background: 'var(--surface)', justifyContent: 'space-between',
+                alignItems: 'flex-start',
+              }}
+            >
+              <div style={{ flex: 1, minWidth: 0, marginRight: 10 }}>
+                <p style={{ fontFamily: 'var(--font)', fontSize: 14, fontWeight: 400, color: 'var(--text-color)', margin: '0 0 4px' }}>
+                  {CATEGORY_LABELS[readNext.category] || readNext.category}
+                </p>
+                <p style={{
+                  fontFamily: 'var(--font)', fontSize: 14, fontWeight: 500, color: 'var(--title-color)',
+                  lineHeight: '22px', margin: '2px 0 11px', display: '-webkit-box',
+                  WebkitLineClamp: 2, WebkitBoxOrient: 'vertical', overflow: 'hidden',
+                }}>
+                  {readNext.rewrite?.title || readNext.original_title}
+                </p>
+                <p style={{ fontFamily: 'var(--font)', fontSize: 14, fontWeight: 400, color: 'var(--text-color)', margin: 0 }}>
+                  {readNext.rewrite?.reading_time || '2 min'} read
+                </p>
+              </div>
+              {readNext.image_url && (
+                <img src={readNext.image_url} alt="" style={{ width: 84, height: 84, borderRadius: 15, objectFit: 'cover', flexShrink: 0 }} />
+              )}
+            </div>
+          </div>
+        ) : null}
 
 
         {/* Source Link */}
