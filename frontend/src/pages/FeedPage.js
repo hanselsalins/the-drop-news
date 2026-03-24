@@ -18,7 +18,7 @@ import axios from 'axios';
 const BACKEND_URL = import.meta.env.VITE_BACKEND_URL;
 
 export default function FeedPage() {
-  const { ageGroup, user, token } = useTheme();
+  const { ageGroup, user, token, darkMode } = useTheme();
   const prefersReducedMotion = useReducedMotion();
   const [articles, setArticles] = useState([]);
   const [categories, setCategories] = useState([]);
@@ -117,8 +117,13 @@ export default function FeedPage() {
       <StreakCelebration streakCount={streak.current_streak} onComplete={() => setShowCelebration(false)} />
       <MilestoneBanner milestone={milestone} onDismiss={() => acknowledgeMilestone(milestone?.notification_id)} />
 
-      {/* ── HEADER — THE DROP wordmark right ── */}
-      <div className="flex items-center justify-end" style={{ padding: '12px 16px', background: 'var(--bg)' }}>
+      {/* ── HEADER — logo left, wordmark right ── */}
+      <div className="flex items-center justify-between" style={{ padding: '12px 16px', background: 'var(--bg)' }}>
+        <img
+          src={darkMode ? '/darklogo.png' : '/lightlogo.png'}
+          alt="The Drop"
+          style={{ width: 40, height: 40, objectFit: 'contain' }}
+        />
         <span style={{
           fontFamily: "'Big Shoulders Display', sans-serif",
           fontWeight: 900,
