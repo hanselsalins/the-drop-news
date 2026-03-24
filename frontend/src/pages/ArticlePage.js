@@ -41,8 +41,10 @@ export default function ArticlePage() {
   const [readProgress, setReadProgress] = useState(0);
   const [menuOpen, setMenuOpen] = useState(false);
   const [toast, setToast] = useState(null);
+  const [readNext, setReadNext] = useState(null);
 
   const headers = token ? { Authorization: `Bearer ${token}` } : {};
+  const showReactions = ageGroup === '8-10';
 
   useEffect(() => {
     const fetchArticle = async () => {
@@ -62,6 +64,17 @@ export default function ArticlePage() {
   useEffect(() => {
     if (!article) return;
     markArticleRead(article.id);
+    // Fetch "read next" article for non-8-10 bands
+    if (ageGroup !== '8-10' && article.category) {
+      axios.get(`${BACKEND_URL}/api/articles`, {
+        params: { age_group: ageGroup || '14-16', category: article.category, limit: 2 },
+        headers,
+      }).then(res => {
+        const articles = res.data?.articles || res.data || [];
+        const filtered = articles.filter(a => a.id !== article.id);
+        if (filtered.length > 0) setReadNext(filtered[0]);
+      }).catch(() => {});
+    }
   }, [article]);
 
   useEffect(() => {
@@ -255,8 +268,47 @@ export default function ArticlePage() {
           </div>
         )}
 
-        {/* Reaction Bar */}
-        <ReactionBar articleId={article.id} />
+        {/* Reactions (8-10 only) or Read Next */}
+        {showReactions ? (
+          <ReactionBar articleId={article.id} />
+        ) : readNext ? (
+          <div>
+            <div style={{ padding: '25px 0 0 0' }}>
+              <span style={{ fontFamily: 'var(--font)', fontSize: 18, fontWeight: 600, color: 'var(--title-color)' }}>
+                Read next
+              </span>
+            </div>
+            <div
+              onClick={() => navigate(`/article/${readNext.id}`)}
+              className="cursor-pointer"
+              style={{
+                marginTop: 10, display: 'flex', padding: '15px 17px',
+                borderRadius: 15, boxShadow: 'var(--block-shadow)',
+                background: 'var(--surface)', justifyContent: 'space-between',
+                alignItems: 'flex-start',
+              }}
+            >
+              <div style={{ flex: 1, minWidth: 0, marginRight: 10 }}>
+                <p style={{ fontFamily: 'var(--font)', fontSize: 14, fontWeight: 400, color: 'var(--text-color)', margin: '0 0 4px' }}>
+                  {CATEGORY_LABELS[readNext.category] || readNext.category}
+                </p>
+                <p style={{
+                  fontFamily: 'var(--font)', fontSize: 14, fontWeight: 500, color: 'var(--title-color)',
+                  lineHeight: '22px', margin: '2px 0 11px', display: '-webkit-box',
+                  WebkitLineClamp: 2, WebkitBoxOrient: 'vertical', overflow: 'hidden',
+                }}>
+                  {readNext.rewrite?.title || readNext.original_title}
+                </p>
+                <p style={{ fontFamily: 'var(--font)', fontSize: 14, fontWeight: 400, color: 'var(--text-color)', margin: 0 }}>
+                  {readNext.rewrite?.reading_time || '2 min'} read
+                </p>
+              </div>
+              {readNext.image_url && (
+                <img src={readNext.image_url} alt="" style={{ width: 84, height: 84, borderRadius: 15, objectFit: 'cover', flexShrink: 0 }} />
+              )}
+            </div>
+          </div>
+        ) : null}
 
 
         {/* Source Link */}
