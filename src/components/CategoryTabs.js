@@ -92,7 +92,7 @@ export const CategoryTabs = () => {
       </span>
       <p style={{
         fontFamily: FONT_STACK,
-        fontSize: 13,
+        fontSize: 15,
         fontWeight: 400,
         color: 'var(--text-color)',
         margin: 0,
