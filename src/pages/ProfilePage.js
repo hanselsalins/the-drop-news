@@ -295,7 +295,7 @@ export default function ProfilePage() {
                   display: 'flex', alignItems: 'center', gap: 10, padding: '10px 0',
                   borderTop: '1px solid var(--light-gray)',
                 }}>
-                  <img src={r.avatar_url} alt="" style={{ width: 36, height: 36, borderRadius: '50%' }} />
+                  <AvatarCircle name={r.full_name} avatarId={null} size={36} bordered={false} />
                   <div style={{ flex: 1, minWidth: 0 }}>
                     <p style={{ fontFamily: f, fontSize: 14, fontWeight: 500, color: 'var(--title-color)', margin: 0 }}>{r.full_name}</p>
                     <p style={{ fontFamily: f, fontSize: 11, color: 'var(--text-color)', margin: 0 }}>@{r.username} · {r.knowledge_score} pts</p>
