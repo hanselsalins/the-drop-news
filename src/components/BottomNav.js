@@ -1,8 +1,11 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { useTheme } from '../contexts/ThemeContext';
 import { F7Icon } from './F7Icon';
 import { light } from '../lib/haptic';
 import { motion, AnimatePresence } from 'framer-motion';
+import { getMemojiById } from '../lib/memojis';
+import { getSavedAvatarId } from '../lib/memojis';
 
 const SOCIAL_LINKS = [
   { label: 'WhatsApp', color: '#25D366', icon: '💬', url: 'https://wa.me/?text=Check+out+The+Drop!' },
