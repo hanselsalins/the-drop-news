@@ -194,7 +194,17 @@ export default function BreakingNewsCarousel() {
           textTransform: 'uppercase',
           letterSpacing: '0.1em',
         }}>
-          ⚡ BREAKING
+          <span style={{
+            display: 'inline-block',
+            width: 8,
+            height: 8,
+            borderRadius: '50%',
+            background: '#FF3B30',
+            marginRight: 6,
+            animation: 'pulse-dot 1.5s ease-in-out infinite',
+            verticalAlign: 'middle',
+          }} />
+          BREAKING
         </span>
       </div>
 

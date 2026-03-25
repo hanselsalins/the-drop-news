@@ -119,6 +119,12 @@ code {
   font-family: 'JetBrains Mono', monospace;
 }
 
+/* Pulsing dot for breaking news */
+@keyframes pulse-dot {
+  0%, 100% { opacity: 1; transform: scale(1); }
+  50% { opacity: 0.4; transform: scale(0.75); }
+}
+
 /* Skeleton Loading */
 @keyframes shimmer {
   0% { background-position: -200px 0; }
