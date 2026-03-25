@@ -13,6 +13,7 @@ import { SkeletonCard, HeroSkeletonCard } from '../components/SkeletonCard';
 import { SkeletonTabs } from '../components/SkeletonTabs';
 import { StreakCelebration } from '../components/StreakCelebration';
 import { useReadArticles } from '../hooks/useReadArticles';
+import BreakingNewsCarousel from '../components/BreakingNewsCarousel';
 import { motion } from 'framer-motion';
 import axios from 'axios';
 
