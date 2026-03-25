@@ -1,9 +1,10 @@
-import { useState } from 'react';
+import { useState, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useTheme } from '../contexts/ThemeContext';
 import { F7Icon } from './F7Icon';
 import { light } from '../lib/haptic';
 import { motion, AnimatePresence } from 'framer-motion';
+import { DidYouKnowSheet } from './DidYouKnowSheet';
 
 export const BottomNav = ({ active = 'home' }) => {
   const navigate = useNavigate();
