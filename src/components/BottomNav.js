@@ -208,6 +208,9 @@ export const BottomNav = ({ active = 'home' }) => {
           </>
         )}
       </AnimatePresence>
+
+      {/* Did You Know sheet for younger bands */}
+      <DidYouKnowSheet open={didYouKnowOpen} onClose={() => setDidYouKnowOpen(false)} />
     </>
   );
 };
