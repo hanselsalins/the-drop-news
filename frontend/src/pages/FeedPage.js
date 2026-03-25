@@ -13,6 +13,7 @@ import { SkeletonCard, HeroSkeletonCard } from '../components/SkeletonCard';
 import { SkeletonTabs } from '../components/SkeletonTabs';
 import { StreakCelebration } from '../components/StreakCelebration';
 import { useReadArticles } from '../hooks/useReadArticles';
+import BreakingNewsCarousel from '../components/BreakingNewsCarousel';
 import { motion } from 'framer-motion';
 import axios from 'axios';
 
@@ -242,26 +243,12 @@ export default function FeedPage() {
       {/* ── PAGE CONTENT (below fixed header) ── */}
       <div style={{ paddingTop: 68 }}>
 
-        {/* ── BREAKING NEWS hero card ── */}
-        <div style={{ padding: '0 15px' }}>
-          {activeCategory === 'today' && (
-            <div style={{ marginTop: 25 }}>
-              <div className="flex items-center justify-between" style={{ marginBottom: 12 }}>
-                <span
-                  data-section-title="Breaking News"
-                  style={{ fontFamily: 'var(--font)', fontSize: 28, fontWeight: 600, color: 'var(--title-color)' }}
-                >
-                  Breaking News
-                </span>
-              </div>
-              {loading ? (
-                <HeroSkeletonCard />
-              ) : heroArticle ? (
-                <HeroNewsCard article={heroArticle} badge="BREAKING" />
-              ) : null}
-            </div>
-          )}
-        </div>
+        {/* ── BREAKING NEWS CAROUSEL ── */}
+        {activeCategory === 'today' && (
+          <div data-section-title="Breaking News">
+            <BreakingNewsCarousel />
+          </div>
+        )}
 
         {/* ── CATEGORY TABS ── */}
         <div style={{ padding: '0 15px' }}>
