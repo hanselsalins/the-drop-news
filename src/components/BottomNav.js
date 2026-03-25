@@ -1,9 +1,10 @@
-import { useState } from 'react';
+import { useState, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useTheme } from '../contexts/ThemeContext';
 import { F7Icon } from './F7Icon';
 import { light } from '../lib/haptic';
 import { motion, AnimatePresence } from 'framer-motion';
+import { DidYouKnowSheet } from './DidYouKnowSheet';
 
 export const BottomNav = ({ active = 'home' }) => {
   const navigate = useNavigate();
@@ -11,16 +12,25 @@ export const BottomNav = ({ active = 'home' }) => {
   const [searchOpen, setSearchOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
   const [dropModalOpen, setDropModalOpen] = useState(false);
+  const [didYouKnowOpen, setDidYouKnowOpen] = useState(false);
+
+  const isYounger = band === 'big-bold-bright' || band === 'cool-connected';
+
+  const handleDropTap = useCallback(() => {
+    if (isYounger) {
+      setDidYouKnowOpen(true);
+    } else {
+      setDropModalOpen(true);
+    }
+  }, [isYounger]);
 
   const items = [
     { id: 'home', icon: 'house_fill', action: () => navigate('/feed') },
     { id: 'search', icon: 'search', action: () => setSearchOpen(true) },
     { id: 'settings', icon: 'gear_alt_fill', action: () => navigate('/settings') },
-    { id: 'drop-logo', action: () => setDropModalOpen(true) },
+    { id: 'drop-logo', action: handleDropTap },
   ];
 
-  // Determine modal content based on band
-  const isYounger = band === 'big-bold-bright' || band === 'cool-connected';
   const modalTitle = isYounger ? 'Did You Know? 🤔' : 'Two Sides';
 
   return (
@@ -198,6 +208,9 @@ export const BottomNav = ({ active = 'home' }) => {
           </>
         )}
       </AnimatePresence>
+
+      {/* Did You Know sheet for younger bands */}
+      <DidYouKnowSheet open={didYouKnowOpen} onClose={() => setDidYouKnowOpen(false)} />
     </>
   );
 };
