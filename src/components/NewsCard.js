@@ -47,10 +47,8 @@ export const HeroNewsCard = ({ article, badge }) => {
           style={{ background: 'linear-gradient(to bottom, rgba(0,0,0,0) 0%, rgb(24 24 24 / 95%) 100%)' }} />
       </div>
 
-      {/* Report flag */}
-      <div className="absolute top-3 right-3 z-10">
-        <ReportFlagButton articleId={article.id} size={32} overlay />
-      </div>
+
+
 
       {/* Footer content */}
       <div className="absolute bottom-0 left-0 right-0" style={{ padding: '60px 18px 15px 18px' }}>
@@ -123,10 +121,8 @@ export const TodayDropCard = ({ article, isRead }) => {
           style={{ background: 'linear-gradient(to bottom, rgba(0,0,0,0) 0%, rgb(24 24 24 / 95%) 100%)' }} />
       </div>
 
-      {/* Report flag */}
-      <div className="absolute top-2 left-2 z-10">
-        <ReportFlagButton articleId={article.id} size={26} overlay />
-      </div>
+
+
 
       {/* Read badge */}
       {isRead && (
@@ -203,10 +199,8 @@ export const CategoryCard = ({ article }) => {
         <div className="absolute inset-0"
           style={{ background: 'linear-gradient(to bottom, rgba(0,0,0,0) 40%, rgb(24 24 24 / 95%) 100%)' }} />
       </div>
-      {/* Report flag */}
-      <div className="absolute top-2 right-2 z-10">
-        <ReportFlagButton articleId={article.id} size={26} overlay />
-      </div>
+
+
       <div className="absolute bottom-0 left-0 right-0 p-3">
         <h3 style={{
           fontFamily: 'var(--font)', fontSize: 14, fontWeight: 500,
