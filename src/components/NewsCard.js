@@ -4,7 +4,7 @@ import { CATEGORY_LABELS } from '../lib/bandUtils';
 import { useReducedMotion } from '../hooks/useReducedMotion';
 import { medium } from '../lib/haptic';
 import { F7Icon } from './F7Icon';
-import ReportFlagButton from './ReportFlagButton';
+
 
 // Hero card — full width, image footer overlay style (Yui .card-image-footer)
 export const HeroNewsCard = ({ article, badge }) => {
@@ -282,9 +282,8 @@ export const PostListCard = ({ article, isLast, ageGroup }) => {
             {title}
           </h3>
         </div>
-        <div style={{ flexShrink: 0, alignSelf: 'center', marginLeft: 8 }}>
-          <ReportFlagButton articleId={article.id} size={26} />
-        </div>
+
+
       </motion.article>
     );
   }
@@ -338,7 +337,7 @@ export const PostListCard = ({ article, isLast, ageGroup }) => {
           }}>
             {article.published_at ? getTimeAgo(article.published_at) : article.source}
           </span>
-          <ReportFlagButton articleId={article.id} size={26} />
+          
         </div>
       </div>
     </motion.article>
