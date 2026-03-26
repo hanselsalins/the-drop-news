@@ -96,7 +96,7 @@ export default function ReportArticleSheet({ open, onClose, articleId, onReporte
                 }}>
                   {result === 'already' && "You've already reported this article"}
                   {result === 'hidden' && "This article has been flagged for review and hidden from the feed"}
-                  {result === 'success' && "Thank you for helping keep The Drop safe ✨"}
+                  {result === 'success' && "Thanks for the heads up. Our team will take a look and handle it from here — you're helping keep The Drop safe."}
                 </p>
               </div>
             ) : (
