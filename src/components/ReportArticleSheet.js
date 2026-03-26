@@ -185,6 +185,7 @@ export default function ReportArticleSheet({ open, onClose, articleId, onReporte
               </div>
             )}
           </motion.div>
+          </div>
         </>
       )}
     </AnimatePresence>
