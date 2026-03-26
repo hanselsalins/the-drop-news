@@ -141,12 +141,12 @@ export const DidYouKnowSheet = ({ open, onClose }) => {
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
             onClick={onClose}
-            className="fixed inset-0 z-[80]"
+            className="fixed inset-0 z-[40]"
             style={{ background: 'rgba(0,0,0,0.45)' }}
           />
 
           {/* Sheet */}
-          <div className="fixed inset-0 z-[90] flex justify-center items-end pointer-events-none">
+          <div className="fixed inset-x-0 top-0 z-[45] flex justify-center items-end pointer-events-none" style={{ bottom: 68 }}>
             <motion.div
               initial={{ y: '100%' }}
               animate={{ y: 0 }}
@@ -156,7 +156,7 @@ export const DidYouKnowSheet = ({ open, onClose }) => {
               style={{
                 background: 'var(--surface)',
                 borderRadius: '24px 24px 0 0',
-                maxHeight: '78vh',
+                maxHeight: 'calc(78vh - 68px)',
                 display: 'flex',
                 flexDirection: 'column',
               }}
