@@ -68,19 +68,18 @@ export default function ReportArticleSheet({ open, onClose, articleId, onReporte
           <motion.div
             initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
             onClick={handleClose}
-            className="fixed inset-0 z-[60]"
+            className="fixed inset-0 z-[40]"
             style={{ background: 'var(--overlay-backdrop)' }}
           />
+          <div className="fixed inset-x-0 top-0 z-[45] flex justify-center items-end pointer-events-none" style={{ bottom: 68 }}>
           <motion.div
             initial={{ y: '100%' }} animate={{ y: 0 }} exit={{ y: '100%' }}
             transition={{ duration: 0.25, ease: 'easeOut' }}
-            className="fixed bottom-0 left-0 right-0 z-[70]"
+            className="w-full max-w-[430px] pointer-events-auto"
             style={{
               background: 'var(--surface)',
               borderRadius: '20px 20px 0 0',
               paddingBottom: 34,
-              maxWidth: 430,
-              margin: '0 auto',
             }}
           >
             {/* Drag handle */}
@@ -186,6 +185,7 @@ export default function ReportArticleSheet({ open, onClose, articleId, onReporte
               </div>
             )}
           </motion.div>
+          </div>
         </>
       )}
     </AnimatePresence>
