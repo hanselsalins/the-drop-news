@@ -10,6 +10,7 @@ import { BottomNav } from '../components/BottomNav';
 import { motion, AnimatePresence } from 'framer-motion';
 import axios from 'axios';
 import { markArticleRead } from '../hooks/useReadArticles';
+import ReportFlagButton from '../components/ReportFlagButton';
 
 const BACKEND_URL = import.meta.env.VITE_BACKEND_URL;
 
@@ -188,12 +189,16 @@ export default function ArticlePage() {
         {/* Share button */}
         <button aria-label="Share" onClick={() => setMenuOpen(true)} className="absolute cursor-pointer"
           style={{
-            top: 16, right: 16, width: 36, height: 36,
+            top: 16, right: 56, width: 36, height: 36,
             background: 'rgba(0,0,0,0.4)', borderRadius: '50%',
             display: 'flex', alignItems: 'center', justifyContent: 'center', border: 'none',
           }}>
           <F7Icon name="square_arrow_up" size={22} color="#FFFFFF" />
         </button>
+        {/* Report flag */}
+        <div className="absolute" style={{ top: 16, right: 16 }}>
+          <ReportFlagButton articleId={id} size={36} overlay />
+        </div>
       </div>
 
       {/* Article content — slides up */}
