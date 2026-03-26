@@ -32,7 +32,7 @@ export const ProgressDots = ({ articleIds, readArticleIds }) => {
           fontWeight: 600,
           color: 'var(--title-color)',
         }}>
-          Today's Drop
+          Today's <span style={{ color: '#FF6B00' }}>Drop</span>
         </span>
 
         <div>
