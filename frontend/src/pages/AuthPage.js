@@ -471,6 +471,7 @@ function ParentDetailsScreen({ setPhase, setToken, setParentToken, setUserData, 
       setParentTokenLocal(tkn);
       setUserData(res.data.user);
       setParentCountry(form.country_code);
+      setError('');
       setPhase('childModal');
     } catch (e) {
       const detail = e.response?.data?.detail;
@@ -600,11 +601,23 @@ function ChildProfileModal({ parentTokenLocal, childAge, parentCountry, setToken
       const detail = e.response?.data?.detail;
       const errors = e.response?.data?.errors;
       let msg = 'Failed to create profile';
-      if (errors && typeof errors === 'object') msg = Object.values(errors).join(', ');
-      else if (Array.isArray(detail)) msg = detail.map(d => d.msg || JSON.stringify(d)).join(', ');
-      else if (typeof detail === 'string') msg = detail;
-      else if (e.response?.data?.error) msg = e.response.data.error;
-      setError(msg);
+      const parentFieldKeys = ['full_name', 'email', 'password', 'parent_name', 'parent_email', 'parent_password'];
+      const parentFieldPhrases = ["parent's name", "parent name", "parent email", "parent password"];
+      if (errors && typeof errors === 'object') {
+        const filtered = Object.entries(errors)
+          .filter(([k]) => !parentFieldKeys.includes(k))
+          .map(([, v]) => v);
+        msg = filtered.length > 0 ? filtered.join(', ') : '';
+      } else if (Array.isArray(detail)) {
+        const filtered = detail
+          .map(d => d.msg || JSON.stringify(d))
+          .filter(m => !parentFieldPhrases.some(p => m.toLowerCase().includes(p)));
+        msg = filtered.length > 0 ? filtered.join(', ') : '';
+      } else if (typeof detail === 'string') {
+        if (!parentFieldPhrases.some(p => detail.toLowerCase().includes(p))) msg = detail;
+        else msg = '';
+      } else if (e.response?.data?.error) msg = e.response.data.error;
+      if (msg) setError(msg);
     }
     setLoading(false);
   };
