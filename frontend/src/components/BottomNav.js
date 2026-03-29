@@ -34,7 +34,7 @@ export const BottomNav = ({ active = 'home' }) => {
     { id: 'drop-logo', action: handleDropTap },
   ];
 
-  const modalTitle = isYounger ? 'Did You Know? 🤔' : 'Two Sides';
+
 
   return (
     <>
