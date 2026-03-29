@@ -5,6 +5,7 @@ import { F7Icon } from './F7Icon';
 import { light } from '../lib/haptic';
 import { motion, AnimatePresence } from 'framer-motion';
 import { DidYouKnowSheet } from './DidYouKnowSheet';
+import { TwoTakesSheet } from './TwoTakesSheet';
 
 export const BottomNav = ({ active = 'home' }) => {
   const navigate = useNavigate();
@@ -16,13 +17,15 @@ export const BottomNav = ({ active = 'home' }) => {
 
   const isYounger = band === 'big-bold-bright' || band === 'cool-connected';
 
+  const isOlder = band === 'sharp-aware' || band === 'editorial';
+
   const handleDropTap = useCallback(() => {
     if (isYounger) {
       setDidYouKnowOpen(true);
-    } else {
+    } else if (isOlder) {
       setDropModalOpen(true);
     }
-  }, [isYounger]);
+  }, [isYounger, isOlder]);
 
   const items = [
     { id: 'home', icon: 'house_fill', action: () => navigate('/feed') },
@@ -136,78 +139,8 @@ export const BottomNav = ({ active = 'home' }) => {
         )}
       </AnimatePresence>
 
-      {/* THE DROP modal — Did You Know / Two Sides */}
-      <AnimatePresence>
-        {dropModalOpen && (
-          <>
-            <motion.div
-              initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
-              onClick={() => setDropModalOpen(false)}
-              className="fixed inset-0 z-[60]"
-              style={{ background: 'rgba(0,0,0,0.5)' }}
-            />
-            <div className="fixed inset-0 z-[70] flex justify-center items-end pointer-events-none">
-              <motion.div
-                initial={{ y: '100%' }} animate={{ y: 0 }} exit={{ y: '100%' }}
-                transition={{ duration: 0.25, ease: 'easeOut' }}
-                className="w-full max-w-[430px] pointer-events-auto"
-                style={{
-                  background: 'var(--surface)',
-                  borderRadius: '20px 20px 0 0',
-                  paddingBottom: 24,
-                }}
-              >
-                {/* Drag handle */}
-                <div style={{
-                  width: 40, height: 5, background: 'var(--light-gray)',
-                  borderRadius: 3, margin: '12px auto 20px',
-                }} />
-                {/* Title */}
-                <p style={{
-                  fontFamily: 'Rubik, var(--font), sans-serif',
-                  fontSize: 18,
-                  fontWeight: 600,
-                  color: 'var(--title-color)',
-                  textAlign: 'center',
-                  margin: '0 0 12px',
-                }}>
-                  {modalTitle}
-                </p>
-                {/* Body */}
-                <p style={{
-                  fontFamily: 'Rubik, var(--font), sans-serif',
-                  fontSize: 15,
-                  fontWeight: 400,
-                  color: 'var(--text-color)',
-                  textAlign: 'center',
-                  margin: '0 20px 20px',
-                }}>
-                  Coming soon — this feature is being built
-                </p>
-                {/* Cancel */}
-                <button
-                  onClick={() => setDropModalOpen(false)}
-                  className="cursor-pointer"
-                  style={{
-                    margin: '0 20px',
-                    width: 'calc(100% - 40px)',
-                    height: 44,
-                    borderRadius: 12,
-                    background: 'var(--light-gray)',
-                    color: 'var(--title-color)',
-                    fontFamily: 'Rubik, var(--font), sans-serif',
-                    fontSize: 15,
-                    fontWeight: 500,
-                    border: 'none',
-                  }}
-                >
-                  Close
-                </button>
-              </motion.div>
-            </div>
-          </>
-        )}
-      </AnimatePresence>
+      {/* Two Takes sheet for older bands */}
+      <TwoTakesSheet open={dropModalOpen} onClose={() => setDropModalOpen(false)} />
 
       {/* Did You Know sheet for younger bands */}
       <DidYouKnowSheet open={didYouKnowOpen} onClose={() => setDidYouKnowOpen(false)} />
