@@ -23,7 +23,7 @@ export const ProfileSwitcherModal = ({ open, onClose, onPanelClose }) => {
   const [loadingProfiles, setLoadingProfiles] = useState(false);
 
   const fetchToken = parentToken || token;
-  const canAddProfile = !!parentToken;
+  const canAddProfile = !!parentToken || user?.account_type === 'self';
 
   useEffect(() => {
     if (!open || !fetchToken) return;
