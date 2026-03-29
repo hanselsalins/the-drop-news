@@ -5,6 +5,7 @@ import { F7Icon } from './F7Icon';
 import { light } from '../lib/haptic';
 import { motion, AnimatePresence } from 'framer-motion';
 import { DidYouKnowSheet } from './DidYouKnowSheet';
+import { TwoTakesSheet } from './TwoTakesSheet';
 
 export const BottomNav = ({ active = 'home' }) => {
   const navigate = useNavigate();
@@ -16,13 +17,15 @@ export const BottomNav = ({ active = 'home' }) => {
 
   const isYounger = band === 'big-bold-bright' || band === 'cool-connected';
 
+  const isOlder = band === 'sharp-aware' || band === 'editorial';
+
   const handleDropTap = useCallback(() => {
     if (isYounger) {
       setDidYouKnowOpen(true);
-    } else {
+    } else if (isOlder) {
       setDropModalOpen(true);
     }
-  }, [isYounger]);
+  }, [isYounger, isOlder]);
 
   const items = [
     { id: 'home', icon: 'house_fill', action: () => navigate('/feed') },
