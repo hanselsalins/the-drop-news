@@ -115,9 +115,20 @@ const AGE_BAND_DESCRIPTIONS = {
 
 const TEXT_SIZES = ['Small', 'Medium', 'Large'];
 
+const GENDER_OPTIONS_SETTINGS = ['Male', 'Female', 'Prefer not to say'];
+
+const AGE_BAND_FOR_AGE = (age) => {
+  const a = parseInt(age);
+  if (a >= 8 && a <= 10) return '8-10';
+  if (a >= 11 && a <= 13) return '11-13';
+  if (a >= 14 && a <= 16) return '14-16';
+  if (a >= 17) return '17-20';
+  return '8-10';
+};
+
 export default function ProfilePage() {
   const navigate = useNavigate();
-  const { user, setUserData, token, ageGroup, logout, darkMode, toggleDarkMode, linkedProfiles } = useTheme();
+  const { user, setUserData, token, ageGroup, logout, darkMode, toggleDarkMode, linkedProfiles, parentToken, setToken, setParentToken, fetchLinkedProfiles } = useTheme();
   const { permission, requestPermission } = useNotifications();
   const headers = token ? { Authorization: `Bearer ${token}` } : {};
 
@@ -148,9 +159,91 @@ export default function ProfilePage() {
   // Profile panel
   const [profilePanelOpen, setProfilePanelOpen] = useState(false);
 
+  // Profiles section
+  const [settingsProfiles, setSettingsProfiles] = useState([]);
+  const [switchingProfileId, setSwitchingProfileId] = useState(null);
+  const [showAddChild, setShowAddChild] = useState(false);
+  const [childForm, setChildForm] = useState({ name: '', age: '', gender: '', city: '', username: '' });
+  const [childLoading, setChildLoading] = useState(false);
+  const [childError, setChildError] = useState('');
+
   useEffect(() => {
     axios.get(`${BACKEND_URL}/api/countries`).then(r => setCountries(Array.isArray(r.data) ? r.data : [])).catch(() => {});
   }, []);
+
+  // Fetch linked profiles for settings
+  useEffect(() => {
+    const fetchToken = parentToken || token;
+    if (!fetchToken) return;
+    axios.get(`${BACKEND_URL}/api/auth/linked-profiles`, { headers: { Authorization: `Bearer ${fetchToken}` } })
+      .then(res => {
+        let fetched = Array.isArray(res.data) ? res.data : (res.data?.profiles || []);
+        const combined = user ? [user, ...fetched] : fetched;
+        const seen = new Set();
+        setSettingsProfiles(combined.filter(p => { if (!p?.id || seen.has(p.id)) return false; seen.add(p.id); return true; }));
+      })
+      .catch(() => setSettingsProfiles(user ? [user] : []));
+  }, [token, parentToken, user?.id]);
+
+  const handleSwitchProfile = async (profile) => {
+    if (profile.id === user?.id) return;
+    setSwitchingProfileId(profile.id);
+    try {
+      const switchToken = parentToken || token;
+      const res = await axios.post(`${BACKEND_URL}/api/auth/switch-profile`, { target_user_id: profile.id }, { headers: { Authorization: `Bearer ${switchToken}` } });
+      if (res.data.token) {
+        setToken(res.data.token);
+        localStorage.setItem('token', res.data.token);
+        let newUser = res.data.user;
+        if (!newUser) {
+          const meRes = await axios.get(`${BACKEND_URL}/api/auth/me`, { headers: { Authorization: `Bearer ${res.data.token}` } });
+          newUser = meRes.data;
+        }
+        setUserData(newUser);
+        fetchLinkedProfiles(parentToken || res.data.token);
+      }
+      navigate('/feed');
+    } catch (e) { console.error('[Settings Switch]', e); }
+    setSwitchingProfileId(null);
+  };
+
+  const handleAddChild = async () => {
+    const errors = [];
+    if (!childForm.name?.trim()) errors.push("Child's name is required");
+    if (!childForm.age || parseInt(childForm.age) < 3 || parseInt(childForm.age) > 13) errors.push("Age must be between 3 and 13");
+    if (!childForm.gender) errors.push("Please select a gender");
+    if (errors.length > 0) { setChildError(errors.join(', ')); return; }
+    setChildLoading(true); setChildError('');
+    try {
+      const addToken = parentToken || token;
+      const payload = {
+        children: [{
+          full_name: childForm.name.trim(),
+          age: parseInt(childForm.age) || 0,
+          gender: childForm.gender,
+          city: childForm.city?.trim() || '',
+          username: childForm.username?.trim() || '',
+          country_code: user?.country_code || '',
+        }],
+      };
+      await axios.post(`${BACKEND_URL}/api/auth/register-child`, payload, { headers: { Authorization: `Bearer ${addToken}` } });
+      // Refresh profiles
+      const res2 = await axios.get(`${BACKEND_URL}/api/auth/linked-profiles`, { headers: { Authorization: `Bearer ${addToken}` } });
+      let fetched = Array.isArray(res2.data) ? res2.data : (res2.data?.profiles || []);
+      const combined = user ? [user, ...fetched] : fetched;
+      const seen = new Set();
+      setSettingsProfiles(combined.filter(p => { if (!p?.id || seen.has(p.id)) return false; seen.add(p.id); return true; }));
+      fetchLinkedProfiles(addToken);
+      setShowAddChild(false);
+      setChildForm({ name: '', age: '', gender: '', city: '', username: '' });
+    } catch (e) {
+      const detail = e.response?.data?.detail;
+      setChildError(typeof detail === 'string' ? detail : (e.response?.data?.error || 'Failed to create profile'));
+    }
+    setChildLoading(false);
+  };
+
+  const updateChild = (k, v) => { setChildForm(p => ({ ...p, [k]: v })); setChildError(''); };
 
   const toggleNotif = (key, val, setter) => {
     const next = !val;
