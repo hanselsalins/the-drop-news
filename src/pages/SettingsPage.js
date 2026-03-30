@@ -573,6 +573,47 @@ export default function ProfilePage() {
         </div>
       </BottomSheet>
 
+      {/* Add Child Profile Sheet */}
+      <BottomSheet open={showAddChild} onClose={() => setShowAddChild(false)} title="Create New Profile">
+        <p style={{ fontFamily: f, fontSize: 14, color: 'var(--text-color)', marginBottom: 16, lineHeight: 1.5 }}>
+          Set up a new child profile linked to your account.
+        </p>
+        {childError && <p style={{ fontFamily: f, fontSize: 13, color: '#FF3B30', marginBottom: 12 }}>{childError}</p>}
+        <div className="space-y-3">
+          <input placeholder="Child's name" value={childForm.name} onChange={e => updateChild('name', e.target.value)}
+            className="w-full px-4 py-3 text-sm outline-none"
+            style={{ fontFamily: f, background: 'var(--bg)', borderRadius: 10, border: 'none', color: 'var(--title-color)', height: 48 }} />
+          <input type="number" min="3" max="13" placeholder="Age" value={childForm.age} onChange={e => updateChild('age', e.target.value)}
+            className="w-full px-4 py-3 text-sm outline-none"
+            style={{ fontFamily: f, background: 'var(--bg)', borderRadius: 10, border: 'none', color: 'var(--title-color)', height: 48 }} />
+          <div className="flex gap-2">
+            {GENDER_OPTIONS_SETTINGS.map(g => (
+              <button key={g} onClick={() => updateChild('gender', g)} className="flex-1 cursor-pointer"
+                style={{
+                  fontFamily: f, fontSize: 13, fontWeight: 500, height: 40, borderRadius: 10,
+                  background: childForm.gender === g ? '#FF6B00' : 'var(--bg)',
+                  color: childForm.gender === g ? '#fff' : 'var(--title-color)',
+                  border: 'none',
+                }}>{g}</button>
+            ))}
+          </div>
+          <input placeholder="City (optional)" value={childForm.city} onChange={e => updateChild('city', e.target.value)}
+            className="w-full px-4 py-3 text-sm outline-none"
+            style={{ fontFamily: f, background: 'var(--bg)', borderRadius: 10, border: 'none', color: 'var(--title-color)', height: 48 }} />
+          <input placeholder="Username (optional)" value={childForm.username} onChange={e => updateChild('username', e.target.value)}
+            className="w-full px-4 py-3 text-sm outline-none"
+            style={{ fontFamily: f, background: 'var(--bg)', borderRadius: 10, border: 'none', color: 'var(--title-color)', height: 48 }} />
+        </div>
+        <button onClick={handleAddChild} disabled={childLoading} className="w-full cursor-pointer"
+          style={{
+            fontFamily: f, fontSize: 15, fontWeight: 600, height: 48, borderRadius: 22,
+            background: '#FF6B00', color: '#fff', border: 'none', marginTop: 16,
+            opacity: childLoading ? 0.6 : 1,
+          }}>
+          {childLoading ? 'Creating...' : 'Create Profile'}
+        </button>
+      </BottomSheet>
+
       {/* Profile Panel */}
       <ProfilePanel open={profilePanelOpen} onClose={() => setProfilePanelOpen(false)} />
 
