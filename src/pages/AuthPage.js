@@ -173,17 +173,18 @@ export default function AuthPage() {
           )}
           {phase === 'parentDetails' && (
             <ParentDetailsScreen key="parentDetails" setPhase={setPhase}
-              setToken={setToken} setParentToken={setParentToken} setUserData={setUserData}
-              error={error} setError={setError} setParentCountry={setParentCountry}
-              setParentTokenLocal={setParentTokenLocal} />
+              error={error} setError={setError} setParentDetails={setParentDetails}
+              setParentCountry={setParentCountry} />
           )}
           {phase === 'childModal' && (
           <ChildProfileModal key="childModal"
+              parentDetails={parentDetails}
               parentTokenLocal={addProfile ? (parentToken || token) : parentTokenLocal}
               childAge={enteredAge} parentCountry={parentCountry}
-              setToken={setToken} setUserData={setUserData} navigate={navigate}
+              setToken={setToken} setParentToken={setParentToken} setUserData={setUserData} navigate={navigate}
               fetchLinkedProfiles={fetchLinkedProfiles}
-              connectWithInviter={connectWithInviter} />
+              connectWithInviter={connectWithInviter}
+              addProfile={addProfile} />
           )}
           {phase === 'login' && (
             <LoginScreen key="login" setPhase={setPhase} setToken={setToken}
