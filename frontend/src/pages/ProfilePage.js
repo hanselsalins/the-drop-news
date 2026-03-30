@@ -242,10 +242,15 @@ export default function ProfilePage() {
         display: 'flex', justifyContent: 'space-between', alignItems: 'center',
         padding: '20px 20px 8px',
       }}>
-        <p style={{
-          fontFamily: f, fontSize: 13, fontWeight: 600, color: 'var(--text-color)',
-          textTransform: 'uppercase', letterSpacing: '0.06em', margin: 0,
-        }}>Friends</p>
+        <div>
+          <p style={{
+            fontFamily: f, fontSize: 13, fontWeight: 600, color: 'var(--text-color)',
+            textTransform: 'uppercase', letterSpacing: '0.06em', margin: 0,
+          }}>Friends</p>
+          <p style={{ fontFamily: f, fontSize: 12, fontWeight: 400, color: 'var(--text-color)', margin: '2px 0 0' }}>
+            Your username: <span style={{ fontWeight: 600, color: 'var(--accent)' }}>@{user?.username || 'user'}</span>
+          </p>
+        </div>
         <div style={{ display: 'flex', gap: 8 }}>
           <button onClick={handleCopyInvite} className="cursor-pointer" style={{
             display: 'flex', alignItems: 'center', gap: 4,
