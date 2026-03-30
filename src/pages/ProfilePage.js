@@ -103,29 +103,31 @@ export default function ProfilePage() {
             onClick={() => setShowAvatarPicker(true)}
           />
 
-          {/* Name + age band on same row */}
+          {/* Name + age band */}
           <div style={{ marginLeft: 16, flex: 1, minWidth: 0 }}>
+            {/* Row 1: Name ................. Badge */}
             <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
               <p style={{ fontFamily: f, fontSize: 18, fontWeight: 600, color: 'var(--title-color)', margin: 0 }}>
                 {user?.full_name || 'Reader'}
               </p>
-              <div style={{ textAlign: 'center', flexShrink: 0, marginLeft: 10 }}>
-                <span style={{
-                  display: 'inline-block', background: 'var(--accent)', color: '#FFFFFF',
-                  fontFamily: f, fontSize: 13, fontWeight: 700, padding: '4px 12px',
-                  borderRadius: 20,
-                }}>
-                  {AGE_BAND_NAMES[ageGroup] || ageGroup || '—'}
-                </span>
-                <p style={{ fontFamily: f, fontSize: 9, fontWeight: 500, color: 'var(--text-color)', margin: '3px 0 0', textTransform: 'uppercase', letterSpacing: '0.05em' }}>Age Group</p>
-              </div>
+              <span style={{
+                display: 'inline-block', background: 'var(--accent)', color: '#FFFFFF',
+                fontFamily: f, fontSize: 13, fontWeight: 700, padding: '4px 12px',
+                borderRadius: 20, flexShrink: 0, marginLeft: 10,
+              }}>
+                {AGE_BAND_NAMES[ageGroup] || ageGroup || '—'}
+              </span>
             </div>
-            <p onClick={() => setShowAvatarPicker(true)} style={{
-              fontFamily: f, fontSize: 14, fontWeight: 600, color: 'var(--accent)',
-              margin: '6px 0 0', cursor: 'pointer',
-            }}>
-              ✨ Choose your avatar!
-            </p>
+            {/* Row 2: Choose avatar ....... AGE GROUP */}
+            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginTop: 6 }}>
+              <p onClick={() => setShowAvatarPicker(true)} style={{
+                fontFamily: f, fontSize: 14, fontWeight: 600, color: 'var(--accent)',
+                margin: 0, cursor: 'pointer',
+              }}>
+                ✨ Choose your avatar!
+              </p>
+              <span style={{ fontFamily: f, fontSize: 9, fontWeight: 500, color: 'var(--text-color)', textTransform: 'uppercase', letterSpacing: '0.05em', flexShrink: 0, marginLeft: 10 }}>Age Group</span>
+            </div>
           </div>
         </div>
       </div>
