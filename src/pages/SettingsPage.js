@@ -218,16 +218,13 @@ export default function ProfilePage() {
       const addToken = parentToken || token;
       const countryCode = user?.country_code || user?.country || '';
       const payload = {
-        children: [{
-          full_name: childForm.name.trim(),
-          age: parseInt(childForm.age) || 0,
-          gender: childForm.gender.toLowerCase(),
-          city: childForm.city?.trim() || '',
-          username: childForm.username?.trim() || '',
-          country_code: countryCode,
-        }],
+        child_name: childForm.name.trim(),
+        child_age: parseInt(childForm.age) || 0,
+        child_gender: childForm.gender.toLowerCase(),
+        child_city: childForm.city?.trim() || '',
+        child_country_code: countryCode,
       };
-      const url = `${BACKEND_URL}/api/auth/register-child`;
+      const url = `${BACKEND_URL}/api/auth/add-profile`;
       console.log('[AddChild] URL:', url);
       console.log('[AddChild] Payload:', JSON.stringify(payload));
       console.log('[AddChild] Auth:', addToken ? addToken.substring(0, 20) + '...' : 'NO TOKEN');
