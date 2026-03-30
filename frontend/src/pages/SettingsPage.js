@@ -91,10 +91,10 @@ const BottomSheet = ({ open, onClose, title, children }) => (
           initial={{ y: '100%' }} animate={{ y: 0 }} exit={{ y: '100%' }}
           transition={{ type: 'spring', damping: 28, stiffness: 300 }}
           style={{
-            position: 'fixed', bottom: 0, left: 0, right: 0, zIndex: 1000,
+            position: 'fixed', bottom: 68, left: 0, right: 0, zIndex: 1000,
             width: '100vw', maxWidth: '100vw', boxSizing: 'border-box', overflowX: 'hidden',
             background: 'var(--surface)', borderRadius: '20px 20px 0 0',
-            padding: '20px 20px 40px', maxHeight: '80vh', overflowY: 'auto',
+            padding: '20px 20px 40px', maxHeight: 'calc(80vh - 68px)', overflowY: 'auto',
           }}
         >
           <div style={{ width: 36, height: 4, borderRadius: 2, background: 'var(--light-gray)', margin: '0 auto 16px' }} />
@@ -308,46 +308,6 @@ export default function ProfilePage() {
       {/* Page title */}
       <h1 style={{ fontFamily: f, fontSize: 28, fontWeight: 600, color: 'var(--title-color)', padding: '16px 20px 8px 20px', margin: 0 }}>Settings</h1>
 
-      {/* ══════ APPEARANCE ══════ */}
-      <SectionHeader>Appearance</SectionHeader>
-      <ListGroup>
-        <Row label="Dark Mode" isLast={false} right={<Toggle on={darkMode} onChange={toggleDarkMode} />} />
-        <Row label="Text Size" isLast right={<ValueChevron value={textSize} />} onClick={() => setShowTextSize(true)} />
-      </ListGroup>
-
-      {/* ══════ NOTIFICATIONS ══════ */}
-      <SectionHeader>Notifications</SectionHeader>
-      <ListGroup>
-        <Row label="Daily Drop reminder" isLast={false}
-          right={<Toggle on={notifDaily} onChange={() => toggleNotif('notif_daily', notifDaily, setNotifDaily)} />} />
-        <Row label="Breaking news alerts" isLast={false}
-          right={<Toggle on={notifBreaking} onChange={() => toggleNotif('notif_breaking', notifBreaking, setNotifBreaking)} />} />
-        <Row label="Streak reminders" isLast
-          right={<Toggle on={notifStreak} onChange={() => toggleNotif('notif_streak', notifStreak, setNotifStreak)} />} />
-      </ListGroup>
-
-      {/* ══════ NEWS PREFERENCES ══════ */}
-      <SectionHeader>News preferences</SectionHeader>
-      <ListGroup>
-        <Row label="My Country" isLast={false}
-          right={<ValueChevron value={user?.country || 'Not set'} />}
-          onClick={() => setShowCountryPicker(true)} />
-        <Row label="Language" isLast
-          right={<ValueChevron value="English" />}
-          onClick={() => showToast('More languages coming soon')} />
-      </ListGroup>
-
-      {/* ══════ ACCOUNT ══════ */}
-      <SectionHeader>Account</SectionHeader>
-      <ListGroup>
-        <Row label="Edit Profile" isLast={false} right={<Chevron />} onClick={() => showToast('Coming soon')} />
-        <Row label="Change Password" isLast={false} right={<Chevron />} onClick={() => showToast('Coming soon')} />
-        <Row label="Change Email" isLast={false} right={<Chevron />} onClick={() => showToast('Coming soon')} />
-        <Row label="My Age Band" isLast
-          right={<ValueChevron value={AGE_BAND_NAMES[ageGroup] || ageGroup || '—'} />}
-          onClick={() => setShowAgeBand(true)} />
-      </ListGroup>
-
       {/* ══════ PROFILES ══════ */}
       {settingsProfiles.length > 0 && (
         <>
@@ -391,7 +351,6 @@ export default function ProfilePage() {
                 </button>
               );
             })}
-            {/* Create New Profile row */}
             <button onClick={() => { setShowAddChild(true); setChildForm({ name: '', age: '', gender: '', city: '', username: '' }); setChildError(''); }}
               className="w-full cursor-pointer"
               style={{
@@ -414,6 +373,49 @@ export default function ProfilePage() {
           </ListGroup>
         </>
       )}
+
+      {/* ══════ APPEARANCE ══════ */}
+      <SectionHeader>Appearance</SectionHeader>
+      <ListGroup>
+        <Row label="Dark Mode" isLast={false} right={<Toggle on={darkMode} onChange={toggleDarkMode} />} />
+        <Row label="Text Size" isLast right={<ValueChevron value={textSize} />} onClick={() => setShowTextSize(true)} />
+      </ListGroup>
+
+      {/* ══════ NOTIFICATIONS ══════ */}
+      <SectionHeader>Notifications</SectionHeader>
+      <ListGroup>
+        <Row label="Daily Drop reminder" isLast={false}
+          right={<Toggle on={notifDaily} onChange={() => toggleNotif('notif_daily', notifDaily, setNotifDaily)} />} />
+        <Row label="Breaking news alerts" isLast={false}
+          right={<Toggle on={notifBreaking} onChange={() => toggleNotif('notif_breaking', notifBreaking, setNotifBreaking)} />} />
+        <Row label="Streak reminders" isLast
+          right={<Toggle on={notifStreak} onChange={() => toggleNotif('notif_streak', notifStreak, setNotifStreak)} />} />
+      </ListGroup>
+
+      {/* ══════ NEWS PREFERENCES ══════ */}
+      <SectionHeader>News preferences</SectionHeader>
+      <ListGroup>
+        <Row label="My Country" isLast={false}
+          right={<ValueChevron value={user?.country || 'Not set'} />}
+          onClick={() => setShowCountryPicker(true)} />
+        <Row label="Language" isLast
+          right={<ValueChevron value="English" />}
+          onClick={() => showToast('More languages coming soon')} />
+      </ListGroup>
+
+      {/* ══════ ACCOUNT ══════ */}
+      <SectionHeader>Account</SectionHeader>
+      <ListGroup>
+        <Row label="Edit Profile" isLast={false} right={<Chevron />} onClick={() => showToast('Coming soon')} />
+        <Row label="Change Password" isLast={false} right={<Chevron />} onClick={() => showToast('Coming soon')} />
+        <Row label="Change Email" isLast={false} right={<Chevron />} onClick={() => showToast('Coming soon')} />
+        <Row label="My Age Band" isLast
+          right={<ValueChevron value={AGE_BAND_NAMES[ageGroup] || ageGroup || '—'} />}
+          onClick={() => setShowAgeBand(true)} />
+      </ListGroup>
+
+
+
 
       {/* ══════ FAMILY (parent only) ══════ */}
       {isParent && (
