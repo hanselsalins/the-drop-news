@@ -124,7 +124,7 @@ export default function ProfilePage() {
                 fontFamily: f, fontSize: 14, fontWeight: 600, color: 'var(--accent)',
                 margin: 0, cursor: 'pointer',
               }}>
-                ✨ Choose your avatar!
+                Choose your avatar!
               </p>
               <span style={{ fontFamily: f, fontSize: 9, fontWeight: 500, color: 'var(--text-color)', textTransform: 'uppercase', letterSpacing: '0.05em', flexShrink: 0, marginLeft: 10 }}>Age Group</span>
             </div>
