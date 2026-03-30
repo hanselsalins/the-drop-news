@@ -107,7 +107,7 @@ export default function ProfilePage() {
           <div style={{ marginLeft: 16, flex: 1, minWidth: 0 }}>
             {/* Row 1: Name ................. Badge */}
             <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-              <p style={{ fontFamily: f, fontSize: 18, fontWeight: 600, color: 'var(--title-color)', margin: 0 }}>
+              <p style={{ fontFamily: f, fontSize: 23, fontWeight: 600, color: 'var(--title-color)', margin: 0 }}>
                 {user?.full_name || 'Reader'}
               </p>
               <span style={{
