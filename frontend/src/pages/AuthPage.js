@@ -177,11 +177,11 @@ export default function AuthPage() {
               setParentTokenLocal={setParentTokenLocal} />
           )}
           {phase === 'childModal' && (
-            <ChildProfileModal key="childModal"
+          <ChildProfileModal key="childModal"
               parentTokenLocal={addProfile ? (parentToken || token) : parentTokenLocal}
               childAge={enteredAge} parentCountry={parentCountry}
               setToken={setToken} setUserData={setUserData} navigate={navigate}
-              error={error} setError={setError} fetchLinkedProfiles={fetchLinkedProfiles}
+              fetchLinkedProfiles={fetchLinkedProfiles}
               connectWithInviter={connectWithInviter} />
           )}
           {phase === 'login' && (
@@ -553,15 +553,14 @@ function ParentDetailsScreen({ setPhase, setToken, setParentToken, setUserData, 
 
 // ━━━━━━━━━━━ CHILD PROFILE SETUP MODAL ━━━━━━━━━━━
 
-function ChildProfileModal({ parentTokenLocal, childAge, parentCountry, setToken, setUserData, navigate, error, setError, fetchLinkedProfiles, connectWithInviter }) {
+function ChildProfileModal({ parentTokenLocal, childAge, parentCountry, setToken, setUserData, navigate, fetchLinkedProfiles, connectWithInviter }) {
   const [loading, setLoading] = useState(false);
-  const [countries, setCountries] = useState([]);
+  const [localError, setLocalError] = useState('');
   const [form, setForm] = useState({
     name: '', age: childAge || '', gender: '', city: '', username: '',
   });
-  const u = (k, v) => { setForm(p => ({ ...p, [k]: v })); setError(''); };
+  const u = (k, v) => { setForm(p => ({ ...p, [k]: v })); setLocalError(''); };
 
-  useEffect(() => { axios.get(`${BACKEND_URL}/api/countries`).then(r => setCountries(Array.isArray(r.data) ? r.data : [])).catch(() => {}); }, []);
 
   // Auto-suggest username from name
   useEffect(() => {
@@ -574,7 +573,11 @@ function ChildProfileModal({ parentTokenLocal, childAge, parentCountry, setToken
   const canSubmit = form.name && form.age && form.gender;
 
   const handleSubmit = async () => {
-    setLoading(true); setError('');
+    // Client-side validation for child fields only
+    if (!form.name.trim()) { setLocalError("Child's name is required"); return; }
+    if (!form.age || parseInt(form.age) < 3 || parseInt(form.age) > 13) { setLocalError("Age must be between 3 and 13"); return; }
+    if (!form.gender) { setLocalError("Please select a gender"); return; }
+    setLoading(true); setLocalError('');
     try {
       const payload = {
         children: [{
@@ -601,23 +604,21 @@ function ChildProfileModal({ parentTokenLocal, childAge, parentCountry, setToken
       const detail = e.response?.data?.detail;
       const errors = e.response?.data?.errors;
       let msg = 'Failed to create profile';
-      const parentFieldKeys = ['full_name', 'email', 'password', 'parent_name', 'parent_email', 'parent_password'];
-      const parentFieldPhrases = ["parent's name", "parent name", "parent email", "parent password"];
       if (errors && typeof errors === 'object') {
+        const childKeys = ['children', 'child_name', 'child_age', 'child_gender', 'age', 'name', 'gender', 'city', 'username'];
         const filtered = Object.entries(errors)
-          .filter(([k]) => !parentFieldKeys.includes(k))
+          .filter(([k]) => childKeys.some(ck => k.toLowerCase().includes(ck)))
           .map(([, v]) => v);
-        msg = filtered.length > 0 ? filtered.join(', ') : '';
+        msg = filtered.length > 0 ? filtered.join(', ') : Object.values(errors).join(', ');
       } else if (Array.isArray(detail)) {
-        const filtered = detail
-          .map(d => d.msg || JSON.stringify(d))
-          .filter(m => !parentFieldPhrases.some(p => m.toLowerCase().includes(p)));
-        msg = filtered.length > 0 ? filtered.join(', ') : '';
+        msg = detail.map(d => d.msg || JSON.stringify(d)).join(', ');
       } else if (typeof detail === 'string') {
-        if (!parentFieldPhrases.some(p => detail.toLowerCase().includes(p))) msg = detail;
-        else msg = '';
+        msg = detail;
       } else if (e.response?.data?.error) msg = e.response.data.error;
-      if (msg) setError(msg);
+      // Filter out any parent-related error messages that leak from backend
+      const parentPhrases = ["parent's name", "parent name", "parent email", "parent password"];
+      if (parentPhrases.some(p => msg.toLowerCase().includes(p))) msg = 'Failed to create profile. Please try again.';
+      if (msg) setLocalError(msg);
     }
     setLoading(false);
   };
@@ -649,7 +650,7 @@ function ChildProfileModal({ parentTokenLocal, childAge, parentCountry, setToken
           This creates your child's personalised news experience.
         </p>
 
-        <ErrorBanner error={error} />
+        <ErrorBanner error={localError} />
 
         <div className="space-y-4">
           <div>
