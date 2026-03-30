@@ -119,7 +119,7 @@ export default function ProfilePage() {
               </span>
             </div>
             {/* Row 2: Choose avatar ....... AGE GROUP */}
-            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginTop: 6 }}>
+            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginTop: 0 }}>
               <p onClick={() => setShowAvatarPicker(true)} style={{
                 fontFamily: f, fontSize: 14, fontWeight: 600, color: 'var(--accent)',
                 margin: 0, cursor: 'pointer',
