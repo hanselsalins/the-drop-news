@@ -103,34 +103,28 @@ export default function ProfilePage() {
             onClick={() => setShowAvatarPicker(true)}
           />
 
-          {/* Name + username + badge */}
+          {/* Name + age band */}
           <div style={{ marginLeft: 16, flex: 1, minWidth: 0 }}>
             <p style={{ fontFamily: f, fontSize: 18, fontWeight: 600, color: 'var(--title-color)', margin: 0 }}>
               {user?.full_name || 'Reader'}
             </p>
-            <p style={{ fontFamily: f, fontSize: 13, fontWeight: 400, color: 'var(--text-color)', margin: '2px 0 0' }}>
-              @{user?.username || 'user'}
-            </p>
             <span style={{
-              display: 'inline-block', background: 'var(--light-gray)', color: 'var(--text-color)',
-              fontFamily: f, fontSize: 11, fontWeight: 600, padding: '2px 8px',
-              borderRadius: 4, marginTop: 6,
+              display: 'inline-block', background: 'var(--accent)', color: '#FFFFFF',
+              fontFamily: f, fontSize: 13, fontWeight: 700, padding: '4px 12px',
+              borderRadius: 20, marginTop: 8,
             }}>
               {AGE_BAND_NAMES[ageGroup] || ageGroup || '—'}
             </span>
           </div>
         </div>
 
-        {/* Edit button */}
-        <button
-          onClick={() => navigate('/settings')}
-          style={{
-            position: 'absolute', top: 20, right: 20,
-            background: 'none', border: 'none', cursor: 'pointer', padding: 4,
-          }}
-        >
-          <F7Icon name="pencil" size={18} color="#FF6B00" />
-        </button>
+        {/* Choose your avatar prompt */}
+        <p onClick={() => setShowAvatarPicker(true)} style={{
+          fontFamily: f, fontSize: 14, fontWeight: 600, color: 'var(--accent)',
+          textAlign: 'center', marginTop: 16, marginBottom: 0, cursor: 'pointer',
+        }}>
+          ✨ Choose your avatar!
+        </p>
       </div>
 
       {/* ══════ 2. KNOWLEDGE SCORE CARD ══════ */}
