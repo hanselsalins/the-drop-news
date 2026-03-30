@@ -105,28 +105,29 @@ export default function ProfilePage() {
 
           {/* Name + age band */}
           <div style={{ marginLeft: 16, flex: 1, minWidth: 0 }}>
-            {/* Row 1: Name ................. Badge */}
-            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-              <p style={{ fontFamily: f, fontSize: 23, fontWeight: 600, color: 'var(--title-color)', margin: 0 }}>
-                {user?.full_name || 'Reader'}
-              </p>
-              <span style={{
-                display: 'inline-block', background: 'var(--accent)', color: '#FFFFFF',
-                fontFamily: f, fontSize: 13, fontWeight: 700, padding: '4px 12px',
-                borderRadius: 20, flexShrink: 0, marginLeft: 10,
-              }}>
-                {AGE_BAND_NAMES[ageGroup] || ageGroup || '—'}
-              </span>
-            </div>
-            {/* Row 2: Choose avatar ....... AGE GROUP */}
-            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginTop: 0 }}>
-              <p onClick={() => setShowAvatarPicker(true)} style={{
-                fontFamily: f, fontSize: 14, fontWeight: 600, color: 'var(--accent)',
-                margin: 0, cursor: 'pointer',
-              }}>
-                Choose your avatar!
-              </p>
-              <span style={{ fontFamily: f, fontSize: 9, fontWeight: 500, color: 'var(--text-color)', textTransform: 'uppercase', letterSpacing: '0.05em', flexShrink: 0, marginLeft: 10 }}>Age Group</span>
+            {/* Name + Badge/Label column */}
+            <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between' }}>
+              <div style={{ flex: 1, minWidth: 0 }}>
+                <p style={{ fontFamily: f, fontSize: 23, fontWeight: 600, color: 'var(--title-color)', margin: 0 }}>
+                  {user?.full_name || 'Reader'}
+                </p>
+                <p onClick={() => setShowAvatarPicker(true)} style={{
+                  fontFamily: f, fontSize: 14, fontWeight: 600, color: 'var(--accent)',
+                  margin: 0, cursor: 'pointer',
+                }}>
+                  Choose your avatar!
+                </p>
+              </div>
+              <div style={{ flexShrink: 0, marginLeft: 10, textAlign: 'center', display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
+                <span style={{
+                  display: 'block', background: 'var(--accent)', color: '#FFFFFF',
+                  fontFamily: f, fontSize: 13, fontWeight: 700, padding: '4px 0',
+                  borderRadius: 20, textAlign: 'center', width: '100%', minWidth: 72,
+                }}>
+                  {AGE_BAND_NAMES[ageGroup] || ageGroup || '—'}
+                </span>
+                <span style={{ fontFamily: f, fontSize: 9, fontWeight: 500, color: 'var(--text-color)', textTransform: 'uppercase', letterSpacing: '0.05em', marginTop: 2 }}>Age Group</span>
+              </div>
             </div>
           </div>
         </div>
