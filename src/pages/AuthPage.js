@@ -561,7 +561,6 @@ function ChildProfileModal({ parentTokenLocal, childAge, parentCountry, setToken
   });
   const u = (k, v) => { setForm(p => ({ ...p, [k]: v })); setLocalError(''); };
 
-  useEffect(() => { axios.get(`${BACKEND_URL}/api/countries`).then(r => setCountries(Array.isArray(r.data) ? r.data : [])).catch(() => {}); }, []);
 
   // Auto-suggest username from name
   useEffect(() => {
