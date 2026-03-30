@@ -442,8 +442,7 @@ function ParentHandoffScreen({ setPhase }) {
 
 // ━━━━━━━━━━━ SCREEN 3: PARENT DETAILS ━━━━━━━━━━━
 
-function ParentDetailsScreen({ setPhase, setToken, setParentToken, setUserData, error, setError, setParentCountry, setParentTokenLocal }) {
-  const [loading, setLoading] = useState(false);
+function ParentDetailsScreen({ setPhase, error, setError, setParentDetails, setParentCountry }) {
   const [countries, setCountries] = useState([]);
   const [showPass, setShowPass] = useState(false);
   const [form, setForm] = useState({ full_name: '', email: '', password: '', country_code: '' });
@@ -453,39 +452,18 @@ function ParentDetailsScreen({ setPhase, setToken, setParentToken, setUserData, 
 
   const canSubmit = form.full_name && form.email && form.password.length >= 8 && form.country_code;
 
-  const handleSubmit = async () => {
-    setLoading(true); setError('');
-    try {
-      const payload = {
-        full_name: form.full_name,
-        email: form.email,
-        password: form.password,
-        dob: '',
-        gender: '',
-        city: '',
-        country: form.country_code,
-        account_type: 'parent',
-      };
-      const res = await axios.post(`${BACKEND_URL}/api/auth/register`, payload);
-      const tkn = res.data.token;
-      setToken(tkn);
-      setParentToken(tkn);
-      setParentTokenLocal(tkn);
-      setUserData(res.data.user);
-      setParentCountry(form.country_code);
-      setError('');
-      setPhase('childModal');
-    } catch (e) {
-      const detail = e.response?.data?.detail;
-      const errors = e.response?.data?.errors;
-      let msg = 'Registration failed';
-      if (errors && typeof errors === 'object') msg = Object.values(errors).join(', ');
-      else if (Array.isArray(detail)) msg = detail.map(d => d.msg || JSON.stringify(d)).join(', ');
-      else if (typeof detail === 'string') msg = detail;
-      else if (e.response?.data?.error) msg = e.response.data.error;
-      setError(msg);
-    }
-    setLoading(false);
+  const handleSubmit = () => {
+    if (!canSubmit) return;
+    // Just save parent details and move to child modal — registration happens in one call
+    setParentDetails({
+      full_name: form.full_name.trim(),
+      email: form.email.trim(),
+      password: form.password,
+      country_code: form.country_code,
+    });
+    setParentCountry(form.country_code);
+    setError('');
+    setPhase('childModal');
   };
 
   return (
@@ -538,7 +516,7 @@ function ParentDetailsScreen({ setPhase, setToken, setParentToken, setUserData, 
       </div>
 
       <div className="pt-4">
-        <button onClick={handleSubmit} disabled={!canSubmit || loading} className={btnPrimary}
+        <button onClick={handleSubmit} disabled={!canSubmit} className={btnPrimary}
           style={{
             fontFamily: 'var(--font)', fontSize: 16, fontWeight: 600,
             height: 56, borderRadius: 28,
@@ -546,7 +524,7 @@ function ParentDetailsScreen({ setPhase, setToken, setParentToken, setUserData, 
             color: canSubmit ? '#FFFFFF' : 'rgba(255,255,255,0.3)',
             border: 'none',
           }}>
-          {loading ? 'Setting up...' : 'Continue →'}
+          Continue →
         </button>
       </div>
     </motion.div>
