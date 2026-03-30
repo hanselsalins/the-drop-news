@@ -11,6 +11,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import axios from 'axios';
 import { markArticleRead } from '../hooks/useReadArticles';
 import ReportFlagButton from '../components/ReportFlagButton';
+import ArticleBreakdown from '../components/ArticleBreakdown';
 
 const BACKEND_URL = import.meta.env.VITE_BACKEND_URL;
 
@@ -255,6 +256,9 @@ export default function ArticlePage() {
             </div>
           ))}
         </div>
+
+        {/* Article Breakdown pills (8-10 & 11-13 only) */}
+        <ArticleBreakdown articleId={article.id} />
 
         {/* Wonder Question */}
         {wonderQuestion && (
