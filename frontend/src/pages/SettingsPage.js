@@ -6,6 +6,7 @@ import { BottomNav } from '../components/BottomNav';
 import { ProfilePanel } from '../components/ProfilePanel';
 import { F7Icon } from '../components/F7Icon';
 import { MemojiPicker } from '../components/MemojiPicker';
+import { AvatarCircle, getSavedAvatarId } from '../components/AvatarCircle';
 import { getMemoji, getMemojiById } from '../lib/memojis';
 import { motion, AnimatePresence } from 'framer-motion';
 import axios from 'axios';
@@ -114,9 +115,20 @@ const AGE_BAND_DESCRIPTIONS = {
 
 const TEXT_SIZES = ['Small', 'Medium', 'Large'];
 
+const GENDER_OPTIONS_SETTINGS = ['Male', 'Female', 'Prefer not to say'];
+
+const AGE_BAND_FOR_AGE = (age) => {
+  const a = parseInt(age);
+  if (a >= 8 && a <= 10) return '8-10';
+  if (a >= 11 && a <= 13) return '11-13';
+  if (a >= 14 && a <= 16) return '14-16';
+  if (a >= 17) return '17-20';
+  return '8-10';
+};
+
 export default function ProfilePage() {
   const navigate = useNavigate();
-  const { user, setUserData, token, ageGroup, logout, darkMode, toggleDarkMode, linkedProfiles } = useTheme();
+  const { user, setUserData, token, ageGroup, logout, darkMode, toggleDarkMode, linkedProfiles, parentToken, setToken, setParentToken, fetchLinkedProfiles } = useTheme();
   const { permission, requestPermission } = useNotifications();
   const headers = token ? { Authorization: `Bearer ${token}` } : {};
 
@@ -147,9 +159,91 @@ export default function ProfilePage() {
   // Profile panel
   const [profilePanelOpen, setProfilePanelOpen] = useState(false);
 
+  // Profiles section
+  const [settingsProfiles, setSettingsProfiles] = useState([]);
+  const [switchingProfileId, setSwitchingProfileId] = useState(null);
+  const [showAddChild, setShowAddChild] = useState(false);
+  const [childForm, setChildForm] = useState({ name: '', age: '', gender: '', city: '', username: '' });
+  const [childLoading, setChildLoading] = useState(false);
+  const [childError, setChildError] = useState('');
+
   useEffect(() => {
     axios.get(`${BACKEND_URL}/api/countries`).then(r => setCountries(Array.isArray(r.data) ? r.data : [])).catch(() => {});
   }, []);
+
+  // Fetch linked profiles for settings
+  useEffect(() => {
+    const fetchToken = parentToken || token;
+    if (!fetchToken) return;
+    axios.get(`${BACKEND_URL}/api/auth/linked-profiles`, { headers: { Authorization: `Bearer ${fetchToken}` } })
+      .then(res => {
+        let fetched = Array.isArray(res.data) ? res.data : (res.data?.profiles || []);
+        const combined = user ? [user, ...fetched] : fetched;
+        const seen = new Set();
+        setSettingsProfiles(combined.filter(p => { if (!p?.id || seen.has(p.id)) return false; seen.add(p.id); return true; }));
+      })
+      .catch(() => setSettingsProfiles(user ? [user] : []));
+  }, [token, parentToken, user?.id]);
+
+  const handleSwitchProfile = async (profile) => {
+    if (profile.id === user?.id) return;
+    setSwitchingProfileId(profile.id);
+    try {
+      const switchToken = parentToken || token;
+      const res = await axios.post(`${BACKEND_URL}/api/auth/switch-profile`, { target_user_id: profile.id }, { headers: { Authorization: `Bearer ${switchToken}` } });
+      if (res.data.token) {
+        setToken(res.data.token);
+        localStorage.setItem('token', res.data.token);
+        let newUser = res.data.user;
+        if (!newUser) {
+          const meRes = await axios.get(`${BACKEND_URL}/api/auth/me`, { headers: { Authorization: `Bearer ${res.data.token}` } });
+          newUser = meRes.data;
+        }
+        setUserData(newUser);
+        fetchLinkedProfiles(parentToken || res.data.token);
+      }
+      navigate('/feed');
+    } catch (e) { console.error('[Settings Switch]', e); }
+    setSwitchingProfileId(null);
+  };
+
+  const handleAddChild = async () => {
+    const errors = [];
+    if (!childForm.name?.trim()) errors.push("Child's name is required");
+    if (!childForm.age || parseInt(childForm.age) < 3 || parseInt(childForm.age) > 13) errors.push("Age must be between 3 and 13");
+    if (!childForm.gender) errors.push("Please select a gender");
+    if (errors.length > 0) { setChildError(errors.join(', ')); return; }
+    setChildLoading(true); setChildError('');
+    try {
+      const addToken = parentToken || token;
+      const payload = {
+        children: [{
+          full_name: childForm.name.trim(),
+          age: parseInt(childForm.age) || 0,
+          gender: childForm.gender,
+          city: childForm.city?.trim() || '',
+          username: childForm.username?.trim() || '',
+          country_code: user?.country_code || '',
+        }],
+      };
+      await axios.post(`${BACKEND_URL}/api/auth/register-child`, payload, { headers: { Authorization: `Bearer ${addToken}` } });
+      // Refresh profiles
+      const res2 = await axios.get(`${BACKEND_URL}/api/auth/linked-profiles`, { headers: { Authorization: `Bearer ${addToken}` } });
+      let fetched = Array.isArray(res2.data) ? res2.data : (res2.data?.profiles || []);
+      const combined = user ? [user, ...fetched] : fetched;
+      const seen = new Set();
+      setSettingsProfiles(combined.filter(p => { if (!p?.id || seen.has(p.id)) return false; seen.add(p.id); return true; }));
+      fetchLinkedProfiles(addToken);
+      setShowAddChild(false);
+      setChildForm({ name: '', age: '', gender: '', city: '', username: '' });
+    } catch (e) {
+      const detail = e.response?.data?.detail;
+      setChildError(typeof detail === 'string' ? detail : (e.response?.data?.error || 'Failed to create profile'));
+    }
+    setChildLoading(false);
+  };
+
+  const updateChild = (k, v) => { setChildForm(p => ({ ...p, [k]: v })); setChildError(''); };
 
   const toggleNotif = (key, val, setter) => {
     const next = !val;
@@ -239,6 +333,73 @@ export default function ProfilePage() {
           right={<ValueChevron value={AGE_BAND_NAMES[ageGroup] || ageGroup || '—'} />}
           onClick={() => setShowAgeBand(true)} />
       </ListGroup>
+
+      {/* ══════ PROFILES ══════ */}
+      {settingsProfiles.length > 0 && (
+        <>
+          <SectionHeader>Profiles</SectionHeader>
+          <ListGroup>
+            {settingsProfiles.map((profile, i) => {
+              const isActive = profile.id === user?.id;
+              const isSwitching = switchingProfileId === profile.id;
+              const band = profile.age_group || AGE_BAND_FOR_AGE(profile.age);
+              const isLastProfile = i === settingsProfiles.length - 1 && !isParent;
+              return (
+                <button key={profile.id} onClick={() => handleSwitchProfile(profile)}
+                  disabled={isActive || isSwitching}
+                  className="w-full cursor-pointer"
+                  style={{
+                    display: 'flex', alignItems: 'center', gap: 12,
+                    padding: '12px 16px', minHeight: 50,
+                    borderBottom: isLastProfile ? 'none' : '1px solid var(--light-gray)',
+                    background: 'none', border: 'none',
+                    borderBottomStyle: isLastProfile ? 'none' : 'solid',
+                    borderBottomWidth: isLastProfile ? 0 : 1,
+                    borderBottomColor: 'var(--light-gray)',
+                    borderTop: 'none', borderLeft: 'none', borderRight: 'none',
+                    opacity: isSwitching ? 0.5 : 1,
+                  }}>
+                  <AvatarCircle name={profile.full_name} avatarId={getSavedAvatarId(profile.id)} size={36} bordered={false} />
+                  <span className="flex-1 text-left" style={{ fontFamily: f, fontSize: 15, fontWeight: 500, color: 'var(--title-color)' }}>
+                    {profile.full_name}
+                  </span>
+                  {band && (
+                    <span style={{
+                      fontFamily: f, fontSize: 11, fontWeight: 600, color: '#FF6B00',
+                      background: 'rgba(255,107,0,0.1)', padding: '3px 8px', borderRadius: 8,
+                    }}>{AGE_BAND_NAMES[band] || band}</span>
+                  )}
+                  {isActive ? (
+                    <F7Icon name="checkmark_alt" size={16} color="#FF6B00" />
+                  ) : (
+                    <span style={{ fontFamily: f, fontSize: 12, color: 'var(--text-color)' }}>{isSwitching ? '...' : ''}</span>
+                  )}
+                </button>
+              );
+            })}
+            {/* Create New Profile row */}
+            <button onClick={() => { setShowAddChild(true); setChildForm({ name: '', age: '', gender: '', city: '', username: '' }); setChildError(''); }}
+              className="w-full cursor-pointer"
+              style={{
+                display: 'flex', alignItems: 'center', gap: 12,
+                padding: '12px 16px', minHeight: 50,
+                background: 'none', border: 'none',
+                borderTop: '1px solid var(--light-gray)',
+              }}>
+              <div style={{
+                width: 36, height: 36, borderRadius: '50%', background: '#FF6B00',
+                display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0,
+              }}>
+                <span style={{ color: '#fff', fontSize: 20, fontWeight: 700, lineHeight: 1 }}>+</span>
+              </div>
+              <span className="flex-1 text-left" style={{ fontFamily: f, fontSize: 15, fontWeight: 500, color: '#FF6B00' }}>
+                Create New Profile
+              </span>
+              <Chevron />
+            </button>
+          </ListGroup>
+        </>
+      )}
 
       {/* ══════ FAMILY (parent only) ══════ */}
       {isParent && (
@@ -410,6 +571,47 @@ export default function ProfilePage() {
               background: '#FF3B30', color: '#fff', border: 'none',
             }}>Delete</button>
         </div>
+      </BottomSheet>
+
+      {/* Add Child Profile Sheet */}
+      <BottomSheet open={showAddChild} onClose={() => setShowAddChild(false)} title="Create New Profile">
+        <p style={{ fontFamily: f, fontSize: 14, color: 'var(--text-color)', marginBottom: 16, lineHeight: 1.5 }}>
+          Set up a new child profile linked to your account.
+        </p>
+        {childError && <p style={{ fontFamily: f, fontSize: 13, color: '#FF3B30', marginBottom: 12 }}>{childError}</p>}
+        <div className="space-y-3">
+          <input placeholder="Child's name" value={childForm.name} onChange={e => updateChild('name', e.target.value)}
+            className="w-full px-4 py-3 text-sm outline-none"
+            style={{ fontFamily: f, background: 'var(--bg)', borderRadius: 10, border: 'none', color: 'var(--title-color)', height: 48 }} />
+          <input type="number" min="3" max="13" placeholder="Age" value={childForm.age} onChange={e => updateChild('age', e.target.value)}
+            className="w-full px-4 py-3 text-sm outline-none"
+            style={{ fontFamily: f, background: 'var(--bg)', borderRadius: 10, border: 'none', color: 'var(--title-color)', height: 48 }} />
+          <div className="flex gap-2">
+            {GENDER_OPTIONS_SETTINGS.map(g => (
+              <button key={g} onClick={() => updateChild('gender', g)} className="flex-1 cursor-pointer"
+                style={{
+                  fontFamily: f, fontSize: 13, fontWeight: 500, height: 40, borderRadius: 10,
+                  background: childForm.gender === g ? '#FF6B00' : 'var(--bg)',
+                  color: childForm.gender === g ? '#fff' : 'var(--title-color)',
+                  border: 'none',
+                }}>{g}</button>
+            ))}
+          </div>
+          <input placeholder="City (optional)" value={childForm.city} onChange={e => updateChild('city', e.target.value)}
+            className="w-full px-4 py-3 text-sm outline-none"
+            style={{ fontFamily: f, background: 'var(--bg)', borderRadius: 10, border: 'none', color: 'var(--title-color)', height: 48 }} />
+          <input placeholder="Username (optional)" value={childForm.username} onChange={e => updateChild('username', e.target.value)}
+            className="w-full px-4 py-3 text-sm outline-none"
+            style={{ fontFamily: f, background: 'var(--bg)', borderRadius: 10, border: 'none', color: 'var(--title-color)', height: 48 }} />
+        </div>
+        <button onClick={handleAddChild} disabled={childLoading} className="w-full cursor-pointer"
+          style={{
+            fontFamily: f, fontSize: 15, fontWeight: 600, height: 48, borderRadius: 22,
+            background: '#FF6B00', color: '#fff', border: 'none', marginTop: 16,
+            opacity: childLoading ? 0.6 : 1,
+          }}>
+          {childLoading ? 'Creating...' : 'Create Profile'}
+        </button>
       </BottomSheet>
 
       {/* Profile Panel */}
