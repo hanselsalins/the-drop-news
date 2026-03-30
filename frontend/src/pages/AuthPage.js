@@ -573,22 +573,30 @@ function ChildProfileModal({ parentTokenLocal, childAge, parentCountry, setToken
   const canSubmit = form.name && form.age && form.gender;
 
   const handleSubmit = async () => {
+    // Debug: log all state values before validation
+    console.log('[ChildProfileModal] Form state on submit:', JSON.stringify(form));
+    console.log('[ChildProfileModal] parentCountry:', parentCountry);
+    
     // Client-side validation for child fields only
-    if (!form.name.trim()) { setLocalError("Child's name is required"); return; }
-    if (!form.age || parseInt(form.age) < 3 || parseInt(form.age) > 13) { setLocalError("Age must be between 3 and 13"); return; }
-    if (!form.gender) { setLocalError("Please select a gender"); return; }
+    const errors = [];
+    if (!form.name || !form.name.trim()) errors.push("Child's name is required");
+    if (!form.age || parseInt(form.age) < 3 || parseInt(form.age) > 13) errors.push("Age must be between 3 and 13");
+    if (!form.gender) errors.push("Please select a gender");
+    if (errors.length > 0) { setLocalError(errors.join(', ')); return; }
     setLoading(true); setLocalError('');
     try {
       const payload = {
         children: [{
-          full_name: form.name,
-          age: parseInt(form.age),
+          full_name: form.name.trim(),
+          age: parseInt(form.age) || 0,
           gender: form.gender,
-          city: form.city || '',
-          username: form.username || '',
+          city: form.city?.trim() || '',
+          username: form.username?.trim() || '',
           country_code: parentCountry || '',
         }],
       };
+      console.log('[ChildProfileModal] Submitting payload:', JSON.stringify(payload));
+      console.log('[ChildProfileModal] Token:', parentTokenLocal ? 'present' : 'MISSING');
       const res = await axios.post(`${BACKEND_URL}/api/auth/register-child`, payload, {
         headers: { Authorization: `Bearer ${parentTokenLocal}` },
       });
