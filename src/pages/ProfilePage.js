@@ -127,7 +127,7 @@ export default function ProfilePage() {
               ✨ Choose your avatar!
             </p>
           </div>
-        </p>
+        </div>
       </div>
 
       {/* ══════ 2. KNOWLEDGE SCORE CARD ══════ */}
