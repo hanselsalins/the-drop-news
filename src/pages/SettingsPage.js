@@ -308,6 +308,72 @@ export default function ProfilePage() {
       {/* Page title */}
       <h1 style={{ fontFamily: f, fontSize: 28, fontWeight: 600, color: 'var(--title-color)', padding: '16px 20px 8px 20px', margin: 0 }}>Settings</h1>
 
+      {/* ══════ PROFILES ══════ */}
+      {settingsProfiles.length > 0 && (
+        <>
+          <SectionHeader>Profiles</SectionHeader>
+          <ListGroup>
+            {settingsProfiles.map((profile, i) => {
+              const isActive = profile.id === user?.id;
+              const isSwitching = switchingProfileId === profile.id;
+              const band = profile.age_group || AGE_BAND_FOR_AGE(profile.age);
+              const isLastProfile = i === settingsProfiles.length - 1 && !isParent;
+              return (
+                <button key={profile.id} onClick={() => handleSwitchProfile(profile)}
+                  disabled={isActive || isSwitching}
+                  className="w-full cursor-pointer"
+                  style={{
+                    display: 'flex', alignItems: 'center', gap: 12,
+                    padding: '12px 16px', minHeight: 50,
+                    borderBottom: isLastProfile ? 'none' : '1px solid var(--light-gray)',
+                    background: 'none', border: 'none',
+                    borderBottomStyle: isLastProfile ? 'none' : 'solid',
+                    borderBottomWidth: isLastProfile ? 0 : 1,
+                    borderBottomColor: 'var(--light-gray)',
+                    borderTop: 'none', borderLeft: 'none', borderRight: 'none',
+                    opacity: isSwitching ? 0.5 : 1,
+                  }}>
+                  <AvatarCircle name={profile.full_name} avatarId={getSavedAvatarId(profile.id)} size={36} bordered={false} />
+                  <span className="flex-1 text-left" style={{ fontFamily: f, fontSize: 15, fontWeight: 500, color: 'var(--title-color)' }}>
+                    {profile.full_name}
+                  </span>
+                  {band && (
+                    <span style={{
+                      fontFamily: f, fontSize: 11, fontWeight: 600, color: '#FF6B00',
+                      background: 'rgba(255,107,0,0.1)', padding: '3px 8px', borderRadius: 8,
+                    }}>{AGE_BAND_NAMES[band] || band}</span>
+                  )}
+                  {isActive ? (
+                    <F7Icon name="checkmark_alt" size={16} color="#FF6B00" />
+                  ) : (
+                    <span style={{ fontFamily: f, fontSize: 12, color: 'var(--text-color)' }}>{isSwitching ? '...' : ''}</span>
+                  )}
+                </button>
+              );
+            })}
+            <button onClick={() => { setShowAddChild(true); setChildForm({ name: '', age: '', gender: '', city: '', username: '' }); setChildError(''); }}
+              className="w-full cursor-pointer"
+              style={{
+                display: 'flex', alignItems: 'center', gap: 12,
+                padding: '12px 16px', minHeight: 50,
+                background: 'none', border: 'none',
+                borderTop: '1px solid var(--light-gray)',
+              }}>
+              <div style={{
+                width: 36, height: 36, borderRadius: '50%', background: '#FF6B00',
+                display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0,
+              }}>
+                <span style={{ color: '#fff', fontSize: 20, fontWeight: 700, lineHeight: 1 }}>+</span>
+              </div>
+              <span className="flex-1 text-left" style={{ fontFamily: f, fontSize: 15, fontWeight: 500, color: '#FF6B00' }}>
+                Create New Profile
+              </span>
+              <Chevron />
+            </button>
+          </ListGroup>
+        </>
+      )}
+
       {/* ══════ APPEARANCE ══════ */}
       <SectionHeader>Appearance</SectionHeader>
       <ListGroup>
