@@ -604,20 +604,32 @@ function ChildProfileModal({ parentTokenLocal, childAge, parentCountry, setToken
       const detail = e.response?.data?.detail;
       const errors = e.response?.data?.errors;
       let msg = 'Failed to create profile';
+      // Only show child-relevant error messages
+      const parentKeys = ['full_name', 'email', 'password', 'parent_name', 'parent_email', 'parent_password'];
       if (errors && typeof errors === 'object') {
-        const childKeys = ['children', 'child_name', 'child_age', 'child_gender', 'age', 'name', 'gender', 'city', 'username'];
         const filtered = Object.entries(errors)
-          .filter(([k]) => childKeys.some(ck => k.toLowerCase().includes(ck)))
-          .map(([, v]) => v);
-        msg = filtered.length > 0 ? filtered.join(', ') : Object.values(errors).join(', ');
+          .filter(([k]) => !parentKeys.includes(k))
+          .map(([, v]) => v)
+          .filter(v => {
+            const low = (typeof v === 'string' ? v : '').toLowerCase();
+            return !low.includes('parent') && !low.includes('email is required') && !low.includes('password is required');
+          });
+        msg = filtered.length > 0 ? filtered.join(', ') : 'Failed to create profile';
       } else if (Array.isArray(detail)) {
-        msg = detail.map(d => d.msg || JSON.stringify(d)).join(', ');
+        const filtered = detail
+          .map(d => d.msg || (typeof d === 'string' ? d : JSON.stringify(d)))
+          .filter(m => {
+            const low = m.toLowerCase();
+            return !low.includes('parent') && !low.includes('email') && !low.includes('password');
+          });
+        msg = filtered.length > 0 ? filtered.join(', ') : 'Failed to create profile';
       } else if (typeof detail === 'string') {
-        msg = detail;
-      } else if (e.response?.data?.error) msg = e.response.data.error;
-      // Filter out any parent-related error messages that leak from backend
-      const parentPhrases = ["parent's name", "parent name", "parent email", "parent password"];
-      if (parentPhrases.some(p => msg.toLowerCase().includes(p))) msg = 'Failed to create profile. Please try again.';
+        const low = detail.toLowerCase();
+        msg = (low.includes('parent') || low.includes('email is required') || low.includes('password is required')) 
+          ? 'Failed to create profile' : detail;
+      } else if (e.response?.data?.error) {
+        msg = e.response.data.error;
+      }
       if (msg) setLocalError(msg);
     }
     setLoading(false);
