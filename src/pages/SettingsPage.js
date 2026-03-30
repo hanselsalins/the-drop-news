@@ -216,17 +216,25 @@ export default function ProfilePage() {
     setChildLoading(true); setChildError('');
     try {
       const addToken = parentToken || token;
+      const countryCode = user?.country_code || user?.country || '';
       const payload = {
         children: [{
           full_name: childForm.name.trim(),
           age: parseInt(childForm.age) || 0,
-          gender: childForm.gender,
+          gender: childForm.gender.toLowerCase(),
           city: childForm.city?.trim() || '',
           username: childForm.username?.trim() || '',
-          country_code: user?.country_code || '',
+          country_code: countryCode,
         }],
       };
-      await axios.post(`${BACKEND_URL}/api/auth/register-child`, payload, { headers: { Authorization: `Bearer ${addToken}` } });
+      const url = `${BACKEND_URL}/api/auth/register-child`;
+      console.log('[AddChild] URL:', url);
+      console.log('[AddChild] Payload:', JSON.stringify(payload));
+      console.log('[AddChild] Auth:', addToken ? addToken.substring(0, 20) + '...' : 'NO TOKEN');
+      const res = await axios.post(url, payload, {
+        headers: { Authorization: `Bearer ${addToken}`, 'Content-Type': 'application/json' },
+      });
+      console.log('[AddChild] Success:', res.data);
       // Refresh profiles
       const res2 = await axios.get(`${BACKEND_URL}/api/auth/linked-profiles`, { headers: { Authorization: `Bearer ${addToken}` } });
       let fetched = Array.isArray(res2.data) ? res2.data : (res2.data?.profiles || []);
@@ -237,6 +245,14 @@ export default function ProfilePage() {
       setShowAddChild(false);
       setChildForm({ name: '', age: '', gender: '', city: '', username: '' });
     } catch (e) {
+      console.error('[AddChild] Error status:', e.response?.status);
+      console.error('[AddChild] Error data:', JSON.stringify(e.response?.data));
+      if (e.response?.status === 401) {
+        console.error('[AddChild] Token expired — redirecting to login');
+        logout();
+        navigate('/auth');
+        return;
+      }
       const detail = e.response?.data?.detail;
       setChildError(typeof detail === 'string' ? detail : (e.response?.data?.error || 'Failed to create profile'));
     }
