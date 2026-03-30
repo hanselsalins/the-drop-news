@@ -533,14 +533,13 @@ function ParentDetailsScreen({ setPhase, error, setError, setParentDetails, setP
 
 // ━━━━━━━━━━━ CHILD PROFILE SETUP MODAL ━━━━━━━━━━━
 
-function ChildProfileModal({ parentTokenLocal, childAge, parentCountry, setToken, setUserData, navigate, fetchLinkedProfiles, connectWithInviter }) {
+function ChildProfileModal({ parentDetails, parentTokenLocal, childAge, parentCountry, setToken, setParentToken, setUserData, navigate, fetchLinkedProfiles, connectWithInviter, addProfile }) {
   const [loading, setLoading] = useState(false);
   const [localError, setLocalError] = useState('');
   const [form, setForm] = useState({
     name: '', age: childAge || '', gender: '', city: '', username: '',
   });
   const u = (k, v) => { setForm(p => ({ ...p, [k]: v })); setLocalError(''); };
-
 
   // Auto-suggest username from name
   useEffect(() => {
@@ -553,76 +552,87 @@ function ChildProfileModal({ parentTokenLocal, childAge, parentCountry, setToken
   const canSubmit = form.name && form.age && form.gender;
 
   const handleSubmit = async () => {
-    // Debug: log all state values before validation
     console.log('[ChildProfileModal] Form state on submit:', JSON.stringify(form));
+    console.log('[ChildProfileModal] parentDetails:', JSON.stringify(parentDetails));
     console.log('[ChildProfileModal] parentCountry:', parentCountry);
-    
+
     // Client-side validation for child fields only
-    const errors = [];
-    if (!form.name || !form.name.trim()) errors.push("Child's name is required");
-    if (!form.age || parseInt(form.age) < 3 || parseInt(form.age) > 13) errors.push("Age must be between 3 and 13");
-    if (!form.gender) errors.push("Please select a gender");
-    if (errors.length > 0) { setLocalError(errors.join(', ')); return; }
+    const valErrors = [];
+    if (!form.name || !form.name.trim()) valErrors.push("Child's name is required");
+    if (!form.age || parseInt(form.age) < 3 || parseInt(form.age) > 13) valErrors.push("Age must be between 3 and 13");
+    if (!form.gender) valErrors.push("Please select a gender");
+    if (valErrors.length > 0) { setLocalError(valErrors.join(', ')); return; }
     setLoading(true); setLocalError('');
+
     try {
-      const payload = {
-        children: [{
-          full_name: form.name.trim(),
-          age: parseInt(form.age) || 0,
-          gender: form.gender,
-          city: form.city?.trim() || '',
-          username: form.username?.trim() || '',
-          country_code: parentCountry || '',
-        }],
-      };
-      console.log('[ChildProfileModal] Submitting payload:', JSON.stringify(payload));
-      console.log('[ChildProfileModal] Token:', parentTokenLocal ? 'present' : 'MISSING');
-      const res = await axios.post(`${BACKEND_URL}/api/auth/register-child`, payload, {
-        headers: { Authorization: `Bearer ${parentTokenLocal}` },
-      });
-      // Switch to child profile
-      const childUser = res.data.user || res.data.children?.[0];
-      const childToken = res.data.token;
-      if (childToken) setToken(childToken);
-      if (childUser) setUserData(childUser);
-      await fetchLinkedProfiles(parentTokenLocal);
-      if (connectWithInviter && childToken) await connectWithInviter(childToken);
-      navigate('/feed');
+      // For new parent+child registration (parentDetails available from previous screen)
+      if (parentDetails && !addProfile) {
+        const payload = {
+          parent_name: parentDetails.full_name,
+          parent_email: parentDetails.email,
+          parent_password: parentDetails.password,
+          parent_relation: 'guardian',
+          children: [{
+            child_name: form.name.trim(),
+            child_age: parseInt(form.age) || 0,
+            child_gender: form.gender,
+            child_country_code: parentDetails.country_code || parentCountry || '',
+            child_city: form.city?.trim() || '',
+            child_username: form.username?.trim() || '',
+          }],
+        };
+        console.log('[ChildProfileModal] Submitting register-child payload:', JSON.stringify(payload));
+        const res = await axios.post(`${BACKEND_URL}/api/auth/register-child`, payload);
+        const childToken = res.data.token;
+        const parentTkn = res.data.parent_token || childToken;
+        if (parentTkn) {
+          setParentToken(parentTkn);
+        }
+        if (childToken) setToken(childToken);
+        const childUser = res.data.user || res.data.children?.[0];
+        if (childUser) setUserData(childUser);
+        if (parentTkn) await fetchLinkedProfiles(parentTkn);
+        if (connectWithInviter && childToken) await connectWithInviter(childToken);
+        navigate('/feed');
+      } else {
+        // Adding a child to an existing parent account
+        const payload = {
+          children: [{
+            full_name: form.name.trim(),
+            age: parseInt(form.age) || 0,
+            gender: form.gender,
+            city: form.city?.trim() || '',
+            username: form.username?.trim() || '',
+            country_code: parentCountry || '',
+          }],
+        };
+        console.log('[ChildProfileModal] Adding child to existing parent, payload:', JSON.stringify(payload));
+        const res = await axios.post(`${BACKEND_URL}/api/auth/register-child`, payload, {
+          headers: { Authorization: `Bearer ${parentTokenLocal}` },
+        });
+        const childUser = res.data.user || res.data.children?.[0];
+        const childToken = res.data.token;
+        if (childToken) setToken(childToken);
+        if (childUser) setUserData(childUser);
+        await fetchLinkedProfiles(parentTokenLocal);
+        if (connectWithInviter && childToken) await connectWithInviter(childToken);
+        navigate('/feed');
+      }
     } catch (e) {
       const detail = e.response?.data?.detail;
-      const errors = e.response?.data?.errors;
       let msg = 'Failed to create profile';
-      // Only show child-relevant error messages
-      const parentKeys = ['full_name', 'email', 'password', 'parent_name', 'parent_email', 'parent_password'];
-      if (errors && typeof errors === 'object') {
-        const filtered = Object.entries(errors)
-          .filter(([k]) => !parentKeys.includes(k))
-          .map(([, v]) => v)
-          .filter(v => {
-            const low = (typeof v === 'string' ? v : '').toLowerCase();
-            return !low.includes('parent') && !low.includes('email is required') && !low.includes('password is required');
-          });
-        msg = filtered.length > 0 ? filtered.join(', ') : 'Failed to create profile';
+      if (typeof detail === 'string') {
+        msg = detail;
       } else if (Array.isArray(detail)) {
-        const filtered = detail
-          .map(d => d.msg || (typeof d === 'string' ? d : JSON.stringify(d)))
-          .filter(m => {
-            const low = m.toLowerCase();
-            return !low.includes('parent') && !low.includes('email') && !low.includes('password');
-          });
-        msg = filtered.length > 0 ? filtered.join(', ') : 'Failed to create profile';
-      } else if (typeof detail === 'string') {
-        const low = detail.toLowerCase();
-        msg = (low.includes('parent') || low.includes('email is required') || low.includes('password is required')) 
-          ? 'Failed to create profile' : detail;
+        msg = detail.map(d => d.msg || (typeof d === 'string' ? d : JSON.stringify(d))).join(', ');
       } else if (e.response?.data?.error) {
         msg = e.response.data.error;
       }
-      if (msg) setLocalError(msg);
+      console.error('[ChildProfileModal] Error:', msg, e.response?.data);
+      setLocalError(msg);
     }
     setLoading(false);
   };
-
   return (
     <motion.div
       initial={{ y: '100%' }} animate={{ y: 0 }} exit={{ y: '100%' }}
