@@ -142,6 +142,7 @@ export default function AuthPage() {
   const [enteredAge, setEnteredAge] = useState('');
   const [parentCountry, setParentCountry] = useState('');
   const [parentTokenLocal, setParentTokenLocal] = useState(parentToken || token || '');
+  const [parentDetails, setParentDetails] = useState(null); // { full_name, email, password, country_code }
 
   const connectWithInviter = async (tkn) => {
     if (!invitedBy) return;
