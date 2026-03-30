@@ -587,14 +587,16 @@ function ChildProfileModal({ parentTokenLocal, childAge, parentCountry, setToken
     try {
       const payload = {
         children: [{
-          full_name: form.name,
-          age: parseInt(form.age),
+          full_name: form.name.trim(),
+          age: parseInt(form.age) || 0,
           gender: form.gender,
-          city: form.city || '',
-          username: form.username || '',
+          city: form.city?.trim() || '',
+          username: form.username?.trim() || '',
           country_code: parentCountry || '',
         }],
       };
+      console.log('[ChildProfileModal] Submitting payload:', JSON.stringify(payload));
+      console.log('[ChildProfileModal] Token:', parentTokenLocal ? 'present' : 'MISSING');
       const res = await axios.post(`${BACKEND_URL}/api/auth/register-child`, payload, {
         headers: { Authorization: `Bearer ${parentTokenLocal}` },
       });
