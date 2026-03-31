@@ -83,8 +83,7 @@ export const HeroNewsCard = ({ article, badge }) => {
 export const TodayDropCard = ({ article, isRead }) => {
   const navigate = useNavigate();
   const prefersReducedMotion = useReducedMotion();
-  const rw = article.rewrite || {};
-  const title = rw.title || article.original_title || 'Untitled';
+  const title = article.title || (article.rewrite || {}).title || article.original_title || 'Untitled';
   const imageUrl = article.image_url;
 
   const handleClick = () => {
