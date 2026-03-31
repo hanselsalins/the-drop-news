@@ -220,8 +220,7 @@ export const CategoryCard = ({ article }) => {
 export const PostListCard = ({ article, isLast, ageGroup }) => {
   const navigate = useNavigate();
   const prefersReducedMotion = useReducedMotion();
-  const rw = article.rewrite || {};
-  const title = rw.title || article.original_title || 'Untitled';
+  const title = article.title || (article.rewrite || {}).title || article.original_title || 'Untitled';
   const imageUrl = article.image_url;
   const isCompact = ageGroup === '14-16' || ageGroup === '17-20';
 
