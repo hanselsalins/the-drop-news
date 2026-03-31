@@ -10,8 +10,7 @@ import { F7Icon } from './F7Icon';
 export const HeroNewsCard = ({ article, badge }) => {
   const navigate = useNavigate();
   const prefersReducedMotion = useReducedMotion();
-  const rw = article.rewrite || {};
-  const title = rw.title || article.original_title || 'Untitled';
+  const title = article.title || (article.rewrite || {}).title || article.original_title || 'Untitled';
   const imageUrl = article.image_url;
   const timeAgo = article.published_at ? getTimeAgo(article.published_at) : '';
 
@@ -84,8 +83,7 @@ export const HeroNewsCard = ({ article, badge }) => {
 export const TodayDropCard = ({ article, isRead }) => {
   const navigate = useNavigate();
   const prefersReducedMotion = useReducedMotion();
-  const rw = article.rewrite || {};
-  const title = rw.title || article.original_title || 'Untitled';
+  const title = article.title || (article.rewrite || {}).title || article.original_title || 'Untitled';
   const imageUrl = article.image_url;
 
   const handleClick = () => {
@@ -165,8 +163,7 @@ export const TodayDropCard = ({ article, isRead }) => {
 export const CategoryCard = ({ article }) => {
   const navigate = useNavigate();
   const prefersReducedMotion = useReducedMotion();
-  const rw = article.rewrite || {};
-  const title = rw.title || article.original_title || 'Untitled';
+  const title = article.title || (article.rewrite || {}).title || article.original_title || 'Untitled';
   const imageUrl = article.image_url;
   const timeAgo = article.published_at ? getTimeAgo(article.published_at) : '';
 
@@ -223,8 +220,7 @@ export const CategoryCard = ({ article }) => {
 export const PostListCard = ({ article, isLast, ageGroup }) => {
   const navigate = useNavigate();
   const prefersReducedMotion = useReducedMotion();
-  const rw = article.rewrite || {};
-  const title = rw.title || article.original_title || 'Untitled';
+  const title = article.title || (article.rewrite || {}).title || article.original_title || 'Untitled';
   const imageUrl = article.image_url;
   const isCompact = ageGroup === '14-16' || ageGroup === '17-20';
 
