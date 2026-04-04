@@ -42,6 +42,9 @@ export default function FeedPage() {
   const headers = token ? { Authorization: `Bearer ${token}` } : {};
   const { milestone, checkMilestone, acknowledgeMilestone, requestPermission, permission } = useNotifications();
   const { readIds, refresh: refreshReadIds } = useReadArticles();
+  const { isSupported: pushSupported, isSubscribed, subscribe: pushSubscribe } = usePushNotifications();
+
+  const showPushPrompt = pushSupported && !isSubscribed && localStorage.getItem('push_prompted') !== 'dismissed' && localStorage.getItem('push_prompted') !== 'enabled';
 
   useEffect(() => {
     if (permission === 'default') {
