@@ -2,6 +2,7 @@ import { useState, useEffect, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useTheme } from '../contexts/ThemeContext';
 import { useNotifications } from '../hooks/useNotifications';
+import { usePushNotifications } from '../hooks/usePushNotifications';
 import { BottomNav } from '../components/BottomNav';
 import { ProfilePanel } from '../components/ProfilePanel';
 import { F7Icon } from '../components/F7Icon';
@@ -131,11 +132,10 @@ export default function ProfilePage() {
   const navigate = useNavigate();
   const { user, setUserData, token, ageGroup, logout, darkMode, toggleDarkMode, linkedProfiles, parentToken, setToken, setParentToken, fetchLinkedProfiles } = useTheme();
   const { permission, requestPermission } = useNotifications();
+  const { isSupported: pushSupported, isSubscribed, subscribe: pushSubscribe, unsubscribe: pushUnsubscribe, isLoading: pushLoading } = usePushNotifications();
   const headers = token ? { Authorization: `Bearer ${token}` } : {};
 
   // Notification prefs
-  const [notifDaily, setNotifDaily] = useState(() => localStorage.getItem('notif_daily') !== 'false');
-  const [notifBreaking, setNotifBreaking] = useState(() => localStorage.getItem('notif_breaking') !== 'false');
   const [notifStreak, setNotifStreak] = useState(() => localStorage.getItem('notif_streak') !== 'false');
 
   // Text size
@@ -384,13 +384,18 @@ export default function ProfilePage() {
       {/* ══════ NOTIFICATIONS ══════ */}
       <SectionHeader>Notifications</SectionHeader>
       <ListGroup>
-        <Row label="Daily Drop reminder" isLast={false}
-          right={<Toggle on={notifDaily} onChange={() => toggleNotif('notif_daily', notifDaily, setNotifDaily)} />} />
         <Row label="Breaking news alerts" isLast={false}
-          right={<Toggle on={notifBreaking} onChange={() => toggleNotif('notif_breaking', notifBreaking, setNotifBreaking)} />} />
+          right={<Toggle on={isSubscribed} onChange={() => isSubscribed ? pushUnsubscribe() : pushSubscribe()} />} />
+        <Row label="Daily Drop reminder" isLast={false}
+          right={<Toggle on={isSubscribed} onChange={() => isSubscribed ? pushUnsubscribe() : pushSubscribe()} />} />
         <Row label="Streak reminders" isLast
           right={<Toggle on={notifStreak} onChange={() => toggleNotif('notif_streak', notifStreak, setNotifStreak)} />} />
       </ListGroup>
+      {pushSupported && (
+        <p style={{ fontFamily: f, fontSize: 11, color: 'var(--text-color)', padding: '6px 20px 0', opacity: 0.7 }}>
+          Notifications require adding The Drop to your home screen
+        </p>
+      )}
 
       {/* ══════ NEWS PREFERENCES ══════ */}
       <SectionHeader>News preferences</SectionHeader>
