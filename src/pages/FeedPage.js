@@ -248,6 +248,13 @@ export default function FeedPage() {
       {/* ── PAGE CONTENT (below fixed header) ── */}
       <div style={{ paddingTop: 68 }}>
 
+        {/* ── PUSH NOTIFICATION PROMPT ── */}
+        {showPushPrompt && (
+          <div style={{ padding: '12px 15px 0' }}>
+            <PushPromptCard onSubscribe={pushSubscribe} />
+          </div>
+        )}
+
         {/* ── BREAKING NEWS CAROUSEL ── */}
         {activeCategory === 'today' && (
           <div data-section-title="Breaking News">
