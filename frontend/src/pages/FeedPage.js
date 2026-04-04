@@ -14,6 +14,8 @@ import { SkeletonTabs } from '../components/SkeletonTabs';
 import { StreakCelebration } from '../components/StreakCelebration';
 import { useReadArticles } from '../hooks/useReadArticles';
 import BreakingNewsCarousel from '../components/BreakingNewsCarousel';
+import { PushPromptCard } from '../components/PushPromptCard';
+import { usePushNotifications } from '../hooks/usePushNotifications';
 import { motion } from 'framer-motion';
 import axios from 'axios';
 
@@ -40,6 +42,9 @@ export default function FeedPage() {
   const headers = token ? { Authorization: `Bearer ${token}` } : {};
   const { milestone, checkMilestone, acknowledgeMilestone, requestPermission, permission } = useNotifications();
   const { readIds, refresh: refreshReadIds } = useReadArticles();
+  const { isSupported: pushSupported, isSubscribed, subscribe: pushSubscribe } = usePushNotifications();
+
+  const showPushPrompt = pushSupported && !isSubscribed && localStorage.getItem('push_prompted') !== 'dismissed' && localStorage.getItem('push_prompted') !== 'enabled';
 
   useEffect(() => {
     if (permission === 'default') {
@@ -242,6 +247,13 @@ export default function FeedPage() {
 
       {/* ── PAGE CONTENT (below fixed header) ── */}
       <div style={{ paddingTop: 68 }}>
+
+        {/* ── PUSH NOTIFICATION PROMPT ── */}
+        {showPushPrompt && (
+          <div style={{ padding: '12px 15px 0' }}>
+            <PushPromptCard onSubscribe={pushSubscribe} />
+          </div>
+        )}
 
         {/* ── BREAKING NEWS CAROUSEL ── */}
         {activeCategory === 'today' && (
