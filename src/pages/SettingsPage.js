@@ -384,13 +384,18 @@ export default function ProfilePage() {
       {/* ══════ NOTIFICATIONS ══════ */}
       <SectionHeader>Notifications</SectionHeader>
       <ListGroup>
-        <Row label="Daily Drop reminder" isLast={false}
-          right={<Toggle on={notifDaily} onChange={() => toggleNotif('notif_daily', notifDaily, setNotifDaily)} />} />
         <Row label="Breaking news alerts" isLast={false}
-          right={<Toggle on={notifBreaking} onChange={() => toggleNotif('notif_breaking', notifBreaking, setNotifBreaking)} />} />
+          right={<Toggle on={isSubscribed} onChange={() => isSubscribed ? pushUnsubscribe() : pushSubscribe()} />} />
+        <Row label="Daily Drop reminder" isLast={false}
+          right={<Toggle on={isSubscribed} onChange={() => isSubscribed ? pushUnsubscribe() : pushSubscribe()} />} />
         <Row label="Streak reminders" isLast
           right={<Toggle on={notifStreak} onChange={() => toggleNotif('notif_streak', notifStreak, setNotifStreak)} />} />
       </ListGroup>
+      {pushSupported && (
+        <p style={{ fontFamily: f, fontSize: 11, color: 'var(--text-color)', padding: '6px 20px 0', opacity: 0.7 }}>
+          Notifications require adding The Drop to your home screen
+        </p>
+      )}
 
       {/* ══════ NEWS PREFERENCES ══════ */}
       <SectionHeader>News preferences</SectionHeader>
