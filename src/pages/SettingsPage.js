@@ -2,6 +2,7 @@ import { useState, useEffect, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useTheme } from '../contexts/ThemeContext';
 import { useNotifications } from '../hooks/useNotifications';
+import { usePushNotifications } from '../hooks/usePushNotifications';
 import { BottomNav } from '../components/BottomNav';
 import { ProfilePanel } from '../components/ProfilePanel';
 import { F7Icon } from '../components/F7Icon';
