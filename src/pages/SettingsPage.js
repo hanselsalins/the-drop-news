@@ -132,11 +132,10 @@ export default function ProfilePage() {
   const navigate = useNavigate();
   const { user, setUserData, token, ageGroup, logout, darkMode, toggleDarkMode, linkedProfiles, parentToken, setToken, setParentToken, fetchLinkedProfiles } = useTheme();
   const { permission, requestPermission } = useNotifications();
+  const { isSupported: pushSupported, isSubscribed, subscribe: pushSubscribe, unsubscribe: pushUnsubscribe, isLoading: pushLoading } = usePushNotifications();
   const headers = token ? { Authorization: `Bearer ${token}` } : {};
 
   // Notification prefs
-  const [notifDaily, setNotifDaily] = useState(() => localStorage.getItem('notif_daily') !== 'false');
-  const [notifBreaking, setNotifBreaking] = useState(() => localStorage.getItem('notif_breaking') !== 'false');
   const [notifStreak, setNotifStreak] = useState(() => localStorage.getItem('notif_streak') !== 'false');
 
   // Text size
