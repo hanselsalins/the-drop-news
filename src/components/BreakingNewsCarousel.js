@@ -19,11 +19,11 @@ function timeAgo(dateStr) {
 function BreakingCard({ article, ageGroup }) {
   const navigate = useNavigate();
   const rewrite = article.age_band_rewrites?.[ageGroup] || article.age_band_rewrites?.['14-16'] || {};
-  const title = rewrite.title || article.title || '';
-  const source = article.source || '';
+  const title = rewrite.title || article.title || article.original_title || '';
+  const source = article.source_name || article.source || '';
   const category = rewrite.category || article.category || '';
   const countryCode = article.country_code || '';
-  const published = article.published_at;
+  const published = article.created_at || article.published_at;
 
   const flag = countryCode
     ? String.fromCodePoint(...[...countryCode.toUpperCase()].map(c => 0x1F1E6 + c.charCodeAt(0) - 65))
@@ -142,15 +142,14 @@ export default function BreakingNewsCarousel() {
   const scrollRef = useRef(null);
   const refreshTimer = useRef(null);
 
-  const headers = token ? { Authorization: `Bearer ${token}` } : {};
-
   const fetchBreaking = useCallback(async () => {
     try {
+      const hdrs = token ? { Authorization: `Bearer ${token}` } : {};
       const res = await axios.get(`${BACKEND_URL}/api/breaking-news`, {
         params: { age_group: ageGroup || '14-16', country_code: countryCode },
-        headers,
+        headers: hdrs,
       });
-      const data = res.data?.articles || res.data || [];
+      const data = res.data?.breaking_news || res.data?.articles || res.data || [];
       setArticles(Array.isArray(data) ? data.slice(0, 4) : []);
     } catch (e) {
       console.error('Breaking news fetch error:', e);
@@ -158,7 +157,7 @@ export default function BreakingNewsCarousel() {
     } finally {
       setLoading(false);
     }
-  }, [ageGroup, token]);
+  }, [ageGroup, countryCode, token]);
 
   useEffect(() => {
     fetchBreaking();
