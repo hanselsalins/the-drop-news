@@ -152,18 +152,34 @@ export default function BreakingNewsCarousel() {
   const fetchBreaking = useCallback(async () => {
     try {
       const hdrs = token ? { Authorization: `Bearer ${token}` } : {};
-      const res = await axios.get(`${BACKEND_URL}/api/breaking-news`, {
-        params: { age_group: ageGroup || '14-16', country_code: countryCode },
+      const band = ageGroup || '14-16';
+      const apiUrl = `${BACKEND_URL}/api/breaking-news`;
+      console.log('[BreakingNews] Fetching:', apiUrl, 'age_group:', band, 'country_code:', countryCode);
+      
+      let res = await axios.get(apiUrl, {
+        params: { age_group: band, country_code: countryCode },
         headers: hdrs,
       });
-      const data = res.data?.breaking_news || res.data?.articles || res.data || [];
+      console.log('[BreakingNews] Raw response:', JSON.stringify(res.data));
+      
+      let data = res.data?.breaking_news || res.data?.articles || res.data || [];
+      
+      // If user's band returned empty, try fallback to 17-20 (broadest rewrites)
+      if (Array.isArray(data) && data.length === 0 && band !== '17-20') {
+        console.log('[BreakingNews] No articles for band', band, '— trying fallback 17-20');
+        res = await axios.get(apiUrl, {
+          params: { age_group: '17-20', country_code: countryCode },
+          headers: hdrs,
+        });
+        data = res.data?.breaking_news || res.data?.articles || res.data || [];
+      }
+      
       const real = Array.isArray(data) ? data.slice(0, 4) : [];
-      // Use mock data if API returns empty (for preview testing)
-      setArticles(real.length > 0 ? real : MOCK_BREAKING);
+      console.log('[BreakingNews] Displaying', real.length, 'articles');
+      setArticles(real);
     } catch (e) {
-      console.error('Breaking news fetch error:', e);
-      // Fallback to mock on error too
-      setArticles(MOCK_BREAKING);
+      console.error('[BreakingNews] Fetch error:', e);
+      setArticles([]);
     } finally {
       setLoading(false);
     }
