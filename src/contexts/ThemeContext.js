@@ -110,6 +110,7 @@ export function ThemeProvider({ children }) {
   });
 
   const ageGroup = user?.age_group || null;
+  const countryCode = user?.country_code || user?.country || detectCountryCode();
   const band = ageGroup ? AGE_TO_BAND[ageGroup] || 'cool-connected' : null;
   const themeMode = ageGroup && (ageGroup === '8-10' || ageGroup === '11-13') ? 'kids' : 'teens';
   const isAuthenticated = !!token && !!user;
