@@ -36,7 +36,7 @@ const CopyLinkIcon = () => (
 export default function ArticlePage() {
   const { id } = useParams();
   const navigate = useNavigate();
-  const { ageGroup, token } = useTheme();
+  const { ageGroup, countryCode, token } = useTheme();
   const prefersReducedMotion = useReducedMotion();
   const [article, setArticle] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -52,7 +52,7 @@ export default function ArticlePage() {
     const fetchArticle = async () => {
       try {
         const res = await axios.get(`${BACKEND_URL}/api/articles/${id}`, {
-          params: { age_group: ageGroup || '14-16' }, headers,
+          params: { age_group: ageGroup || '14-16', country_code: countryCode }, headers,
         });
         setArticle(res.data);
       } catch (e) {
@@ -69,7 +69,7 @@ export default function ArticlePage() {
     // Fetch "read next" article for non-8-10 bands
     if (ageGroup !== '8-10' && article.category) {
       axios.get(`${BACKEND_URL}/api/articles`, {
-        params: { age_group: ageGroup || '14-16', category: article.category, limit: 2 },
+        params: { age_group: ageGroup || '14-16', category: article.category, limit: 2, country_code: countryCode },
         headers,
       }).then(res => {
         const articles = res.data?.articles || res.data || [];
