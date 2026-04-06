@@ -52,7 +52,7 @@ export default function ArticlePage() {
     const fetchArticle = async () => {
       try {
         const res = await axios.get(`${BACKEND_URL}/api/articles/${id}`, {
-          params: { age_group: ageGroup || '14-16' }, headers,
+          params: { age_group: ageGroup || '14-16', country_code: countryCode }, headers,
         });
         setArticle(res.data);
       } catch (e) {
