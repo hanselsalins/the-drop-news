@@ -107,7 +107,7 @@ export default function CategoryPage() {
   const { categoryId } = useParams();
   const navigate = useNavigate();
   const location = useLocation();
-  const { ageGroup, token, darkMode } = useTheme();
+  const { ageGroup, countryCode, token, darkMode } = useTheme();
 
   const [articles, setArticles] = useState([]);
   const [loading, setLoading] = useState(true);

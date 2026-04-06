@@ -135,7 +135,7 @@ function SkeletonBreakingCard() {
 }
 
 export default function BreakingNewsCarousel() {
-  const { ageGroup, token } = useTheme();
+  const { ageGroup, countryCode, token } = useTheme();
   const [articles, setArticles] = useState([]);
   const [loading, setLoading] = useState(true);
   const [activeIndex, setActiveIndex] = useState(0);
