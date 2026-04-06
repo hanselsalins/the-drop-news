@@ -1,5 +1,6 @@
 import { createContext, useContext, useState, useEffect, useCallback } from 'react';
 import axios from 'axios';
+import { detectCountryCode } from '../lib/locale';
 
 const BACKEND_URL = import.meta.env.VITE_BACKEND_URL;
 const ThemeContext = createContext();
