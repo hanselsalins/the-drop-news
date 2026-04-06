@@ -124,7 +124,7 @@ export default function CategoryPage() {
       try {
         const res = await axios.get(`${BACKEND_URL}/api/articles`, {
           headers: { Authorization: `Bearer ${token}` },
-          params: { age_group: ageGroup, category: categoryId },
+          params: { age_group: ageGroup, category: categoryId, country_code: countryCode },
         });
         setArticles(Array.isArray(res.data) ? res.data : res.data?.articles || []);
       } catch (err) {

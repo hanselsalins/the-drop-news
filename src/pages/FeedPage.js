@@ -136,7 +136,7 @@ export default function FeedPage() {
     } finally {
       setLoading(false);
     }
-  }, [ageGroup, activeCategory, token]);
+  }, [ageGroup, activeCategory, token, countryCode]);
 
   const fetchCategories = useCallback(async () => {
     try {
