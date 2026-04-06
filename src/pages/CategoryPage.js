@@ -368,8 +368,8 @@ export default function CategoryPage() {
                 </div>
                 <div style={{
                   fontFamily: FONT_STACK,
-                  fontSize: 14,
-                  fontWeight: 500,
+                  fontSize: 16,
+                  fontWeight: 700,
                   color: 'var(--title-color)',
                   lineHeight: '22px',
                   margin: '2px 0 11px',
@@ -378,7 +378,7 @@ export default function CategoryPage() {
                   WebkitBoxOrient: 'vertical',
                   overflow: 'hidden',
                 }}>
-                  {article.title}
+                  {article.title || article.rewrite?.title || article.original_title || 'Untitled'}
                 </div>
                 <div style={{
                   fontFamily: FONT_STACK,
