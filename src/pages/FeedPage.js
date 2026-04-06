@@ -175,7 +175,7 @@ export default function FeedPage() {
   useEffect(() => { refreshReadIds(); }, [articles, refreshReadIds]);
 
   const todayArticleIds = activeCategory === 'today' ? articles.map(a => String(a.id)) : [];
-  const allTodayRead = todayArticleIds.length === 5 && todayArticleIds.every(id => readIds.has(id));
+  const allTodayRead = todayArticleIds.length > 0 && todayArticleIds.every(id => readIds.has(id));
 
   useEffect(() => {
     if (allTodayRead && token) {

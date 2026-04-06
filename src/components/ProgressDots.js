@@ -9,21 +9,27 @@ const MISSION_METERS = {
   '17-20': 'bar',
 };
 
+const BAND_SUBTITLE = {
+  '8-10': (n) => `Your ${n} stories for today`,
+  '11-13': (n) => `Your ${n} stories for today`,
+  '14-16': (n) => `${n} stories shaping the world today`,
+  '17-20': (n) => `${n} stories shaping the world today`,
+};
+
 export const ProgressDots = ({ articleIds, readArticleIds }) => {
   const prefersReducedMotion = useReducedMotion();
   const { ageGroup } = useTheme();
-  const total = 5;
-  const dots = Array.from({ length: total }, (_, i) => {
-    const articleId = articleIds[i];
-    return articleId ? readArticleIds.has(String(articleId)) : false;
-  });
+  const total = articleIds.length;
+  const dots = articleIds.map((id) => readArticleIds.has(String(id)));
   const readCount = dots.filter(Boolean).length;
-  const allRead = dots.every(Boolean) && articleIds.length === total;
+  const allRead = total > 0 && dots.every(Boolean);
   const meter = MISSION_METERS[ageGroup] || 'dots';
+  const subtitleFn = BAND_SUBTITLE[ageGroup] || BAND_SUBTITLE['14-16'];
+
+  if (total === 0) return null;
 
   return (
     <div style={{ marginBottom: 12 }}>
-      {/* Title + meter on same line */}
       {/* Row 1: Title + meter */}
       <div className="flex items-center justify-between">
         <span style={{
@@ -96,7 +102,7 @@ export const ProgressDots = ({ articleIds, readArticleIds }) => {
           color: 'var(--text-color)',
           paddingLeft: 2,
         }}>
-          5 stories shaping the world today
+          {subtitleFn(total)}
         </span>
         <span style={{ fontFamily: 'var(--font)', fontSize: 14, fontWeight: 700, color: 'var(--accent)', whiteSpace: 'nowrap', paddingRight: 2 }}>
           {readCount} of {total}
