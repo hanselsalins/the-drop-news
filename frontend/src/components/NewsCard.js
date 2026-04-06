@@ -139,7 +139,7 @@ export const TodayDropCard = ({ article, isRead }) => {
           background: 'var(--light-gray)', color: 'var(--title-color)',
           display: 'inline-block', marginBottom: 6,
         }}>
-          {CATEGORY_LABELS[article.category] || article.category}
+          {CATEGORY_LABELS[article.category] || (article.category ? article.category.charAt(0).toUpperCase() + article.category.slice(1) : '')}
         </span>
         <h3 style={{
           fontFamily: 'var(--font)', fontSize: 14, fontWeight: 500,
@@ -261,7 +261,7 @@ export const PostListCard = ({ article, isLast, ageGroup }) => {
             fontFamily: 'var(--font)', fontSize: 13, fontWeight: 500,
             color: 'var(--accent)', marginBottom: 6,
           }}>
-            {CATEGORY_LABELS[article.category] || article.category}
+            {CATEGORY_LABELS[article.category] || (article.category ? article.category.charAt(0).toUpperCase() + article.category.slice(1) : '')}
           </span>
           <h3 style={{
             fontFamily: 'var(--font)', fontSize: 14, fontWeight: 500,
@@ -316,7 +316,7 @@ export const PostListCard = ({ article, isLast, ageGroup }) => {
           fontFamily: 'var(--font)', fontSize: 13, fontWeight: 500,
           color: 'var(--accent)', marginBottom: 6,
         }}>
-          {CATEGORY_LABELS[article.category] || article.category}
+          {CATEGORY_LABELS[article.category] || (article.category ? article.category.charAt(0).toUpperCase() + article.category.slice(1) : '')}
         </span>
         <h3 style={{
           fontFamily: 'var(--font)', fontSize: 15, fontWeight: 600,
