@@ -123,7 +123,7 @@ export default function FeedPage() {
     try {
       const isToday = activeCategory === 'today';
       const limit = isToday ? 5 : 3;
-      const params = { age_group: ageGroup || '14-16', limit, country_code: 'IN' };
+      const params = { age_group: ageGroup || '14-16', limit, country_code: countryCode };
       if (!isToday) params.category = activeCategory;
       const res = await axios.get(`${BACKEND_URL}/api/articles`, { params, headers });
       const data = Array.isArray(res.data) ? res.data : [];
