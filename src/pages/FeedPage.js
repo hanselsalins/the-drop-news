@@ -122,11 +122,18 @@ export default function FeedPage() {
   const fetchArticles = useCallback(async () => {
     try {
       const isToday = activeCategory === 'today';
-      const limit = isToday ? 5 : 3;
-      const params = { age_group: ageGroup || '14-16', limit, country_code: countryCode };
-      if (!isToday) params.category = activeCategory;
-      const res = await axios.get(`${BACKEND_URL}/api/articles`, { params, headers });
-      const data = Array.isArray(res.data) ? res.data : [];
+      const params = { age_group: ageGroup || '14-16', country_code: countryCode };
+      let data;
+      if (isToday) {
+        const res = await axios.get(`${BACKEND_URL}/api/todays-drop`, { params, headers });
+        const body = res.data || {};
+        data = Array.isArray(body.articles) ? body.articles : (Array.isArray(body) ? body : []);
+      } else {
+        params.category = activeCategory;
+        params.limit = 3;
+        const res = await axios.get(`${BACKEND_URL}/api/articles`, { params, headers });
+        data = Array.isArray(res.data) ? res.data : [];
+      }
       const visible = data.filter(a =>
         a.title || a.rewrite?.title || a.original_title || a.original_content
       );
