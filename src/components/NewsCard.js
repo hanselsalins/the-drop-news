@@ -223,6 +223,7 @@ export const PostListCard = ({ article, isLast, ageGroup }) => {
   const title = article.title || (article.rewrite || {}).title || article.original_title || 'Untitled';
   const imageUrl = article.image_url;
   const isCompact = ageGroup === '14-16' || ageGroup === '17-20';
+  const readingTime = article.reading_time;
 
   const handleClick = () => {
     medium();
@@ -271,9 +272,15 @@ export const PostListCard = ({ article, isLast, ageGroup }) => {
           }}>
             {title}
           </h3>
+          {readingTime && (
+            <span style={{
+              fontFamily: 'var(--font)', fontSize: 12, fontWeight: 400,
+              color: 'var(--text-color)', marginTop: 4,
+            }}>
+              {readingTime}
+            </span>
+          )}
         </div>
-
-
       </motion.article>
     );
   }
@@ -325,9 +332,8 @@ export const PostListCard = ({ article, isLast, ageGroup }) => {
             fontFamily: 'var(--font)', fontSize: 13, fontWeight: 400,
             color: 'var(--text-color)',
           }}>
-            {article.published_at ? getTimeAgo(article.published_at) : article.source}
+            {readingTime || (article.published_at ? getTimeAgo(article.published_at) : article.source)}
           </span>
-          
         </div>
       </div>
     </motion.article>
