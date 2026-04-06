@@ -123,13 +123,14 @@ export default function FeedPage() {
     try {
       const isToday = activeCategory === 'today';
       const limit = isToday ? 5 : 3;
-      const params = { age_group: ageGroup || '14-16', limit };
+      const params = { age_group: ageGroup || '14-16', limit, country_code: 'IN' };
       if (!isToday) params.category = activeCategory;
       const res = await axios.get(`${BACKEND_URL}/api/articles`, { params, headers });
-      const visible = (Array.isArray(res.data) ? res.data : []).filter(a =>
-        a.rewrite || a.original_title || a.original_content
+      const data = Array.isArray(res.data) ? res.data : [];
+      const visible = data.filter(a =>
+        a.title || a.rewrite?.title || a.original_title || a.original_content
       );
-      setArticles(visible);
+      setArticles(visible.length > 0 ? visible : data);
     } catch (e) {
       console.error('Failed to fetch articles:', e);
     } finally {
