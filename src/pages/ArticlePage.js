@@ -36,7 +36,7 @@ const CopyLinkIcon = () => (
 export default function ArticlePage() {
   const { id } = useParams();
   const navigate = useNavigate();
-  const { ageGroup, token } = useTheme();
+  const { ageGroup, countryCode, token } = useTheme();
   const prefersReducedMotion = useReducedMotion();
   const [article, setArticle] = useState(null);
   const [loading, setLoading] = useState(true);
