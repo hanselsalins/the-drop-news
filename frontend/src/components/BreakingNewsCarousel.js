@@ -142,28 +142,38 @@ export default function BreakingNewsCarousel() {
   const scrollRef = useRef(null);
   const refreshTimer = useRef(null);
 
-  // Mock breaking news for preview/testing when backend has none
-  const MOCK_BREAKING = [
-    { id: 'mock-1', title: 'Major Climate Summit Reaches Historic Agreement on Carbon Emissions', source_name: 'Reuters', category: 'World', country_code: 'US', created_at: new Date(Date.now() - 20 * 60000).toISOString() },
-    { id: 'mock-2', title: 'Space Agency Confirms New Earth-Like Planet Discovery', source_name: 'BBC News', category: 'Science', country_code: 'GB', created_at: new Date(Date.now() - 45 * 60000).toISOString() },
-    { id: 'mock-3', title: 'World Cup Qualifier Ends in Dramatic Penalty Shootout', source_name: 'ESPN', category: 'Sports', country_code: 'IN', created_at: new Date(Date.now() - 90 * 60000).toISOString() },
-  ];
 
   const fetchBreaking = useCallback(async () => {
     try {
       const hdrs = token ? { Authorization: `Bearer ${token}` } : {};
-      const res = await axios.get(`${BACKEND_URL}/api/breaking-news`, {
-        params: { age_group: ageGroup || '14-16', country_code: countryCode },
+      const band = ageGroup || '14-16';
+      const apiUrl = `${BACKEND_URL}/api/breaking-news`;
+      console.log('[BreakingNews] Fetching:', apiUrl, 'age_group:', band, 'country_code:', countryCode);
+      
+      let res = await axios.get(apiUrl, {
+        params: { age_group: band, country_code: countryCode },
         headers: hdrs,
       });
-      const data = res.data?.breaking_news || res.data?.articles || res.data || [];
+      console.log('[BreakingNews] Raw response:', JSON.stringify(res.data));
+      
+      let data = res.data?.breaking_news || res.data?.articles || res.data || [];
+      
+      // If user's band returned empty, try fallback to 17-20 (broadest rewrites)
+      if (Array.isArray(data) && data.length === 0 && band !== '17-20') {
+        console.log('[BreakingNews] No articles for band', band, '— trying fallback 17-20');
+        res = await axios.get(apiUrl, {
+          params: { age_group: '17-20', country_code: countryCode },
+          headers: hdrs,
+        });
+        data = res.data?.breaking_news || res.data?.articles || res.data || [];
+      }
+      
       const real = Array.isArray(data) ? data.slice(0, 4) : [];
-      // Use mock data if API returns empty (for preview testing)
-      setArticles(real.length > 0 ? real : MOCK_BREAKING);
+      console.log('[BreakingNews] Displaying', real.length, 'articles');
+      setArticles(real);
     } catch (e) {
-      console.error('Breaking news fetch error:', e);
-      // Fallback to mock on error too
-      setArticles(MOCK_BREAKING);
+      console.error('[BreakingNews] Fetch error:', e);
+      setArticles([]);
     } finally {
       setLoading(false);
     }
