@@ -1,5 +1,6 @@
 import { createContext, useContext, useState, useEffect, useCallback } from 'react';
 import axios from 'axios';
+import { detectCountryCode } from '../lib/locale';
 
 const BACKEND_URL = import.meta.env.VITE_BACKEND_URL;
 const ThemeContext = createContext();
@@ -109,6 +110,7 @@ export function ThemeProvider({ children }) {
   });
 
   const ageGroup = user?.age_group || null;
+  const countryCode = user?.country_code || user?.country || detectCountryCode();
   const band = ageGroup ? AGE_TO_BAND[ageGroup] || 'cool-connected' : null;
   const themeMode = ageGroup && (ageGroup === '8-10' || ageGroup === '11-13') ? 'kids' : 'teens';
   const isAuthenticated = !!token && !!user;
@@ -229,6 +231,7 @@ export function ThemeProvider({ children }) {
       parentToken, setParentToken,
       user, setUserData,
       ageGroup,
+      countryCode,
       band,
       themeMode,
       darkMode,

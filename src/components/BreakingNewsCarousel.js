@@ -135,7 +135,7 @@ function SkeletonBreakingCard() {
 }
 
 export default function BreakingNewsCarousel() {
-  const { ageGroup, token } = useTheme();
+  const { ageGroup, countryCode, token } = useTheme();
   const [articles, setArticles] = useState([]);
   const [loading, setLoading] = useState(true);
   const [activeIndex, setActiveIndex] = useState(0);
@@ -147,7 +147,7 @@ export default function BreakingNewsCarousel() {
   const fetchBreaking = useCallback(async () => {
     try {
       const res = await axios.get(`${BACKEND_URL}/api/breaking-news`, {
-        params: { age_group: ageGroup || '14-16' },
+        params: { age_group: ageGroup || '14-16', country_code: countryCode },
         headers,
       });
       const data = res.data?.articles || res.data || [];

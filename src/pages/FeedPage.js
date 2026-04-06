@@ -22,7 +22,7 @@ import axios from 'axios';
 const BACKEND_URL = import.meta.env.VITE_BACKEND_URL;
 
 export default function FeedPage() {
-  const { ageGroup, user, token, darkMode } = useTheme();
+  const { ageGroup, countryCode, user, token, darkMode } = useTheme();
   const prefersReducedMotion = useReducedMotion();
   const [articles, setArticles] = useState([]);
   const [categories, setCategories] = useState([]);
@@ -123,7 +123,7 @@ export default function FeedPage() {
     try {
       const isToday = activeCategory === 'today';
       const limit = isToday ? 5 : 3;
-      const params = { age_group: ageGroup || '14-16', limit, country_code: 'IN' };
+      const params = { age_group: ageGroup || '14-16', limit, country_code: countryCode };
       if (!isToday) params.category = activeCategory;
       const res = await axios.get(`${BACKEND_URL}/api/articles`, { params, headers });
       const data = Array.isArray(res.data) ? res.data : [];
@@ -136,7 +136,7 @@ export default function FeedPage() {
     } finally {
       setLoading(false);
     }
-  }, [ageGroup, activeCategory, token]);
+  }, [ageGroup, activeCategory, token, countryCode]);
 
   const fetchCategories = useCallback(async () => {
     try {
