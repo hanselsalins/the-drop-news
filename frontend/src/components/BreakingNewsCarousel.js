@@ -142,15 +142,14 @@ export default function BreakingNewsCarousel() {
   const scrollRef = useRef(null);
   const refreshTimer = useRef(null);
 
-  const headers = token ? { Authorization: `Bearer ${token}` } : {};
-
   const fetchBreaking = useCallback(async () => {
     try {
+      const hdrs = token ? { Authorization: `Bearer ${token}` } : {};
       const res = await axios.get(`${BACKEND_URL}/api/breaking-news`, {
         params: { age_group: ageGroup || '14-16', country_code: countryCode },
-        headers,
+        headers: hdrs,
       });
-      const data = res.data?.articles || res.data || [];
+      const data = res.data?.breaking_news || res.data?.articles || res.data || [];
       setArticles(Array.isArray(data) ? data.slice(0, 4) : []);
     } catch (e) {
       console.error('Breaking news fetch error:', e);
@@ -158,7 +157,7 @@ export default function BreakingNewsCarousel() {
     } finally {
       setLoading(false);
     }
-  }, [ageGroup, token]);
+  }, [ageGroup, countryCode, token]);
 
   useEffect(() => {
     fetchBreaking();

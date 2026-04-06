@@ -19,11 +19,11 @@ function timeAgo(dateStr) {
 function BreakingCard({ article, ageGroup }) {
   const navigate = useNavigate();
   const rewrite = article.age_band_rewrites?.[ageGroup] || article.age_band_rewrites?.['14-16'] || {};
-  const title = rewrite.title || article.title || '';
-  const source = article.source || '';
+  const title = rewrite.title || article.title || article.original_title || '';
+  const source = article.source_name || article.source || '';
   const category = rewrite.category || article.category || '';
   const countryCode = article.country_code || '';
-  const published = article.published_at;
+  const published = article.created_at || article.published_at;
 
   const flag = countryCode
     ? String.fromCodePoint(...[...countryCode.toUpperCase()].map(c => 0x1F1E6 + c.charCodeAt(0) - 65))
