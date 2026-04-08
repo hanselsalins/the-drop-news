@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect, useRef, useCallback } from 'react';
 import { useParams, useNavigate, useLocation } from 'react-router-dom';
 import { useTheme } from '../contexts/ThemeContext';
 import { BottomNav } from '../components/BottomNav';
@@ -7,34 +7,43 @@ import axios from 'axios';
 
 const BACKEND_URL = import.meta.env.VITE_BACKEND_URL;
 const FONT_STACK = "'Rubik', -apple-system, 'SF Pro Text', system-ui, 'Helvetica Neue', Arial, sans-serif";
+const CACHE_MAX_AGE_MS = 30 * 60 * 1000;
+const STALE_CHECK_INTERVAL_MS = 60 * 1000;
+const PULL_TO_REFRESH_THRESHOLD = 72;
+const MAX_PULL_DISTANCE = 108;
+const DAY_MS = 24 * 60 * 60 * 1000;
+const ARTICLE_DATE_FORMAT = new Intl.DateTimeFormat('en-US', {
+  month: 'short',
+  day: 'numeric',
+});
 
 const BAND_DESCRIPTIONS = {
   '8-10': {
     'Our World': "Find out what's happening in big places far away",
-    'People': "Stories about real people doing amazing things",
-    'Sports': "Goals, wins, records and the best moments in sport",
+    'People': 'Stories about real people doing amazing things',
+    'Sports': 'Goals, wins, records and the best moments in sport',
   },
   '11-13': {
-    'World': "The biggest stories happening across the globe right now",
-    'Fair or Not?': "Who makes the rules — and are they always fair?",
-    'Science & Tech': "From AI to space — stories that make you think",
-    'Sports': "Results, records and the stories behind the scores",
+    World: 'The biggest stories happening across the globe right now',
+    'Fair or Not?': 'Who makes the rules — and are they always fair?',
+    'Science & Tech': 'From AI to space — stories that make you think',
+    Sports: 'Results, records and the stories behind the scores',
   },
   '14-16': {
-    'World': "Global affairs don't stay global — they affect your future",
-    'Power': "Elections, governments and the decisions that shape nations",
-    'Business': "Companies rise and fall. Here's why it matters to you",
-    'Science & Planet': "Climate, space, wildlife and the science of our world",
-    'Sports': "Beyond the scores — sport, politics and performance",
-    'Tech': "AI, startups and the technology reshaping every industry",
+    World: "Global affairs don't stay global — they affect your future",
+    Power: 'Elections, governments and the decisions that shape nations',
+    Business: "Companies rise and fall. Here's why it matters to you",
+    'Science & Planet': 'Climate, space, wildlife and the science of our world',
+    Sports: 'Beyond the scores — sport, politics and performance',
+    Tech: 'AI, startups and the technology reshaping every industry',
   },
   '17-20': {
-    'World': "International affairs, geopolitics and global change",
-    'Power': "Political decisions and the structural forces shaping nations",
-    'Business': "Markets, monetary policy and economic forces explained",
-    'Science & Tech': "Research and innovation redefining human capability",
-    'Sports': "Performance, strategy, economics and sport as a lens on the world",
-    'Culture': "Art, identity and the human stories behind the headlines",
+    World: 'International affairs, geopolitics and global change',
+    Power: 'Political decisions and the structural forces shaping nations',
+    Business: 'Markets, monetary policy and economic forces explained',
+    'Science & Tech': 'Research and innovation redefining human capability',
+    Sports: 'Performance, strategy, economics and sport as a lens on the world',
+    Culture: 'Art, identity and the human stories behind the headlines',
   },
 };
 
@@ -75,9 +84,40 @@ const CATEGORIES_BY_BAND = {
 
 function getCategoryInfo(categoryId, ageGroup) {
   const band = CATEGORIES_BY_BAND[ageGroup] || CATEGORIES_BY_BAND['14-16'];
-  const cat = band.find(c => c.id === categoryId);
+  const cat = band.find((item) => item.id === categoryId);
   if (!cat) return { name: categoryId, img: '' };
   return { name: cat.name, img: cat.img };
+}
+
+function getArticleTimestamp(article) {
+  const value = article?.crawled_at || article?.created_at || article?.published_at;
+  if (!value) return null;
+
+  const timestamp = new Date(value).getTime();
+  return Number.isFinite(timestamp) ? timestamp : null;
+}
+
+function getArticleRecencyLabel(article) {
+  const timestamp = getArticleTimestamp(article);
+  if (!timestamp) return article?.time_ago || 'Recently';
+
+  const ageMs = Date.now() - timestamp;
+  if (ageMs < DAY_MS) return 'Today';
+
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
+
+  const articleDay = new Date(timestamp);
+  articleDay.setHours(0, 0, 0, 0);
+
+  const dayDiff = Math.round((today.getTime() - articleDay.getTime()) / DAY_MS);
+  if (dayDiff === 1) return 'Yesterday';
+
+  return ARTICLE_DATE_FORMAT.format(new Date(timestamp));
+}
+
+function getArticleSourceName(article) {
+  return article?.source || article?.source_name || 'The Drop';
 }
 
 function SkeletonPostCard() {
@@ -107,19 +147,46 @@ export default function CategoryPage() {
   const { categoryId } = useParams();
   const navigate = useNavigate();
   const location = useLocation();
-  const { ageGroup, countryCode, token, darkMode } = useTheme();
+  const { ageGroup, countryCode, token } = useTheme();
 
   const [articles, setArticles] = useState([]);
   const [loading, setLoading] = useState(true);
   const [activeSectionTitle, setActiveSectionTitle] = useState('');
+  const [isRefreshing, setIsRefreshing] = useState(false);
+  const [pullDistance, setPullDistance] = useState(0);
+
   const cleanupRef = useRef(null);
+  const lastFetchAtRef = useRef(0);
+  const isFetchingRef = useRef(false);
+  const articlesRef = useRef([]);
+  const pullStartYRef = useRef(null);
+  const pullDistanceRef = useRef(0);
 
   const catInfo = getCategoryInfo(categoryId, ageGroup);
   const categoryName = location.state?.name || catInfo.name;
   const categoryDesc = getBandDescription(ageGroup, categoryName);
 
-  const fetchArticles = async () => {
-    setLoading(true);
+  const fetchArticles = useCallback(async ({ clearBeforeLoad = false, showRefreshing = false } = {}) => {
+    if (isFetchingRef.current) return;
+
+    const previousArticles = articlesRef.current;
+    isFetchingRef.current = true;
+
+    if (clearBeforeLoad) {
+      articlesRef.current = [];
+      setArticles([]);
+    }
+
+    if (clearBeforeLoad || previousArticles.length === 0) {
+      setLoading(true);
+    }
+
+    if (showRefreshing) {
+      setIsRefreshing(true);
+    }
+
+    const requestTimestamp = Date.now();
+
     try {
       const res = await axios.get(`${BACKEND_URL}/api/articles`, {
         headers: token ? { Authorization: `Bearer ${token}` } : {},
@@ -127,36 +194,68 @@ export default function CategoryPage() {
           age_group: ageGroup,
           category: categoryId,
           country_code: countryCode,
-          _t: Date.now(),
+          sort_by: 'crawled_at',
+          sort_order: 'desc',
+          _t: requestTimestamp,
         },
       });
-      const data = Array.isArray(res.data) ? res.data : res.data?.articles || [];
-      // Sort by most recent first
-      data.sort((a, b) => new Date(b.crawled_at || b.created_at || 0) - new Date(a.crawled_at || a.created_at || 0));
-      setArticles(data);
+
+      const nextArticles = Array.isArray(res.data) ? res.data : res.data?.articles || [];
+      articlesRef.current = nextArticles;
+      setArticles(nextArticles);
+      lastFetchAtRef.current = requestTimestamp;
     } catch (err) {
       console.error('[CategoryPage] fetch error:', err);
-      setArticles([]);
+      const fallbackArticles = clearBeforeLoad ? [] : previousArticles;
+      articlesRef.current = fallbackArticles;
+      setArticles(fallbackArticles);
+    } finally {
+      setLoading(false);
+      setIsRefreshing(false);
+      pullStartYRef.current = null;
+      pullDistanceRef.current = 0;
+      setPullDistance(0);
+      isFetchingRef.current = false;
     }
-    setLoading(false);
-  };
+  }, [ageGroup, categoryId, countryCode, token]);
 
-  // Fetch on mount and when params change
   useEffect(() => {
+    lastFetchAtRef.current = 0;
+    articlesRef.current = [];
     setArticles([]);
-    fetchArticles();
-  }, [categoryId, ageGroup, token, countryCode]);
+    fetchArticles({ clearBeforeLoad: true });
+  }, [fetchArticles, location.key]);
 
-  // Re-fetch when app comes back to foreground
   useEffect(() => {
     const onVisible = () => {
-      if (document.visibilityState === 'visible') fetchArticles();
+      if (document.visibilityState !== 'visible') return;
+      lastFetchAtRef.current = 0;
+      articlesRef.current = [];
+      setArticles([]);
+      fetchArticles({ clearBeforeLoad: true });
     };
+
     document.addEventListener('visibilitychange', onVisible);
     return () => document.removeEventListener('visibilitychange', onVisible);
-  }, [categoryId, ageGroup, token, countryCode]);
+  }, [fetchArticles]);
 
-  // Sticky header collapsing title observer
+  useEffect(() => {
+    const intervalId = window.setInterval(() => {
+      if (!lastFetchAtRef.current || isFetchingRef.current) return;
+      if (Date.now() - lastFetchAtRef.current < CACHE_MAX_AGE_MS) return;
+
+      lastFetchAtRef.current = 0;
+      articlesRef.current = [];
+      setArticles([]);
+
+      if (document.visibilityState === 'visible') {
+        fetchArticles({ clearBeforeLoad: true });
+      }
+    }, STALE_CHECK_INTERVAL_MS);
+
+    return () => window.clearInterval(intervalId);
+  }, [fetchArticles]);
+
   useEffect(() => {
     const timer = setTimeout(() => {
       const headings = document.querySelectorAll('[data-section-title]');
@@ -167,6 +266,7 @@ export default function CategoryPage() {
           setActiveSectionTitle('');
           return;
         }
+
         const allHeadings = document.querySelectorAll('[data-section-title]');
         let lastHidden = '';
         allHeadings.forEach((el) => {
@@ -183,7 +283,7 @@ export default function CategoryPage() {
         rootMargin: '-50px 0px 0px 0px',
       });
 
-      headings.forEach((h) => observer.observe(h));
+      headings.forEach((heading) => observer.observe(heading));
       window.addEventListener('scroll', handleScroll, { passive: true });
 
       cleanupRef.current = () => {
@@ -198,9 +298,44 @@ export default function CategoryPage() {
     };
   }, [loading, articles]);
 
+  const handleTouchStart = useCallback((event) => {
+    if (window.scrollY > 0 || loading || isRefreshing || isFetchingRef.current) return;
+    pullStartYRef.current = event.touches[0]?.clientY ?? null;
+  }, [isRefreshing, loading]);
+
+  const handleTouchMove = useCallback((event) => {
+    if (pullStartYRef.current === null || window.scrollY > 0) return;
+
+    const currentY = event.touches[0]?.clientY ?? pullStartYRef.current;
+    const nextDistance = Math.max(0, Math.min(currentY - pullStartYRef.current, MAX_PULL_DISTANCE));
+    pullDistanceRef.current = nextDistance;
+    setPullDistance(nextDistance);
+  }, []);
+
+  const handleTouchEnd = useCallback(() => {
+    if (pullStartYRef.current === null) return;
+
+    const shouldRefresh = pullDistanceRef.current >= PULL_TO_REFRESH_THRESHOLD;
+    pullStartYRef.current = null;
+
+    if (shouldRefresh) {
+      lastFetchAtRef.current = 0;
+      fetchArticles({ showRefreshing: true });
+      return;
+    }
+
+    pullDistanceRef.current = 0;
+    setPullDistance(0);
+  }, [fetchArticles]);
+
   return (
-    <div style={{ minHeight: '100vh', background: 'var(--bg)' }}>
-      {/* ── FIXED HEADER ── */}
+    <div
+      style={{ minHeight: '100vh', background: 'var(--bg)' }}
+      onTouchStart={handleTouchStart}
+      onTouchMove={handleTouchMove}
+      onTouchEnd={handleTouchEnd}
+      onTouchCancel={handleTouchEnd}
+    >
       <div style={{
         position: 'fixed',
         top: 0,
@@ -260,10 +395,27 @@ export default function CategoryPage() {
         </span>
       </div>
 
-      {/* ── PAGE CONTENT ── */}
       <div style={{ paddingTop: 50, paddingBottom: 68 }}>
+        {(pullDistance > 0 || isRefreshing) && (
+          <div style={{
+            height: Math.max(28, Math.min(pullDistance, 44)),
+            display: 'flex',
+            alignItems: 'flex-end',
+            justifyContent: 'center',
+            padding: '8px 16px 0',
+            fontFamily: FONT_STACK,
+            fontSize: 13,
+            fontWeight: 500,
+            color: 'var(--text-color)',
+          }}>
+            {isRefreshing
+              ? 'Refreshing stories…'
+              : pullDistance >= PULL_TO_REFRESH_THRESHOLD
+                ? 'Release to refresh'
+                : 'Pull to refresh'}
+          </div>
+        )}
 
-        {/* Category title — Yui h1 */}
         <h1 data-section-title={categoryName} style={{
           fontFamily: FONT_STACK,
           fontSize: 28,
@@ -274,7 +426,6 @@ export default function CategoryPage() {
           {categoryName}
         </h1>
 
-        {/* Hero image — full bleed */}
         <div style={{
           width: '100%',
           position: 'relative',
@@ -293,14 +444,14 @@ export default function CategoryPage() {
               borderRadius: 0,
             }}
           />
-          {/* Gradient overlay — Yui .card-image-footer */}
           <div style={{
             position: 'absolute',
-            bottom: 0, left: 0, right: 0,
+            bottom: 0,
+            left: 0,
+            right: 0,
             padding: '60px 18px 15px 18px',
             background: 'linear-gradient(to bottom, rgba(0,0,0,0) 0%, rgba(24,24,24,0.95) 100%)',
           }}>
-            {/* Category badge */}
             <span style={{
               display: 'inline-block',
               background: '#FF6B00',
@@ -314,7 +465,6 @@ export default function CategoryPage() {
             }}>
               {categoryName}
             </span>
-            {/* Description */}
             <h2 style={{
               fontFamily: FONT_STACK,
               fontSize: 19,
@@ -328,7 +478,6 @@ export default function CategoryPage() {
           </div>
         </div>
 
-        {/* "Today's Articles" section header */}
         <div data-section-title="Today's Articles" style={{
           fontFamily: FONT_STACK,
           fontSize: 18,
@@ -342,7 +491,6 @@ export default function CategoryPage() {
           Today's Articles
         </div>
 
-        {/* ARTICLE LIST — Yui .post-horizontal */}
         {loading ? (
           <>
             <SkeletonPostCard />
@@ -376,7 +524,6 @@ export default function CategoryPage() {
                 cursor: 'pointer',
               }}
             >
-              {/* Text column */}
               <div style={{ flex: 1, minWidth: 0 }}>
                 <div style={{
                   fontFamily: FONT_STACK,
@@ -406,11 +553,10 @@ export default function CategoryPage() {
                   fontWeight: 400,
                   color: 'var(--text-color)',
                 }}>
-                  {article.source || 'The Drop'} · {article.time_ago || 'Today'}
+                  {getArticleSourceName(article)} · {getArticleRecencyLabel(article)}
                 </div>
               </div>
 
-              {/* Thumbnail */}
               {article.image_url && (
                 <img
                   src={article.image_url}
