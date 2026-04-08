@@ -1,8 +1,9 @@
 import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
+import { useTheme } from '../contexts/ThemeContext';
 import { F7Icon } from './F7Icon';
 
-const API_BASE = import.meta.env.VITE_API_URL || '';
+const BACKEND_URL = import.meta.env.VITE_BACKEND_URL;
 
 const SkeletonCard = () => (
   <div
@@ -40,7 +41,7 @@ const EmptyState = () => (
       margin: 0,
       fontFamily: 'var(--font)',
     }}>
-      Check back after 7am ✨
+      Check back soon ✨
     </p>
   </div>
 );
@@ -104,6 +105,7 @@ const FactCard = ({ fact }) => (
 );
 
 export const DidYouKnowSheet = ({ open, onClose }) => {
+  const { ageGroup, countryCode, token } = useTheme();
   const [loading, setLoading] = useState(true);
   const [facts, setFacts] = useState([]);
   const [empty, setEmpty] = useState(false);
@@ -114,22 +116,30 @@ export const DidYouKnowSheet = ({ open, onClose }) => {
     setFacts([]);
     setEmpty(false);
 
-    fetch(`${API_BASE}/api/did-you-know`)
+    const band = ageGroup || '8-10';
+    const cc = countryCode || 'IN';
+    const url = `${BACKEND_URL}/api/did-you-know?country_code=${cc}&age_group=${band}&_t=${Date.now()}`;
+    const hdrs = token ? { Authorization: `Bearer ${token}` } : {};
+
+    console.log('[DYK] Fetching:', url, 'age_group:', band);
+
+    fetch(url, { headers: hdrs })
       .then(r => r.json())
       .then(data => {
-        if (!data.available) {
-          onClose();
-          return;
-        }
-        if (!data.facts || data.facts.length === 0) {
+        console.log('[DYK] Response:', data);
+        const items = data.facts || [];
+        if (items.length === 0) {
           setEmpty(true);
         } else {
-          setFacts(data.facts.slice(0, 5));
+          setFacts(items.slice(0, 5));
         }
       })
-      .catch(() => setEmpty(true))
+      .catch(err => {
+        console.error('[DYK] Error:', err);
+        setEmpty(true);
+      })
       .finally(() => setLoading(false));
-  }, [open, onClose]);
+  }, [open, ageGroup, countryCode, token]);
 
   return (
     <AnimatePresence>
