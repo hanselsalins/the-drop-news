@@ -176,6 +176,15 @@ export default function FeedPage() {
   useEffect(() => { checkMilestone(); }, [checkMilestone]);
   useEffect(() => { refreshReadIds(); }, [articles, refreshReadIds]);
 
+  // Re-fetch when app comes back to foreground
+  useEffect(() => {
+    const onVisible = () => {
+      if (document.visibilityState === 'visible') fetchArticles();
+    };
+    document.addEventListener('visibilitychange', onVisible);
+    return () => document.removeEventListener('visibilitychange', onVisible);
+  }, [fetchArticles]);
+
   const todayArticleIds = activeCategory === 'today' ? articles.map(a => String(a.id)) : [];
   const allTodayRead = todayArticleIds.length > 0 && todayArticleIds.every(id => readIds.has(id));
 
