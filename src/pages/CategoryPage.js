@@ -118,23 +118,43 @@ export default function CategoryPage() {
   const categoryName = location.state?.name || catInfo.name;
   const categoryDesc = getBandDescription(ageGroup, categoryName);
 
+  const fetchArticles = async () => {
+    setLoading(true);
+    try {
+      const res = await axios.get(`${BACKEND_URL}/api/articles`, {
+        headers: token ? { Authorization: `Bearer ${token}` } : {},
+        params: {
+          age_group: ageGroup,
+          category: categoryId,
+          country_code: countryCode,
+          _t: Date.now(),
+        },
+      });
+      const data = Array.isArray(res.data) ? res.data : res.data?.articles || [];
+      // Sort by most recent first
+      data.sort((a, b) => new Date(b.crawled_at || b.created_at || 0) - new Date(a.crawled_at || a.created_at || 0));
+      setArticles(data);
+    } catch (err) {
+      console.error('[CategoryPage] fetch error:', err);
+      setArticles([]);
+    }
+    setLoading(false);
+  };
+
+  // Fetch on mount and when params change
   useEffect(() => {
-    const fetchArticles = async () => {
-      setLoading(true);
-      try {
-        const res = await axios.get(`${BACKEND_URL}/api/articles`, {
-          headers: { Authorization: `Bearer ${token}` },
-          params: { age_group: ageGroup, category: categoryId, country_code: countryCode },
-        });
-        setArticles(Array.isArray(res.data) ? res.data : res.data?.articles || []);
-      } catch (err) {
-        console.error('[CategoryPage] fetch error:', err);
-        setArticles([]);
-      }
-      setLoading(false);
-    };
+    setArticles([]);
     fetchArticles();
-  }, [categoryId, ageGroup, token]);
+  }, [categoryId, ageGroup, token, countryCode]);
+
+  // Re-fetch when app comes back to foreground
+  useEffect(() => {
+    const onVisible = () => {
+      if (document.visibilityState === 'visible') fetchArticles();
+    };
+    document.addEventListener('visibilitychange', onVisible);
+    return () => document.removeEventListener('visibilitychange', onVisible);
+  }, [categoryId, ageGroup, token, countryCode]);
 
   // Sticky header collapsing title observer
   useEffect(() => {

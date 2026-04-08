@@ -122,7 +122,7 @@ export default function FeedPage() {
   const fetchArticles = useCallback(async () => {
     try {
       const isToday = activeCategory === 'today';
-      const params = { age_group: ageGroup || '14-16', country_code: countryCode };
+      const params = { age_group: ageGroup || '14-16', country_code: countryCode, _t: Date.now() };
       let data;
       if (isToday) {
         const res = await axios.get(`${BACKEND_URL}/api/todays-drop`, { params, headers });
@@ -134,6 +134,8 @@ export default function FeedPage() {
         const res = await axios.get(`${BACKEND_URL}/api/articles`, { params, headers });
         data = Array.isArray(res.data) ? res.data : [];
       }
+      // Sort by most recent first
+      data.sort((a, b) => new Date(b.crawled_at || b.created_at || 0) - new Date(a.crawled_at || a.created_at || 0));
       const visible = data.filter(a =>
         a.title || a.rewrite?.title || a.original_title || a.original_content
       );
