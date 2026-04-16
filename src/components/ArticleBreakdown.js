@@ -1,193 +1,147 @@
-import { useState, useEffect, useRef } from 'react';
+import { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useTheme } from '../contexts/ThemeContext';
-import axios from 'axios';
 import { F7Icon } from './F7Icon';
 
 const BACKEND_URL = import.meta.env.VITE_BACKEND_URL;
 
-const PILLS = [
-  { key: 'who', emoji: '👤', label: 'Who?', header: "👤 Who's in this story?" },
-  { key: 'where', emoji: '📍', label: 'Where?', header: '📍 Where is this?' },
-  { key: 'backstory', emoji: '📖', label: 'Backstory', header: '📖 The Backstory' },
-  { key: 'big_words', emoji: '💬', label: 'Big Words', header: '💬 Big Words' },
+const SECTIONS = [
+  { key: 'who', emoji: '👤', label: 'WHO' },
+  { key: 'what', emoji: '📰', label: 'WHAT' },
+  { key: 'why', emoji: '💡', label: 'WHY' },
 ];
-
-const WHATS_NEXT_PILL = { key: 'whats_next', emoji: '🔮', label: "What's Next?", header: '🔮 What Could Happen Next?' };
-
-function BigWordsContent({ text }) {
-  const lines = text.split('\n').filter(Boolean);
-  return (
-    <div>
-      {lines.map((line, i) => {
-        const colonIdx = line.indexOf(':');
-        const word = colonIdx > -1 ? line.slice(0, colonIdx).trim() : line;
-        const def = colonIdx > -1 ? line.slice(colonIdx + 1).trim() : '';
-        return (
-          <div key={i} style={{
-            padding: '12px 0',
-            borderBottom: i < lines.length - 1 ? '1px solid var(--light-gray)' : 'none',
-          }}>
-            <span style={{ fontFamily: 'var(--font)', fontSize: 15, fontWeight: 700, color: '#FF6B00' }}>
-              {word}
-            </span>
-            {def && (
-              <span style={{ fontFamily: 'var(--font)', fontSize: 15, fontWeight: 400, color: 'var(--text-color)' }}>
-                : {def}
-              </span>
-            )}
-          </div>
-        );
-      })}
-    </div>
-  );
-}
 
 export default function ArticleBreakdown({ articleId }) {
   const { ageGroup, token } = useTheme();
+  const [expanded, setExpanded] = useState(false);
   const [data, setData] = useState(null);
-  const [loading, setLoading] = useState(true);
-  const [activeKey, setActiveKey] = useState(null);
-  const scrollRef = useRef(null);
+  const [loading, setLoading] = useState(false);
+  const [hidden, setHidden] = useState(false);
 
   const showBreakdown = ageGroup === '8-10' || ageGroup === '11-13';
+  if (!showBreakdown || hidden) return null;
 
-  useEffect(() => {
-    if (!showBreakdown || !articleId) { setLoading(false); return; }
-    const headers = token ? { Authorization: `Bearer ${token}` } : {};
-    axios.get(`${BACKEND_URL}/api/article-context/${articleId}`, { headers })
-      .then(res => {
-        if (res.data?.available) setData(res.data);
-        setLoading(false);
-      })
-      .catch(() => setLoading(false));
-  }, [articleId, showBreakdown, token]);
-
-  if (!showBreakdown) return null;
-
-  if (loading) {
-    return (
-      <div ref={scrollRef} style={{
-        display: 'flex', gap: 8, padding: '16px 0', overflowX: 'auto',
-        scrollbarWidth: 'none', msOverflowStyle: 'none',
-      }}>
-        <style>{`div::-webkit-scrollbar { display: none; }`}</style>
-        {[1,2,3,4].map(i => (
-          <div key={i} className="skeleton-shimmer-light" style={{
-            height: 36, width: 100, borderRadius: 18, flexShrink: 0,
-          }} />
-        ))}
-      </div>
-    );
-  }
-
-  if (!data) return null;
-
-  const pills = [...PILLS];
-  if (data.whats_next) pills.push(WHATS_NEXT_PILL);
-
-  const activePill = pills.find(p => p.key === activeKey);
-  const modalContent = activeKey && data[activeKey];
+  const handleToggle = () => {
+    if (expanded) {
+      setExpanded(false);
+      return;
+    }
+    // Lazy load on first expand
+    if (!data && !loading) {
+      setLoading(true);
+      const hdrs = token ? { Authorization: `Bearer ${token}` } : {};
+      fetch(`${BACKEND_URL}/api/article-context/${articleId}`, { headers: hdrs })
+        .then(r => {
+          if (!r.ok) throw new Error(r.status);
+          return r.json();
+        })
+        .then(res => {
+          console.log('[ArticleContext] response:', res);
+          if (res.who || res.what || res.why) {
+            setData(res);
+            setExpanded(true);
+          } else {
+            setHidden(true);
+          }
+          setLoading(false);
+        })
+        .catch(err => {
+          console.log('[ArticleContext] error:', err);
+          setHidden(true);
+          setLoading(false);
+        });
+    } else if (data) {
+      setExpanded(true);
+    }
+  };
 
   return (
-    <>
-      {/* Pill row */}
-      <div style={{
-        display: 'flex', gap: 8, padding: '16px 0', overflowX: 'auto',
-        scrollbarWidth: 'none', msOverflowStyle: 'none',
-      }}>
-        <style>{`.breakdown-scroll::-webkit-scrollbar { display: none; }`}</style>
-        {pills.map(pill => {
-          const isActive = activeKey === pill.key;
-          return (
-            <button
-              key={pill.key}
-              onClick={() => setActiveKey(pill.key)}
-              className="cursor-pointer"
-              style={{
-                height: 36, borderRadius: 18, flexShrink: 0,
-                padding: '0 14px', display: 'flex', alignItems: 'center', gap: 4,
-                background: isActive ? '#FF6B00' : 'var(--surface)',
-                border: `1px solid ${isActive ? '#FF6B00' : 'var(--border, var(--light-gray))'}`,
-                color: isActive ? '#FFFFFF' : 'var(--text-color)',
-                fontFamily: 'var(--font)', fontSize: 13, fontWeight: 600,
-                whiteSpace: 'nowrap',
-              }}
-            >
-              {pill.emoji} {pill.label}
-            </button>
-          );
-        })}
-      </div>
+    <div style={{ margin: '20px 0' }}>
+      {/* Toggle button */}
+      <button
+        onClick={handleToggle}
+        className="cursor-pointer"
+        style={{
+          width: '100%',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'space-between',
+          padding: '14px 16px',
+          background: expanded ? '#FF6B00' : 'var(--surface)',
+          border: `1.5px solid ${expanded ? '#FF6B00' : 'var(--border, var(--light-gray))'}`,
+          borderRadius: 14,
+          fontFamily: 'var(--font)',
+          fontSize: 15,
+          fontWeight: 700,
+          color: expanded ? '#FFFFFF' : '#FF6B00',
+          transition: 'all 0.2s ease',
+        }}
+      >
+        <span style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+          🧠 Understand this story
+        </span>
+        {loading ? (
+          <span className="animate-spin" style={{
+            width: 18, height: 18, border: '2px solid currentColor',
+            borderTopColor: 'transparent', borderRadius: '50%', display: 'inline-block',
+          }} />
+        ) : (
+          <F7Icon name={expanded ? 'chevron.up' : 'chevron.down'} size={14} color={expanded ? '#FFFFFF' : '#FF6B00'} />
+        )}
+      </button>
 
-      {/* Bottom sheet modal */}
+      {/* Expanded cards */}
       <AnimatePresence>
-        {activeKey && activePill && (
-          <>
-            <motion.div
-              initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
-              onClick={() => setActiveKey(null)}
-              style={{
-                position: 'fixed', inset: 0, zIndex: 60,
-                background: 'rgba(0,0,0,0.4)',
-              }}
-            />
-            <motion.div
-              initial={{ y: '100%' }} animate={{ y: 0 }} exit={{ y: '100%' }}
-              transition={{ type: 'spring', damping: 28, stiffness: 300 }}
-              style={{
-                position: 'fixed', bottom: 0, left: 0, right: 0, zIndex: 70,
-                background: 'var(--surface)', borderRadius: '24px 24px 0 0',
-                maxHeight: '70vh', maxWidth: 430, margin: '0 auto',
-                display: 'flex', flexDirection: 'column',
-              }}
-            >
-              {/* Drag handle */}
-              <div style={{
-                width: 40, height: 5, background: 'var(--light-gray)',
-                borderRadius: 3, margin: '12px auto 0', flexShrink: 0,
-              }} />
-
-              {/* Header */}
-              <div style={{
-                display: 'flex', alignItems: 'center', justifyContent: 'space-between',
-                padding: '16px 20px 12px', flexShrink: 0,
-              }}>
-                <h3 style={{
-                  fontFamily: 'var(--font)', fontSize: 18, fontWeight: 700,
-                  color: 'var(--title-color)', margin: 0,
-                }}>
-                  {activePill.header}
-                </h3>
-                <button onClick={() => setActiveKey(null)} className="cursor-pointer"
-                  style={{
-                    width: 32, height: 32, borderRadius: '50%',
-                    background: 'var(--light-gray)', border: 'none',
-                    display: 'flex', alignItems: 'center', justifyContent: 'center',
+        {expanded && data && (
+          <motion.div
+            initial={{ height: 0, opacity: 0 }}
+            animate={{ height: 'auto', opacity: 1 }}
+            exit={{ height: 0, opacity: 0 }}
+            transition={{ duration: 0.25, ease: 'easeInOut' }}
+            style={{ overflow: 'hidden' }}
+          >
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 12, marginTop: 12 }}>
+              {SECTIONS.map(({ key, emoji, label }) => {
+                const content = data[key];
+                if (!content) return null;
+                return (
+                  <div key={key} style={{
+                    padding: '16px',
+                    background: 'var(--surface)',
+                    border: '1px solid var(--border, var(--light-gray))',
+                    borderRadius: 14,
+                    borderTop: '3px solid #FF6B00',
                   }}>
-                  <F7Icon name="xmark" size={16} color="var(--text-color)" />
-                </button>
-              </div>
-
-              {/* Body */}
-              <div style={{
-                padding: '0 20px 24px', overflowY: 'auto', flex: 1,
-              }}>
-                {activeKey === 'big_words' && modalContent ? (
-                  <BigWordsContent text={modalContent} />
-                ) : (
-                  <p style={{
-                    fontFamily: 'var(--font)', fontSize: 15, fontWeight: 400,
-                    color: 'var(--text-color)', lineHeight: 1.6, margin: 0,
-                  }}>
-                    {modalContent || 'No information available.'}
-                  </p>
-                )}
-              </div>
-            </motion.div>
-          </>
+                    <div style={{
+                      fontFamily: 'var(--font)',
+                      fontSize: 13,
+                      fontWeight: 800,
+                      color: '#FF6B00',
+                      letterSpacing: '0.05em',
+                      marginBottom: 8,
+                      display: 'flex',
+                      alignItems: 'center',
+                      gap: 6,
+                    }}>
+                      {emoji} {label}
+                    </div>
+                    <p style={{
+                      fontFamily: 'var(--font)',
+                      fontSize: 'inherit',
+                      fontWeight: 400,
+                      color: 'var(--text-color)',
+                      lineHeight: 1.65,
+                      margin: 0,
+                    }}>
+                      {content}
+                    </p>
+                  </div>
+                );
+              })}
+            </div>
+          </motion.div>
         )}
       </AnimatePresence>
-    </>
+    </div>
   );
 }
