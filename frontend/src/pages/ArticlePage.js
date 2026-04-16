@@ -12,6 +12,7 @@ import axios from 'axios';
 import { markArticleRead } from '../hooks/useReadArticles';
 import ReportFlagButton from '../components/ReportFlagButton';
 import ArticleBreakdown from '../components/ArticleBreakdown';
+import TwoTakesSection from '../components/TwoTakesSection';
 
 const BACKEND_URL = import.meta.env.VITE_BACKEND_URL;
 
@@ -257,7 +258,10 @@ export default function ArticlePage() {
           ))}
         </div>
 
-        {/* Article Breakdown pills (8-10 & 11-13 only) */}
+        {/* Two Takes (14-16 & 17-20 only) */}
+        <TwoTakesSection articleId={article.id} />
+
+        {/* Article Breakdown / Understand this story (8-10 & 11-13 only) */}
         <ArticleBreakdown articleId={article.id} />
 
         {/* Wonder Question */}
