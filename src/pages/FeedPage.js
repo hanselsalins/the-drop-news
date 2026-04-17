@@ -358,6 +358,7 @@ export default function FeedPage() {
       </div>
 
       <BottomNav active="home" />
+      <ProfileSwitcherModal open={showSwitcher} onClose={() => setShowSwitcher(false)} onPanelClose={() => {}} />
     </div>
   );
 }
