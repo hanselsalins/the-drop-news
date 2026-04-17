@@ -172,7 +172,7 @@ export const ProfileSwitcherModal = ({ open, onClose, onPanelClose }) => {
               })}
 
               {canAddProfile && (
-                <button onClick={() => { onClose(); onPanelClose(); navigate('/auth', { state: { addProfile: true } }); }}
+                <button onClick={() => { onClose(); if (onPanelClose) onPanelClose(); navigate('/profile?add=1'); }}
                   className="w-full flex items-center gap-4 p-4 rounded-2xl cursor-pointer"
                   style={{ background: 'var(--light-gray)', border: '1.5px dashed var(--accent)', borderStyle: 'dashed' }}>
                   <div className="flex-shrink-0 w-[48px] h-[48px] rounded-full flex items-center justify-center"
