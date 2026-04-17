@@ -173,6 +173,17 @@ export default function ProfilePage() {
     axios.get(`${BACKEND_URL}/api/countries`).then(r => setCountries(Array.isArray(r.data) ? r.data : [])).catch(() => {});
   }, []);
 
+  // Open Add Profile sheet when ?add=1 is in URL
+  useEffect(() => {
+    if (searchParams.get('add') === '1') {
+      setShowAddChild(true);
+      setChildForm({ name: '', age: '', country_code: user?.country_code || user?.country || 'IN', avatar_id: '' });
+      setChildError('');
+      searchParams.delete('add');
+      setSearchParams(searchParams, { replace: true });
+    }
+  }, [searchParams, user, setSearchParams]);
+
   // Fetch linked profiles for settings
   useEffect(() => {
     const fetchToken = parentToken || token;
