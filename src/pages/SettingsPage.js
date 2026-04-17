@@ -351,7 +351,7 @@ export default function ProfilePage() {
                 </button>
               );
             })}
-            <button onClick={() => { setShowAddChild(true); setChildForm({ name: '', age: '', gender: '', city: '', username: '' }); setChildError(''); }}
+            <button onClick={() => { setShowAddChild(true); setChildForm({ name: '', age: '', country_code: user?.country_code || user?.country || 'IN', avatar_id: '' }); setChildError(''); }}
               className="w-full cursor-pointer"
               style={{
                 display: 'flex', alignItems: 'center', gap: 12,
@@ -597,33 +597,49 @@ export default function ProfilePage() {
       {/* Add Child Profile Sheet */}
       <BottomSheet open={showAddChild} onClose={() => setShowAddChild(false)} title="Create New Profile">
         <p style={{ fontFamily: f, fontSize: 14, color: 'var(--text-color)', marginBottom: 16, lineHeight: 1.5 }}>
-          Set up a new child profile linked to your account.
+          Add a new profile to your account. Any age works — we'll set up the right reading level automatically.
         </p>
         {childError && <p style={{ fontFamily: f, fontSize: 13, color: '#FF3B30', marginBottom: 12 }}>{childError}</p>}
         <div className="space-y-3">
-          <input placeholder="Child's name" value={childForm.name} onChange={e => updateChild('name', e.target.value)}
+          <input placeholder="Profile name" value={childForm.name} onChange={e => updateChild('name', e.target.value)}
             className="w-full px-4 py-3 text-sm outline-none"
             style={{ fontFamily: f, background: 'var(--bg)', borderRadius: 10, border: 'none', color: 'var(--title-color)', height: 48 }} />
-          <input type="number" min="3" max="13" placeholder="Age" value={childForm.age} onChange={e => updateChild('age', e.target.value)}
+          <input type="number" min="1" max="99" placeholder="Age" value={childForm.age} onChange={e => updateChild('age', e.target.value)}
             className="w-full px-4 py-3 text-sm outline-none"
             style={{ fontFamily: f, background: 'var(--bg)', borderRadius: 10, border: 'none', color: 'var(--title-color)', height: 48 }} />
-          <div className="flex gap-2">
-            {GENDER_OPTIONS_SETTINGS.map(g => (
-              <button key={g} onClick={() => updateChild('gender', g)} className="flex-1 cursor-pointer"
+
+          {/* Country select */}
+          <div className="flex gap-2 flex-wrap">
+            {['IN', 'US', 'GB', 'AU', 'AE'].map(cc => (
+              <button key={cc} onClick={() => updateChild('country_code', cc)}
+                className="cursor-pointer"
                 style={{
-                  fontFamily: f, fontSize: 13, fontWeight: 500, height: 40, borderRadius: 10,
-                  background: childForm.gender === g ? '#FF6B00' : 'var(--bg)',
-                  color: childForm.gender === g ? '#fff' : 'var(--title-color)',
+                  fontFamily: f, fontSize: 13, fontWeight: 500, height: 40, padding: '0 14px', borderRadius: 20,
+                  background: childForm.country_code === cc ? '#FF6B00' : 'var(--bg)',
+                  color: childForm.country_code === cc ? '#fff' : 'var(--title-color)',
                   border: 'none',
-                }}>{g}</button>
+                }}>{cc}</button>
             ))}
           </div>
-          <input placeholder="City (optional)" value={childForm.city} onChange={e => updateChild('city', e.target.value)}
-            className="w-full px-4 py-3 text-sm outline-none"
-            style={{ fontFamily: f, background: 'var(--bg)', borderRadius: 10, border: 'none', color: 'var(--title-color)', height: 48 }} />
-          <input placeholder="Username (optional)" value={childForm.username} onChange={e => updateChild('username', e.target.value)}
-            className="w-full px-4 py-3 text-sm outline-none"
-            style={{ fontFamily: f, background: 'var(--bg)', borderRadius: 10, border: 'none', color: 'var(--title-color)', height: 48 }} />
+
+          {/* Avatar picker — 6 options */}
+          <div>
+            <p style={{ fontFamily: f, fontSize: 12, fontWeight: 600, color: 'var(--text-color)', textTransform: 'uppercase', letterSpacing: '0.06em', margin: '8px 0 8px' }}>Pick an avatar</p>
+            <div className="grid grid-cols-6 gap-2">
+              {['kids-b1', 'kids-b5', 'kids-g1', 'kids-g5', 'teen-b1', 'teen-g1'].map(id => {
+                const isSel = childForm.avatar_id === id;
+                return (
+                  <button key={id} onClick={() => updateChild('avatar_id', id)} className="cursor-pointer"
+                    style={{
+                      borderRadius: '50%', padding: 2, background: isSel ? '#FF6B00' : 'transparent', border: 'none',
+                      aspectRatio: '1/1', display: 'flex', alignItems: 'center', justifyContent: 'center',
+                    }}>
+                    <AvatarCircle name="" avatarId={id} size={48} bordered={false} />
+                  </button>
+                );
+              })}
+            </div>
+          </div>
         </div>
         <button onClick={handleAddChild} disabled={childLoading} className="w-full cursor-pointer"
           style={{
