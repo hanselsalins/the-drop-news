@@ -164,7 +164,7 @@ export default function ProfilePage() {
   const [settingsProfiles, setSettingsProfiles] = useState([]);
   const [switchingProfileId, setSwitchingProfileId] = useState(null);
   const [showAddChild, setShowAddChild] = useState(false);
-  const [childForm, setChildForm] = useState({ name: '', age: '', gender: '', city: '', username: '' });
+  const [childForm, setChildForm] = useState({ name: '', age: '', country_code: '', avatar_id: '' });
   const [childLoading, setChildLoading] = useState(false);
   const [childError, setChildError] = useState('');
 
@@ -210,29 +210,30 @@ export default function ProfilePage() {
 
   const handleAddChild = async () => {
     const errors = [];
-    if (!childForm.name?.trim()) errors.push("Child's name is required");
-    if (!childForm.age || parseInt(childForm.age) < 3 || parseInt(childForm.age) > 13) errors.push("Age must be between 3 and 13");
-    if (!childForm.gender) errors.push("Please select a gender");
+    if (!childForm.name?.trim()) errors.push("Profile name is required");
+    if (!childForm.age || parseInt(childForm.age) < 1) errors.push("Please enter an age");
     if (errors.length > 0) { setChildError(errors.join(', ')); return; }
     setChildLoading(true); setChildError('');
     try {
       const addToken = parentToken || token;
-      const countryCode = user?.country_code || user?.country || '';
+      const countryCode = childForm.country_code || user?.country_code || user?.country || 'IN';
       const payload = {
         child_name: childForm.name.trim(),
-        child_age: parseInt(childForm.age) || 0,
-        child_gender: childForm.gender.toLowerCase(),
-        child_city: childForm.city?.trim() || '',
+        child_age: parseInt(childForm.age),
         child_country_code: countryCode,
+        avatar_url: childForm.avatar_id || '',
       };
       const url = `${BACKEND_URL}/api/auth/add-profile`;
-      console.log('[AddChild] URL:', url);
-      console.log('[AddChild] Payload:', JSON.stringify(payload));
-      console.log('[AddChild] Auth:', addToken ? addToken.substring(0, 20) + '...' : 'NO TOKEN');
+      console.log('[AddProfile] Payload:', JSON.stringify(payload));
       const res = await axios.post(url, payload, {
         headers: { Authorization: `Bearer ${addToken}`, 'Content-Type': 'application/json' },
       });
-      console.log('[AddChild] Success:', res.data);
+      console.log('[AddProfile] Success:', res.data);
+      // Save avatar locally for the new profile id
+      const newProfileId = res.data?.id || res.data?.user?.id || res.data?.profile?.id;
+      if (newProfileId && childForm.avatar_id) {
+        localStorage.setItem(`memoji_${newProfileId}`, childForm.avatar_id);
+      }
       // Refresh profiles
       const res2 = await axios.get(`${BACKEND_URL}/api/auth/linked-profiles`, { headers: { Authorization: `Bearer ${addToken}` } });
       let fetched = Array.isArray(res2.data) ? res2.data : (res2.data?.profiles || []);
@@ -241,12 +242,11 @@ export default function ProfilePage() {
       setSettingsProfiles(combined.filter(p => { if (!p?.id || seen.has(p.id)) return false; seen.add(p.id); return true; }));
       fetchLinkedProfiles(addToken);
       setShowAddChild(false);
-      setChildForm({ name: '', age: '', gender: '', city: '', username: '' });
+      setChildForm({ name: '', age: '', country_code: '', avatar_id: '' });
     } catch (e) {
-      console.error('[AddChild] Error status:', e.response?.status);
-      console.error('[AddChild] Error data:', JSON.stringify(e.response?.data));
+      console.error('[AddProfile] Error status:', e.response?.status);
+      console.error('[AddProfile] Error data:', JSON.stringify(e.response?.data));
       if (e.response?.status === 401) {
-        console.error('[AddChild] Token expired — redirecting to login');
         logout();
         navigate('/auth');
         return;
