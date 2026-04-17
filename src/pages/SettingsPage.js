@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useSearchParams } from 'react-router-dom';
 import { useTheme } from '../contexts/ThemeContext';
 import { useNotifications } from '../hooks/useNotifications';
 import { usePushNotifications } from '../hooks/usePushNotifications';
@@ -130,6 +130,7 @@ const AGE_BAND_FOR_AGE = (age) => {
 
 export default function ProfilePage() {
   const navigate = useNavigate();
+  const [searchParams, setSearchParams] = useSearchParams();
   const { user, setUserData, token, ageGroup, logout, darkMode, toggleDarkMode, linkedProfiles, parentToken, setToken, setParentToken, fetchLinkedProfiles } = useTheme();
   const { permission, requestPermission } = useNotifications();
   const { isSupported: pushSupported, isSubscribed, subscribe: pushSubscribe, unsubscribe: pushUnsubscribe, isLoading: pushLoading } = usePushNotifications();
