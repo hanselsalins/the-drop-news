@@ -15,6 +15,7 @@ import { StreakCelebration } from '../components/StreakCelebration';
 import { useReadArticles } from '../hooks/useReadArticles';
 import BreakingNewsCarousel from '../components/BreakingNewsCarousel';
 import TwoTakesFeedStrip from '../components/TwoTakesFeedStrip';
+import { ProfileSwitcherModal } from '../components/ProfileSwitcherModal';
 import { PushPromptCard } from '../components/PushPromptCard';
 import { usePushNotifications } from '../hooks/usePushNotifications';
 import { motion } from 'framer-motion';
@@ -35,6 +36,7 @@ export default function FeedPage() {
   const [showCelebration, setShowCelebration] = useState(false);
   const [isRefreshing, setIsRefreshing] = useState(false);
   const [refreshSpin, setRefreshSpin] = useState(false);
+  const [showSwitcher, setShowSwitcher] = useState(false);
 
   // Sticky header state
   const [activeSectionTitle, setActiveSectionTitle] = useState('');
@@ -232,8 +234,8 @@ export default function FeedPage() {
         padding: '0 16px',
         transition: 'border-color 0.2s ease',
       }}>
-        {/* LEFT: Profile avatar */}
-        <ProfileButton size={36} bordered />
+        {/* LEFT: Profile avatar — opens profile switcher */}
+        <ProfileButton size={36} bordered onClick={() => setShowSwitcher(true)} />
 
         {/* CENTRE: Section title */}
         <span style={{
