@@ -556,10 +556,10 @@ function ChildProfileModal({ parentDetails, parentTokenLocal, childAge, parentCo
     console.log('[ChildProfileModal] parentDetails:', JSON.stringify(parentDetails));
     console.log('[ChildProfileModal] parentCountry:', parentCountry);
 
-    // Client-side validation for child fields only
+    // Client-side validation for child fields only — any age is valid
     const valErrors = [];
     if (!form.name || !form.name.trim()) valErrors.push("Child's name is required");
-    if (!form.age || parseInt(form.age) < 3 || parseInt(form.age) > 13) valErrors.push("Age must be between 3 and 13");
+    if (!form.age || parseInt(form.age) < 1) valErrors.push("Please enter an age");
     if (!form.gender) valErrors.push("Please select a gender");
     if (valErrors.length > 0) { setLocalError(valErrors.join(', ')); return; }
     setLoading(true); setLocalError('');
@@ -670,7 +670,7 @@ function ChildProfileModal({ parentDetails, parentTokenLocal, childAge, parentCo
           </div>
           <div>
             <label style={{ fontFamily: 'var(--font)', fontSize: 13, fontWeight: 500, color: 'rgba(255,255,255,0.5)', marginBottom: 6, display: 'block' }}>Age</label>
-            <input type="number" min="5" max="17" placeholder="Child's age" value={form.age}
+            <input type="number" min="1" max="99" placeholder="Child's age" value={form.age}
               onChange={e => u('age', e.target.value)}
               className={inputClass} style={{ ...inputStyle, background: 'rgba(255,255,255,0.08)', color: '#fff' }} />
           </div>
