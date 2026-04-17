@@ -144,17 +144,14 @@ export const ProfileSwitcherModal = ({ open, onClose, onPanelClose }) => {
                       border: isActive ? '1.5px solid rgba(255,107,0,0.3)' : '1.5px solid transparent',
                       opacity: isSwitching ? 0.5 : 1,
                     }}>
-                    <AvatarCircle name={profile.full_name} avatarId={getSavedAvatarId(profile.id)} size={52} />
+                    <AvatarCircle name={profile.full_name} avatarId={getSavedAvatarId(profile.id) || profile.avatar_url} size={52} />
                     <div className="flex-1 text-left min-w-0">
                       <p style={{ fontFamily: 'var(--font)', fontSize: 15, fontWeight: 500, color: 'var(--title-color)' }}>
                         {profile.full_name}
                       </p>
-                      <span style={{
-                        fontFamily: 'var(--font)', fontSize: 11, fontWeight: 500,
-                        color: 'var(--accent)', display: 'inline-block', marginTop: 2,
-                      }}>
-                        {profBadge.label}
-                      </span>
+                      <p style={{ fontFamily: 'var(--font)', fontSize: 12, color: 'var(--text-color)', marginTop: 2 }}>
+                        {profile.age ? `Age ${profile.age}` : ''}{profile.age && profile.age_group ? ' · ' : ''}{profile.age_group ? `Band ${profile.age_group}` : ''}
+                      </p>
                     </div>
                     {isActive ? (
                       <div className="flex-shrink-0 w-7 h-7 rounded-full flex items-center justify-center"
@@ -175,7 +172,7 @@ export const ProfileSwitcherModal = ({ open, onClose, onPanelClose }) => {
               })}
 
               {canAddProfile && (
-                <button onClick={() => { onClose(); onPanelClose(); navigate('/auth', { state: { addProfile: true } }); }}
+                <button onClick={() => { onClose(); if (onPanelClose) onPanelClose(); navigate('/profile?add=1'); }}
                   className="w-full flex items-center gap-4 p-4 rounded-2xl cursor-pointer"
                   style={{ background: 'var(--light-gray)', border: '1.5px dashed var(--accent)', borderStyle: 'dashed' }}>
                   <div className="flex-shrink-0 w-[48px] h-[48px] rounded-full flex items-center justify-center"
