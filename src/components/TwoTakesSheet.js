@@ -1,25 +1,26 @@
 import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
+import { useTheme } from '../contexts/ThemeContext';
 import { F7Icon } from './F7Icon';
 
-const API_BASE = import.meta.env.VITE_API_URL || '';
+const BACKEND_URL = import.meta.env.VITE_BACKEND_URL;
 
 const FORMAT_SUBTITLES = {
-  two_sides: 'Two positions. You decide.',
-  two_voices: 'Two experiences of the same story.',
-  two_wonders: 'Two reasons this matters.',
-  two_worlds: 'Near and far.',
-  two_futures: 'Two paths forward.',
-  two_lenses: 'Two ways of seeing.',
+  agree_disagree: 'Two positions. You decide.',
+  pro_con: 'Weigh the trade-offs.',
+  then_now: 'How things have changed.',
+  local_global: 'Near and far.',
+  simple_complex: 'Two depths of the same story.',
+  emotional_logical: 'Heart and head.',
 };
 
 const FORMAT_ACCENTS = {
-  two_sides: ['#3A86FF', '#FF6B00'],
-  two_voices: ['#9146DA', '#9146DA'],
-  two_wonders: ['#00E5CC', '#00E5CC'],
-  two_worlds: ['#3A86FF', '#39FF14'],
-  two_futures: ['#39FF14', '#fca5a5'],
-  two_lenses: ['#FFD60A', '#9146DA'],
+  agree_disagree: ['#3A86FF', '#FF6B00'],
+  pro_con: ['#10B981', '#EF4444'],
+  then_now: ['#8B5CF6', '#F59E0B'],
+  local_global: ['#06B6D4', '#EC4899'],
+  simple_complex: ['#3B82F6', '#6366F1'],
+  emotional_logical: ['#F43F5E', '#0EA5E9'],
 };
 
 const SkeletonCards = () => (
@@ -38,7 +39,7 @@ const SkeletonCards = () => (
   </div>
 );
 
-const TakeCard = ({ card, accent }) => (
+const TakeCard = ({ text, accent }) => (
   <div style={{
     flex: 1,
     background: 'var(--bg)',
@@ -49,43 +50,54 @@ const TakeCard = ({ card, accent }) => (
     minWidth: 0,
   }}>
     <p style={{
-      fontSize: 13, fontWeight: 700, color: 'var(--title-color)',
-      margin: '0 0 8px', fontFamily: 'var(--font)',
-    }}>
-      {card.title}
-    </p>
-    <p style={{
       fontSize: 14, color: 'var(--text-color)', lineHeight: 1.6,
       margin: 0, fontFamily: 'var(--font)',
     }}>
-      {card.body}
+      {text}
     </p>
   </div>
 );
 
 export const TwoTakesSheet = ({ open, onClose }) => {
+  const { ageGroup, countryCode, token } = useTheme();
   const [loading, setLoading] = useState(true);
   const [data, setData] = useState(null);
+  const [articleTitle, setArticleTitle] = useState('');
   const [empty, setEmpty] = useState(false);
 
   useEffect(() => {
     if (!open) return;
     setLoading(true);
     setData(null);
+    setArticleTitle('');
     setEmpty(false);
 
-    fetch(`${API_BASE}/api/two-takes`)
-      .then(r => r.json())
-      .then(d => {
-        if (!d || !d.card_a) {
-          setEmpty(true);
+    const band = ageGroup || '17-20';
+    const cc = countryCode || 'IN';
+    const url = `${BACKEND_URL}/api/two-takes?country_code=${cc}&age_group=${band}&_t=${Date.now()}`;
+    const hdrs = token ? { Authorization: `Bearer ${token}` } : {};
+
+    console.log('[TwoTakesSheet] Fetching:', url);
+
+    fetch(url, { headers: hdrs })
+      .then(r => r.ok ? r.json() : Promise.reject(r.status))
+      .then(res => {
+        console.log('[TwoTakesSheet] Response:', res);
+        const articles = res?.articles || [];
+        const match = articles.find(a => a.two_takes);
+        if (match?.two_takes) {
+          setData(match.two_takes);
+          setArticleTitle(match.title || '');
         } else {
-          setData(d);
+          setEmpty(true);
         }
       })
-      .catch(() => setEmpty(true))
+      .catch(err => {
+        console.log('[TwoTakesSheet] Error:', err);
+        setEmpty(true);
+      })
       .finally(() => setLoading(false));
-  }, [open]);
+  }, [open, ageGroup, countryCode, token]);
 
   const accents = data ? (FORMAT_ACCENTS[data.format] || ['#3A86FF', '#FF6B00']) : [];
   const subtitle = data ? (FORMAT_SUBTITLES[data.format] || '') : '';
@@ -151,6 +163,15 @@ export const TwoTakesSheet = ({ open, onClose }) => {
                     {subtitle}
                   </p>
                 )}
+                {articleTitle && (
+                  <p style={{
+                    fontSize: 12, color: 'var(--text-color)', opacity: 0.7,
+                    margin: '6px 0 0', fontFamily: 'var(--font)',
+                    fontStyle: 'italic',
+                  }}>
+                    On: {articleTitle}
+                  </p>
+                )}
                 <div style={{ height: 1, background: 'var(--light-gray)', marginTop: 14 }} />
               </div>
 
@@ -162,19 +183,20 @@ export const TwoTakesSheet = ({ open, onClose }) => {
 
                 {!loading && empty && (
                   <div style={{ textAlign: 'center', padding: '32px 0' }}>
+                    <span style={{ fontSize: 32 }}>⚖️</span>
                     <p style={{
                       fontSize: 14, color: 'var(--text-color)',
-                      fontFamily: 'var(--font)', margin: 0,
+                      fontFamily: 'var(--font)', margin: '12px 0 0',
                     }}>
-                      Check back after 7am — your Two Takes is being prepared ✨
+                      No Two Takes available right now.
                     </p>
                   </div>
                 )}
 
                 {!loading && data && (
                   <div style={{ display: 'flex', gap: 12, flexWrap: 'wrap' }}>
-                    <TakeCard card={data.card_a} accent={accents[0]} />
-                    <TakeCard card={data.card_b} accent={accents[1]} />
+                    <TakeCard text={data.card_a} accent={accents[0]} />
+                    <TakeCard text={data.card_b} accent={accents[1]} />
                   </div>
                 )}
               </div>
