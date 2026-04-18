@@ -283,10 +283,6 @@ export default function FeedPage() {
             <BreakingNewsCarousel />
           </div>
         )}
-
-        {/* ── TWO TAKES STRIP (14-16 & 17-20 only) ── */}
-        {activeCategory === 'today' && <TwoTakesFeedStrip />}
-
         {/* ── CATEGORY TABS ── */}
         <div style={{ padding: '0 15px' }}>
           <div data-section-title="Categories">
