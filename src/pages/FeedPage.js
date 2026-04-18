@@ -14,7 +14,7 @@ import { SkeletonTabs } from '../components/SkeletonTabs';
 import { StreakCelebration } from '../components/StreakCelebration';
 import { useReadArticles } from '../hooks/useReadArticles';
 import BreakingNewsCarousel from '../components/BreakingNewsCarousel';
-import TwoTakesFeedStrip from '../components/TwoTakesFeedStrip';
+
 import { ProfileSwitcherModal } from '../components/ProfileSwitcherModal';
 import { PushPromptCard } from '../components/PushPromptCard';
 import { usePushNotifications } from '../hooks/usePushNotifications';
@@ -283,10 +283,6 @@ export default function FeedPage() {
             <BreakingNewsCarousel />
           </div>
         )}
-
-        {/* ── TWO TAKES STRIP (14-16 & 17-20 only) ── */}
-        {activeCategory === 'today' && <TwoTakesFeedStrip />}
-
         {/* ── CATEGORY TABS ── */}
         <div style={{ padding: '0 15px' }}>
           <div data-section-title="Categories">
