@@ -5,27 +5,21 @@ import { F7Icon } from './F7Icon';
 import { light } from '../lib/haptic';
 import { motion, AnimatePresence } from 'framer-motion';
 import { DidYouKnowSheet } from './DidYouKnowSheet';
-import { TwoTakesSheet } from './TwoTakesSheet';
 
 export const BottomNav = ({ active = 'home' }) => {
   const navigate = useNavigate();
   const { darkMode, band } = useTheme();
   const [searchOpen, setSearchOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
-  const [dropModalOpen, setDropModalOpen] = useState(false);
   const [didYouKnowOpen, setDidYouKnowOpen] = useState(false);
 
   const isYounger = band === 'big-bold-bright' || band === 'cool-connected';
 
-  const isOlder = band === 'sharp-aware' || band === 'editorial';
-
   const handleDropTap = useCallback(() => {
     if (isYounger) {
       setDidYouKnowOpen(true);
-    } else if (isOlder) {
-      setDropModalOpen(true);
     }
-  }, [isYounger, isOlder]);
+  }, [isYounger]);
 
   const items = [
     { id: 'home', icon: 'house_fill', action: () => navigate('/feed') },
@@ -138,9 +132,6 @@ export const BottomNav = ({ active = 'home' }) => {
           </>
         )}
       </AnimatePresence>
-
-      {/* Two Takes sheet for older bands */}
-      <TwoTakesSheet open={dropModalOpen} onClose={() => setDropModalOpen(false)} />
 
       {/* Did You Know sheet for younger bands */}
       <DidYouKnowSheet open={didYouKnowOpen} onClose={() => setDidYouKnowOpen(false)} />

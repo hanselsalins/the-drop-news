@@ -14,7 +14,7 @@ import { SkeletonTabs } from '../components/SkeletonTabs';
 import { StreakCelebration } from '../components/StreakCelebration';
 import { useReadArticles } from '../hooks/useReadArticles';
 import BreakingNewsCarousel from '../components/BreakingNewsCarousel';
-import TwoTakesFeedStrip from '../components/TwoTakesFeedStrip';
+
 import { ProfileSwitcherModal } from '../components/ProfileSwitcherModal';
 import { PushPromptCard } from '../components/PushPromptCard';
 import { usePushNotifications } from '../hooks/usePushNotifications';
