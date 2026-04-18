@@ -44,6 +44,7 @@ export default function TwoTakesSection({ articleId }) {
 
   return (
     <div
+      data-two-takes
       style={{ margin: '24px 0', animation: 'twoTakesFadeIn 0.5s ease-out both' }}
     >
       <style>{`
