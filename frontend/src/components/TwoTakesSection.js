@@ -43,7 +43,19 @@ export default function TwoTakesSection({ articleId }) {
   const colors = FORMAT_COLORS[data.format] || ['#3A86FF', '#FF6B00'];
 
   return (
-    <div style={{ margin: '24px 0' }}>
+    <div
+      data-two-takes
+      style={{ margin: '24px 0', animation: 'twoTakesFadeIn 0.5s ease-out both' }}
+    >
+      <style>{`
+        @keyframes twoTakesFadeIn {
+          from { opacity: 0; transform: translateY(8px); }
+          to { opacity: 1; transform: translateY(0); }
+        }
+        @media (prefers-reduced-motion: reduce) {
+          [data-two-takes] { animation: none !important; }
+        }
+      `}</style>
       {/* Format label */}
       {data.label && (
         <p style={{
